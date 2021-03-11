@@ -1,0 +1,159 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Your super  ApplicationAPI",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/v1/members": {
+            "post": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "회원가입",
+                "description": "회원가입",
+                "operationId": "memberSignIn",
+                "requestBody": {
+                    "description": "",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "passwordConfirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "description": "이름",
+                                        "type": "string",
+                                        "example": "홍길동"
+                                    },
+                                    "email": {
+                                        "description": "이메일",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "abcd@davinci.com"
+                                    },
+                                    "password": {
+                                        "description": "비밀번호",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "1234qwer"
+                                    },
+                                    "passwordConfirmation": {
+                                        "description": "비밀번호 재확인",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "1234qwer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successfully registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "no": {
+                                            "description": "회원번호",
+                                            "type": "integer",
+                                            "example": "14"
+                                        },
+                                        "name": {
+                                            "description": "이름",
+                                            "type": "string",
+                                            "example": "홍길동"
+                                        },
+                                        "email": {
+                                            "description": "이메일",
+                                            "type": "string",
+                                            "format": "email",
+                                            "example": "abcd@davinci.com"
+                                        },
+                                        "emailVerifiedDate": {
+                                            "description": "이메일 인증일자",
+                                            "type": "string",
+                                            "format": "timezone",
+                                            "example": "null"
+                                        },
+                                        "regDate": {
+                                            "description": "가입일자",
+                                            "type": "string",
+                                            "format": "timezone",
+                                            "example": "2021-03-10T00:25:31+00:00"
+                                        },
+                                        "uptDate": {
+                                            "description": "수정일자",
+                                            "type": "string",
+                                            "format": "timezone",
+                                            "example": "2021-03-10T00:25:31+00:00"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "failed registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "statusCode": {
+                                                    "properties": {
+                                                        "10000": {
+                                                            "properties": {
+                                                                "key": {
+                                                                    "description": "name",
+                                                                    "type": "string",
+                                                                    "example": "name"
+                                                                },
+                                                                "message": {
+                                                                    "description": "name 필드는 필수값입니다.",
+                                                                    "type": "string",
+                                                                    "example": "The name field is required."
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Commons",
+            "description": "공통 관련"
+        },
+        {
+            "name": "Members",
+            "description": "회원 관련"
+        }
+    ],
+    "security": [
+        []
+    ]
+}

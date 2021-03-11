@@ -175,6 +175,11 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        /*
+         * Laravel Framework Service Providers...
+         */
+        L5Swagger\L5SwaggerServiceProvider::class,
+
     ],
 
     /*

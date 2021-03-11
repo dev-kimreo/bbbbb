@@ -14,5 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+//    echo __('Already registered?');
+//    echo Hash::make('rlancl15');
     return view('welcome');
 });

@@ -1,0 +1,21 @@
+2021-03-04 05:12:32,514 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2021-03-04 05:12:32,524 INFO RPC interface 'supervisor' initialized
+2021-03-04 05:12:32,525 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2021-03-04 05:12:32,527 INFO daemonizing the supervisord process
+2021-03-04 05:12:32,550 INFO supervisord started with pid 19
+2021-03-04 05:12:33,553 INFO spawned: 'php-fpm' with pid 21
+2021-03-04 05:12:34,634 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2021-03-04 05:14:59,916 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2021-03-04 05:14:59,928 INFO RPC interface 'supervisor' initialized
+2021-03-04 05:14:59,931 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2021-03-04 05:14:59,935 INFO daemonizing the supervisord process
+2021-03-04 05:14:59,938 INFO supervisord started with pid 19
+2021-03-04 05:15:00,941 INFO spawned: 'php-fpm' with pid 21
+2021-03-04 05:15:02,029 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2021-03-05 04:43:59,923 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2021-03-05 04:43:59,937 INFO RPC interface 'supervisor' initialized
+2021-03-05 04:43:59,938 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2021-03-05 04:43:59,940 INFO daemonizing the supervisord process
+2021-03-05 04:43:59,951 INFO supervisord started with pid 28
+2021-03-05 04:44:00,954 INFO spawned: 'php-fpm' with pid 42
+2021-03-05 04:44:02,000 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
