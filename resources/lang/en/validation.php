@@ -131,8 +131,10 @@ return [
     */
 
     'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
+        'password' => [
+            'combination' => 'The password special letters, alphabets, and numbers must be combined.',
+            'continue' => 'The password cannot be used 4 times consecutively with the same characters as consecutive characters.',
+            'empty' => 'The password cannot contain space characters.',
         ],
     ],
 

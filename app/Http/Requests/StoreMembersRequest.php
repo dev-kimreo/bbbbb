@@ -41,7 +41,7 @@ class StoreMembersRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => getResponseError(10000),
+            'email.unique' => getErrorCode(10000),
 //            'name.between' => json_encode([
 //                'code' => 20001,
 //                'message' => __('validation.required')
@@ -55,28 +55,8 @@ class StoreMembersRequest extends FormRequest
     }
 //
     protected function failedValidation(Validator $validator) {
-        $erros = $validator->errors()->toArray();
-
-        $resErr = array();
-
-        foreach ($erros as $key => $err) {
-
-            $msg = array_shift($err);
-
-            $errArrs = json_decode($msg, true);
-
-            if (is_array($errArrs)) {
-                $resErr['statusCode'][$errArrs['code']] = array(
-                    'key' => $key,
-                    'message' => $errArrs['message']
-                );
-            } else {
-                $resErr[$key] = $msg;
-            }
-
-        }
-
-        throw new HttpResponseException(response()->json(['errors' => $resErr], 422));
+        $resErr = getValidationErrToArr($validator->errors());
+        throw new HttpResponseException(response()->json($resErr, 422));
     }
 
 

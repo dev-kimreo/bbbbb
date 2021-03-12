@@ -113,16 +113,61 @@
                                                 "statusCode": {
                                                     "properties": {
                                                         "10000": {
+                                                            "description": "이미 사용중인 email 이 있습니다.",
                                                             "properties": {
                                                                 "key": {
-                                                                    "description": "name",
+                                                                    "description": "email",
                                                                     "type": "string",
-                                                                    "example": "name"
+                                                                    "example": "email"
                                                                 },
                                                                 "message": {
-                                                                    "description": "name 필드는 필수값입니다.",
                                                                     "type": "string",
                                                                     "example": "The name field is required."
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "10101": {
+                                                            "description": "password 는 특수문자, 알파벳, 숫자 3가지가 조합되어야 합니다.",
+                                                            "properties": {
+                                                                "key": {
+                                                                    "description": "password",
+                                                                    "type": "string",
+                                                                    "example": "password"
+                                                                },
+                                                                "message": {
+                                                                    "type": "string",
+                                                                    "example": "The password special letters, alphabets, and numbers must be combined."
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "10102": {
+                                                            "description": "password 는 연속 된 문자와 동일한 문자로 4 회 연속 사용할 수 없습니다.",
+                                                            "properties": {
+                                                                "key": {
+                                                                    "description": "password",
+                                                                    "type": "string",
+                                                                    "example": "password"
+                                                                },
+                                                                "message": {
+                                                                    "type": "string",
+                                                                    "example": "The password cannot be used 4 times consecutively with the same characters as consecutive characters."
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "10103": {
+                                                            "description": "password 는 공백문자를 포함할 수 없습니다.",
+                                                            "properties": {
+                                                                "key": {
+                                                                    "description": "password",
+                                                                    "type": "string",
+                                                                    "example": "password"
+                                                                },
+                                                                "message": {
+                                                                    "type": "string",
+                                                                    "example": "The password cannot contain space characters."
                                                                 }
                                                             },
                                                             "type": "object"

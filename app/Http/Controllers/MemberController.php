@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Flight;
 use Validator;
 use Carbon\Carbon;
+use Hash;
 
 
 class MemberController extends Controller
@@ -66,17 +67,65 @@ class MemberController extends Controller
      *              @OA\Property(
      *                  property="10000",
      *                  type="object",
+     *                  description="이미 사용중인 email 이 있습니다.",
      *                  @OA\Property(
      *                      property="key",
      *                      type="string",
-     *                      description="name",
-     *                      example="name",
+     *                      description="email",
+     *                      example="email",
      *                  ),
      *                  @OA\Property(
      *                      property="message",
      *                      type="string",
-     *                      description="name 필드는 필수값입니다.",
      *                      example="The name field is required.",
+     *                  ),
+     *              ),
+     *              @OA\Property(
+     *                  property="10101",
+     *                  type="object",
+     *                  description="password 는 특수문자, 알파벳, 숫자 3가지가 조합되어야 합니다.",
+     *                  @OA\Property(
+     *                      property="key",
+     *                      type="string",
+     *                      description="password",
+     *                      example="password",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="message",
+     *                      type="string",
+     *                      example="The password special letters, alphabets, and numbers must be combined.",
+     *                  ),
+     *              ),
+     *              @OA\Property(
+     *                  property="10102",
+     *                  type="object",
+     *                  description="password 는 연속 된 문자와 동일한 문자로 4 회 연속 사용할 수 없습니다.",
+     *                  @OA\Property(
+     *                      property="key",
+     *                      type="string",
+     *                      description="password",
+     *                      example="password",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="message",
+     *                      type="string",
+     *                      example="The password cannot be used 4 times consecutively with the same characters as consecutive characters.",
+     *                  ),
+     *              ),
+     *              @OA\Property(
+     *                  property="10103",
+     *                  type="object",
+     *                  description="password 는 공백문자를 포함할 수 없습니다.",
+     *                  @OA\Property(
+     *                      property="key",
+     *                      type="string",
+     *                      description="password",
+     *                      example="password",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="message",
+     *                      type="string",
+     *                      example="The password cannot contain space characters.",
      *                  ),
      *              ),
      *          )
@@ -91,10 +140,50 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(StoreMembersRequest $request) {
-        echo $request->password;
+    public function register(StoreMembersRequest $request) {//
+        /**
+         * 비밀번호 패턴 체크
+         */
+        $chkPasswordRes = checkPwdPattern($request->password);
+        if (!$chkPasswordRes['combination']) {  // 특수문자, 문자, 숫자 포함 체크
+            return response()->json(getResponseError(10101, 'password'), 422);
+        } else if (!$chkPasswordRes['continue']) {  // 연속된 문자, 동일한 문자 연속 체크
+            return response()->json(getResponseError(10102, 'password'), 422);
+        } else if (!$chkPasswordRes['empty']) { // 공백 문자 체크
+            return response()->json(getResponseError(10103, 'password'), 422);
+        }
 
-//
+        /**
+         * 비밀번호와 아이디 동일 여부 체크
+         */
+
+        print_r($request->all());
+
+
+
+
+//        var_dump(checkPwdPattern('aaaa'));
+//        var_dump(checkPwdPattern('aabb'));
+//        var_dump(checkPwdPattern('adbc'));
+//        var_dump(checkPwdPattern('dcba'));
+//        var_dump(checkPwdPattern('1234'));
+//        var_dump(checkPwdPattern('1111'));
+//        var_dump(checkPwdPattern('1122'));
+//        var_dump(checkPwdPattern('1324'));
+//        var_dump(checkPwdPattern('4321'));
+
+//        var_dump(similar_text('abcde', 'a1b3e', $perc));
+//        var_dump($perc);
+
+//        var_dump($aaa);
+
+
+
+
+//        var_dump(preg_match('/[0-9]{4}[a-z]{4}/i', $request->password));
+//        if (preg_match("/(\w)\\1\\1\\1/", $request->password)) {
+//            echo 'asdasd';
+//        }
 //        $member = User::create(array_merge(
 //            $request->all(),
 //            ['password' => bcrypt($request->password)]
