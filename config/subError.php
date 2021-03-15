@@ -14,6 +14,8 @@ return [
     10102 => 'validation.custom.password.continue',  // 연속된 문자, 동일한 문자 연속 체크
     10103 => 'validation.custom.password.empty',  // 공백 문자 체크
 
+    10111 => 'validation.custom.password.same_email',  // 비밀번호가 아이디와 4자이상 동일 할 경우
+
 
 
 ];

@@ -79,7 +79,6 @@ if (!function_exists('makeResponseErrors')) {
 }
 
 
-
 if (!function_exists('checkPwdPattern')) {
     function checkPwdPattern (string $str) {
 
@@ -120,5 +119,18 @@ if (!function_exists('checkPwdPattern')) {
         $res['empty'] = $emptyFlag;
 
         return $res;
+    }
+}
+
+if (!function_exists('checkPwdSameId')) {
+    function checkPwdSameId($pwd, $email) {
+        $id = explode('@', $email)[0];
+        $pwdLen = strlen($pwd);
+        for ($i=0; $i<$pwdLen-3; $i++) {
+            if (strpos($id, substr($pwd, $i, 4)) !== false ) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -77,7 +77,6 @@ class MemberController extends Controller
      *                  @OA\Property(
      *                      property="message",
      *                      type="string",
-     *                      example="The name field is required.",
      *                  ),
      *              ),
      *              @OA\Property(
@@ -93,7 +92,6 @@ class MemberController extends Controller
      *                  @OA\Property(
      *                      property="message",
      *                      type="string",
-     *                      example="The password special letters, alphabets, and numbers must be combined.",
      *                  ),
      *              ),
      *              @OA\Property(
@@ -109,7 +107,6 @@ class MemberController extends Controller
      *                  @OA\Property(
      *                      property="message",
      *                      type="string",
-     *                      example="The password cannot be used 4 times consecutively with the same characters as consecutive characters.",
      *                  ),
      *              ),
      *              @OA\Property(
@@ -125,7 +122,21 @@ class MemberController extends Controller
      *                  @OA\Property(
      *                      property="message",
      *                      type="string",
-     *                      example="The password cannot contain space characters.",
+     *                  ),
+     *              ),
+     *              @OA\Property(
+     *                  property="10111",
+     *                  type="object",
+     *                  description="password 는 email과 4자 이상 동일 할 수 없습니다.",
+     *                  @OA\Property(
+     *                      property="key",
+     *                      type="string",
+     *                      description="password",
+     *                      example="password",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="message",
+     *                      type="string",
      *                  ),
      *              ),
      *          )
@@ -156,43 +167,20 @@ class MemberController extends Controller
         /**
          * 비밀번호와 아이디 동일 여부 체크
          */
+        $chkPwdSameIdRes = checkPwdSameId($request->password, $request->email);
+        if (!$chkPwdSameIdRes) {
+            return response()->json(getResponseError(10111, 'password'), 422);
+        }
 
-        print_r($request->all());
+        $member = User::create(array_merge(
+            $request->all(),
+            ['password' => hash::make($request->password)]
+        ));
 
-
-
-
-//        var_dump(checkPwdPattern('aaaa'));
-//        var_dump(checkPwdPattern('aabb'));
-//        var_dump(checkPwdPattern('adbc'));
-//        var_dump(checkPwdPattern('dcba'));
-//        var_dump(checkPwdPattern('1234'));
-//        var_dump(checkPwdPattern('1111'));
-//        var_dump(checkPwdPattern('1122'));
-//        var_dump(checkPwdPattern('1324'));
-//        var_dump(checkPwdPattern('4321'));
-
-//        var_dump(similar_text('abcde', 'a1b3e', $perc));
-//        var_dump($perc);
-
-//        var_dump($aaa);
-
-
-
-
-//        var_dump(preg_match('/[0-9]{4}[a-z]{4}/i', $request->password));
-//        if (preg_match("/(\w)\\1\\1\\1/", $request->password)) {
-//            echo 'asdasd';
-//        }
-//        $member = User::create(array_merge(
-//            $request->all(),
-//            ['password' => bcrypt($request->password)]
-//        ));
-//
-//        return response()->json([
-//            'message' => __('member.registered'),
-//            'member' => $member
-//        ], 200);
+        return response()->json([
+            'message' => __('member.registered'),
+            'member' => $member
+        ], 200);
     }
 
 

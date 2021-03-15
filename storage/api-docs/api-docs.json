@@ -121,8 +121,7 @@
                                                                     "example": "email"
                                                                 },
                                                                 "message": {
-                                                                    "type": "string",
-                                                                    "example": "The name field is required."
+                                                                    "type": "string"
                                                                 }
                                                             },
                                                             "type": "object"
@@ -136,8 +135,7 @@
                                                                     "example": "password"
                                                                 },
                                                                 "message": {
-                                                                    "type": "string",
-                                                                    "example": "The password special letters, alphabets, and numbers must be combined."
+                                                                    "type": "string"
                                                                 }
                                                             },
                                                             "type": "object"
@@ -151,8 +149,7 @@
                                                                     "example": "password"
                                                                 },
                                                                 "message": {
-                                                                    "type": "string",
-                                                                    "example": "The password cannot be used 4 times consecutively with the same characters as consecutive characters."
+                                                                    "type": "string"
                                                                 }
                                                             },
                                                             "type": "object"
@@ -166,8 +163,21 @@
                                                                     "example": "password"
                                                                 },
                                                                 "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "10111": {
+                                                            "description": "password 는 email과 4자 이상 동일 할 수 없습니다.",
+                                                            "properties": {
+                                                                "key": {
+                                                                    "description": "password",
                                                                     "type": "string",
-                                                                    "example": "The password cannot contain space characters."
+                                                                    "example": "password"
+                                                                },
+                                                                "message": {
+                                                                    "type": "string"
                                                                 }
                                                             },
                                                             "type": "object"

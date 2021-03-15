@@ -135,6 +135,8 @@ return [
             'combination' => 'The password special letters, alphabets, and numbers must be combined.',
             'continue' => 'The password cannot be used 4 times consecutively with the same characters as consecutive characters.',
             'empty' => 'The password cannot contain space characters.',
+
+            'same_email' => 'The password cannot be the same as the email with more than 4 characters.',
         ],
     ],
 
