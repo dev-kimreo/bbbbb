@@ -29,6 +29,31 @@ use Illuminate\Routing\Controller as BaseController;
  * )
  *
  *
+ *
+ */
+
+
+/**
+ * @OA\SecurityScheme(
+ *   securityScheme="davinci_auth",
+ *   type="http",
+ *   scheme="bearer"
+ * )
+ */
+
+/**
+ * @OA\SecurityScheme(
+ *   securityScheme="sample_auth",
+ *   type="oauth2",
+ *   @OA\Flow(
+ *      authorizationUrl="http://petstore.swagger.io/oauth/dialog",
+ *      flow="implicit",
+ *      scopes={
+ *         "read:pets": "read your pets",
+ *         "write:pets": "modify pets in your account"
+ *      }
+ *   )
+ * )
  */
 
 class Controller extends BaseController

@@ -19,6 +19,9 @@ Route::group([
     'middleware' => 'api',
 ], function ($router) {
 
+    // 이메일 인증 route
+    Route::get('/verification.verify/{id}', [MemberController::class, 'verification'])->name('verification.verify');
+
     Route::group([
         'prefix' => 'v1'
     ], function ($router){
@@ -27,8 +30,23 @@ Route::group([
             'prefix' => 'member'
         ], function ($router){
             Route::post('', [MemberController::class, 'register']);
-            Route::get('/user-profile', [MemberController::class, 'userProfile']);
+            Route::get('', [MemberController::class, 'info']);
+
+            Route::delete('/auth', [MemberController::class, 'logout']);
         });
+
+        Route::group([
+            'prefix' => 'login'
+        ], function($router){
+            Route::post('', [MemberController::class, 'login']);
+        });
+
+        Route::group([
+            'prefix' => 'email'
+        ], function($router){
+            Route::post('/verificationResend', [MemberController::class, 'verificationResend']);
+        });
+
 
 //        Route::post('/logout', [AuthController::class, 'logout']);
 

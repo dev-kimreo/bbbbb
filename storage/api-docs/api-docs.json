@@ -5,7 +5,68 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/v1/members": {
+        "/v1/member": {
+            "get": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "회원정보",
+                "description": "회원정보",
+                "operationId": "memberInfo",
+                "responses": {
+                    "200": {
+                        "description": "successfully registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "no": {
+                                            "description": "회원번호",
+                                            "type": "integer",
+                                            "example": "14"
+                                        },
+                                        "name": {
+                                            "description": "이름",
+                                            "type": "string",
+                                            "example": "홍길동"
+                                        },
+                                        "email": {
+                                            "description": "이메일",
+                                            "type": "string",
+                                            "format": "email",
+                                            "example": "abcd@davinci.com"
+                                        },
+                                        "emailVerifiedDate": {
+                                            "description": "이메일 인증일자",
+                                            "type": "string",
+                                            "format": "timezone",
+                                            "example": "null"
+                                        },
+                                        "regDate": {
+                                            "description": "가입일자",
+                                            "type": "string",
+                                            "format": "timezone",
+                                            "example": "2021-03-10T00:25:31+00:00"
+                                        },
+                                        "uptDate": {
+                                            "description": "수정일자",
+                                            "type": "string",
+                                            "format": "timezone",
+                                            "example": "2021-03-10T00:25:31+00:00"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "davinci_auth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
                     "Members"
@@ -192,6 +253,112 @@
                                     "type": "object"
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/member/auth": {
+            "delete": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "회원 로그아웃",
+                "description": "회원 로그아웃",
+                "operationId": "memberLogout",
+                "responses": {
+                    "200": {
+                        "description": "successfully logout"
+                    }
+                },
+                "security": [
+                    {
+                        "davinci_auth": []
+                    }
+                ]
+            }
+        },
+        "/v1/email/verificationResend": {
+            "post": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "회원 이메일 인증 재발송",
+                "description": "회원 이메일 인증 재발송",
+                "operationId": "memberVerifyEmailReSend",
+                "responses": {
+                    "200": {
+                        "description": "send verify email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "send verify email"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "davinci_auth": []
+                    }
+                ]
+            }
+        },
+        "/verification.verify/{id}?expires={expires}&hash={hash}&signature={signature}": {
+            "get": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "회원 이메일 인증",
+                "description": "회원 이메일 인증",
+                "operationId": "memberVerifyEmail",
+                "responses": {
+                    "200": {
+                        "description": "send verify email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "send verify email"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "davinci_auth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "davinci_auth": {
+                "type": "http",
+                "scheme": "bearer"
+            },
+            "sample_auth": {
+                "type": "oauth2",
+                "flows": {
+                    "implicit": {
+                        "authorizationUrl": "http://petstore.swagger.io/oauth/dialog",
+                        "scopes": {
+                            "read:pets": "read your pets",
+                            "write:pets": "modify pets in your account"
                         }
                     }
                 }

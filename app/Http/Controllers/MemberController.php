@@ -3,14 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Requests\StoreMembersRequest;
-
+use App\Http\Requests\Members\StoreMembersRequest;
+//use App\Http\Requests\Members\LoginMembersRequest;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-use App\Models\Flight;
-use Validator;
+use Illuminate\Support\Facades\URL;
+
 use Carbon\Carbon;
 use Hash;
+
+use App\Models\User;
+use App\Models\SignedCodes;
+
+use App\Events\Member\VerifyEmail;
+use App\Events\Member\VerifyEmailCheck;
+
 
 
 class MemberController extends Controller
@@ -21,12 +27,12 @@ class MemberController extends Controller
      * @return void
      */
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['register']]);
+        $this->middleware('auth:api', ['except' => ['register', 'verification']]);
     }
 
     /**
      * @OA\Post(
-     *  path="/v1/members",
+     *  path="/v1/member",
      *  summary="회원가입",
      *  description="회원가입",
      *  operationId="memberSignIn",
@@ -177,6 +183,9 @@ class MemberController extends Controller
             ['password' => hash::make($request->password)]
         ));
 
+        VerifyEmail::dispatch($member);
+//        event(new \App\Events\Member\VerifyEmail($member));
+
         return response()->json([
             'message' => __('member.registered'),
             'member' => $member
@@ -184,37 +193,155 @@ class MemberController extends Controller
     }
 
 
-//    /**
-//     * Refresh a token.
-//     *
-//     * @return \Illuminate\Http\JsonResponse
-//     */
-//    public function refresh() {
-//        return $this->createNewToken(auth()->refresh());
-//    }
+
+
+    /**
+     * @OA\Get(
+     *  path="/v1/member",
+     *  summary="회원정보",
+     *  description="회원정보",
+     *  operationId="memberInfo",
+     *  tags={"Members"},
+     *  @OA\Response(
+     *    response=200,
+     *    description="successfully registered",
+     *    @OA\JsonContent(
+     *       @OA\Property(property="no", type="integer", example="14", description="회원번호"),
+     *       @OA\Property(property="name", type="string", example="홍길동", description="이름"),
+     *       @OA\Property(property="email", type="string", format="email", example="abcd@davinci.com", description="이메일"),
+     *       @OA\Property(property="emailVerifiedDate", type="string", format="timezone", example="null", description="이메일 인증일자"),
+     *       @OA\Property(property="regDate", type="string", format="timezone", example="2021-03-10T00:25:31+00:00", description="가입일자"),
+     *       @OA\Property(property="uptDate", type="string", format="timezone",  example="2021-03-10T00:25:31+00:00", description="수정일자"),
+     *    )
+     *  ),
+     * security={{
+     *     "davinci_auth":{}
+     *   }}
+     * )
+     */
 
     /**
      * Get the authenticated User.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function userProfile() {
-        $aaa = Flight::where('name', '1234124')->first()->toArray();
-//
-////        echo Carbon::now()->timezone('Asia/Seoul')->tz('UTC');
-////        print_r($aaa['reg_date']);
-////        echo Carbon::createFromFormat($aaa['reg_date']);
-//        echo $aaa['reg_date'] . "\r\n";
-//
-//        $bbb = $aaa['reg_date']->tz('UTC') . "\r\n";
-//        print_r($bbb);
-//
-////        echo $bbb->diff($aaa['reg_date']);
-//
-//
-        return response()->json($aaa);
+    public function info() {
+        return response()->json(auth()->user());
+    }
 
-//        return response()->json(auth()->user());
+
+    /**
+     * @OA\Delete(
+     *  path="/v1/member/auth",
+     *  summary="회원 로그아웃",
+     *  description="회원 로그아웃",
+     *  operationId="memberLogout",
+     *  tags={"Members"},
+     *  @OA\Response(
+     *    response=200,
+     *    description="successfully logout"
+     *  ),
+     * security={{
+     *     "davinci_auth":{}
+     *   }}
+     * )
+     */
+    public function logout() {
+        // access token revoke
+        auth()->user()->token()->revoke();
+
+        // refesh token revoke
+//        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
+//        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId(auth()->user()->token()->id);
+
+        return response()->json([
+            'message' => __('member.logout')
+        ], 200);
+    }
+
+    /**
+     * @OA\Post(
+     *  path="/v1/email/verificationResend",
+     *  summary="회원 이메일 인증 재발송",
+     *  description="회원 이메일 인증 재발송",
+     *  operationId="memberVerifyEmailReSend",
+     *  tags={"Members"},
+     *  @OA\Response(
+     *    response=200,
+     *    description="send verify email",
+     *    @OA\JsonContent(
+     *       @OA\Property(property="message", type="string", example="send verify email"),
+     *    )
+     *  ),
+     * security={{
+     *     "davinci_auth":{}
+     *   }}
+     * )
+     */
+    // 회원 인증 메일 재 발송
+    public function verificationResend(Request $request) {
+        if ( !VerifyEmailCheck::dispatch(auth()->user()) ) {
+            return response()->json(getResponseError(10411), 422);
+        }
+
+        if ( !VerifyEmail::dispatch(auth()->user()) ) {
+            return response()->json(getResponseError(10421), 422);
+        }
+
+        return response()->json([
+            'message' => __('member.verification_resend')
+        ], 200);
+
+    }
+
+    /**
+     * @OA\Get(
+     *  path="/verification.verify/{id}?expires={expires}&hash={hash}&signature={signature}",
+     *  summary="회원 이메일 인증",
+     *  description="회원 이메일 인증",
+     *  operationId="memberVerifyEmail",
+     *  tags={"Members"},
+     *  @OA\Response(
+     *    response=200,
+     *    description="send verify email",
+     *    @OA\JsonContent(
+     *       @OA\Property(property="message", type="string", example="send verify email"),
+     *    )
+     *  ),
+     * security={{
+     *     "davinci_auth":{}
+     *   }}
+     * )
+     */
+    public function verification(Request $request){
+        $signExists = SignedCodes::where('name', explode('/', $request->path())[0])
+            ->where('name_key', $request->id)
+            ->where('hash', $request->hash)
+            ->where('sign', $request->signature)
+            ->exists();
+
+        if ($request->hasValidSignature() && $signExists) {
+
+            $member = User::find($request->id);
+            if ( is_null($member->emailVerifiedDate) ) {
+                $member->emailVerifiedDate = carbon::now();
+                $member->save();
+            } else {
+                return response()->json(getResponseError(10421), 422);
+            }
+
+            SignedCodes::where('name', explode('/', $request->path())[0])
+                            ->where('name_key', $request->id)
+                            ->delete();
+        } else {
+            return response()->json(getResponseError(10401), 422);
+        }
+
+        return response()->json([
+            'message' => __('member.registered'),
+            'member' => $member
+        ], 200);
+
     }
 
 }

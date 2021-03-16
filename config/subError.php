@@ -16,6 +16,17 @@ return [
 
     10111 => 'validation.custom.password.same_email',  // 비밀번호가 아이디와 4자이상 동일 할 경우
 
+    // login errors
+    10301 => 'validation.custom.email.exists',  // 존재하지 않는 아이디(이메일) 입니다.
+    10311 => 'validation.custom.password.not_match',  // 로그인 정보가 올바르지 않습니다.
+
+
+    // verify errors
+    10401 => 'validation.custom.email.verify',  // 잘못된 접근입니다.
+    10411 => 'validation.custom.email.limit_send',  // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
+    10421 => 'validation.custom.email.verified',  // 이미 인증된 회원입니다.
+
+
 
 
 ];

@@ -137,6 +137,14 @@ return [
             'empty' => 'The password cannot contain space characters.',
 
             'same_email' => 'The password cannot be the same as the email with more than 4 characters.',
+            'not_match' => 'The password do not match.'
+        ],
+        'email' => [
+            'exists' => 'This email does not exist.',
+            'verify' => 'Incorrect authentication method.',
+            'limit_send' => 'Limited to sending mail due to frequent mail requests.',
+            'verified' => 'You are already an authenticated member.',
+
         ],
     ],
 

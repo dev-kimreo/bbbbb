@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Members;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\User;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreMembersRequest extends FormRequest
+class LoginMembersRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,10 +26,8 @@ class StoreMembersRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|between:2,100',
-            'email' => 'required|string|email|max:100|unique:App\Models\User,email',
-            'password' => 'required|string|min:8',
-            'passwordConfirmation' => 'required|string|same:password'
+            'email' => 'required|string|email|max:100|exists:App\Models\User,email',
+            'password' => 'required|string|min:8'
         ];
     }
 
@@ -41,7 +38,7 @@ class StoreMembersRequest extends FormRequest
     public function messages()
     {
         return [
-            'email.unique' => getErrorCode(10000),
+            'email.exists' => getErrorCode(10301),
 //            'name.between' => json_encode([
 //                'code' => 20001,
 //                'message' => __('validation.required')
