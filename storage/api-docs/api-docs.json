@@ -302,13 +302,48 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "description": "failed registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "statusCode": {
+                                                    "properties": {
+                                                        "10411": {
+                                                            "description": "짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.",
+                                                            "properties": {
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "10421": {
+                                                            "description": "이미 인증된 회원입니다.",
+                                                            "properties": {
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                },
-                "security": [
-                    {
-                        "davinci_auth": []
-                    }
-                ]
+                }
             }
         },
         "/verification.verify/{id}?expires={expires}&hash={hash}&signature={signature}": {
@@ -329,6 +364,46 @@
                                         "message": {
                                             "type": "string",
                                             "example": "send verify email"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "failed registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "statusCode": {
+                                                    "properties": {
+                                                        "10401": {
+                                                            "description": "잘못된 인증 방식입니다.",
+                                                            "properties": {
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "10421": {
+                                                            "description": "이미 인증된 회원입니다.",
+                                                            "properties": {
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"

@@ -193,8 +193,6 @@ class MemberController extends Controller
     }
 
 
-
-
     /**
      * @OA\Get(
      *  path="/v1/member",
@@ -226,6 +224,7 @@ class MemberController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function info() {
+        // 회원정보
         return response()->json(auth()->user());
     }
 
@@ -247,7 +246,7 @@ class MemberController extends Controller
      * )
      */
     public function logout() {
-        // access token revoke
+        // 엑세스 토큰 제거
         auth()->user()->token()->revoke();
 
         // refesh token revoke
@@ -273,6 +272,39 @@ class MemberController extends Controller
      *       @OA\Property(property="message", type="string", example="send verify email"),
      *    )
      *  ),
+     *  @OA\Response(
+     *    response=422,
+     *    description="failed registered",
+     *    @OA\JsonContent(
+     *       @OA\Property(
+     *          property="errors",
+     *          type="object",
+     *          @OA\Property(
+     *              property="statusCode",
+     *              type="object",
+     *              @OA\Property(
+     *                  property="10411",
+     *                  type="object",
+     *                  description="짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.",
+     *                  @OA\Property(
+     *                      property="message",
+     *                      type="string",
+     *                  ),
+     *              ),
+     *              @OA\Property(
+     *                  property="10421",
+     *                  type="object",
+     *                  description="이미 인증된 회원입니다.",
+     *                  @OA\Property(
+     *                      property="message",
+     *                      type="string",
+     *                  ),
+     *              ),
+     *          )
+     *       ),
+     *    )
+     *  )
+     * ),
      * security={{
      *     "davinci_auth":{}
      *   }}
@@ -280,10 +312,12 @@ class MemberController extends Controller
      */
     // 회원 인증 메일 재 발송
     public function verificationResend(Request $request) {
+        // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
         if ( !VerifyEmailCheck::dispatch(auth()->user()) ) {
             return response()->json(getResponseError(10411), 422);
         }
 
+        // // 이미 인증된 회원입니다.
         if ( !VerifyEmail::dispatch(auth()->user()) ) {
             return response()->json(getResponseError(10421), 422);
         }
@@ -308,6 +342,38 @@ class MemberController extends Controller
      *       @OA\Property(property="message", type="string", example="send verify email"),
      *    )
      *  ),
+     *  @OA\Response(
+     *    response=422,
+     *    description="failed registered",
+     *    @OA\JsonContent(
+     *       @OA\Property(
+     *          property="errors",
+     *          type="object",
+     *          @OA\Property(
+     *              property="statusCode",
+     *              type="object",
+     *              @OA\Property(
+     *                  property="10401",
+     *                  type="object",
+     *                  description="잘못된 인증 방식입니다.",
+     *                  @OA\Property(
+     *                      property="message",
+     *                      type="string",
+     *                  ),
+     *              ),
+     *              @OA\Property(
+     *                  property="10421",
+     *                  type="object",
+     *                  description="이미 인증된 회원입니다.",
+     *                  @OA\Property(
+     *                      property="message",
+     *                      type="string",
+     *                  ),
+     *              ),
+     *          )
+     *       ),
+     *    )
+     *  ),
      * security={{
      *     "davinci_auth":{}
      *   }}
@@ -320,16 +386,21 @@ class MemberController extends Controller
             ->where('sign', $request->signature)
             ->exists();
 
+        // 가상 서명키 유효성 체크
         if ($request->hasValidSignature() && $signExists) {
 
             $member = User::find($request->id);
+
+            // 인증되지 않은 경우
             if ( is_null($member->emailVerifiedDate) ) {
                 $member->emailVerifiedDate = carbon::now();
                 $member->save();
             } else {
+                // 이미 인증된 회원입니다.
                 return response()->json(getResponseError(10421), 422);
             }
 
+            // 가상 서명키 제거
             SignedCodes::where('name', explode('/', $request->path())[0])
                             ->where('name_key', $request->id)
                             ->delete();

@@ -9,6 +9,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
+use function Illuminate\Events\queueable;
 
 use App\Models\SignedCodes;
 
@@ -16,6 +17,7 @@ use App\Models\SignedCodes;
 
 class MemberEventSubscriber
 {
+
     public $subName = 'verification.verify';
 
     public function handleMemberVerifyEmail($event) {
@@ -24,7 +26,7 @@ class MemberEventSubscriber
         if ($event->user instanceof MustVerifyEmail && !$event->user->hasVerifiedEmail() ) {
 
             // 고유 url 생성
-            $verifyUrl = URL::temporarySignedRoute(
+            $verifyBeUrl = URL::temporarySignedRoute(
                 $this->subName,
                 Carbon::now()->addMinutes(Config::get('auth.verification.expire', 30)),
                 [
@@ -33,7 +35,13 @@ class MemberEventSubscriber
                 ]
             );
 
-            preg_match('/signature=(.*)/', $verifyUrl, $match);
+            $urlArr = parse_url($verifyBeUrl);
+            preg_match('/^.*\/([0-9]+)$/', $urlArr['path'], $idMatch);
+            $urlArr['query'] = 'id=' . $idMatch[1] . '&' . $urlArr['query'];
+
+            $verifyUrl = config('services.davinci.domain') . config('services.davinci.verifyPath') . '?' . $urlArr['query'];
+
+            preg_match('/signature=(.*)/', $verifyBeUrl, $match);
 
             $user = array(
                 'email' => $event->user->email,
@@ -46,7 +54,7 @@ class MemberEventSubscriber
             );
 
             Mail::send('emails.welcome', $data, function($message) use ($user){
-                $message->from('wkim0301@cocen.com', 'test');
+                $message->from(config('mail.from.address'), config('mail.from.name'));
                 $message->to($user['email'], $user['name'])->subject('다빈치 인증 메일입니다.');
             });
 
@@ -84,8 +92,10 @@ class MemberEventSubscriber
      */
     public function subscribe($events){
         $events->listen(
+            queueable(
             'App\Events\Member\VerifyEmail',
             [MemberEventSubscriber::class, 'handleMemberVerifyEmail']
+            )
         );
 
         $events->listen(

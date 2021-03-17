@@ -22,7 +22,7 @@ return [
 
 
     // verify errors
-    10401 => 'validation.custom.email.verify',  // 잘못된 접근입니다.
+    10401 => 'validation.custom.email.verify',  // 잘못된 인증 방식입니다.
     10411 => 'validation.custom.email.limit_send',  // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
     10421 => 'validation.custom.email.verified',  // 이미 인증된 회원입니다.
 
