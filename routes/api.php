@@ -31,6 +31,21 @@ Route::group([
         ], function ($router){
             Route::post('', [MemberController::class, 'register']);
             Route::get('', [MemberController::class, 'info']);
+            Route::patch('', [MemberController::class, 'modify']);
+
+
+            Route::group([
+                'prefix' => 'password'
+            ], function($router){
+
+                // 비밀번호 검증
+                Route::post('', [MemberController::class, 'checkPassword']);
+
+                // 비밀번호 변경
+                Route::patch('', [MemberController::class, 'modifyPassword']);
+            });
+
+
 
             Route::delete('/auth', [MemberController::class, 'logout']);
         });

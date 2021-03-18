@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class LoginMembersRequest extends FormRequest
+class ModifyMemberPwdRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,8 +26,9 @@ class LoginMembersRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|string|email|max:100|exists:App\Models\User,email',
-            'password' => 'required|string|min:8'
+            'password' => 'required|password:api',
+            'changePassword' => 'required|string|min:8',
+            'passwordConfirmation' => 'required|string|same:changePassword'
         ];
     }
 
@@ -38,7 +39,7 @@ class LoginMembersRequest extends FormRequest
     public function messages()
     {
         return [
-            'email.exists' => getErrorCode(10301),
+//            'email.exists' => getErrorCode(10301),
 //            'name.between' => json_encode([
 //                'code' => 20001,
 //                'message' => __('validation.required')

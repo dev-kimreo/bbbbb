@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use function Illuminate\Events\queueable;
 
 use App\Models\SignedCodes;
+use App\Jobs\SendVerificationMail;
 
 
 
@@ -24,7 +25,6 @@ class MemberEventSubscriber
 
         // 이메일 인증되지 않은 회원일 경우
         if ($event->user instanceof MustVerifyEmail && !$event->user->hasVerifiedEmail() ) {
-
             // 고유 url 생성
             $verifyBeUrl = URL::temporarySignedRoute(
                 $this->subName,
@@ -43,28 +43,14 @@ class MemberEventSubscriber
 
             preg_match('/signature=(.*)/', $verifyBeUrl, $match);
 
-            $user = array(
-                'email' => $event->user->email,
-                'name' => $event->user->name
-            );
-
             $data = array(
+                'subName' => $this->subName,
                 'url' => $verifyUrl,
-                'name' => $user['name']
+                'name' => $event->user->name,
+                'sign' => $match[1]
             );
 
-            Mail::send('emails.welcome', $data, function($message) use ($user){
-                $message->from(config('mail.from.address'), config('mail.from.name'));
-                $message->to($user['email'], $user['name'])->subject('다빈치 인증 메일입니다.');
-            });
-
-            // 고유 생성 sign 키 저장
-            $signedModel = New SignedCodes;
-            $signedModel->name = $this->subName;
-            $signedModel->name_key = $event->user->no;
-            $signedModel->hash = sha1($event->user->email);
-            $signedModel->sign = $match[1];
-            $signedModel->save();
+            dispatch(new SendVerificationMail($event->user, $data));
 
             return true;
         } else {
@@ -72,6 +58,7 @@ class MemberEventSubscriber
         }
     }
 
+    // 메일 발송 갯수 제한 체크
     public function handleMemberVerifyEmailCheck($event) {
 
         $signCount = SignedCodes::where('name',  $this->subName)
@@ -92,10 +79,8 @@ class MemberEventSubscriber
      */
     public function subscribe($events){
         $events->listen(
-            queueable(
             'App\Events\Member\VerifyEmail',
             [MemberEventSubscriber::class, 'handleMemberVerifyEmail']
-            )
         );
 
         $events->listen(

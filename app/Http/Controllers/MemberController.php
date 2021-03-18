@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Requests\Members\StoreMembersRequest;
-//use App\Http\Requests\Members\LoginMembersRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\URL;
 
 use Carbon\Carbon;
 use Hash;
@@ -16,6 +13,11 @@ use App\Models\SignedCodes;
 
 use App\Events\Member\VerifyEmail;
 use App\Events\Member\VerifyEmailCheck;
+
+use App\Http\Requests\Members\StoreMembersRequest;
+use App\Http\Requests\Members\CheckPwdMemberRequest;
+use App\Http\Requests\Members\ModifyMemberRequest;
+use App\Http\Requests\Members\ModifyMemberPwdRequest;
 
 
 
@@ -153,11 +155,11 @@ class MemberController extends Controller
      */
 
     /**
-     * Register a User.
+     * 회원가입
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(StoreMembersRequest $request) {//
+    public function register(StoreMembersRequest $request) {
         /**
          * 비밀번호 패턴 체크
          */
@@ -184,7 +186,6 @@ class MemberController extends Controller
         ));
 
         VerifyEmail::dispatch($member);
-//        event(new \App\Events\Member\VerifyEmail($member));
 
         return response()->json([
             'message' => __('member.registered'),
@@ -219,7 +220,7 @@ class MemberController extends Controller
      */
 
     /**
-     * Get the authenticated User.
+     * 회원 정보
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -244,6 +245,11 @@ class MemberController extends Controller
      *     "davinci_auth":{}
      *   }}
      * )
+     */
+    /**
+     * 로그아웃
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function logout() {
         // 엑세스 토큰 제거
@@ -310,7 +316,11 @@ class MemberController extends Controller
      *   }}
      * )
      */
-    // 회원 인증 메일 재 발송
+    /**
+     * 회원 인증 메일 재발송
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function verificationResend(Request $request) {
         // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
         if ( !VerifyEmailCheck::dispatch(auth()->user()) ) {
@@ -379,6 +389,11 @@ class MemberController extends Controller
      *   }}
      * )
      */
+    /**
+     * 회원 메일 인증
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function verification(Request $request){
         $signExists = SignedCodes::where('name', explode('/', $request->path())[0])
             ->where('name_key', $request->id)
@@ -412,7 +427,279 @@ class MemberController extends Controller
             'message' => __('member.registered'),
             'member' => $member
         ], 200);
+    }
+
+
+    /**
+     * @OA\Post(
+     *  path="/v1/member/password",
+     *  summary="회원 비밀번호 검증",
+     *  description="회원 비밀번호 검증",
+     *  operationId="memberPasswordVerify",
+     *  tags={"Members"},
+     *  @OA\RequestBody(
+     *    required=true,
+     *    description="",
+     *    @OA\JsonContent(
+     *       required={"password"},
+     *       @OA\Property(property="password", type="string", format="password", example="1234qwer", description="비밀번호"),
+     *    ),
+     *  ),
+     *  @OA\Response(
+     *    response=200,
+     *    description="올바른 정보입니다.",
+     *    @OA\JsonContent(
+     *       @OA\Property(property="message", type="string", example="This is the correct information."),
+     *    )
+     *  ),
+     *  @OA\Response(
+     *    response=422,
+     *    description="failed registered",
+     *    @OA\JsonContent(
+     *       @OA\Property(
+     *          property="errors",
+     *          type="object",
+     *          @OA\Property(
+     *              property="statusCode",
+     *              type="object",
+     *              @OA\Property(
+     *                  property="10311",
+     *                  type="object",
+     *                  description="로그인 정보가 올바르지 않습니다.",
+     *                  @OA\Property(
+     *                      property="message",
+     *                      type="string",
+     *                  ),
+     *              ),
+     *          )
+     *       ),
+     *    )
+     *  )
+     * ),
+     * security={{
+     *     "davinci_auth":{}
+     *   }}
+     * )
+     */
+    /**
+     * 비밀번호 검증
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkPassword(CheckPwdMemberRequest $request) {
+//        if ( !hash::check($request->password, auth()->user()->password) ){
+//            return response()->json(getResponseError(10311), 422);
+//        }
+
+        return response()->json([
+            'message' => __('member.correct')
+        ], 200);
+    }
+
+    /**
+     * @OA\Patch(
+     *  path="/v1/member",
+     *  summary="회원 정보 수정",
+     *  description="회원 정보 수정",
+     *  operationId="memberInfoModify",
+     *  tags={"Members"},
+     *  @OA\RequestBody(
+     *    required=true,
+     *    description="",
+     *    @OA\JsonContent(
+     *       required={"name", "password"},
+     *       @OA\Property(property="name", type="string", example="홍길동", description="변경할 이름"),
+     *       @OA\Property(property="password", type="string", format="password", example="1234qwer", description="비밀번호"),
+     *    ),
+     *  ),
+     *  @OA\Response(
+     *    response=200,
+     *    description="변경되었습니다.",
+     *    @OA\JsonContent(
+     *       @OA\Property(property="message", type="string", example="This is the correct information."),
+     *    )
+     *  ),
+     *  @OA\Response(
+     *    response=422,
+     *    description="비밀 번호가 올바르지 않습니다.",
+     *    @OA\JsonContent(
+     *       @OA\Property(
+     *          property="errors",
+     *          type="object",
+     *          @OA\Property(
+     *              property="password",
+     *              type="string",
+     *              example="The password is incorrect."
+     *          )
+     *       ),
+     *    )
+     *  )
+     * ),
+     * security={{
+     *     "davinci_auth":{}
+     *   }}
+     * )
+     */
+
+    /**
+     * 회원 정보 수정
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function modify(ModifyMemberRequest $request) {
+        $member = auth()->user();
+        $member->name = $request->name;
+        $member->save();
+
+        return response()->json([
+            'message' => __('member.changed')
+        ], 200);
+    }
+
+
+    /**
+     * @OA\Patch(
+     *  path="/v1/member/password",
+     *  summary="회원 비밀번호 변경",
+     *  description="회원 비밀번호 변경",
+     *  operationId="memberPwdModify",
+     *  tags={"Members"},
+     *  @OA\RequestBody(
+     *    required=true,
+     *    description="",
+     *    @OA\JsonContent(
+     *       required={"password", "changePassword", "passwordConfirmation"},
+     *       @OA\Property(property="password", type="string", format="password", example="1234qwer", description="기존 비밀번호"),
+     *       @OA\Property(property="changePassword", type="string", format="password", example="1234qwer11", description="변경할 비밀번호"),
+     *       @OA\Property(property="passwordConfirmation", type="string", format="password", example="1234qwer11", description="변경할 비밀번호 확인"),
+     *    ),
+     *  ),
+     *  @OA\Response(
+     *    response=200,
+     *    description="변경되었습니다.",
+     *    @OA\JsonContent(
+     *       @OA\Property(property="message", type="string", example="This is the correct information."),
+     *    )
+     *  ),
+     *  @OA\Response(
+     *    response=422,
+     *    description="비밀 번호가 올바르지 않습니다.",
+     *    @OA\JsonContent(
+     *       @OA\Property(
+     *          property="errors",
+     *          type="object",
+     *          @OA\Property(
+     *              property="statusCode",
+     *              type="object",
+     *              @OA\Property(
+     *                  property="10101",
+     *                  type="object",
+     *                  description="password 는 특수문자, 알파벳, 숫자 3가지가 조합되어야 합니다.",
+     *                  @OA\Property(
+     *                      property="key",
+     *                      type="string",
+     *                      description="password",
+     *                      example="password",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="message",
+     *                      type="string",
+     *                  ),
+     *              ),
+     *              @OA\Property(
+     *                  property="10102",
+     *                  type="object",
+     *                  description="password 는 연속 된 문자와 동일한 문자로 4 회 연속 사용할 수 없습니다.",
+     *                  @OA\Property(
+     *                      property="key",
+     *                      type="string",
+     *                      description="password",
+     *                      example="password",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="message",
+     *                      type="string",
+     *                  ),
+     *              ),
+     *              @OA\Property(
+     *                  property="10103",
+     *                  type="object",
+     *                  description="password 는 공백문자를 포함할 수 없습니다.",
+     *                  @OA\Property(
+     *                      property="key",
+     *                      type="string",
+     *                      description="password",
+     *                      example="password",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="message",
+     *                      type="string",
+     *                  ),
+     *              ),
+     *              @OA\Property(
+     *                  property="10111",
+     *                  type="object",
+     *                  description="password 는 email과 4자 이상 동일 할 수 없습니다.",
+     *                  @OA\Property(
+     *                      property="key",
+     *                      type="string",
+     *                      description="password",
+     *                      example="password",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="message",
+     *                      type="string",
+     *                  ),
+     *              ),
+     *          )
+     *       ),
+     *    )
+     *  )
+     * ),
+     * security={{
+     *     "davinci_auth":{}
+     *   }}
+     * )
+     */
+
+    /**
+     * 회원 비밀번호 변경
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function modifyPassword(ModifyMemberPwdRequest $request) {
+        /**
+         * 비밀번호 패턴 체크
+         */
+        $chkPasswordRes = checkPwdPattern($request->changePassword);
+        if (!$chkPasswordRes['combination']) {  // 특수문자, 문자, 숫자 포함 체크
+            return response()->json(getResponseError(10101, 'password'), 422);
+        } else if (!$chkPasswordRes['continue']) {  // 연속된 문자, 동일한 문자 연속 체크
+            return response()->json(getResponseError(10102, 'password'), 422);
+        } else if (!$chkPasswordRes['empty']) { // 공백 문자 체크
+            return response()->json(getResponseError(10103, 'password'), 422);
+        }
+
+        /**
+         * 비밀번호와 아이디 동일 여부 체크
+         */
+        $chkPwdSameIdRes = checkPwdSameId($request->changePassword, auth()->user()->email);
+        if (!$chkPwdSameIdRes) {
+            return response()->json(getResponseError(10111, 'password'), 422);
+        }
+
+        $member = auth()->user();
+        $member->password = hash::make($request->changePassword);
+        $member->save();
+
+        return response()->json([
+            'message' => __('member.changed')
+        ], 200);
+
 
     }
+
+
+
 
 }
