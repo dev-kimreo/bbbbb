@@ -261,7 +261,7 @@
                 "tags": [
                     "Members"
                 ],
-                "summary": "회원 정보 수정",
+                "summary": "회원정보 수정",
                 "description": "회원 정보 수정",
                 "operationId": "memberInfoModify",
                 "requestBody": {
@@ -330,7 +330,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "davinci_auth": []
+                    }
+                ]
             }
         },
         "/v1/member/auth": {
@@ -338,7 +343,7 @@
                 "tags": [
                     "Members"
                 ],
-                "summary": "회원 로그아웃",
+                "summary": "로그아웃",
                 "description": "회원 로그아웃",
                 "operationId": "memberLogout",
                 "responses": {
@@ -358,7 +363,7 @@
                 "tags": [
                     "Members"
                 ],
-                "summary": "회원 이메일 인증 재발송",
+                "summary": "이메일 인증 재발송",
                 "description": "회원 이메일 인증 재발송",
                 "operationId": "memberVerifyEmailReSend",
                 "responses": {
@@ -418,15 +423,20 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "davinci_auth": []
+                    }
+                ]
             }
         },
-        "/verification.verify/{id}?expires={expires}&hash={hash}&signature={signature}": {
+        "/v1/email/member.regist/{id}?expires={expires}&hash={hash}&signature={signature}": {
             "get": {
                 "tags": [
                     "Members"
                 ],
-                "summary": "회원 이메일 인증",
+                "summary": "이메일 인증",
                 "description": "회원 이메일 인증",
                 "operationId": "memberVerifyEmail",
                 "responses": {
@@ -486,12 +496,7 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "davinci_auth": []
-                    }
-                ]
+                }
             }
         },
         "/v1/member/password": {
@@ -499,7 +504,7 @@
                 "tags": [
                     "Members"
                 ],
-                "summary": "회원 비밀번호 검증",
+                "summary": "비밀번호 검증",
                 "description": "회원 비밀번호 검증",
                 "operationId": "memberPasswordVerify",
                 "requestBody": {
@@ -572,13 +577,18 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "davinci_auth": []
+                    }
+                ]
             },
             "patch": {
                 "tags": [
                     "Members"
                 ],
-                "summary": "회원 비밀번호 변경",
+                "summary": "비밀번호 변경",
                 "description": "회원 비밀번호 변경",
                 "operationId": "memberPwdModify",
                 "requestBody": {
@@ -694,6 +704,347 @@
                                                                     "type": "string",
                                                                     "example": "password"
                                                                 },
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "davinci_auth": []
+                    }
+                ]
+            }
+        },
+        "/v1/member/passwordResetSendLink": {
+            "post": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "비밀번호 찾기",
+                "description": "회원 비밀번호 찾기 - 변경을 위한 링크 발송",
+                "operationId": "memberPasswordResetSendLink",
+                "requestBody": {
+                    "description": "",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "이메일",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "abcd@abcd.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "비밀번호 변경 링크가 메일로 발송되었습니다.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "failed registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "statusCode": {
+                                                    "properties": {
+                                                        "10001": {
+                                                            "description": "일치하는 회원이 없습니다.",
+                                                            "properties": {
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/member/checkChangePwdAuth": {
+            "post": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "비밀번호 찾기 Token 인증",
+                "description": "비밀번호 찾기 - 변경을 위한 링크의 값 유효성 체크",
+                "operationId": "memberPasswordResetLinkAuth",
+                "requestBody": {
+                    "description": "",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "token"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "이메일",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "abcd@abcd.com"
+                                    },
+                                    "token": {
+                                        "description": "Token",
+                                        "type": "string",
+                                        "example": "0731d55c489684a8245eedd046878240527c69a2a775e6164820033dd0d62e1f"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "정상적인 인증방식입니다.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "failed registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "statusCode": {
+                                                    "properties": {
+                                                        "10001": {
+                                                            "description": "일치하는 회원이 없습니다.",
+                                                            "properties": {
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "10431": {
+                                                            "description": "잘못된 인증방식이거나 token의 유효시간이 지났습니다.",
+                                                            "properties": {
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "비밀번호 찾기 - 변경",
+                "description": "비밀번호 찾기를 통한 변경 url을 통한 후 비밀번호 변경",
+                "operationId": "memberPasswordReset",
+                "requestBody": {
+                    "description": "",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "token",
+                                    "password",
+                                    "passwordConfirmation"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "이메일",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "abcd@abcd.com"
+                                    },
+                                    "token": {
+                                        "description": "Token",
+                                        "type": "string",
+                                        "example": "0731d55c489684a8245eedd046878240527c69a2a775e6164820033dd0d62e1f"
+                                    },
+                                    "password": {
+                                        "description": "새로운 비밀번호",
+                                        "type": "string",
+                                        "example": "abcd1234!@"
+                                    },
+                                    "passwordConfirmation": {
+                                        "description": "새로운 비밀번호 확인",
+                                        "type": "string",
+                                        "example": "abcd1234!@"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "변경되었습니다.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "failed registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "statusCode": {
+                                                    "properties": {
+                                                        "10001": {
+                                                            "description": "일치하는 회원이 없습니다.",
+                                                            "properties": {
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "10101": {
+                                                            "description": "password 는 특수문자, 알파벳, 숫자 3가지가 조합되어야 합니다.",
+                                                            "properties": {
+                                                                "key": {
+                                                                    "description": "password",
+                                                                    "type": "string",
+                                                                    "example": "password"
+                                                                },
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "10102": {
+                                                            "description": "password 는 연속 된 문자와 동일한 문자로 4 회 연속 사용할 수 없습니다.",
+                                                            "properties": {
+                                                                "key": {
+                                                                    "description": "password",
+                                                                    "type": "string",
+                                                                    "example": "password"
+                                                                },
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "10103": {
+                                                            "description": "password 는 공백문자를 포함할 수 없습니다.",
+                                                            "properties": {
+                                                                "key": {
+                                                                    "description": "password",
+                                                                    "type": "string",
+                                                                    "example": "password"
+                                                                },
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "10111": {
+                                                            "description": "password 는 email과 4자 이상 동일 할 수 없습니다.",
+                                                            "properties": {
+                                                                "key": {
+                                                                    "description": "password",
+                                                                    "type": "string",
+                                                                    "example": "password"
+                                                                },
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "10431": {
+                                                            "description": "잘못된 인증방식이거나 token의 유효시간이 지났습니다.",
+                                                            "properties": {
                                                                 "message": {
                                                                     "type": "string"
                                                                 }

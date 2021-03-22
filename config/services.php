@@ -33,5 +33,6 @@ return [
     'davinci' => [
         'domain' => 'http://local.davinci.com',
         'verifyPath' => '/confirm-email',
+        'verifyPasswordPath' => '/confirm-password',
     ],
 ];

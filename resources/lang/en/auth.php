@@ -17,4 +17,8 @@ return [
     'password' => 'The provided password is incorrect.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
 
+    'custom' => [
+        'incorrect_timeout' => 'Either incorrect information or the token expiration time has expired.',
+    ]
+
 ];

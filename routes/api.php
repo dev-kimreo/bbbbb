@@ -19,21 +19,36 @@ Route::group([
     'middleware' => 'api',
 ], function ($router) {
 
-    // 이메일 인증 route
-    Route::get('/verification.verify/{id}', [MemberController::class, 'verification'])->name('verification.verify');
+
+//    // 이메일 인증 route
+//    Route::get('/{verifyKey}/{id}', [MemberController::class, 'changePwdVerification'])->name('davinci.verification');
+
 
     Route::group([
         'prefix' => 'v1'
     ], function ($router){
 
+        /**
+         * 회원 관련
+         */
         Route::group([
             'prefix' => 'member'
         ], function ($router){
+            // 회원가입
             Route::post('', [MemberController::class, 'register']);
+
+            // 회원정보
             Route::get('', [MemberController::class, 'info']);
+
+            // 회원 정보 수정
             Route::patch('', [MemberController::class, 'modify']);
 
+            // 로그아웃
+            Route::delete('/auth', [MemberController::class, 'logout']);
 
+            /**
+             * 비밀번호 변경
+             */
             Route::group([
                 'prefix' => 'password'
             ], function($router){
@@ -45,9 +60,19 @@ Route::group([
                 Route::patch('', [MemberController::class, 'modifyPassword']);
             });
 
+            /**
+             * 비밀번호 찾기 프로세스
+             */
+            // 비밀번호 변경 링크 발송
+            Route::post('/passwordResetSendLink', [MemberController::class, 'passwordResetSendLink']);
+
+            // 비밀번호 변경 링크 유효성 체크
+            Route::post('/checkChangePwdAuth', [MemberController::class, 'changePwdVerification']);
+
+            // 비밀번호 변경 링크 발송 후 변경
+            Route::patch('/passwordReset', [MemberController::class, 'passwordReset']);
 
 
-            Route::delete('/auth', [MemberController::class, 'logout']);
         });
 
         Route::group([
@@ -56,9 +81,13 @@ Route::group([
             Route::post('', [MemberController::class, 'login']);
         });
 
+        // 회원가입시 인증 메일 발송
         Route::group([
             'prefix' => 'email'
         ], function($router){
+            // 이메일 인증 route
+            Route::get('/{verifyKey}/{id}', [MemberController::class, 'verification'])->name('verification.verify');
+
             Route::post('/verificationResend', [MemberController::class, 'verificationResend']);
         });
 

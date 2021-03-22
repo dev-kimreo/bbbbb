@@ -13,6 +13,7 @@ use function Illuminate\Events\queueable;
 
 use App\Models\SignedCodes;
 use App\Jobs\SendVerificationMail;
+use App\Jobs\SendMail;
 
 
 
@@ -20,6 +21,7 @@ class MemberEventSubscriber
 {
 
     public $subName = 'verification.verify';
+    public $verifyKey = 'member.regist';
 
     public function handleMemberVerifyEmail($event) {
 
@@ -30,6 +32,7 @@ class MemberEventSubscriber
                 $this->subName,
                 Carbon::now()->addMinutes(Config::get('auth.verification.expire', 30)),
                 [
+                    'verifyKey' => $this->verifyKey,
                     'id' => $event->user->no,
                     'hash' => sha1($event->user->email)
                 ]
@@ -43,14 +46,33 @@ class MemberEventSubscriber
 
             preg_match('/signature=(.*)/', $verifyBeUrl, $match);
 
-            $data = array(
-                'subName' => $this->subName,
-                'url' => $verifyUrl,
-                'name' => $event->user->name,
-                'sign' => $match[1]
-            );
+//            $data = array(
+//                'subName' => $this->subName,
+//                'url' => $verifyUrl,
+//                'name' => $event->user->name,
+//                'sign' => $match[1]
+//            );
 
-            dispatch(new SendVerificationMail($event->user, $data));
+            $data = array(
+                'verification' => [
+                    'name' => $this->verifyKey,
+                    'no' => $event->user->no,
+                    'email' => $event->user->email,
+                    'sign' => $match[1]
+                ],
+                'user' => $event->user->toArray(),
+                'mail' => [
+                    'view' => 'emails.welcome',
+                    'subject' => '다빈치 인증 메일입니다.',
+                    'data' => [
+                        'name' => $event->user->name,
+                        'url' => $verifyUrl
+                    ]
+                ]
+            );
+            SendMail::dispatch($data);
+//
+//            dispatch(new SendVerificationMail($event->user, $data));
 
             return true;
         } else {

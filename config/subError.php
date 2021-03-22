@@ -7,9 +7,11 @@ return [
      * code => language trans string
      * ex) 10000 => 'validation.unique' // /resources/lang/[locale]/validation.php => unique key
      */
-    10000 => 'validation.unique',     // email 필드 중복시 에러
+    10000 => 'validation.unique',       // email 필드 중복시 에러
+    10001 => 'member.correct',          // 일치 하는 정보가 없습니다.
 
     // password errors
+    10100 => 'validation.custom.password.same_org', // 이전 비밀번호와 동일합니다.
     10101 => 'validation.custom.password.combination',  // 문자 조합 및 길이제한 체크
     10102 => 'validation.custom.password.continue',  // 연속된 문자, 동일한 문자 연속 체크
     10103 => 'validation.custom.password.empty',  // 공백 문자 체크
@@ -25,6 +27,7 @@ return [
     10401 => 'validation.custom.email.verify',  // 잘못된 인증 방식입니다.
     10411 => 'validation.custom.email.limit_send',  // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
     10421 => 'validation.custom.email.verified',  // 이미 인증된 회원입니다.
+    10431 => 'auth.custom.incorrect_timeout',  // 잘못된 인증방식이거나 token의 유효시간이 지났습니다.
 
 
 
