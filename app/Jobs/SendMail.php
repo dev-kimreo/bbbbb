@@ -40,7 +40,7 @@ class SendMail implements ShouldQueue
         // 메일 발송
         Mail::send($this->data['mail']['view'], $this->data['mail']['data'], function($message) {
             $message->from(config('mail.from.address'), config('mail.from.name'));
-            $message->to($this->data['user']['email'], $this->data['user']['name'])->subject($this->data['mail']['subject']);
+            $message->to($this->data['user']['email'], $this->data['user']['name'])->subject('[' . getenv('APP_NAME') . '] ' . $this->data['mail']['subject']);
         });
 
         if ( isset($this->data['verification']) && is_array($this->data['verification']) ) {

@@ -30,8 +30,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
-    'davinci' => [
-        'domain' => 'http://local.davinci.com',
+    'qpick' => [
+        'domain' => 'http://local.qpicki.com',
         'verifyPath' => '/confirm-email',
         'verifyPasswordPath' => '/confirm-password',
     ],

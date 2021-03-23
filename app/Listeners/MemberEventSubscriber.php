@@ -12,7 +12,6 @@ use Carbon\Carbon;
 use function Illuminate\Events\queueable;
 
 use App\Models\SignedCodes;
-use App\Jobs\SendVerificationMail;
 use App\Jobs\SendMail;
 
 
@@ -42,16 +41,9 @@ class MemberEventSubscriber
             preg_match('/^.*\/([0-9]+)$/', $urlArr['path'], $idMatch);
             $urlArr['query'] = 'id=' . $idMatch[1] . '&' . $urlArr['query'];
 
-            $verifyUrl = config('services.davinci.domain') . config('services.davinci.verifyPath') . '?' . $urlArr['query'];
+            $verifyUrl = config('services.qpick.domain') . config('services.qpick.verifyPath') . '?' . $urlArr['query'];
 
             preg_match('/signature=(.*)/', $verifyBeUrl, $match);
-
-//            $data = array(
-//                'subName' => $this->subName,
-//                'url' => $verifyUrl,
-//                'name' => $event->user->name,
-//                'sign' => $match[1]
-//            );
 
             $data = array(
                 'verification' => [
@@ -63,7 +55,7 @@ class MemberEventSubscriber
                 'user' => $event->user->toArray(),
                 'mail' => [
                     'view' => 'emails.welcome',
-                    'subject' => '다빈치 인증 메일입니다.',
+                    'subject' => '인증 메일입니다.',
                     'data' => [
                         'name' => $event->user->name,
                         'url' => $verifyUrl
@@ -71,8 +63,6 @@ class MemberEventSubscriber
                 ]
             );
             SendMail::dispatch($data);
-//
-//            dispatch(new SendVerificationMail($event->user, $data));
 
             return true;
         } else {
