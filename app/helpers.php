@@ -1,6 +1,7 @@
 <?php
 
 //use Illuminate\Support\Facades\Auth;
+//use Cache;
 
 if (!function_exists('getErrorCode')) {
     function getErrorCode($code) {
@@ -134,3 +135,18 @@ if (!function_exists('checkPwdSameId')) {
         return true;
     }
 }
+
+
+if (!function_exists('checkPwdSameId')) {
+    function checkPwdSameId($pwd, $email) {
+        $id = explode('@', $email)[0];
+        $pwdLen = strlen($pwd);
+        for ($i=0; $i<$pwdLen-3; $i++) {
+            if (strpos($id, substr($pwd, $i, 4)) !== false ) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+

@@ -10,6 +10,8 @@ return [
     10000 => 'validation.unique',       // email 필드 중복시 에러
     10001 => 'member.correct',          // 일치 하는 정보가 없습니다.
 
+    10010 => 'validation.required',          // 필수값을 입력해주세요.
+
     // password errors
     10100 => 'validation.custom.password.same_org', // 이전 비밀번호와 동일합니다.
     10101 => 'validation.custom.password.combination',  // 문자 조합 및 길이제한 체크

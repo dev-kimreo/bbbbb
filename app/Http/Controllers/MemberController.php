@@ -31,6 +31,9 @@ use Password;
 
 use App\Jobs\SendMail;
 
+use App\Libraries\CacheCls;
+
+
 
 
 class MemberController extends Controller
@@ -41,19 +44,6 @@ class MemberController extends Controller
      * @return void
      */
     public function __construct() {
-        $this->middleware(
-            'auth:api',
-                [
-                    'except' =>
-                        [
-                            'register',
-                            'verification',
-                            'passwordResetSendLink',
-                            'changePwdVerification',
-                            'passwordReset'
-                        ]
-                ]
-        );
     }
 
     /**
@@ -1059,21 +1049,124 @@ class MemberController extends Controller
     }
 
 
+    public function test(Request $request) {
+        echo gethostname() . "\r\n";
+//
+        $member = auth()->user();
 
-    /*
-    //        Cache::tags(['people'])->remember('user', 5, function () use ($request){
-    //            echo '캐시 새로';
-    //            return User::where(['email' => $request->email, 'name' => $request->name])->first()->toArray();
-    //        });
-    //
-    Cache::tags(['people'])->remember('user', 5, function () use ($request){
-                echo '캐시 새로';
-                return SignedCodes::limit(100)->get()->toArray();
-            });
+        print_r($member);
+//        if ( Auth::attempt(['email' => $request->email, 'password' => $request->password]) ) {
+//            print_r(Auth::user());
+//            Auth::login(Auth::user());
+//        } else {
+//            echo 'asdasdsad';
+//        }
+//        var_dump(User::loginValidationRules());
 
-    //        print_r(cache('user'));
+//        $member = User::where(['email' => $request->username])->get();
+//
+//        if ( !hash::check($request->password, $member->password) ) {
+//
+//        }
+//
+//        return $this->withErrorHandling(function () use ($request) {
+//            return $this->convertResponse(
+//                $this->server->respondToAccessTokenRequest($request, new Psr7Response)
+//            );
+//        });
 
-    print_r(Cache::tags(['people'])->get('user'));*/
+
+
+//        Auth::guard('web')->logout();
+//        CacheCls::tags('earth.korea.seoul.people')->remember('info', 'abcd', 3600);
+//        CacheCls::tags('earth.korea.busan')->remember('info', '1234qwer', 3600);
+//
+//
+////        Cache::tags(['earth'])->flush();
+//        echo CacheCls::tags('earth.korea.seoul.people')->get('info');
+//        echo CacheCls::tags('earth.korea.busan')->get('info');
+
+
+//        RedisManager::set('name', 'abc');
+//        echo RedisManager::get('name');
+
+//        if ($post = RedisManager::get('users')) {
+//            return response()->json($post);
+//        }
+
+//        RedisManager::hset('member:10:list', 'info', '1234');
+//        RedisManager::expire('member:10', 10);
+
+//        echo RedisManager::hget('member:10', 'info');
+//        var_dump(RedisManager::mget(['abc', '111', 'aaa']));
+//
+//        $post = DB::table('test')->get();
+//        RedisManager::set('users', $post);
+//        return response()->json($post);
+
+
+//        $post = Cache::remember('users', 60, function(){
+//            return DB::table('test')->get();
+//        });
+
+//        $post = DB::table('test')->get();
+
+//        return response()->json($post);
+
+//        $set = [
+//            'tag' => 'earth.korea.seoul.people',
+//            'key' => 'info'
+//        ];
+//        $data = 'abcd';
+
+//
+//        var_dump(CacheCls::tags('earth.korea.seoul.people')->get('info'));
+
+//        $cacheCls = new CacheCls;;
+//        $cacheCls::tags('earth.korea.seoul.people')->get('asdasd');
+
+
+//        rememberCache('earth.korea.seoul.people', 'info', '1234');
+//
+////        flushCache('earth.korea.seoul.people.info');
+//
+//        echo getCache('earth.korea.seoul.people.info');
+//        rememberCache('info');
+
+//        echo config('cache.custom.expire.common');
+
+//            Cache::tags(['earth', 'earth.korea', 'earth.korea.seoul', 'earth.korea.seoul.people'])->remember('user', 68400, function (){
+//                echo '캐시 새로';
+//                return User::where(['email' => 'pleasdf1@naver.com'])->first()->toArray();
+//            });
+//
+//        Cache::tags(['earth'])->remember('info', 68400, function (){
+//            echo "새로";
+//            return '지구';
+//        });
+//
+//                Cache::set('abc', '1234');
+
+//        //
+//        Cache::tags(['people'])->remember('user', 5, function () use ($request){
+//                    echo '캐시 새로';
+//                    return SignedCodes::limit(100)->get()->toArray();
+//                });
+//
+//        print_r(cache('people'));
+//        var_dump(Cache::get('abc'));
+//
+//        var_dump(Cache::tags(['earth', 'earth.korea', 'earth.korea.seoul', 'earth.korea.seoul.people'])->get('user'));
+//        var_dump(Cache::tags(['earth'])->get('info'));
+//
+//        Cache::tags('earth')->flush();
+
+    }
+
+    public function testa() {
+        echo gethostname();
+        print_r(Auth::user());
+    }
 
 
 
