@@ -80,7 +80,7 @@ Route::group([
 
     });
 
-
+ 
     // 회원가입시 인증 메일 발송
     Route::group([
         'prefix' => 'email'
