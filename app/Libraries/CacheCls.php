@@ -37,18 +37,18 @@ class CacheCls {
         if (isset(self::$tags)) {
             self::$tagArr = self::separateTag();
 
-            Cache::tags(self::$tagArr)->remember($key, $exp, function () use ($data){
+            $res = Cache::tags(self::$tagArr)->remember($key, $exp, function () use ($data){
                 return $data;
             });
         } else {
-            Cache::remember($key, $exp, function () use ($data) {
+            $res = Cache::remember($key, $exp, function () use ($data) {
                 return $data;
             });
         }
 
         self::reset();
 
-        return true;
+        return $res;
     }
 
     public static function tags(string $tags){

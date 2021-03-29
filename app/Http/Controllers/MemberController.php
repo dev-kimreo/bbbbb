@@ -52,7 +52,7 @@ class MemberController extends Controller
      *      summary="회원가입",
      *      description="회원가입",
      *      operationId="memberSignIn",
-     *      tags={"Members"},
+     *      tags={"회원관련"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
@@ -71,6 +71,7 @@ class MemberController extends Controller
      *              @OA\Property(property="no", type="integer", example="14", description="회원번호"),
      *              @OA\Property(property="name", type="string", example="홍길동", description="이름"),
      *              @OA\Property(property="email", type="string", format="email", example="abcd@davinci.com", description="이메일"),
+     *              @OA\Property(property="grade", type="integer", example="0", description="회원 등급"),
      *              @OA\Property(property="emailVerifiedDate", type="string", format="timezone", example="null", description="이메일 인증일자"),
      *              @OA\Property(property="regDate", type="string", format="timezone", example="2021-03-10T00:25:31+00:00", description="가입일자"),
      *              @OA\Property(property="uptDate", type="string", format="timezone",  example="2021-03-10T00:25:31+00:00", description="수정일자"),
@@ -201,7 +202,7 @@ class MemberController extends Controller
      *      summary="회원정보",
      *      description="회원정보",
      *      operationId="memberInfo",
-     *      tags={"Members"},
+     *      tags={"회원관련"},
      *      @OA\Response(
      *          response=200,
      *          description="successfully registered",
@@ -209,6 +210,7 @@ class MemberController extends Controller
      *              @OA\Property(property="no", type="integer", example="14", description="회원번호"),
      *              @OA\Property(property="name", type="string", example="홍길동", description="이름"),
      *              @OA\Property(property="email", type="string", format="email", example="abcd@davinci.com", description="이메일"),
+     *              @OA\Property(property="grade", type="integer", example="0", description="회원 등급"),
      *              @OA\Property(property="emailVerifiedDate", type="string", format="timezone", example="null", description="이메일 인증일자"),
      *              @OA\Property(property="regDate", type="string", format="timezone", example="2021-03-10T00:25:31+00:00", description="가입일자"),
      *              @OA\Property(property="uptDate", type="string", format="timezone",  example="2021-03-10T00:25:31+00:00", description="수정일자"),
@@ -237,7 +239,7 @@ class MemberController extends Controller
      *      summary="로그아웃",
      *      description="회원 로그아웃",
      *      operationId="memberLogout",
-     *      tags={"Members"},
+     *      tags={"회원관련"},
      *      @OA\Response(
      *          response=200,
      *          description="successfully logout"
@@ -271,7 +273,7 @@ class MemberController extends Controller
      *      summary="이메일 인증 재발송",
      *      description="회원 이메일 인증 재발송",
      *      operationId="memberVerifyEmailReSend",
-     *      tags={"Members"},
+     *      tags={"회원관련"},
      *      @OA\Response(
      *          response=200,
      *          description="send verify email",
@@ -344,7 +346,7 @@ class MemberController extends Controller
      *      summary="이메일 인증",
      *      description="회원 이메일 인증",
      *      operationId="memberVerifyEmail",
-     *      tags={"Members"},
+     *      tags={"회원관련"},
      *      @OA\Response(
      *          response=200,
      *          description="send verify email",
@@ -434,7 +436,7 @@ class MemberController extends Controller
      *      summary="비밀번호 검증",
      *      description="회원 비밀번호 검증",
      *      operationId="memberPasswordVerify",
-     *      tags={"Members"},
+     *      tags={"회원관련"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
@@ -499,7 +501,7 @@ class MemberController extends Controller
      *      summary="회원정보 수정",
      *      description="회원 정보 수정",
      *      operationId="memberInfoModify",
-     *      tags={"Members"},
+     *      tags={"회원관련"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
@@ -559,7 +561,7 @@ class MemberController extends Controller
      *      summary="비밀번호 변경",
      *      description="회원 비밀번호 변경",
      *      operationId="memberPwdModify",
-     *      tags={"Members"},
+     *      tags={"회원관련"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
@@ -693,7 +695,7 @@ class MemberController extends Controller
      *      summary="비밀번호 찾기",
      *      description="회원 비밀번호 찾기 - 변경을 위한 링크 발송",
      *      operationId="memberPasswordResetSendLink",
-     *      tags={"Members"},
+     *      tags={"비밀번호 찾기"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
@@ -781,7 +783,7 @@ class MemberController extends Controller
      *      summary="비밀번호 찾기 Token 인증",
      *      description="비밀번호 찾기 - 변경을 위한 링크의 값 유효성 체크",
      *      operationId="memberPasswordResetLinkAuth",
-     *      tags={"Members"},
+     *      tags={"비밀번호 찾기"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
@@ -864,7 +866,7 @@ class MemberController extends Controller
      *      summary="비밀번호 찾기 - 변경",
      *      description="비밀번호 찾기를 통한 변경 url을 통한 후 비밀번호 변경",
      *      operationId="memberPasswordReset",
-     *      tags={"Members"},
+     *      tags={"비밀번호 찾기"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
@@ -1051,10 +1053,20 @@ class MemberController extends Controller
 
     public function test(Request $request) {
         echo gethostname() . "\r\n";
-//
-        $member = auth()->user();
 
-        print_r($member);
+        $aaa = gethostname();
+
+        $bbb = 'asdasasd';
+
+
+        $c = rand(1, 100);
+
+        echo 'asdad';
+
+//
+//        $member = auth()->user();
+
+//        print_r($member);
 //        if ( Auth::attempt(['email' => $request->email, 'password' => $request->password]) ) {
 //            print_r(Auth::user());
 //            Auth::login(Auth::user());

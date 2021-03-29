@@ -34,4 +34,16 @@ return [
 
 
 
+    /**
+     * Admin Error
+     * code => language trans string
+     * ex) 10000 => 'validation.unique' // /resources/lang/[locale]/validation.php => unique key
+     */
+    20000 => 'validation.required',     // 필수값을 입력해주세요.
+
+    20010 => 'validation.unique',       // 필드 중복시 에러
+
+    20401 => 'validation.exists',       // 필드 값 오류
+
+
 ];

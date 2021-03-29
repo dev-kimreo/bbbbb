@@ -5,6 +5,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\AccessTokenController;
 
+
+use App\Http\Controllers\BoardController;
+
+
+use App\Models\Board;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -16,6 +22,7 @@ use App\Http\Controllers\AccessTokenController;
 |
 */
 
+Route::patch('/home', function(){})->name('home');
 
 Route::get('/aaa', [MemberController::class, 'test']);
 
@@ -80,7 +87,7 @@ Route::group([
 
     });
 
- 
+
     // 회원가입시 인증 메일 발송
     Route::group([
         'prefix' => 'email'
@@ -101,7 +108,23 @@ Route::group([
     });
 
 
+    // 게시판 관련
+    Route::group([
+        'prefix' => 'board'
+    ], function(){
+
+    });
+
+
+
+
 //        Route::post('/logout', [AuthController::class, 'logout']);
+
+
+
+
+});
+
 
 
 //    Route::group([
@@ -113,16 +136,42 @@ Route::group([
 //    });
 
 
-});
 
 // 관리자
-/*Route::group([
-    'middleware' => 'api',
+Route::group([
+//    'middleware' => ['auth:api', 'admin'],
 ], function ($router) {
 
     Route::group([
         'prefix' => 'admin'
     ], function ($router){
+
+        // 게시판 관련
+        Route::group([
+            'prefix' => 'board'
+        ], function(){
+
+//            // 파라미터 bind
+//            Route::bind('type', function ($type) {
+//                $data = Board::where('type', $type)->firstOrFail();
+//                return $data;
+//            });
+
+
+            // 게시판 생성
+            Route::post('', [BoardController::class, 'create']);
+
+            // 게시판 정보 수정
+            Route::patch('/{type}', [BoardController::class, 'modify']);
+
+            // 게시판 목록
+            Route::get('', [BoardController::class, 'getList']);
+
+
+            Route::get('/options', [BoardController::class, 'getOptionList']);
+
+        });
+
 
 //        Route::post('/login', [AuthController::class, 'login']);
 //        Route::post('/register', [AuthController::class, 'register']);
@@ -131,7 +180,7 @@ Route::group([
 
     });
 
-});*/
+});
 
 
 

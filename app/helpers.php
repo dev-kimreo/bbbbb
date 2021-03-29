@@ -5,7 +5,8 @@
 
 if (!function_exists('getErrorCode')) {
     function getErrorCode($code) {
-        $errCfg = config('subError.' . $code);
+        $codeType = 'subError';
+        $errCfg = config($codeType . '.' . $code);
 
         if (isset($errCfg)) {
             return json_encode([
@@ -27,6 +28,7 @@ if (!function_exists('getResponseError')) {
             $res[$code] = [];
             if (!empty($key)) {
                 $res[$code]['key'] = $key;
+                $err['message'] = str_replace(":attribute", $key, $err['message']);
             }
             $res[$code]['message'] = $err['message'];
 
@@ -150,3 +152,34 @@ if (!function_exists('checkPwdSameId')) {
     }
 }
 
+
+if (!function_exists('separateTag')) {
+    function separateTag($tags, $recursive = true) {
+        if ( isset($tags) && $tags ) {
+            $keyExp = explode('.', $tags);
+            $keyCnt = count($keyExp);
+            $tagArr = [];
+
+            if ($keyCnt > 1) {
+                for ($i=0; $i<$keyCnt; $i++) {
+                    $_tags = [];
+                    for ($j=0; $j<=$i; $j++) {
+                        $_tags[] =  $keyExp[$j];
+                    }
+                    $tagArr[] = implode('.', $_tags);
+                }
+            }
+
+            return $tagArr;
+        }
+
+    }
+}
+
+
+
+if ( !function_exists('homeRoute') ) {
+    function homeRoute() {
+        return 'home';
+    }
+}

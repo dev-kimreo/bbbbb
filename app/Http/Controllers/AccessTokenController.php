@@ -22,7 +22,7 @@ class AccessTokenController extends ATC {
      *      summary="로그인",
      *      description="회원 로그인",
      *      operationId="memberLogin",
-     *      tags={"Members"},
+     *      tags={"회원관련"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
