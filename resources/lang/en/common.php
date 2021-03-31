@@ -11,4 +11,5 @@ return [
     'verification_resend' => 'send verify email',
     'logout' => 'successfully logout',
     'changed' => 'Has been changed.',
+    'required_login' => 'This service requires login.'
 ];

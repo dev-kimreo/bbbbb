@@ -32,6 +32,8 @@ return [
     10421 => 'validation.custom.email.verified',  // 이미 인증된 회원입니다.
     10431 => 'auth.custom.incorrect_timeout',  // 잘못된 인증방식이거나 token의 유효시간이 지났습니다.
 
+    //
+    10500 => 'common.required_login',           // 로그인이 필요한 서비스입니다.
 
 
 

@@ -26,6 +26,37 @@ class Post extends Model
         'content',
     ];
 
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'board_no',
+        'user_no',
+        'created_at',
+        'updated_at'
+    ];
+
+    protected $maps = [
+        'boardNo' => 'board_no',
+        'userNo' => 'user_no',
+        'regDate' => 'created_at',
+        'uptDate' => 'updated_at'
+    ];
+
+    protected $appends = [
+        'boardNo',
+        'userNo',
+        'regDate',
+        'uptDate',
+    ];
+
+    protected $casts = [
+        'etc' => 'array'
+    ];
+
     public function getCreatedAtAttribute($value){
         return Carbon::parse($value)->format('c');
     }

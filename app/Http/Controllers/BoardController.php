@@ -25,7 +25,7 @@ class BoardController extends Controller
      *      summary="게시판 생성",
      *      description="게시판 생성",
      *      operationId="adminBoardCreate",
-     *      tags={"게시판"},
+     *      tags={"-게시판"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
@@ -87,7 +87,10 @@ class BoardController extends Controller
      *                  )
      *              )
      *          )
-     *      )
+     *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
      *  )
      */
 
@@ -100,7 +103,11 @@ class BoardController extends Controller
          */
         $optArrs = $request->options;
 
-        if ( is_object($optArrs) && count($optArrs) ) {
+        $optDefaultArrs = $this->funcGetOptionList(['sel' => ['type', 'default']])->toArray();
+
+        if ( is_array($optArrs) && count($optArrs) ) {
+
+
             foreach ($optArrs as $type => $val) {
 
                 // 옵션 데이터
@@ -129,6 +136,9 @@ class BoardController extends Controller
                 // 옵션 값 체크
                 $valCheck = true;
                 switch($type){
+                    case 'thema':
+                        $optArrs[$type] = isset($val) ? $val : $data['default'];
+                        break;
                     default:
                         $valArrs = array_column($data['options'], 'value');
                         if ( !in_array( $val, $valArrs ) ) {
@@ -143,11 +153,15 @@ class BoardController extends Controller
 
                 unset($data);
             }
+
+            foreach ($optDefaultArrs as $k => $arr) {
+                if ( !isset($optArrs[$arr['type']]) ) {
+                    $optArrs[$arr['type']] = $arr['default'];
+                }
+            }
+
         } else {
-
             $defaultOpt = [];
-            $optDefaultArrs = $this->funcGetOptionList(['sel' => ['type', 'default']])->toArray();
-
             foreach ($optDefaultArrs as $k => $arr) {
                 $defaultOpt[$arr['type']] = $arr['default'];
             }
@@ -161,9 +175,12 @@ class BoardController extends Controller
             $board->hidden = $request->hidden;
         }
 
-        $board->options = is_object($request->options) && count($request->options) ? $request->options : $defaultOpt;
+        $board->options = is_array($optArrs) && count($optArrs) ? $optArrs : $defaultOpt;
 
         $board->save();
+
+        // 게시판 목록 데이터 cache flush
+        Cache::tags(['board.list'])->flush();
 
         return response()->json([
             'message' => __('common.created')
@@ -177,7 +194,7 @@ class BoardController extends Controller
      *      summary="게시판 수정",
      *      description="게시판 수정",
      *      operationId="adminBoardModify",
-     *      tags={"게시판"},
+     *      tags={"-게시판"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
@@ -222,7 +239,10 @@ class BoardController extends Controller
      *                  )
      *              )
      *          )
-     *      )
+     *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
      *  )
      */
 
@@ -278,6 +298,8 @@ class BoardController extends Controller
                 // 옵션 값 체크
                 $valCheck = true;
                 switch($type){
+                    case 'thema':
+                        break;
                     default:
                         $valArrs = array_column($data['options'], 'value');
                         if ( !in_array( $val, $valArrs ) ) {
@@ -315,7 +337,7 @@ class BoardController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/admin/board",
+     *      path="/v1/board",
      *      summary="게시판 목록",
      *      description="게시판 목록",
      *      operationId="adminBoardList",
@@ -328,6 +350,9 @@ class BoardController extends Controller
      *              @OA\Items(type="object", ref="#/components/schemas/BoardOptionJson"),
      *          )
      *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
      *  )
      */
     /**
@@ -361,7 +386,7 @@ class BoardController extends Controller
      *      summary="게시판 옵션 목록",
      *      description="게시판 옵션 목록",
      *      operationId="adminBoardOptionList",
-     *      tags={"게시판"},
+     *      tags={"-게시판"},
      *      @OA\Response(
      *          response=200,
      *          description="successfully Modified",
@@ -370,6 +395,9 @@ class BoardController extends Controller
      *              @OA\Items(type="object", ref="#/components/schemas/BoardOption"),
      *          )
      *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
      *  )
      */
     /**
@@ -380,6 +408,47 @@ class BoardController extends Controller
 
         return response()->json($data);
     }
+
+
+    /**
+     * @OA\Get(
+     *      path="/v1/board/{id}",
+     *      summary="게시판 상세 정보",
+     *      description="게시판 상세 정보",
+     *      operationId="adminBoardInfo",
+     *      tags={"게시판"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully Modified",
+     *          @OA\JsonContent(
+     *              type="array",
+     *              @OA\Items(type="object", ref="#/components/schemas/BoardOption"),
+     *          )
+     *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
+     *  )
+     */
+    /**
+     * 게시판 상세 정보
+     * @param Request $request
+     * @return mixed
+     */
+    public function getBoardInfo(Request $request) {
+        $board = $this->funcGetBoard($request->id);
+
+        return response()->json($board);
+    }
+
+
+
+
+    public function reInitBoardOption(Request $request) {
+        $this->funcReInitBoardOption();
+    }
+
+
 
     /**
      * 게시판 옵션 검색 메소드
@@ -429,6 +498,39 @@ class BoardController extends Controller
         return $data;
     }
 
+
+
+
+    static public function funcReInitBoardOption() {
+
+        $board = Board::all();
+        $boardOpt = BoardOption::select(['type', 'default'])->get();
+        $boardOpt = $boardOpt->toArray();
+        $optArrs = [];
+        foreach ( $boardOpt as $k => $arr ) {
+            $optArrs[$arr['type']] = $arr['default'];
+        }
+        $typeArrs = array_keys($optArrs);
+
+        $board = $board->toArray();
+
+        foreach ( $board as $k => &$arr ) {
+            $keys = array_keys($arr['options']);
+
+            $diffArrs = array_diff($typeArrs, $keys);
+            if ( count($diffArrs) ) {
+                foreach ($diffArrs as $dv) {
+                    $arr['options'][$dv] = $optArrs[$dv];
+                }
+            }
+
+            Board::where('id', $arr['id'])->update(['options' => $arr['options']]);
+        }
+
+
+
+
+    }
 
 
 }

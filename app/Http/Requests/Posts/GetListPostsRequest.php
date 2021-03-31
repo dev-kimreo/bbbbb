@@ -26,10 +26,9 @@ class GetListPostsRequest extends FormRequest
     public function rules()
     {
         return [
-            'boardNo' => 'required|integer|exists:App\Models\Board,id',
             'boardInfo' => 'sometimes|in:0,1',
             'page' => 'sometimes|integer|min:1',
-            'view' => 'sometimes|integer|in:10,20,30,40,50',
+            'view' => 'sometimes|integer|in:12,15',
         ];
     }
 

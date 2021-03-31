@@ -114,25 +114,36 @@ Route::group([
     Route::group([
         'prefix' => 'board'
     ], function(){
+        // 게시판 상세 정보
+        Route::get('/{id}', [BoardController::class, 'getBoardInfo']);
 
+        // 게시판 목록
+        Route::get('', [BoardController::class, 'getList']);
     });
 
 
     // 게시판 글
     Route::group([
-        'prefix' => 'post',
-        'middleware' => 'auth:api'
+        'prefix' => 'post'
     ], function(){
-        // 작성
-        Route::post('', [PostController::class, 'create']);
 
-        // 수정
-        Route::patch('/{id}', [PostController::class, 'modify']);
+        // 인증 필요
+        Route::group([
+            'middleware' => 'auth:api',
+            ], function () {
+            // 작성
+            Route::post('', [PostController::class, 'create']);
+
+            // 수정
+            Route::patch('/{id}', [PostController::class, 'modify']);
+        });
 
         // 목록
-        Route::get('', [PostController::class, 'getList']);
+        Route::get('/{boardNo}', [PostController::class, 'getList']);
 
     });
+
+
 
 
 
@@ -155,41 +166,34 @@ Route::group([
 //    });
 
 
-
 // 관리자
 Route::group([
-    'middleware' => ['auth:api', 'admin'],
-], function ($router) {
+    'prefix' => 'admin',
+    'middleware' => ['auth:api', 'admin']
+], function ($router){
 
+    // 게시판 관련
     Route::group([
-        'prefix' => 'admin'
-    ], function ($router){
+        'prefix' => 'board'
+    ], function(){
 
-        // 게시판 관련
-        Route::group([
-            'prefix' => 'board'
-        ], function(){
-
+        Route::get('/reInitOption', [BoardController::class, 'reInitBoardOption']);
 //            // 파라미터 bind
 //            Route::bind('type', function ($type) {
 //                $data = Board::where('type', $type)->firstOrFail();
 //                return $data;
 //            });
 
+        // 게시판 생성
+        Route::post('', [BoardController::class, 'create']);
 
-            // 게시판 생성
-            Route::post('', [BoardController::class, 'create']);
+        // 게시판 정보 수정
+        Route::patch('/{id}', [BoardController::class, 'modify']);
 
-            // 게시판 정보 수정
-            Route::patch('/{id}', [BoardController::class, 'modify']);
+        // 게시판 옵션 목록
+        Route::get('/options', [BoardController::class, 'getOptionList']);
 
-            // 게시판 목록
-            Route::get('', [BoardController::class, 'getList']);
-
-            // 게시판 옵션 목록
-            Route::get('/options', [BoardController::class, 'getOptionList']);
-
-        });
+    });
 
 
 //        Route::post('/login', [AuthController::class, 'login']);
@@ -197,9 +201,8 @@ Route::group([
 //        Route::post('/logout', [AuthController::class, 'logout']);
 //        Route::get('/user-profile', [AuthController::class, 'userProfile']);
 
-    });
-
 });
+
 
 
 
