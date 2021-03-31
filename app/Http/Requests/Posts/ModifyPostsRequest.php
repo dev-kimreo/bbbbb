@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Admins\Boards;
+namespace App\Http\Requests\Posts;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ModifyBoardsRequest extends FormRequest
+class ModifyPostsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,9 +26,9 @@ class ModifyBoardsRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required_without_all:hidden,options|string|between:2,32',
-            'hidden' => 'required_without_all:name,options|in:0,1',
-            'options' => 'required_without_all:name,hidden|array',
+            'title' => 'required|string|min:6|max:128',
+            'content' => 'required|string|min:10',
+            'del' => 'sometimes|in:0,1',
         ];
     }
 
@@ -39,16 +39,7 @@ class ModifyBoardsRequest extends FormRequest
     public function messages()
     {
         return [
-            'type.unique' => getErrorCode(20010),
-//            'name.between' => json_encode([
-//                'code' => 20001,
-//                'message' => __('validation.required')
-//            ]),
-//            'password.required' => json_encode([
-//                'code' => 20003,
-//                'message' => __('validation.required')
-//            ]),
-//            'email' => __('validation.unique')
+//            'type.unique' => getErrorCode(20010),
         ];
     }
 //

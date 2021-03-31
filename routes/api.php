@@ -7,6 +7,8 @@ use App\Http\Controllers\AccessTokenController;
 
 
 use App\Http\Controllers\BoardController;
+use App\Http\Controllers\PostController;
+
 
 
 use App\Models\Board;
@@ -116,6 +118,23 @@ Route::group([
     });
 
 
+    // 게시판 글
+    Route::group([
+        'prefix' => 'post',
+        'middleware' => 'auth:api'
+    ], function(){
+        // 작성
+        Route::post('', [PostController::class, 'create']);
+
+        // 수정
+        Route::patch('/{id}', [PostController::class, 'modify']);
+
+        // 목록
+        Route::get('', [PostController::class, 'getList']);
+
+    });
+
+
 
 
 //        Route::post('/logout', [AuthController::class, 'logout']);
@@ -139,7 +158,7 @@ Route::group([
 
 // 관리자
 Route::group([
-//    'middleware' => ['auth:api', 'admin'],
+    'middleware' => ['auth:api', 'admin'],
 ], function ($router) {
 
     Route::group([
@@ -162,12 +181,12 @@ Route::group([
             Route::post('', [BoardController::class, 'create']);
 
             // 게시판 정보 수정
-            Route::patch('/{type}', [BoardController::class, 'modify']);
+            Route::patch('/{id}', [BoardController::class, 'modify']);
 
             // 게시판 목록
             Route::get('', [BoardController::class, 'getList']);
 
-
+            // 게시판 옵션 목록
             Route::get('/options', [BoardController::class, 'getOptionList']);
 
         });

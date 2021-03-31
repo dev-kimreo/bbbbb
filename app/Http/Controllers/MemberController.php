@@ -190,7 +190,7 @@ class MemberController extends Controller
         VerifyEmail::dispatch($member);
 
         return response()->json([
-            'message' => __('member.registered'),
+            'message' => __('common.registered'),
             'member' => $member
         ], 200);
     }
@@ -263,7 +263,7 @@ class MemberController extends Controller
 //        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId(auth()->user()->token()->id);
 
         return response()->json([
-            'message' => __('member.logout')
+            'message' => __('common.logout')
         ], 200);
     }
 
@@ -335,7 +335,7 @@ class MemberController extends Controller
         }
 
         return response()->json([
-            'message' => __('member.verification_resend')
+            'message' => __('common.verification_resend')
         ], 200);
 
     }
@@ -424,7 +424,7 @@ class MemberController extends Controller
         }
 
         return response()->json([
-            'message' => __('member.verified'),
+            'message' => __('common.verified'),
             'member' => $member
         ], 200);
     }
@@ -491,7 +491,7 @@ class MemberController extends Controller
         }
 
         return response()->json([
-            'message' => __('member.correct')
+            'message' => __('common.correct')
         ], 200);
     }
 
@@ -550,7 +550,7 @@ class MemberController extends Controller
         $member->save();
 
         return response()->json([
-            'message' => __('member.changed')
+            'message' => __('common.changed')
         ], 200);
     }
 
@@ -682,7 +682,7 @@ class MemberController extends Controller
         $member->save();
 
         return response()->json([
-            'message' => __('member.changed')
+            'message' => __('common.changed')
         ], 200);
     }
 
@@ -771,7 +771,7 @@ class MemberController extends Controller
         SendMail::dispatch($data);
 
         return response()->json([
-            'message' => __('member.verification_resend')
+            'message' => __('common.verification_resend')
         ], 200);
     }
 
@@ -855,7 +855,7 @@ class MemberController extends Controller
         }
 
         return response()->json([
-            'message' => __('member.verified')
+            'message' => __('common.verified')
         ], 200);
     }
 
@@ -1013,7 +1013,7 @@ class MemberController extends Controller
         DB::table('password_resets')->where('email', $request->email)->delete();
 
         return response()->json([
-            'message' => __('member.changed')
+            'message' => __('common.changed')
         ], 200);
     }
 

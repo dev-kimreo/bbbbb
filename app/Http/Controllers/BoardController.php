@@ -41,7 +41,7 @@ class BoardController extends Controller
      *          response=200,
      *          description="successfully Created",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="successfully Created" ),
+     *              @OA\Property(property="message", type="string", example="successfully Modified" ),
      *          )
      *      ),
      *      @OA\Response(
@@ -104,9 +104,9 @@ class BoardController extends Controller
             foreach ($optArrs as $type => $val) {
 
                 // 옵션 데이터
-                $tags = separateTag('board.options.' . $type);
+                $tags = separateTag('board.options.info');
 
-                $data = Cache::tags($tags)->remember('info', 10, function() use ($type){
+                $data = Cache::tags($tags)->remember($type, config('cache.custom.expire.common'), function() use ($type){
                     $opt = BoardOption::where('type', $type);
 //                      $opt->whereJsonContains('options', ['value' => $val]);
                     $opt = $opt->first();
@@ -122,6 +122,7 @@ class BoardController extends Controller
 
                 // 옵션 데이터 존재하지 않을 경우
                 if ( !$data ) {
+                    Cache::tags($tags)->forget($type);
                     return response()->json(getResponseError(20401, 'options.type'), 422);
                 }
 
@@ -145,7 +146,7 @@ class BoardController extends Controller
         } else {
 
             $defaultOpt = [];
-            $optDefaultArrs = $this->funcGetOptionList(['sel' => ['type', 'default']]);
+            $optDefaultArrs = $this->funcGetOptionList(['sel' => ['type', 'default']])->toArray();
 
             foreach ($optDefaultArrs as $k => $arr) {
                 $defaultOpt[$arr['type']] = $arr['default'];
@@ -155,20 +156,24 @@ class BoardController extends Controller
         $board = new Board;
         $board->name = $request->name;
         $board->type = $request->type;
-        $board->hidden = $request->hidden ?? 0;
+
+        if ( $request->hidden ) {
+            $board->hidden = $request->hidden;
+        }
+
         $board->options = is_object($request->options) && count($request->options) ? $request->options : $defaultOpt;
 
         $board->save();
 
         return response()->json([
-            'message' => __('board.created')
+            'message' => __('common.created')
         ], 200);
     }
 
 
     /**
      * @OA\Patch(
-     *      path="/admin/board/{type}",
+     *      path="/admin/board/{id}",
      *      summary="게시판 수정",
      *      description="게시판 수정",
      *      operationId="adminBoardModify",
@@ -226,10 +231,10 @@ class BoardController extends Controller
      */
     public function modify(ModifyBoardsRequest $request) {
 
-        $board = Board::where('type', $request->type);
+        $board = Board::where('id', $request->id);
         $boardData = $board->first();
         if ( !$boardData ) {
-            return response()->json(getResponseError(20401, '{type}'), 422);
+            return response()->json(getResponseError(20401, '{id}'), 422);
         }
 
         // 변경 할 사항
@@ -237,10 +242,6 @@ class BoardController extends Controller
 
         if ( isset($request->name) ) {
              $uptArrs ['name'] = $request->name;
-
-
-        if ( isset($request->hidden) ) {
-            $uptArrs ['hidden'] = $request->hidden;
         }
 
         if ( isset($request->options) && is_array($request->options) ) {
@@ -252,9 +253,9 @@ class BoardController extends Controller
             foreach ($optArrs as $type => $val) {
 
                 // 옵션 데이터
-                $tags = separateTag('board.options.' . $type);
+                $tags = separateTag('board.options.info');
 
-                $data = Cache::tags($tags)->remember('info', 10, function() use ($type){
+                $data = Cache::tags($tags)->remember($type, config('cache.custom.expire.common'), function() use ($type){
                     $opt = BoardOption::where('type', $type);
 //                      $opt->whereJsonContains('options', ['value' => $val]);
                     $opt = $opt->first();
@@ -270,6 +271,7 @@ class BoardController extends Controller
 
                 // 옵션 데이터 존재하지 않을 경우
                 if ( !$data ) {
+                    Cache::tags($tags)->forget($type);
                     return response()->json(getResponseError(20401, 'options.type'), 422);
                 }
 
@@ -289,7 +291,6 @@ class BoardController extends Controller
                 }
 
                 $uptArrs['options->' . $type] = $val;
-
                 unset($data);
             }
         }
@@ -297,10 +298,16 @@ class BoardController extends Controller
         // 변경사항이 있을 경우
         if ( count($uptArrs) ) {
             $board->update($uptArrs);
+
+            // 게시판 목록 데이터 cache flush
+            Cache::tags(['board.list'])->flush();
+
+            // 변경된 게시판 cache forget
+            Cache::tags(['board.info'])->forget($request->id);
         }
 
         return response()->json([
-            'message' => __('board.modified')
+            'message' => __('common.modified')
         ], 200);
     }
 
@@ -331,7 +338,7 @@ class BoardController extends Controller
         // 게시판 목록 데이터
         $tags = separateTag('board.list');
 
-        $data = Cache::tags($tags)->remember('info', 10, function(){
+        $data = Cache::tags($tags)->remember('common', config('cache.custom.expire.common'), function(){
             $brd = Board::select(['id', 'name', 'type', 'options'])->get();
             $brd = $brd->toArray();
 
@@ -369,26 +376,55 @@ class BoardController extends Controller
      * 게시판 옵션 정보
      */
     public function getOptionList(Request $request) {
-        $data = $this->funcGetOptionList();
+        $data = $this->funcGetOptionList()->toArray();
 
         return response()->json($data);
     }
 
-
+    /**
+     * 게시판 옵션 검색 메소드
+     * @param array $set
+     * @return mixed
+     */
     static public function funcGetOptionList($set = []){
-        $tags = separateTag('board.options');
+        $tags = separateTag('board.options.list');
 
-        $data = Cache::tags($tags)->remember('list', 10, function() use ($set) {
+        $data = Cache::tags($tags)->remember(md5(json_encode($set)), config('cache.custom.expire.common'), function() use ($set) {
             $opt = new BoardOption;
 
             if ( isset($set['sel']) ) {
                 $opt = $opt->select($set['sel']);
             }
 
-            $opt = $opt->orderBy('sort', 'asc')->orderBy('id', 'asc')->get()->toArray();
+            $opt = $opt->orderBy('sort', 'asc')->orderBy('id', 'asc')->get();
 
             return $opt;
         });
+
+        return $data;
+    }
+
+    /**
+     * @param $boardNo
+     * @return mixed
+     */
+    static public function funcGetBoard($boardNo) {
+        $tags = separateTag('board.info');
+
+        $data = Cache::tags($tags)->remember($boardNo, config('cache.custom.expire.common'), function() use ($boardNo) {
+            $opt = Board::find($boardNo);
+
+            if (!$opt) {
+                return false;
+            }
+
+            return $opt;
+        });
+
+        if ( !$data ) {
+            Cache::tags($tags)->forget($boardNo);
+            return false;
+        }
 
         return $data;
     }

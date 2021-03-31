@@ -8,7 +8,8 @@ return [
      * ex) 10000 => 'validation.unique' // /resources/lang/[locale]/validation.php => unique key
      */
     10000 => 'validation.unique',       // email 필드 중복시 에러
-    10001 => 'member.correct',          // 일치 하는 정보가 없습니다.
+    10001 => 'common.incorrect',          // 일치 하는 정보가 없습니다.
+    10002 => 'validation.exists',       // 필드 값 오류
 
     10010 => 'validation.required',          // 필수값을 입력해주세요.
 
