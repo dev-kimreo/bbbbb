@@ -27,7 +27,7 @@ class ModifyMemberRequest extends FormRequest
     {
         return [
             'name' => 'required|string|between:2,100',
-            'password' => 'required|password:api'
+            'password' => 'required'
         ];
     }
 
