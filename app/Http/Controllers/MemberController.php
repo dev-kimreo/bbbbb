@@ -670,6 +670,10 @@ class MemberController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function modifyPassword(ModifyMemberPwdRequest $request) {
+        // 현재 패스워드 체크
+        if ( ! $this::funcCheckPassword($request->password) ){
+            return response()->json(getResponseError(10311), 422);
+        }
 
         // 기존 비밀번호와 변경할 비밀번호가 같을 경우
         if (hash::check($request->changePassword, auth()->user()->password)) {
