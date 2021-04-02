@@ -13,7 +13,7 @@ namespace App\Schemas;
  *          @OA\Property(property="boardReply", type="enum", example="0", description="글 답변 작성<br/>0:사용안함<br/>1:사용함", default="0" ),
  *          @OA\Property(property="thema", type="string", example="boardDefaultThema", description="게시판 테마", default="boardDefaultThema"),
  *          @OA\Property(property="thumbnail", type="enum", example="0", description="섬네일 사용<br/>0:사용안함<br/>1:사용함", default="0" ),
- *          @OA\Property(property="boardStatus", type="enum", example="0", description="글 상태<br/>0:사용안함<br/>1:사용함", default="0" ),
+ *          @OA\Property(property="boardStatus", type="enum", example="0", description="글 BoardOptionJson.php상태<br/>0:사용안함<br/>1:사용함", default="0" ),
  *          @OA\Property(property="secret", type="enum", example="0", description="시크릿 사용<br/>0:사용안함<br/>1:사용함", default="0" ),
  *          @OA\Property(property="reply", type="enum", example="0", description="댓글 사용<br/>0:사용안함<br/>1:사용함", default="0" ),
  *          @OA\Property(property="editor", type="enum", example="all", description="에디터<br/>all:모두 사용<br/>ck:CK에디터 사용<br/>markd:마크다운 사용", default="all" ),

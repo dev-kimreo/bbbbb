@@ -486,7 +486,7 @@ class MemberController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function checkPassword(CheckPwdMemberRequest $request) {
-        if ( !hash::check($request->password, auth()->user()->password) ){
+        if ( ! $this::funcCheckPassword($request->password) ){
             return response()->json(getResponseError(10311), 422);
         }
 
@@ -545,6 +545,11 @@ class MemberController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function modify(ModifyMemberRequest $request) {
+
+        if ( ! $this::funcCheckPassword($request->password) ){
+            return response()->json(getResponseError(10311), 422);
+        }
+
         $member = auth()->user();
         $member->name = $request->name;
         $member->save();
@@ -1045,6 +1050,14 @@ class MemberController extends Controller
             if (!$chkPwdSameIdRes) {
                 return getResponseError(10111, 'password');
             }
+        }
+
+        return true;
+    }
+
+    static function funcCheckPassword($pwd) {
+        if ( !hash::check($pwd, auth()->user()->password) ){
+            return false;
         }
 
         return true;

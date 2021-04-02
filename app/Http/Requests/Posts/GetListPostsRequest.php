@@ -28,7 +28,7 @@ class GetListPostsRequest extends FormRequest
         return [
             'boardInfo' => 'sometimes|in:0,1',
             'page' => 'sometimes|integer|min:1',
-            'view' => 'sometimes|integer|in:12,15',
+            'view' => 'sometimes|integer', #|in:12,15
         ];
     }
 

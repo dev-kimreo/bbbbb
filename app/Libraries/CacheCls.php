@@ -3,7 +3,6 @@
 namespace App\Libraries;
 
 use Cache;
-use Illuminate\Routing\Controller as BaseController;
 
 
 class CacheCls {

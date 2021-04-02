@@ -43,14 +43,15 @@ class Post extends Model
         'boardNo' => 'board_no',
         'userNo' => 'user_no',
         'regDate' => 'created_at',
-        'uptDate' => 'updated_at'
+        'uptDate' => 'updated_at',
+        'user' => ['name']
     ];
 
     protected $appends = [
         'boardNo',
         'userNo',
         'regDate',
-        'uptDate',
+        'uptDate'
     ];
 
     protected $casts = [
@@ -63,6 +64,10 @@ class Post extends Model
 
     public function getUpdatedAtAttribute($value){
         return Carbon::parse($value)->format('c');
+    }
+
+    public function user(){
+        return $this->belongsTo('App\Models\User', 'user_no', 'id')->select(['id', 'name']);
     }
 
 }

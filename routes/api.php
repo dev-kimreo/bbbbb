@@ -8,6 +8,7 @@ use App\Http\Controllers\AccessTokenController;
 
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\AttachController;
 
 
 
@@ -106,7 +107,6 @@ Route::group([
             Route::post('/verificationResend', [MemberController::class, 'verificationResend']);
 
         });
-
     });
 
 
@@ -119,6 +119,10 @@ Route::group([
 
         // 게시판 목록
         Route::get('', [BoardController::class, 'getList']);
+
+
+        // 목록
+        Route::get('/{boardNo}/post', [PostController::class, 'getList']);
     });
 
 
@@ -138,11 +142,20 @@ Route::group([
             Route::patch('/{id}', [PostController::class, 'modify']);
         });
 
-        // 목록
-        Route::get('/{boardNo}', [PostController::class, 'getList']);
 
     });
 
+
+    // 첨부파일
+    Route::group([
+        'prefix'    => 'attach',
+        'middleware' => 'auth:api'
+    ], function(){
+
+        // 임시 파일 첨부
+        Route::post('/temp', [AttachController::class, 'create']);
+
+    });
 
 
 

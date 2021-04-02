@@ -395,12 +395,7 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "davinci_auth": []
-                    }
-                ]
+                }
             }
         },
         "/admin/board/options": {
@@ -455,12 +450,7 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "davinci_auth": []
-                    }
-                ]
+                }
             }
         },
         "/v1/member": {
@@ -1515,132 +1505,6 @@
             }
         },
         "/v1/post": {
-            "get": {
-                "tags": [
-                    "게시판 글"
-                ],
-                "summary": "게시판 글 목록",
-                "description": "게시판 글 목록",
-                "operationId": "postGetList",
-                "requestBody": {
-                    "description": "",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/postList"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "successfully Created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "header": {
-                                            "properties": {
-                                                "totalCnt": {
-                                                    "description": "총 글 수",
-                                                    "type": "integer",
-                                                    "example": 56
-                                                },
-                                                "totalPage": {
-                                                    "description": "총 페이지 수",
-                                                    "type": "integer",
-                                                    "example": 6
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "list": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "description": "게시글 고유번호",
-                                                        "type": "integer",
-                                                        "example": 1
-                                                    },
-                                                    "title": {
-                                                        "description": "게시글 제목",
-                                                        "type": "string",
-                                                        "example": "게시글 제목입니다."
-                                                    },
-                                                    "content": {
-                                                        "description": "게시글 내용",
-                                                        "type": "string",
-                                                        "example": "게시글 내용입니다."
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "failed registered",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "errors": {
-                                            "properties": {
-                                                "statusCode": {
-                                                    "properties": {
-                                                        "20010": {
-                                                            "description": "이미 존재하는 type 입니다.",
-                                                            "properties": {
-                                                                "key": {
-                                                                    "description": "type",
-                                                                    "type": "string",
-                                                                    "example": "type"
-                                                                },
-                                                                "message": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "20401": {
-                                                            "description": "옵션 및 옵션 값을 확인해주세요.",
-                                                            "properties": {
-                                                                "key": {
-                                                                    "description": "options.editor.value",
-                                                                    "type": "string",
-                                                                    "example": "options.editor.value"
-                                                                },
-                                                                "message": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "davinci_auth": []
-                    }
-                ]
-            },
             "post": {
                 "tags": [
                     "게시판 글"
@@ -1733,6 +1597,127 @@
                     }
                 ]
             }
+        },
+        "/v1/board/{boardNo}/post": {
+            "get": {
+                "tags": [
+                    "게시판 글"
+                ],
+                "summary": "게시판 글 목록",
+                "description": "게시판 글 목록",
+                "operationId": "postGetList",
+                "requestBody": {
+                    "description": "",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/postList"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successfully Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "header": {
+                                            "$ref": "#/components/schemas/Pagination"
+                                        },
+                                        "list": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "description": "게시글 고유번호",
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "title": {
+                                                        "description": "게시글 제목",
+                                                        "type": "string",
+                                                        "example": "게시글 제목입니다."
+                                                    },
+                                                    "content": {
+                                                        "description": "게시글 내용",
+                                                        "type": "string",
+                                                        "example": "게시글 내용입니다."
+                                                    },
+                                                    "boardNo": {
+                                                        "description": "게시판 고유번호",
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "userNo": {
+                                                        "description": "게시판 고유번호",
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "failed registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "statusCode": {
+                                                    "properties": {
+                                                        "20010": {
+                                                            "description": "이미 존재하는 type 입니다.",
+                                                            "properties": {
+                                                                "key": {
+                                                                    "description": "type",
+                                                                    "type": "string",
+                                                                    "example": "type"
+                                                                },
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "20401": {
+                                                            "description": "옵션 및 옵션 값을 확인해주세요.",
+                                                            "properties": {
+                                                                "key": {
+                                                                    "description": "options.editor.value",
+                                                                    "type": "string",
+                                                                    "example": "options.editor.value"
+                                                                },
+                                                                "message": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -1764,15 +1749,7 @@
                 "type": "object"
             },
             "postList": {
-                "required": [
-                    "boardNo"
-                ],
                 "properties": {
-                    "boardNo": {
-                        "description": "게시판 고유 번호",
-                        "type": "string",
-                        "example": 1
-                    },
                     "page": {
                         "description": "게시글 페이지",
                         "type": "integer",
@@ -2009,19 +1986,13 @@
                                 "example": "0"
                             },
                             "boardStatus": {
-                                "description": "글 상태<br/>0:사용안함<br/>1:사용함",
+                                "description": "글 BoardOptionJson.php상태<br/>0:사용안함<br/>1:사용함",
                                 "type": "enum",
                                 "default": "0",
                                 "example": "0"
                             },
                             "secret": {
                                 "description": "시크릿 사용<br/>0:사용안함<br/>1:사용함",
-                                "type": "enum",
-                                "default": "0",
-                                "example": "0"
-                            },
-                            "listViewContent": {
-                                "description": "목록에서 내용보기<br/>0:사용안함<br/>1:사용함",
                                 "type": "enum",
                                 "default": "0",
                                 "example": "0"
@@ -2051,6 +2022,96 @@
                 "type": "object",
                 "xml": {
                     "name": "게시판 옵션"
+                }
+            },
+            "Pagination": {
+                "properties": {
+                    "page": {
+                        "description": "현재 페이지",
+                        "type": "integer",
+                        "example": 11
+                    },
+                    "perPage": {
+                        "description": "한 페이지당 게시글 수",
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "skip": {
+                        "description": "넘겨온 게시글 수",
+                        "type": "integer",
+                        "example": 100
+                    },
+                    "block": {
+                        "description": "현재 블럭",
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "perBlock": {
+                        "description": "한 블럭당 페이지 수",
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "totalCount": {
+                        "description": "총 게시글 수",
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "totalPage": {
+                        "description": "총 페이지 수",
+                        "type": "integer",
+                        "example": 20
+                    },
+                    "totalBlock": {
+                        "description": "총 블럭 수",
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "startPage": {
+                        "description": "현재 블럭의 시작 페이지",
+                        "type": "integer",
+                        "example": 101
+                    },
+                    "endPage": {
+                        "description": "현재 블럭의 끝 페이지",
+                        "type": "integer",
+                        "example": 110
+                    },
+                    "prev": {
+                        "description": "이전 블럭이 존재할 경우 생성",
+                        "properties": {
+                            "start": {
+                                "description": "이전 블럭의 시작 페이지",
+                                "type": "integer",
+                                "example": 91
+                            },
+                            "end": {
+                                "description": "이전 블럭의 끝 페이지",
+                                "type": "integer",
+                                "example": 100
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "next": {
+                        "description": "다음 블럭이 존재할 경우 생성",
+                        "properties": {
+                            "start": {
+                                "description": "다음 블럭의 시작 페이지",
+                                "type": "integer",
+                                "example": 111
+                            },
+                            "end": {
+                                "description": "다음 블럭의 끝 페이지",
+                                "type": "integer",
+                                "example": 120
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object",
+                "xml": {
+                    "name": "페이지네비게이션"
                 }
             }
         },

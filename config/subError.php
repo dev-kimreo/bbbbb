@@ -13,6 +13,9 @@ return [
 
     10010 => 'validation.required',          // 필수값을 입력해주세요.
 
+
+    10020 => 'common.incorrect_page',          // 정상적인 페이지 요청이 아닙니다.
+
     // password errors
     10100 => 'validation.custom.password.same_org', // 이전 비밀번호와 동일합니다.
     10101 => 'validation.custom.password.combination',  // 문자 조합 및 길이제한 체크

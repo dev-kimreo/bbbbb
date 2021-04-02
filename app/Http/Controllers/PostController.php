@@ -17,6 +17,8 @@ use App\Http\Requests\Posts\GetListPostsRequest;
 use App\Http\Requests\Posts\CreatePostsRequest;
 use App\Http\Requests\Posts\ModifyPostsRequest;
 
+use App\Libraries\PageCls;
+
 /**
  * Class PostController
  * @package App\Http\Controllers
@@ -106,19 +108,57 @@ class PostController extends Controller
      */
 
     /**
-     * 게시판 생성
+     * 게시글 작성
+     * @param CreatePostsRequest $request
+     * @return mixed
      */
     public function create(CreatePostsRequest $request) {
+
+        // 게시판 정보
+        $board = BoardController::funcGetBoard($request->boardNo);
+        if ( !$board ) {
+            return response()->json(getResponseError(10001, 'boardNo'), 422);
+        }
+        $board = $board->toArray();
+
+        /**
+         * 게시글 작성 데이터
+         */
+        $etc = [];
+
+        foreach ( $board['options'] as $type => $val ) {
+            switch ($type) {
+                case 'thumbnail':
+                    break;
+
+                case 'attachFile':
+                    break;
+
+                case 'boardStatus':     // 게시글 상태 사용
+                    if ( isset($val) && $val ) {
+                        $etc['status'] = 'wait';
+                    }
+                    break;
+            }
+        }
+
         $post = New Post;
         $post->board_no = $request->boardNo;
         $post->user_no = auth()->user()->id;
         $post->title = $request->title;
         $post->content = $request->content;
 
+        if ( count($etc) ) {
+            $post->etc = $etc;
+        }
+
         $post->save();
 
         return response()->json([
-            'message' => __('common.created')
+            'message' => __('common.created'),
+            'data' => [
+                'no' => $post->id
+            ]
         ], 200);
     }
 
@@ -132,14 +172,12 @@ class PostController extends Controller
     /**
      * @OA\Schema (
      *      schema="postList",
-     *      required={"boardNo"},
-     *      @OA\Property(property="boardNo", type="string", example=1, description="게시판 고유 번호" ),
      *      @OA\Property(property="page", type="integer", example=2, description="게시글 페이지" ),
      *      @OA\Property(property="view", type="integer", example=10, description="한 페이지당 보여질 갯수" )
      * )
      *
      * @OA\Get(
-     *      path="/v1/post/{boardNo}",
+     *      path="/v1/board/{boardNo}/post",
      *      summary="게시판 글 목록",
      *      description="게시판 글 목록",
      *      operationId="postGetList",
@@ -155,15 +193,14 @@ class PostController extends Controller
      *          response=200,
      *          description="successfully Created",
      *          @OA\JsonContent(
-     *              @OA\Property(property="header", type="object",
-     *                  @OA\Property(property="totalCnt", type="integer", example=56, description="총 글 수" ),
-     *                  @OA\Property(property="totalPage", type="integer", example=6, description="총 페이지 수" ),
-     *              ),
+     *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination" ),
      *              @OA\Property(property="list", type="array",
      *                  @OA\Items(type="object",
      *                      @OA\Property(property="id", type="integer", example=1, description="게시글 고유번호" ),
      *                      @OA\Property(property="title", type="string", example="게시글 제목입니다.", description="게시글 제목" ),
      *                      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" ),
+     *                      @OA\Property(property="boardNo", type="integer", example=1, description="게시판 고유번호" ),
+     *                      @OA\Property(property="userNo", type="integer", example=1, description="게시판 고유번호" ),
      *                  )
      *              ),
      *          )
@@ -211,10 +248,7 @@ class PostController extends Controller
      *                  )
      *              )
      *          )
-     *      ),
-     *      security={{
-     *          "davinci_auth":{}
-     *      }}
+     *      )
      *  )
      */
     /**
@@ -235,26 +269,27 @@ class PostController extends Controller
         // 게시글 목록
         $set = [
             'boardNo' => $request->boardNo,
-            'page' => $request->page ? intval($request->page) : 1,
-            'view' => $request->view ? intval($request->view) : 15,
+            'boardInfo' => $boardInfoFlag,
+            'page' => $request->page,
+            'view' => $request->view,
             'select' => ['id', 'title', 'comment', 'boardNo', 'userNo', 'regDate', 'uptDate']
         ];
 
         // where 절 eloquent
         $whereModel = Post::where(['board_no' => $set['boardNo']]);
 
-        // 섬네일 기능 사용시
-        if ( $board['options']['thumbnail'] ) {
-            
+        // 섬네일 기능 사용시 **check**
+        if ( isset($board['options']['thumbnail']) && $board['options']['thumbnail'] ) {
+
         }
 
         // 글 상태 사용시
-        if ( $board['options']['boardStatus'] ) {
+        if ( isset($board['options']['boardStatus']) && $board['options']['boardStatus'] ) {
             $set['select'][] = 'etc';
         }
 
         // 시크릿 기능 사용시
-        if ( $board['options']['secret'] ) {
+        if ( isset($board['options']['secret']) && $board['options']['secret'] ) {
             if ( !auth()->user() ) {
                 return response()->json(getResponseError(10500), 422);
             }
@@ -262,33 +297,54 @@ class PostController extends Controller
             $whereModel = $whereModel->where(['user_no' => auth()->user()->id]);
         }
 
-        // total 갯수
-        $header = [];
-        $header['totalCnt'] = $whereModel->count();
-        $header['totalPage'] = ceil($header['totalCnt'] / $set['view']);
+        // 댓글 사용시 **check**
+        if ( $board['options']['reply'] ) {
 
-        if ( $set['page'] <= $header['totalPage'] ) {
+        }
+
+        // 파일 첨부 **check**
+        if ( isset($board['options']['attachFile']) && $board['options']['attachFile'] ) {
+
+        }
+
+        // pagination
+        $pagination = PageCls::set($set['page'], $whereModel->count(), $set['view']);
+        if ( !$pagination ) {
+            return response()->json(getResponseError(10020), 422);
+        }
+
+        if ( $set['page'] <= $pagination['totalPage'] ) {
             // cache
             $hash = substr(md5(json_encode($set)), 0, 5);
-            $tags = separateTag('post.list.' . $request->boardNo);
-            $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function() use ($set, $whereModel) {
-                $post = $whereModel->select($set['select'])
-                                ->skip( ($set['page']-1) * $set['view'] )
-                                ->take($set['view'])
-                                ->get();
+            $tags = separateTag('post.list.' . $set['boardNo']);
+            $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function() use ($set, $pagination, $whereModel) {
+                $post = $whereModel
+                        ->with('user:id,name')
+                        ->select($set['select'])
+                        ->skip($pagination['skip'])
+                        ->take($pagination['perPage'])
+                        ->get();
+
+                $post->pluck('user')->each->setAppends([]);
 
                 return $post;
             });
         }
 
-        // 게시판 정보 필요시
-        if ( $boardInfoFlag ) {
-        }
-
-
         $data = isset($data) ? $data->toArray() : array();
 
-        return response()->json(['header' => $header, 'list' => $data], 200);
+        $result = ['header' => $pagination];
+
+        // 게시판 정보 필요시
+        if ( $boardInfoFlag ) {
+            $result['board'] = $board;
+        }
+
+        $result['list'] = $data;
+
+
+
+        return response()->json($result, 200);
     }
 
 

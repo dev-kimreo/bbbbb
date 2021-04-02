@@ -349,10 +349,7 @@ class BoardController extends Controller
      *              type="array",
      *              @OA\Items(type="object", ref="#/components/schemas/BoardOptionJson"),
      *          )
-     *      ),
-     *      security={{
-     *          "davinci_auth":{}
-     *      }}
+     *      )
      *  )
      */
     /**
@@ -424,10 +421,7 @@ class BoardController extends Controller
      *              type="array",
      *              @OA\Items(type="object", ref="#/components/schemas/BoardOption"),
      *          )
-     *      ),
-     *      security={{
-     *          "davinci_auth":{}
-     *      }}
+     *      )
      *  )
      */
     /**
