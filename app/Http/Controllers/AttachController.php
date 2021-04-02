@@ -25,6 +25,9 @@ class AttachController extends Controller
     public function create(Request $request) {
 //        Storage::disk('temp')->put('file.txt', 'Contents');
 
+        Storage::disk('temp')->putFileAs('', $request->file('image'), $request->file('image')->getClientOriginalName());
+        print_r($request->file('image')->getClientOriginalName());
+
     }
 
 

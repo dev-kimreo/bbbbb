@@ -26,7 +26,7 @@ class CheckPwdMemberRequest extends FormRequest
     public function rules()
     {
         return [
-            'password' => 'required|password:api'
+            'password' => 'required'
         ];
     }
 

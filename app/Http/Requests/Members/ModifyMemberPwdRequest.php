@@ -26,7 +26,7 @@ class ModifyMemberPwdRequest extends FormRequest
     public function rules()
     {
         return [
-            'password' => 'required|password:api',
+            'password' => 'required',
             'changePassword' => 'required|string|min:8',
             'passwordConfirmation' => 'required|string|same:changePassword'
         ];
