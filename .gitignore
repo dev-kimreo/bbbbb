@@ -4,6 +4,7 @@
 /storage/*.key
 /storage/api-docs/api-docs.json
 /vendor
+/.idea
 .env
 .env.backup
 supervisord.pid
