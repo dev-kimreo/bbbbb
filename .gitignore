@@ -2,9 +2,11 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/api-docs/api-docs.json
 /vendor
 .env
 .env.backup
+supervisord.pid
 .phpunit.result.cache
 docker-compose.override.yml
 Homestead.json
