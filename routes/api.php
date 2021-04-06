@@ -153,7 +153,14 @@ Route::group([
     ], function(){
 
         // 임시 파일 첨부
+        Route::post('/aaa', [AttachController::class, 'test']);
+
+
+        // 임시 파일 첨부
         Route::post('/temp', [AttachController::class, 'create']);
+
+        // 파일 삭제
+        Route::delete('/{id}', [AttachController::class, 'delete']);
 
     });
 

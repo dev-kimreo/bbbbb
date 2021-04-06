@@ -4,6 +4,7 @@
 return [
     'created' => 'successfully created',
     'modified' => 'successfully modified',
+    'deleted' => 'successfully deleted',
     'correct' => 'This is the correct information.',
     'incorrect' => 'This is the incorrect information.',
     'registered' => 'successfully registered',

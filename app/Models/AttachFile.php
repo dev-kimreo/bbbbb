@@ -12,25 +12,22 @@ use Carbon\Carbon;
 /**
  *
  *  @OA\Schema(
- *      @OA\Xml(name="게시판 옵션"),
- *      @OA\Property(property="id", type="string", example=1, description="게시판 옵션 고유 번호" ),
- *      @OA\Property(property="name", type="string", example="글 작성", description="게시판 옵션 명" ),
- *      @OA\Property(property="type", type="string", example="board", description="게시판 옵션 타입" ),
- *      @OA\Property(property="dataType", type="string", example="radio", description="게시판 옵션 데이터 타입" ),
- *      @OA\Property(property="default", type="string", example="all", description="게시판 옵션 기본값" ),
- *      @OA\Property(property="options", type="array", collectionFormat="multi", example={{"value":"all","comment":"모두 작성 가능"},{"value":"manager","comment":"운영진만 작성 가능"},{"value":"member","comment":"회원만 작성가능"}},
- *          @OA\Items(
- *              @OA\Property(property="value", type="string", description="옵션 값" ),
- *              @OA\Property(property="comment", type="string", description="옵션 값에 대한 설명" )
- *          ),
- *      ),
+ *      @OA\Xml(name="이미지"),
+ *      @OA\Property(property="id", type="integer", example=1, description="업로드 파일 고유 번호" ),
+ *      @OA\Property(property="server", type="string", example="public", description="업로드된 서버" ),
+ *      @OA\Property(property="type", type="string", example="temp", description=" 업로드 타입" ),
+ *      @OA\Property(property="type_no", type="integer", example=1, description="타입의 고유 번호" ),
+ *      @OA\Property(property="user_no", type="integer", example=1, description="회원 고유 번호" ),
+ *      @OA\Property(property="url", type="integer", example=1, description="회원 고유 번호" ),
+ *      @OA\Property(property="path", type="integer", example=1, description="회원 고유 번호" ),
+ *      @OA\Property(property="name", type="integer", example=1, description="회원 고유 번호" ),
  *      @OA\Property(property="sort", type="string", example="0", description="게시판 옵션 순서 " ),
  *  )
  *
  * Class BoardOption
  *
  */
-class BoardOption extends Model
+class AttachFile extends Model
 {
     use HasFactory, Eloquence, Mappable;
 
@@ -40,9 +37,6 @@ class BoardOption extends Model
      * @var array
      */
     protected $fillable = [
-        'name',
-        'type',
-        'options',
     ];
 
     /**
@@ -51,21 +45,15 @@ class BoardOption extends Model
      * @var array
      */
     protected $hidden = [
-        'data_type',
-        'created_at',
-        'updated_at',
     ];
 
     protected $casts = [
-        'options' => 'array'
     ];
 
     protected $maps = [
-        'dataType' => 'data_type',
     ];
 
     protected $appends = [
-        'dataType',
     ];
 
 
