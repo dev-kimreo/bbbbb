@@ -64,8 +64,8 @@ use Illuminate\Routing\Controller as BaseController;
  *          "tagGroups"= {
  *              {"name"="공통", "tags"={"Commons"}},
  *              {"name"="회원", "tags"={"회원관련", "비밀번호 찾기"}},
- *              {"name"="게시판", "tags"={"게시판", "게시판 글"}},
- *              {"name"="첨부파일", "tags"={"첨부파일"}},
+ *              {"name"="[ing] 게시판", "tags"={"게시판", "게시판 글"}},
+ *              {"name"="[ing] 첨부파일", "tags"={"첨부파일"}},
  *              {"name"="어드민", "tags"={"-게시판"}},
  *          },
  *      }

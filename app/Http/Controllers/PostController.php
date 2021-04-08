@@ -67,37 +67,15 @@ class PostController extends Controller
      *                  @OA\Property(
      *                      property="statusCode",
      *                      type="object",
-     *                      @OA\Property(
-     *                          property="20010",
-     *                          type="object",
-     *                          description="이미 존재하는 type 입니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="type",
-     *                              example="type",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="100022", ref="#/components/schemas/RequestResponse/properties/100022"),
+     *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
+     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
      *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="20401",
-     *                          type="object",
-     *                          description="옵션 및 옵션 값을 확인해주세요.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="options.editor.value",
-     *                              example="options.editor.value",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                  )
+     *                      }
+     *                  ),
      *              )
      *          )
      *      ),
@@ -117,7 +95,7 @@ class PostController extends Controller
         // 게시판 정보
         $board = BoardController::funcGetBoard($request->boardNo);
         if ( !$board ) {
-            return response()->json(getResponseError(10001, 'boardNo'), 422);
+            return response()->json(getResponseError(100022, 'boardNo'), 422);
         }
         $board = $board->toArray();
 
@@ -214,37 +192,7 @@ class PostController extends Controller
      *                  type="object",
      *                  @OA\Property(
      *                      property="statusCode",
-     *                      type="object",
-     *                      @OA\Property(
-     *                          property="20010",
-     *                          type="object",
-     *                          description="이미 존재하는 type 입니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="type",
-     *                              example="type",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="20401",
-     *                          type="object",
-     *                          description="옵션 및 옵션 값을 확인해주세요.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="options.editor.value",
-     *                              example="options.editor.value",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
+     *                      type="object"
      *                  )
      *              )
      *          )

@@ -37,16 +37,7 @@ class CheckPwdMemberRequest extends FormRequest
     public function messages()
     {
         return [
-//            'email.exists' => getErrorCode(10301),
-//            'name.between' => json_encode([
-//                'code' => 20001,
-//                'message' => __('validation.required')
-//            ]),
-//            'password.required' => json_encode([
-//                'code' => 20003,
-//                'message' => __('validation.required')
-//            ]),
-//            'email' => __('validation.unique')
+            'password.required' => getErrorCode(100001, 'password'),
         ];
     }
 //

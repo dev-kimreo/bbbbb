@@ -54,37 +54,16 @@ class BoardController extends Controller
      *                  @OA\Property(
      *                      property="statusCode",
      *                      type="object",
-     *                      @OA\Property(
-     *                          property="20010",
-     *                          type="object",
-     *                          description="이미 존재하는 type 입니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="type",
-     *                              example="type",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="100002", ref="#/components/schemas/RequestResponse/properties/100002"),
+     *                              @OA\Property(property="100022", ref="#/components/schemas/RequestResponse/properties/100022"),
+     *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
+     *                              @OA\Property(property="100073", ref="#/components/schemas/RequestResponse/properties/100073"),
      *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="20401",
-     *                          type="object",
-     *                          description="옵션 및 옵션 값을 확인해주세요.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="options.editor.value",
-     *                              example="options.editor.value",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                  )
+     *                      }
+     *                  ),
      *              )
      *          )
      *      ),
@@ -115,7 +94,6 @@ class BoardController extends Controller
 
                 $data = Cache::tags($tags)->remember($type, config('cache.custom.expire.common'), function() use ($type){
                     $opt = BoardOption::where('type', $type);
-//                      $opt->whereJsonContains('options', ['value' => $val]);
                     $opt = $opt->first();
 
                     if (!$opt) {
@@ -130,7 +108,7 @@ class BoardController extends Controller
                 // 옵션 데이터 존재하지 않을 경우
                 if ( !$data ) {
                     Cache::tags($tags)->forget($type);
-                    return response()->json(getResponseError(20401, 'options.type'), 422);
+                    return response()->json(getResponseError(100022, 'options.type'), 422);
                 }
 
                 // 옵션 값 체크
@@ -148,7 +126,7 @@ class BoardController extends Controller
                 }
 
                 if ( !$valCheck ) {
-                    return response()->json(getResponseError(20401, 'options.' . $type . '.value'), 422);
+                    return response()->json(getResponseError(100022, 'options.' . $type . '.value'), 422);
                 }
 
                 unset($data);
@@ -221,22 +199,15 @@ class BoardController extends Controller
      *                  @OA\Property(
      *                      property="statusCode",
      *                      type="object",
-     *                      @OA\Property(
-     *                          property="20401",
-     *                          type="object",
-     *                          description="옵션 및 옵션 값을 확인해주세요.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="options.editor.value",
-     *                              example="options.editor.value",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100003", ref="#/components/schemas/RequestResponse/properties/100003"),
+     *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
+     *                              @OA\Property(property="100081", ref="#/components/schemas/RequestResponse/properties/100081"),
+     *                              @OA\Property(property="100083", ref="#/components/schemas/RequestResponse/properties/100083"),
      *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                  )
+     *                      }
+     *                  ),
      *              )
      *          )
      *      ),
@@ -254,7 +225,7 @@ class BoardController extends Controller
         $board = Board::where('id', $request->id);
         $boardData = $board->first();
         if ( !$boardData ) {
-            return response()->json(getResponseError(20401, '{id}'), 422);
+            return response()->json(getResponseError(100022, '{id}'), 422);
         }
 
         // 변경 할 사항
@@ -292,7 +263,7 @@ class BoardController extends Controller
                 // 옵션 데이터 존재하지 않을 경우
                 if ( !$data ) {
                     Cache::tags($tags)->forget($type);
-                    return response()->json(getResponseError(20401, 'options.type'), 422);
+                    return response()->json(getResponseError(100022, 'options.type'), 422);
                 }
 
                 // 옵션 값 체크
@@ -309,7 +280,7 @@ class BoardController extends Controller
                 }
 
                 if ( !$valCheck ) {
-                    return response()->json(getResponseError(20401, 'options.' . $type . '.value'), 422);
+                    return response()->json(getResponseError(100022, 'options.' . $type . '.value'), 422);
                 }
 
                 $uptArrs['options->' . $type] = $val;
@@ -421,7 +392,26 @@ class BoardController extends Controller
      *              type="array",
      *              @OA\Items(type="object", ref="#/components/schemas/BoardOption"),
      *          )
-     *      )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed registered",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="statusCode",
+     *                      type="object",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
+     *                          ),
+     *                      }
+     *                  ),
+     *              )
+     *          )
+     *      ),
      *  )
      */
     /**
@@ -431,6 +421,10 @@ class BoardController extends Controller
      */
     public function getBoardInfo(Request $request) {
         $board = $this->funcGetBoard($request->id);
+
+        if ( !$board ) {
+            return response()->json(getResponseError(100005), 422);
+        }
 
         return response()->json($board);
     }

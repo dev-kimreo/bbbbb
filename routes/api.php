@@ -30,7 +30,8 @@ Route::patch('/home', function(){})->name('home');
 Route::get('/aaa', [MemberController::class, 'test']);
 
 Route::group([
-    'prefix' => 'v1'
+    'prefix' => 'v1',
+    'middleware' => 'language'
 ], function (){
 
     /**
@@ -151,13 +152,8 @@ Route::group([
         'prefix'    => 'attach',
         'middleware' => 'auth:api'
     ], function(){
-
         // 임시 파일 첨부
-        Route::post('/aaa', [AttachController::class, 'test']);
-
-
-        // 임시 파일 첨부
-        Route::post('/temp', [AttachController::class, 'create']);
+        Route::post('', [AttachController::class, 'create']);
 
         // 파일 삭제
         Route::delete('/{id}', [AttachController::class, 'delete']);

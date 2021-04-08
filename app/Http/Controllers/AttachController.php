@@ -11,7 +11,8 @@ use Storage;
 use Artisan;
 
 use App\Models\AttachFile;
-//use App\Http\Requests\Posts\GetListPostsRequest;
+
+use App\Http\Requests\Attaches\CreateAttachRequest;
 
 use App\Libraries\PageCls;
 
@@ -27,12 +28,112 @@ class AttachController extends Controller
     public $hexName = null;         // hex
     public $path = [];
 
-    public function getServer() {
-        $diskServer = config('filesystems.custom.servers');
-        $curServer = $diskServer[hexdec($this->path[0]) % count($diskServer)];
+    /**
+     * @OA\Post(
+     *      path="/v1/attach",
+     *      summary="첨부파일 임시 저장",
+     *      description="첨부파일 임시 저장",
+     *      operationId="attachFileCreate",
+     *      tags={"첨부파일"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="files[]", type="array", description="",
+     *                      @OA\Items(type="string", format="binary")
+     *                  )
+     *              ),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully Created",
+     *          @OA\JsonContent(
+     *              type="array",
+     *              @OA\Items(type="object",
+     *                  @OA\Property(property="url", type="string", example="http://local-api.qpicki.com/storage/temp/75bc15bf36e777ae26ad9be0b1745e08.jpg", description="url" ),
+     *                  @OA\Property(property="orgName", type="string", example="자연환경.png", description="원본 파일명" ),
+     *                  @OA\Property(property="extension", type="string", example="png", description="원본 확장자" ),
+     *              ),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed registered",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="statusCode",
+     *                      type="object",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100003", ref="#/components/schemas/RequestResponse/properties/100003"),
+     *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
+     *                              @OA\Property(property="100081", ref="#/components/schemas/RequestResponse/properties/100081"),
+     *                              @OA\Property(property="100083", ref="#/components/schemas/RequestResponse/properties/100083"),
+     *                          ),
+     *                      }
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
+     *  )
+     */
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function create(CreateAttachRequest $request) {
+        $files = $request->file('files');
+        $uploadFiles = [];
+        $res = [];
 
-        return $curServer;
+        if ( is_array($files) && count($files) ) {
+            foreach ( $files as $img ) {
+                $uploadFiles[] = [
+                    'path' => Storage::disk('public')->putFileAs($this->tempDir, $img, md5($img->getClientOriginalName() . microtime()) . "." .  $img->getClientOriginalExtension()),
+                    'orgName' => $img->getClientOriginalName()
+                ];
+            }
+        } else {
+            return response()->json(getResponseError(100001, '{files[]}'), 422);
+        }
+
+        foreach ($uploadFiles as $f) {
+            $url = Storage::disk('public')->url($f['path']);
+            $pathInfo = pathinfo($url);
+            $path = pathInfo(str_replace(config('filesystems.disks.public.url') . '/', '', $url))['dirname'];
+
+            // 저장
+            $attachModel = new AttachFile;
+            $attachModel->server = 'public';
+            $attachModel->type = $this->tempDir;
+            $attachModel->user_no = auth()->user() ? auth()->user()->id : 0;
+            $attachModel->url = $url;
+            $attachModel->path = $path;
+            $attachModel->name = $pathInfo['basename'];
+            $attachModel->org_name = $f['orgName'];
+            $attachModel->save();
+
+            $res[] = [
+                'no' => $attachModel->id,
+                'url' => $attachModel->url,
+                'orgName' => $f['orgName'],
+                'extension' => $pathInfo['extension']
+            ];
+        }
+
+        return response()->json($res, 200);
     }
+
 
     public function move($type, $typeNo, array $names) {
         if ( $typeNo <= 0 ) {
@@ -45,7 +146,7 @@ class AttachController extends Controller
             $this->path[] = substr($this->hexName, $i, $this->levelDepth);
         }
 
-        $disk = $this->getServer();
+        $disk = $this->funcGetServer();
 
 //        var_dump($disk);
 //        var_dump($this->path);
@@ -88,122 +189,6 @@ class AttachController extends Controller
         }
     }
 
-
-    /**
-     * @OA\Post(
-     *      path="/v1/attach/temp",
-     *      summary="첨부파일 임시 저장",
-     *      description="첨부파일 임시 저장",
-     *      operationId="attachFileCreate",
-     *      tags={"첨부파일"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="",
-     *          @OA\MediaType(
-     *              mediaType="multipart/form-data",
-     *              @OA\Schema(
-     *                  @OA\Property(
-     *                      property="files[]", type="array", description="",
-     *                      @OA\Items(type="string", format="binary")
-     *                  )
-     *              ),
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="successfully Created",
-     *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(type="object",
-     *                  @OA\Property(property="url", type="string", example="http://local-api.qpicki.com/storage/temp/75bc15bf36e777ae26ad9be0b1745e08.jpg", description="url" ),
-     *                  @OA\Property(property="orgName", type="string", example="자연환경.png", description="원본 파일명" ),
-     *                  @OA\Property(property="extension", type="string", example="png", description="원본 확장자" ),
-     *              ),
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      @OA\Property(
-     *                          property="20010",
-     *                          type="object",
-     *                          description="이미 존재하는 type 입니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="type",
-     *                              example="type",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                  )
-     *              )
-     *          )
-     *      ),
-     *      security={{
-     *          "davinci_auth":{}
-     *      }}
-     *  )
-     */
-    /**
-     * @param Request $request
-     * @return mixed
-     */
-    public function create(Request $request) {
-        $files = $request->file('files');
-        $uploadFiles = [];
-        $res = [];
-
-        if ( is_array($files) && count($files) ) {
-            foreach ( $files as $img ) {
-                $uploadFiles[] = [
-                    'path' => Storage::disk('public')->putFileAs($this->tempDir, $img, md5($img->getClientOriginalName() . microtime()) . "." .  $img->getClientOriginalExtension()),
-                    'orgName' => $img->getClientOriginalName()
-                ];
-            }
-        } else {
-            $uploadFiles[] = [
-                    'path' => Storage::disk('public')->putFileAs($this->tempDir, $files, md5($files->getClientOriginalName() . microtime()) . "." .  $files->getClientOriginalExtension()),
-                    'orgName' => $files->getClientOriginalName()
-            ];
-        }
-
-        foreach ($uploadFiles as $f) {
-            $url = Storage::disk('public')->url($f['path']);
-            $pathInfo = pathinfo($url);
-            $path = pathInfo(str_replace(config('filesystems.disks.public.url') . '/', '', $url))['dirname'];
-
-            // 저장
-            $attachModel = new AttachFile;
-            $attachModel->server = 'public';
-            $attachModel->type = $this->tempDir;
-            $attachModel->user_no = auth()->user() ? auth()->user()->id : 0;
-            $attachModel->url = $url;
-            $attachModel->path = $path;
-            $attachModel->name = $pathInfo['basename'];
-            $attachModel->org_name = $f['orgName'];
-            $attachModel->save();
-
-            $res[] = [
-                'no' => $attachModel->id,
-                'url' => $attachModel->url,
-                'orgName' => $f['orgName'],
-                'extension' => $pathInfo['extension']
-            ];
-        }
-
-        return response()->json($res, 200);
-    }
 
     /**
      * 단일 첨부파일 삭제
@@ -259,6 +244,13 @@ class AttachController extends Controller
         }
 
         return true;
+    }
+
+    public function funcGetServer() {
+        $diskServer = config('filesystems.custom.servers');
+        $curServer = $diskServer[hexdec($this->path[0]) % count($diskServer)];
+
+        return $curServer;
     }
 
 

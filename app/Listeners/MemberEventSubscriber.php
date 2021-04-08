@@ -73,7 +73,7 @@ class MemberEventSubscriber
     // 메일 발송 갯수 제한 체크
     public function handleMemberVerifyEmailCheck($event) {
 
-        $signCount = SignedCodes::where('name',  $this->subName)
+        $signCount = SignedCodes::where('name',  $this->verifyKey)
                                 ->where('name_key', $event->user->no)
                                 ->where('created_at', '>', carbon::now()->subMinutes(Config::get('auth.verification.send_limit_minutes')))->get()->count();
 

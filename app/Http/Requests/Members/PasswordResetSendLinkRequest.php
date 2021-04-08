@@ -26,7 +26,7 @@ class PasswordResetSendLinkRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|exists:App\Models\User,email',
+            'email' => 'required|email|exists:App\Models\User,email',
 //            'name' => 'required'
         ];
     }
@@ -38,16 +38,9 @@ class PasswordResetSendLinkRequest extends FormRequest
     public function messages()
     {
         return [
-//            'email.exists' => getErrorCode(10301),
-//            'name.between' => json_encode([
-//                'code' => 20001,
-//                'message' => __('validation.required')
-//            ]),
-//            'password.required' => json_encode([
-//                'code' => 20003,
-//                'message' => __('validation.required')
-//            ]),
-//            'email' => __('validation.unique')
+            'email.required' => getErrorCode(100001, 'email'),
+            'email.email' => getErrorCode(100101, 'email'),
+            'email.exists' => getErrorCode(100021, 'email'),
         ];
     }
 //

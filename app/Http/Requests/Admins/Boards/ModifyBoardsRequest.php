@@ -39,16 +39,12 @@ class ModifyBoardsRequest extends FormRequest
     public function messages()
     {
         return [
-            'type.unique' => getErrorCode(20010),
-//            'name.between' => json_encode([
-//                'code' => 20001,
-//                'message' => __('validation.required')
-//            ]),
-//            'password.required' => json_encode([
-//                'code' => 20003,
-//                'message' => __('validation.required')
-//            ]),
-//            'email' => __('validation.unique')
+            'name.required_without_all' => getErrorCode(100003, null, '{name}'),
+            'name.between' => getErrorCode(100053, 'name'),
+            'hidden.required_without_all' => getErrorCode(100003, null, '{hidden}'),
+            'hidden.in' => getErrorCode(100081, 'hidden'),
+            'options.required_without_all' => getErrorCode(100003, null, '{options}'),
+            'options.array' => getErrorCode(100083,  '{options}'),
         ];
     }
 //

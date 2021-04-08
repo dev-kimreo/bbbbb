@@ -27,7 +27,7 @@ class CreatePostsRequest extends FormRequest
     {
         return [
             'boardNo' => 'required|integer|exists:App\Models\Board,id',
-            'title' => 'required|string|min:6|max:128',
+            'title' => 'required|string|between:6,128',
             'content' => 'required|string|min:10'
         ];
     }
@@ -39,7 +39,15 @@ class CreatePostsRequest extends FormRequest
     public function messages()
     {
         return [
-            'boardNo.exists' => getErrorCode(10001),
+            'boardNo.required' => getErrorCode(100001, 'boardNo'),
+            'boardNo.exists' => getErrorCode(100022, 'boardNo'),
+
+            'title.required' => getErrorCode(100001, 'title'),
+            'title.between' => getErrorCode(100053, 'title'),
+
+            'content.required' => getErrorCode(100001, 'content'),
+            'content.min' => getErrorCode(100063, 'content'),
+
         ];
     }
 //

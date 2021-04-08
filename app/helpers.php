@@ -2,17 +2,42 @@
 
 //use Illuminate\Support\Facades\Auth;
 //use Cache;
+use App;
 
 if (!function_exists('getErrorCode')) {
-    function getErrorCode($code) {
+    function getErrorCode($code, ...$key) {
         $codeType = 'subError';
         $errCfg = config($codeType . '.' . $code);
 
         if (isset($errCfg)) {
-            return json_encode([
-                'code' => $code,
-                'message' => __($errCfg)
-            ]);
+            $res = [
+                'code' => '',
+                'message' => '',
+                'key' => ''
+            ];
+
+            $msg = __($errCfg);
+
+            preg_match_all("/:{1}[^\s]+[a-z]+/", $msg, $matchArrs);
+//            print_r($matchArrs);
+
+            foreach ($matchArrs[0] as $k => $attr) {
+                if ( is_array($key) && count($key) ) {
+                    if ( isset($key[$k]) && $key[$k] ) {
+                        if (preg_match("/^\{{1}[^\{\}]+\}{1}$/", $key[$k])) {
+                            $key[$k] = preg_replace('/\{|\}/', '', $key[$k]);
+                            $msg = str_replace($attr, $key[$k], $msg);
+                        } else {
+                            $msg = str_replace($attr, __('words.' . $key[$k]), $msg);
+                        }
+                    }
+                }
+            }
+
+            $res['code'] = $code;
+            $res['message'] = $msg;
+
+            return json_encode($res);
         } else {
             return false;
         }
@@ -20,15 +45,31 @@ if (!function_exists('getErrorCode')) {
 }
 
 if (!function_exists('getResponseError')) {
-    function getResponseError($code, $key = '') {
+    function getResponseError($code, ...$key) {
         $err = json_decode(getErrorCode($code), true);
 
         if ($err) {
             $res = [];
             $res[$code] = [];
-            if (!empty($key)) {
-                $res[$code]['key'] = $key;
-                $err['message'] = str_replace(":attribute", $key, $err['message']);
+            if (is_array($key) && count($key)) {
+                $msg = $err['message'];
+
+                preg_match_all("/:{1}[^\s]+[a-z]+/", $msg, $matchArrs);
+
+                foreach ($matchArrs[0] as $k => $attr) {
+                    if ( isset($key[$k]) && $key[$k] ) {
+                        if (preg_match("/^\{{1}[^\{\}]+\}{1}$/", $key[$k])) {
+                            $key[$k] = preg_replace('/\{|\}/', '', $key[$k]);
+                            $msg = str_replace($attr, $key[$k], $msg);
+                        } else {
+                            $msg = str_replace($attr, __('words.' . $key[$k]), $msg);
+                        }
+                    }
+                }
+
+                $res[$code]['key'] = $key[0];
+                $err['message'] = $msg;
+
             }
             $res[$code]['message'] = $err['message'];
 
@@ -49,10 +90,11 @@ if (!function_exists('getValidationErrToArr')) {
 
         foreach ($errors as $key => $err) {
             $msg = array_shift($err);
+
             $errArrs = json_decode($msg, true);
 
             if (is_array($errArrs)) {
-                $resErr['codes'][$errArrs['code']] = array(
+                $resErr['codes'][$errArrs['code']][] = array(
                     'key' => $key,
                     'message' => $errArrs['message']
                 );

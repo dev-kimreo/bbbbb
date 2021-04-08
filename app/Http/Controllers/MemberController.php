@@ -35,6 +35,72 @@ use App\Libraries\CacheCls;
 
 
 
+/**
+ *  @OA\Schema (
+ *      schema="passwordPattern",
+ *      @OA\Property(
+ *          property="110101",
+ *          type="object",
+ *          description="password 는 특수문자, 알파벳, 숫자 3가지가 조합되어야 합니다.",
+ *          @OA\Property(
+ *              property="key",
+ *              type="string",
+ *              description="password",
+ *              example="password",
+ *          ),
+ *          @OA\Property(
+ *              property="message",
+ *              type="string",
+ *          ),
+ *      ),
+ *      @OA\Property(
+ *          property="110102",
+ *          type="object",
+ *          description="password 는 연속 된 문자와 동일한 문자로 4 회 연속 사용할 수 없습니다.",
+ *          @OA\Property(
+ *              property="key",
+ *              type="string",
+ *              description="password",
+ *              example="password",
+ *          ),
+ *          @OA\Property(
+ *              property="message",
+ *              type="string",
+ *          ),
+ *      ),
+ *      @OA\Property(
+ *          property="110103",
+ *          type="object",
+ *          description="password 는 공백문자를 포함할 수 없습니다.",
+ *          @OA\Property(
+ *              property="key",
+ *              type="string",
+ *              description="password",
+ *              example="password",
+ *          ),
+ *          @OA\Property(
+ *              property="message",
+ *              type="string",
+ *          ),
+ *      ),
+ *      @OA\Property(
+ *          property="110114",
+ *          type="object",
+ *          description="password 는 email과 4자 이상 동일 할 수 없습니다.",
+ *          @OA\Property(
+ *              property="key",
+ *              type="string",
+ *              description="password",
+ *              example="password",
+ *          ),
+ *          @OA\Property(
+ *              property="message",
+ *              type="string",
+ *          ),
+ *      ),
+ *  )
+ */
+
 
 class MemberController extends Controller
 {
@@ -87,83 +153,20 @@ class MemberController extends Controller
      *                  @OA\Property(
      *                      property="statusCode",
      *                      type="object",
-     *                      @OA\Property(
-     *                          property="10000",
-     *                          type="object",
-     *                          description="이미 사용중인 email 이 있습니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="email",
-     *                              example="email",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="100002", ref="#/components/schemas/RequestResponse/properties/100002"),
+     *                              @OA\Property(property="100011", ref="#/components/schemas/RequestResponse/properties/100011"),
+     *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
+     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
+     *                              @OA\Property(property="100073", ref="#/components/schemas/RequestResponse/properties/100073"),
+     *                              @OA\Property(property="100101", ref="#/components/schemas/RequestResponse/properties/100101"),
      *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10101",
-     *                          type="object",
-     *                          description="password 는 특수문자, 알파벳, 숫자 3가지가 조합되어야 합니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="password",
-     *                              example="password",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10102",
-     *                          type="object",
-     *                          description="password 는 연속 된 문자와 동일한 문자로 4 회 연속 사용할 수 없습니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="password",
-     *                              example="password",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10103",
-     *                          type="object",
-     *                          description="password 는 공백문자를 포함할 수 없습니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="password",
-     *                              example="password",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10111",
-     *                          type="object",
-     *                          description="password 는 email과 4자 이상 동일 할 수 없습니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="password",
-     *                              example="password",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      )
-     *                  )
-     *              )
+     *                          @OA\Schema(ref="#/components/schemas/passwordPattern")
+     *                      }
+     *                  ),
+     *              ),
      *          )
      *      )
      *  )
@@ -292,7 +295,7 @@ class MemberController extends Controller
      *                      property="statusCode",
      *                      type="object",
      *                      @OA\Property(
-     *                          property="10411",
+     *                          property="110411",
      *                          type="object",
      *                          description="짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.",
      *                          @OA\Property(
@@ -301,7 +304,7 @@ class MemberController extends Controller
      *                          ),
      *                      ),
      *                      @OA\Property(
-     *                          property="10421",
+     *                          property="110402",
      *                          type="object",
      *                          description="이미 인증된 회원입니다.",
      *                          @OA\Property(
@@ -324,14 +327,15 @@ class MemberController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function verificationResend(Request $request) {
+
         // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
         if ( !VerifyEmailCheck::dispatch(auth()->user()) ) {
-            return response()->json(getResponseError(10411), 422);
+            return response()->json(getResponseError(110411), 422);
         }
 
         // // 이미 인증된 회원입니다.
         if ( !VerifyEmail::dispatch(auth()->user()) ) {
-            return response()->json(getResponseError(10421), 422);
+            return response()->json(getResponseError(110402), 422);
         }
 
         return response()->json([
@@ -365,7 +369,7 @@ class MemberController extends Controller
      *                      property="statusCode",
      *                      type="object",
      *                      @OA\Property(
-     *                          property="10401",
+     *                          property="110401",
      *                          type="object",
      *                          description="잘못된 인증 방식입니다.",
      *                          @OA\Property(
@@ -374,7 +378,7 @@ class MemberController extends Controller
      *                          ),
      *                      ),
      *                      @OA\Property(
-     *                          property="10421",
+     *                          property="110402",
      *                          type="object",
      *                          description="이미 인증된 회원입니다.",
      *                          @OA\Property(
@@ -386,7 +390,7 @@ class MemberController extends Controller
      *              ),
      *          )
      *      ),
-     *      )
+     *  )
      */
     /**
      * 회원 메일 인증
@@ -412,7 +416,7 @@ class MemberController extends Controller
                 $member->save();
             } else {
                 // 이미 인증된 회원입니다.
-                return response()->json(getResponseError(10421), 422);
+                return response()->json(getResponseError(110402), 422);
             }
 
             // 가상 서명키 제거
@@ -420,7 +424,7 @@ class MemberController extends Controller
                             ->where('name_key', $request->id)
                             ->delete();
         } else {
-            return response()->json(getResponseError(10401), 422);
+            return response()->json(getResponseError(110401), 422);
         }
 
         return response()->json([
@@ -462,16 +466,23 @@ class MemberController extends Controller
      *                  @OA\Property(
      *                      property="statusCode",
      *                      type="object",
-     *                      @OA\Property(
-     *                          property="10311",
-     *                          type="object",
-     *                          description="로그인 정보가 올바르지 않습니다.",
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
      *                          ),
-     *                      ),
-     *                  )
+     *                          @OA\Schema(
+     *                              @OA\Property(
+     *                                  property="110311",
+     *                                  type="object",
+     *                                  description="비밀번호가 일치하지 않습니다.",
+     *                                  @OA\Property(
+     *                                      property="message",
+     *                                      type="string",
+     *                                  ),
+     *                              ),
+     *                          )
+     *                      }
+     *                  ),
      *              ),
      *          )
      *      ),
@@ -487,7 +498,7 @@ class MemberController extends Controller
      */
     public function checkPassword(CheckPwdMemberRequest $request) {
         if ( ! $this::funcCheckPassword($request->password) ){
-            return response()->json(getResponseError(10311), 422);
+            return response()->json(getResponseError(110311), 422);
         }
 
         return response()->json([
@@ -520,16 +531,32 @@ class MemberController extends Controller
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="비밀 번호가 올바르지 않습니다.",
+     *          description="failed registered",
      *          @OA\JsonContent(
      *              @OA\Property(
      *                  property="errors",
      *                  type="object",
      *                  @OA\Property(
-     *                      property="password",
-     *                      type="string",
-     *                      example="The password is incorrect."
-     *                  )
+     *                      property="statusCode",
+     *                      type="object",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
+     *                          ),
+     *                          @OA\Schema(
+     *                              @OA\Property(
+     *                                  property="110311",
+     *                                  type="object",
+     *                                  description="비밀번호가 일치하지 않습니다.",
+     *                                  @OA\Property(
+     *                                      property="message",
+     *                                      type="string",
+     *                                  ),
+     *                              ),
+     *                          )
+     *                      }
+     *                  ),
      *              ),
      *          )
      *      ),
@@ -547,7 +574,7 @@ class MemberController extends Controller
     public function modify(ModifyMemberRequest $request) {
 
         if ( ! $this::funcCheckPassword($request->password) ){
-            return response()->json(getResponseError(10311), 422);
+            return response()->json(getResponseError(110311, 'password'), 422);
         }
 
         $member = auth()->user();
@@ -555,7 +582,7 @@ class MemberController extends Controller
         $member->save();
 
         return response()->json([
-            'message' => __('common.changed')
+            'message' => __('common.modified')
         ], 200);
     }
 
@@ -594,67 +621,15 @@ class MemberController extends Controller
      *                  @OA\Property(
      *                      property="statusCode",
      *                      type="object",
-     *                      @OA\Property(
-     *                          property="10101",
-     *                          type="object",
-     *                          description="password 는 특수문자, 알파벳, 숫자 3가지가 조합되어야 합니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="password",
-     *                              example="password",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="100011", ref="#/components/schemas/RequestResponse/properties/100011"),
+     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
      *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10102",
-     *                          type="object",
-     *                          description="password 는 연속 된 문자와 동일한 문자로 4 회 연속 사용할 수 없습니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="password",
-     *                              example="password",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10103",
-     *                          type="object",
-     *                          description="password 는 공백문자를 포함할 수 없습니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="password",
-     *                              example="password",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10111",
-     *                          type="object",
-     *                          description="password 는 email과 4자 이상 동일 할 수 없습니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="password",
-     *                              example="password",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                  )
+     *                          @OA\Schema(ref="#/components/schemas/passwordPattern"),
+     *                      }
+     *                  ),
      *              ),
      *          )
      *      ),
@@ -672,12 +647,12 @@ class MemberController extends Controller
     public function modifyPassword(ModifyMemberPwdRequest $request) {
         // 현재 패스워드 체크
         if ( ! $this::funcCheckPassword($request->password) ){
-            return response()->json(getResponseError(10311), 422);
+            return response()->json(getResponseError(110311, 'password'), 422);
         }
 
         // 기존 비밀번호와 변경할 비밀번호가 같을 경우
         if (hash::check($request->changePassword, auth()->user()->password)) {
-            return response()->json(getResponseError(10100), 422);
+            return response()->json(getResponseError(110100, 'changePassword'), 422);
         }
 
         // 비밀번호 체크
@@ -730,16 +705,14 @@ class MemberController extends Controller
      *                  @OA\Property(
      *                      property="statusCode",
      *                      type="object",
-     *                      @OA\Property(
-     *                          property="10001",
-     *                          type="object",
-     *                          description="일치하는 회원이 없습니다.",
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="100021", ref="#/components/schemas/RequestResponse/properties/100021"),
+     *                              @OA\Property(property="100101", ref="#/components/schemas/RequestResponse/properties/100101"),
      *                          ),
-     *                      ),
-     *                  )
+     *                      }
+     *                  ),
      *              ),
      *          )
      *      )
@@ -753,11 +726,6 @@ class MemberController extends Controller
     public function passwordResetSendLink(PasswordResetSendLinkRequest $request) {
         // 회원 정보
         $member = User::where('email', $request->email)->first();
-
-        // 존재하지 않는 회원정보
-        if ( !$member ) {
-            return response()->json(getResponseError(10001), 422);
-        }
 
         $verifyToken = Password::createToken($member);
         $verifyUrl = config('services.qpick.domain') . config('services.qpick.verifyPasswordPath') . '?token=' . $verifyToken . "&email=" . $request->email;
@@ -780,7 +748,7 @@ class MemberController extends Controller
         SendMail::dispatch($data);
 
         return response()->json([
-            'message' => __('common.verification_resend')
+            'message' => __('common.verification_send')
         ], 200);
     }
 
@@ -819,25 +787,34 @@ class MemberController extends Controller
      *                  @OA\Property(
      *                      property="statusCode",
      *                      type="object",
-     *                      @OA\Property(
-     *                          property="10001",
-     *                          type="object",
-     *                          description="일치하는 회원이 없습니다.",
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="100021", ref="#/components/schemas/RequestResponse/properties/100021"),
+     *                              @OA\Property(property="100101", ref="#/components/schemas/RequestResponse/properties/100101"),
      *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10431",
-     *                          type="object",
-     *                          description="잘못된 인증방식이거나 token의 유효시간이 지났습니다.",
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                  )
+     *                          @OA\Schema(
+     *                              @OA\Property(
+     *                                  property="100005",
+     *                                  type="object",
+     *                                  description="일치하는 정보가 없습니다.",
+     *                                  @OA\Property(
+     *                                      property="message",
+     *                                      type="string",
+     *                                  ),
+     *                              ),
+     *                              @OA\Property(
+     *                                  property="110501",
+     *                                  type="object",
+     *                                  description="잘못된 인증방식이거나 token의 유효시간이 지났습니다.",
+     *                                  @OA\Property(
+     *                                      property="message",
+     *                                      type="string",
+     *                                  ),
+     *                              ),
+     *                          )
+     *                      }
+     *                  ),
      *              ),
      *          )
      *      )
@@ -852,7 +829,8 @@ class MemberController extends Controller
         // 비밀번호 재설정 Token 발행여부 체크
         $res = DB::table('password_resets')->where('email', $request->email)->first();
         if ( !$res ) {
-            return response()->json(getResponseError(10001), 422);
+            // 일치하는 정보가 없습니다.
+            return response()->json(getResponseError(100005), 422);
         }
 
         // 회원정보
@@ -860,7 +838,7 @@ class MemberController extends Controller
 
         // Token 유효성 체크
         if( !Password::tokenExists($member, $request->token) ) {
-            return response()->json(getResponseError(10431), 422);
+            return response()->json(getResponseError(110501), 422);
         }
 
         return response()->json([
@@ -871,7 +849,7 @@ class MemberController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/v1/member/checkChangePwdAuth",
+     *      path="/v1/member/passwordReset",
      *      summary="비밀번호 찾기 - 변경",
      *      description="비밀번호 찾기를 통한 변경 url을 통한 후 비밀번호 변경",
      *      operationId="memberPasswordReset",
@@ -904,85 +882,37 @@ class MemberController extends Controller
      *                  @OA\Property(
      *                      property="statusCode",
      *                      type="object",
-     *                      @OA\Property(
-     *                          property="10001",
-     *                          type="object",
-     *                          description="일치하는 회원이 없습니다.",
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="100011", ref="#/components/schemas/RequestResponse/properties/100011"),
+     *                              @OA\Property(property="100021", ref="#/components/schemas/RequestResponse/properties/100021"),
+     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
+     *                              @OA\Property(property="100101", ref="#/components/schemas/RequestResponse/properties/100101"),
      *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10101",
-     *                          type="object",
-     *                          description="password 는 특수문자, 알파벳, 숫자 3가지가 조합되어야 합니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="password",
-     *                              example="password",
+     *                          @OA\Schema(
+     *                              @OA\Property(
+     *                                  property="100005",
+     *                                  type="object",
+     *                                  description="일치하는 정보가 없습니다.",
+     *                                  @OA\Property(
+     *                                      property="message",
+     *                                      type="string",
+     *                                  ),
+     *                              ),
+     *                              @OA\Property(
+     *                                  property="110501",
+     *                                  type="object",
+     *                                  description="잘못된 인증방식이거나 token의 유효시간이 지났습니다.",
+     *                                  @OA\Property(
+     *                                      property="message",
+     *                                      type="string",
+     *                                  ),
+     *                              ),
      *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10102",
-     *                          type="object",
-     *                          description="password 는 연속 된 문자와 동일한 문자로 4 회 연속 사용할 수 없습니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="password",
-     *                              example="password",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10103",
-     *                          type="object",
-     *                          description="password 는 공백문자를 포함할 수 없습니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="password",
-     *                              example="password",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10111",
-     *                          type="object",
-     *                          description="password 는 email과 4자 이상 동일 할 수 없습니다.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              description="password",
-     *                              example="password",
-     *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10431",
-     *                          type="object",
-     *                          description="잘못된 인증방식이거나 token의 유효시간이 지났습니다.",
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                  )
+     *                          @OA\Schema(ref="#/components/schemas/passwordPattern")
+     *                      }
+     *                  ),
      *              ),
      *          )
      *      )
@@ -997,7 +927,7 @@ class MemberController extends Controller
         // 비밀번호 재설정 Token 발행여부 체크
         $res = DB::table('password_resets')->where('email', $request->email)->first();
         if ( !$res ) {
-            return response()->json(getResponseError(10001), 422);
+            return response()->json(getResponseError(100005), 422);
         }
 
         // 회원정보
@@ -1005,7 +935,7 @@ class MemberController extends Controller
 
         // Token 유효성 체크
         if( !Password::tokenExists($member, $request->token) ) {
-            return response()->json(getResponseError(10431), 422);
+            return response()->json(getResponseError(110501), 422);
         }
 
         // 비밀번호 체크
@@ -1039,11 +969,11 @@ class MemberController extends Controller
          */
         $chkPasswordRes = checkPwdPattern($pwd);
         if (!$chkPasswordRes['combination']) {  // 특수문자, 문자, 숫자 포함 체크
-            return getResponseError(10101, 'password');
+            return getResponseError(110101, 'password');
         } else if (!$chkPasswordRes['continue']) {  // 연속된 문자, 동일한 문자 연속 체크
-            return getResponseError(10102, 'password');
+            return getResponseError(110102, 'password');
         } else if (!$chkPasswordRes['empty']) { // 공백 문자 체크
-            return getResponseError(10103, 'password');
+            return getResponseError(110103, 'password');
         }
 
         /**
@@ -1052,7 +982,7 @@ class MemberController extends Controller
         if ( isset($email) ) {
             $chkPwdSameIdRes = checkPwdSameId($pwd, $email);
             if (!$chkPwdSameIdRes) {
-                return getResponseError(10111, 'password');
+                return getResponseError(110114, 'password');
             }
         }
 
@@ -1104,92 +1034,7 @@ class MemberController extends Controller
 //            );
 //        });
 
-
-
 //        Auth::guard('web')->logout();
-//        CacheCls::tags('earth.korea.seoul.people')->remember('info', 'abcd', 3600);
-//        CacheCls::tags('earth.korea.busan')->remember('info', '1234qwer', 3600);
-//
-//
-////        Cache::tags(['earth'])->flush();
-//        echo CacheCls::tags('earth.korea.seoul.people')->get('info');
-//        echo CacheCls::tags('earth.korea.busan')->get('info');
-
-
-//        RedisManager::set('name', 'abc');
-//        echo RedisManager::get('name');
-
-//        if ($post = RedisManager::get('users')) {
-//            return response()->json($post);
-//        }
-
-//        RedisManager::hset('member:10:list', 'info', '1234');
-//        RedisManager::expire('member:10', 10);
-
-//        echo RedisManager::hget('member:10', 'info');
-//        var_dump(RedisManager::mget(['abc', '111', 'aaa']));
-//
-//        $post = DB::table('test')->get();
-//        RedisManager::set('users', $post);
-//        return response()->json($post);
-
-
-//        $post = Cache::remember('users', 60, function(){
-//            return DB::table('test')->get();
-//        });
-
-//        $post = DB::table('test')->get();
-
-//        return response()->json($post);
-
-//        $set = [
-//            'tag' => 'earth.korea.seoul.people',
-//            'key' => 'info'
-//        ];
-//        $data = 'abcd';
-
-//
-//        var_dump(CacheCls::tags('earth.korea.seoul.people')->get('info'));
-
-//        $cacheCls = new CacheCls;;
-//        $cacheCls::tags('earth.korea.seoul.people')->get('asdasd');
-
-
-//        rememberCache('earth.korea.seoul.people', 'info', '1234');
-//
-////        flushCache('earth.korea.seoul.people.info');
-//
-//        echo getCache('earth.korea.seoul.people.info');
-//        rememberCache('info');
-
-//        echo config('cache.custom.expire.common');
-
-//            Cache::tags(['earth', 'earth.korea', 'earth.korea.seoul', 'earth.korea.seoul.people'])->remember('user', 68400, function (){
-//                echo '캐시 새로';
-//                return User::where(['email' => 'pleasdf1@naver.com'])->first()->toArray();
-//            });
-//
-//        Cache::tags(['earth'])->remember('info', 68400, function (){
-//            echo "새로";
-//            return '지구';
-//        });
-//
-//                Cache::set('abc', '1234');
-
-//        //
-//        Cache::tags(['people'])->remember('user', 5, function () use ($request){
-//                    echo '캐시 새로';
-//                    return SignedCodes::limit(100)->get()->toArray();
-//                });
-//
-//        print_r(cache('people'));
-//        var_dump(Cache::get('abc'));
-//
-//        var_dump(Cache::tags(['earth', 'earth.korea', 'earth.korea.seoul', 'earth.korea.seoul.people'])->get('user'));
-//        var_dump(Cache::tags(['earth'])->get('info'));
-//
-//        Cache::tags('earth')->flush();
-
     }
 
     public function testa() {

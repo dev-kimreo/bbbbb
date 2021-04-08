@@ -5,6 +5,7 @@ namespace App\Http\Requests\Members;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use App;
 
 class StoreMembersRequest extends FormRequest
 {
@@ -40,21 +41,25 @@ class StoreMembersRequest extends FormRequest
     public function messages()
     {
         return [
-            'email.unique' => getErrorCode(10000),
-//            'name.between' => json_encode([
-//                'code' => 20001,
-//                'message' => __('validation.required')
-//            ]),
-//            'password.required' => json_encode([
-//                'code' => 20003,
-//                'message' => __('validation.required')
-//            ]),
-//            'email' => __('validation.unique')
+            'name.required' => getErrorCode(100001, 'name'),
+            'name.between' => getErrorCode(100053, 'name'),
+
+            'email.required' => getErrorCode(100001, 'email'),
+            'email.email' => getErrorCode(100101, 'email'),
+            'email.max' => getErrorCode(100073, 'email'),
+            'email.unique' => getErrorCode(100002, 'email'),
+
+            'password.required' => getErrorCode(100001, 'password'),
+            'password.min' => getErrorCode(100063, 'password'),
+
+            'passwordConfirmation.required' => getErrorCode(100001, 'passwordConfirmation'),
+            'passwordConfirmation.same' => getErrorCode(100011, 'passwordConfirmation', 'password'),
         ];
     }
 //
     protected function failedValidation(Validator $validator) {
         $resErr = getValidationErrToArr($validator->errors());
+
         throw new HttpResponseException(response()->json($resErr, 422));
     }
 

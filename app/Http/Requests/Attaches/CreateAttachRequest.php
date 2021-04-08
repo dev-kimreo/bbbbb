@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Requests\Admins\Boards;
+namespace App\Http\Requests\Attaches;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use App;
 
-class CreateBoardsRequest extends FormRequest
+class CreateAttachRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,9 +27,7 @@ class CreateBoardsRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|between:2,32',
-            'type' => 'required|string|max:32|unique:App\Models\Board,type',
-//            'options' => 'required|string|min:8',
+            "files.*" => 'required|mimes:jpg,jpeg,png,gif,webp',
         ];
     }
 
@@ -39,17 +38,14 @@ class CreateBoardsRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => getErrorCode(100001, 'name'),
-            'name.between' => getErrorCode(100053, 'name'),
-
-            'type.required' => getErrorCode(100001, 'type'),
-            'type.max' => getErrorCode(100073, 'type'),
-            'type.unique' => getErrorCode(100002, 'type'),
+            'files.*.required' => getErrorCode(100001, 'files'),
+            'files.*.mimes' => getErrorCode(100155, 'files'),
         ];
     }
 //
     protected function failedValidation(Validator $validator) {
         $resErr = getValidationErrToArr($validator->errors());
+
         throw new HttpResponseException(response()->json($resErr, 422));
     }
 
