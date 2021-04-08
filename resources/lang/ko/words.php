@@ -12,6 +12,7 @@ return [
     'boardNo' => '게시판 고유번호',
 
     'name' => '이름',
+    'username' => '이메일',
 
     'password' => '비밀번호',
     'passwordConfirmation' => '비밀번호 확인',

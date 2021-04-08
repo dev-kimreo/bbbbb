@@ -469,18 +469,8 @@ class MemberController extends Controller
      *                      allOf={
      *                          @OA\Schema(
      *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="110311", ref="#/components/schemas/RequestResponse/properties/110311"),
      *                          ),
-     *                          @OA\Schema(
-     *                              @OA\Property(
-     *                                  property="110311",
-     *                                  type="object",
-     *                                  description="비밀번호가 일치하지 않습니다.",
-     *                                  @OA\Property(
-     *                                      property="message",
-     *                                      type="string",
-     *                                  ),
-     *                              ),
-     *                          )
      *                      }
      *                  ),
      *              ),
@@ -543,18 +533,8 @@ class MemberController extends Controller
      *                          @OA\Schema(
      *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
      *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
+     *                              @OA\Property(property="110311", ref="#/components/schemas/RequestResponse/properties/110311"),
      *                          ),
-     *                          @OA\Schema(
-     *                              @OA\Property(
-     *                                  property="110311",
-     *                                  type="object",
-     *                                  description="비밀번호가 일치하지 않습니다.",
-     *                                  @OA\Property(
-     *                                      property="message",
-     *                                      type="string",
-     *                                  ),
-     *                              ),
-     *                          )
      *                      }
      *                  ),
      *              ),

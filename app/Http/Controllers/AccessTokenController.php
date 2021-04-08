@@ -55,47 +55,25 @@ class AccessTokenController extends ATC {
      *                  @OA\Property(
      *                      property="statusCode",
      *                      type="object",
-     *                      @OA\Property(
-     *                          property="10010",
-     *                          type="object",
-     *                          description="필수 파라미터를 확인해주세요.",
-     *                          @OA\Property(
-     *                              property="key",
-     *                              type="string",
-     *                              example="grant_type",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="100021", ref="#/components/schemas/RequestResponse/properties/100021"),
+     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
+     *                              @OA\Property(property="110311", ref="#/components/schemas/RequestResponse/properties/110311"),
      *                          ),
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
+     *                          @OA\Schema(
+     *                              @OA\Property(
+     *                                  property="110502",
+     *                                  type="object",
+     *                                  description="잘못된 client 정보입니다.",
+     *                                  @OA\Property(
+     *                                      property="message",
+     *                                      type="string",
+     *                                  ),
+     *                              ),
      *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10301",
-     *                          type="object",
-     *                          description="존재하지 않는 아이디(이메일) 입니다.",
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10311",
-     *                          type="object",
-     *                          description="로그인 정보가 올바르지 않습니다.",
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="10401",
-     *                          type="object",
-     *                          description="잘못된 인증 방식입니다.",
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
+     *                      }
      *                  )
      *              )
      *          )
@@ -106,11 +84,13 @@ class AccessTokenController extends ATC {
 
         try {
             $mess = [
-                'username.required' => getErrorCode(10010),
-                'password.required' => getErrorCode(10010),
-                'grant_type.required' => getErrorCode(10010),
-                'client_id.required' => getErrorCode(10010),
-                'client_secret.required' => getErrorCode(10010),
+                'username.required' => getErrorCode(100001, 'username'),
+                'username.email' => getErrorCode(100101, 'username'),
+                'password.required' => getErrorCode(100001, 'password'),
+                'password.min' => getErrorCode(100063, 'password'),
+                'grant_type.required' => getErrorCode(100001),
+                'client_id.required' => getErrorCode(100001),
+                'client_secret.required' => getErrorCode(100001),
             ];
 
             $validator = Validator::make($request->getParsedBody(), [
@@ -134,11 +114,11 @@ class AccessTokenController extends ATC {
             $member = User::where('email', $username)->first();
 
             if( !$member ) {
-                return response()->json(getResponseError(10301), 422);
+                return response()->json(getResponseError(100021, 'username'), 422);
             }
 
             if ( !hash::check($password, $member->password) ) {
-                return response()->json(getResponseError(10311), 422);
+                return response()->json(getResponseError(110311, 'password'), 422);
             }
 
             $tokenResponse = parent::issueToken($request);
@@ -152,7 +132,7 @@ class AccessTokenController extends ATC {
         }
         catch (Exception $e) {
             ////return error message
-            return response()->json(getResponseError(10401), 422);
+            return response()->json(getResponseError(110502), 422);
         }
 
 

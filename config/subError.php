@@ -48,6 +48,7 @@ return [
 
 
     110501 => 'common.auth.incorrect_timeout',      // 잘못된 인증방식이거나 token의 유효시간이 지났습니다.
+    110502 => 'common.auth.incorrect_client',              // 잘못된 client 정보입니다.
 
 
     /**

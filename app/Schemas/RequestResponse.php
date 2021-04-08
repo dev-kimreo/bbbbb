@@ -221,6 +221,17 @@ namespace App\Schemas;
  *              example="이메일은(는) 유효한 이메일 주소여야 합니다."
  *          ),
  *      ),
+ *      @OA\Property(
+ *          property="110311",
+ *          type="object",
+ *          description="비밀번호가 일치하지 않습니다.",
+ *          @OA\Property(
+ *              property="message",
+ *              type="string",
+ *              description="메시지",
+ *              example="비밀번호가 일치하지 않습니다."
+ *          ),
+ *      ),
  *  )
  */
 

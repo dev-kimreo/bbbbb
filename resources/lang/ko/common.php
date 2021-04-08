@@ -21,6 +21,7 @@ return [
 
     'auth' => [
         'incorrect_timeout' => '잘못된 정보 또는 토큰 유효 시간이 만료되었습니다.',
+        'incorrect_client' => '잘못된 client 정보입니다.',
     ],
 
     'password' => [
