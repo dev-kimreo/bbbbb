@@ -22,4 +22,5 @@ return [
 
     'type' => '타입',
     'title' => '제목',
+    'thumbnail' => '섬네일',
 ];

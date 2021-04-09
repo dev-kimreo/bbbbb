@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 
 
-class Post extends Model
+class Reply extends Model
 {
     use HasFactory, Eloquence, Mappable;
 
@@ -20,10 +20,6 @@ class Post extends Model
      * @var array
      */
     protected $fillable = [
-        'board_no',
-        'user_no',
-        'title',
-        'content',
     ];
 
 
@@ -33,29 +29,15 @@ class Post extends Model
      * @var array
      */
     protected $hidden = [
-        'board_no',
-        'user_no',
-        'created_at',
-        'updated_at'
     ];
 
     protected $maps = [
-        'boardNo' => 'board_no',
-        'userNo' => 'user_no',
-        'regDate' => 'created_at',
-        'uptDate' => 'updated_at',
-        'user' => ['name']
     ];
 
     protected $appends = [
-        'boardNo',
-        'userNo',
-        'regDate',
-        'uptDate'
     ];
 
     protected $casts = [
-        'etc' => 'array'
     ];
 
     public function getCreatedAtAttribute($value){
@@ -65,17 +47,4 @@ class Post extends Model
     public function getUpdatedAtAttribute($value){
         return Carbon::parse($value)->format('c');
     }
-
-    public function user(){
-        return $this->belongsTo('App\Models\User', 'user_no', 'id')->select(['id', 'name']);
-    }
-
-    public function replyCount(){
-        return $this->hasMany('App\Models\Reply', 'post_no', 'id')->selectRaw('count(id) as count');
-    }
-
-    public function thumbnails(){
-        return $this->hasOne('App\Models\AttachFile')->select(['url']);
-    }
-
 }

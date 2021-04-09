@@ -23,6 +23,8 @@ return [
 
     100022 => 'validation.exists',                  // 선택된 :key은(는) 올바르지 않습니다.
 
+    100041 => 'validation.integer',                 // :key은(는) 정수여야 합니다.
+
     100051 => 'validation.between.numeric',         // 값의 제한
     100052 => 'validation.between.file',            // 파일의 바이트 수 제한
     100053 => 'validation.between.string',          // 문자 길이 제한
@@ -44,8 +46,10 @@ return [
 
     100101 => 'validation.email',                   // 이메일 형식
 
+    100151 => 'validation.image',                   // :attribute은(는) 이미지여야 합니다.
     100155 => 'validation.mimes',                   // 파일 확장자 형식
 
+    101001 => 'common.incorrect_page',              // 잘못된 접근입니다.
 
     110501 => 'common.auth.incorrect_timeout',      // 잘못된 인증방식이거나 token의 유효시간이 지났습니다.
     110502 => 'common.auth.incorrect_client',              // 잘못된 client 정보입니다.
@@ -73,6 +77,10 @@ return [
     110402 => 'common.email.verified',  // 이미 인증된 회원입니다.
     110411 => 'common.email.limit_send',  // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
 
+
+    /**
+     * 게시글
+     */
 
 
 

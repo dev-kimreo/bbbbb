@@ -26,9 +26,9 @@ class CreatePostsRequest extends FormRequest
     public function rules()
     {
         return [
-            'boardNo' => 'required|integer|exists:App\Models\Board,id',
             'title' => 'required|string|between:6,128',
-            'content' => 'required|string|min:10'
+            'content' => 'required|string|min:10',
+            'thumbnail' => 'sometimes|integer|exists:App\Models\AttachFile,id'
         ];
     }
 
@@ -39,8 +39,9 @@ class CreatePostsRequest extends FormRequest
     public function messages()
     {
         return [
-            'boardNo.required' => getErrorCode(100001, 'boardNo'),
-            'boardNo.exists' => getErrorCode(100022, 'boardNo'),
+//            'boardNo.required' => getErrorCode(100001, 'boardNo'),
+//            'boardNo.integer' => getErrorCode(100041, 'boardNo'),
+//            'boardNo.exists' => getErrorCode(100022, 'boardNo'),
 
             'title.required' => getErrorCode(100001, 'title'),
             'title.between' => getErrorCode(100053, 'title'),
@@ -48,6 +49,8 @@ class CreatePostsRequest extends FormRequest
             'content.required' => getErrorCode(100001, 'content'),
             'content.min' => getErrorCode(100063, 'content'),
 
+            'thumbnail.integer' => getErrorCode(100041, 'thumbnail'),
+            'thumbnail.exists' => getErrorCode(100021, 'thumbnail'),
         ];
     }
 //

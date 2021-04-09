@@ -122,8 +122,21 @@ Route::group([
         Route::get('', [BoardController::class, 'getList']);
 
 
-        // 목록
+
+        // 게시글 목록
         Route::get('/{boardNo}/post', [PostController::class, 'getList']);
+
+        // 인증 필요
+        Route::group([
+            'middleware' => 'auth:api',
+        ], function () {
+
+            // 게시글 작성
+            Route::post('/{boardNo}/post', [PostController::class, 'create']);
+
+            // 게시글 수정
+            Route::patch('/{boardNo}/post/{id}', [PostController::class, 'modify']);
+        });
     });
 
 
@@ -132,16 +145,6 @@ Route::group([
         'prefix' => 'post'
     ], function(){
 
-        // 인증 필요
-        Route::group([
-            'middleware' => 'auth:api',
-            ], function () {
-            // 작성
-            Route::post('', [PostController::class, 'create']);
-
-            // 수정
-            Route::patch('/{id}', [PostController::class, 'modify']);
-        });
 
 
     });

@@ -28,6 +28,8 @@ class AttachController extends Controller
     public $hexName = null;         // hex
     public $path = [];
 
+    protected $allowType = ['temp', 'board', 'post'];
+
     /**
      * @OA\Post(
      *      path="/v1/attach",
@@ -136,7 +138,7 @@ class AttachController extends Controller
 
 
     public function move($type, $typeNo, array $names) {
-        if ( $typeNo <= 0 ) {
+        if ( $typeNo <= 0 || !in_array($type, $this->allowType) ) {
             return false;
         }
 

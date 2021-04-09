@@ -10,8 +10,10 @@ use Cache;
 
 
 use App\Http\Controllers\BoardController;
+use App\Http\Controllers\AttachController;
 
 use App\Models\Post;
+use App\Models\AttachFile;
 
 use App\Http\Requests\Posts\GetListPostsRequest;
 use App\Http\Requests\Posts\CreatePostsRequest;
@@ -38,7 +40,7 @@ class PostController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/v1/post",
+     *      path="/v1/board/{boardNo}/post",
      *      summary="게시판 글 작성",
      *      description="게시판 글 작성",
      *      operationId="postCreate",
@@ -91,6 +93,13 @@ class PostController extends Controller
      * @return mixed
      */
     public function create(CreatePostsRequest $request) {
+        if ( !isset($request->boardNo) ) {
+            return response()->json(getResponseError(100001, 'boardNo'), 422);
+        }
+
+        if ( ! intval($request->boardNo) ) {
+            return response()->json(getResponseError(100041, 'boardNo'), 422);
+        }
 
         // 게시판 정보
         $board = BoardController::funcGetBoard($request->boardNo);
@@ -99,14 +108,26 @@ class PostController extends Controller
         }
         $board = $board->toArray();
 
+        // 작성 가능 권한 체크
+        if ( $board['options']['board'] == 'manager' && auth()->user()->grade != 100 ) {
+            return response()->json(getResponseError(101001), 422);
+        }
+
         /**
          * 게시글 작성 데이터
          */
         $etc = [];
 
+        // 후처리
+        $after['thumbnail'] = null;
+
         foreach ( $board['options'] as $type => $val ) {
             switch ($type) {
                 case 'thumbnail':
+                    if ( $request->thumbnail ) {
+                        $fileInfo = AttachFile::where(['id' => $request->thumbnail, 'user_no' => auth()->user()->id, 'type' => 'temp'])->first();
+                        $after['thumbnail'] = $fileInfo->url;
+                    }
                     break;
 
                 case 'attachFile':
@@ -131,6 +152,13 @@ class PostController extends Controller
         }
 
         $post->save();
+
+        if ( !is_null($after['thumbnail']) ) {
+            $attachCtl = new AttachController;
+            $attachCtl->move('post', $post->id, [
+                $after['thumbnail']
+            ]);
+        }
 
         return response()->json([
             'message' => __('common.created'),
@@ -220,15 +248,15 @@ class PostController extends Controller
             'boardInfo' => $boardInfoFlag,
             'page' => $request->page,
             'view' => $request->view,
-            'select' => ['id', 'title', 'comment', 'boardNo', 'userNo', 'regDate', 'uptDate']
+            'select' => ['id', 'title', 'comment', 'boardNo', 'userNo', 'regDate', 'uptDate', 'af.url AS thumbnail']
         ];
 
         // where 절 eloquent
         $whereModel = Post::where(['board_no' => $set['boardNo']]);
 
-        // 섬네일 기능 사용시 **check**
+        // 섬네일 기능 사용시
         if ( isset($board['options']['thumbnail']) && $board['options']['thumbnail'] ) {
-
+            $set['thumbnail'] = true;
         }
 
         // 글 상태 사용시
@@ -245,9 +273,9 @@ class PostController extends Controller
             $whereModel = $whereModel->where(['user_no' => auth()->user()->id]);
         }
 
-        // 댓글 사용시 **check**
+        // 댓글 사용시
         if ( $board['options']['reply'] ) {
-
+            $set['reply'] = true;
         }
 
         // 파일 첨부 **check**
@@ -262,19 +290,46 @@ class PostController extends Controller
         }
 
         if ( $set['page'] <= $pagination['totalPage'] ) {
-            // cache
+            // 데이터 cache
             $hash = substr(md5(json_encode($set)), 0, 5);
             $tags = separateTag('post.list.' . $set['boardNo']);
             $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function() use ($set, $pagination, $whereModel) {
                 $post = $whereModel
                         ->with('user:id,name')
-                        ->select($set['select'])
+                        ->select($set['select']);
+
+                // 섬네일 사용시
+                if ( isset($set['thumbnail']) && $set['thumbnail'] ) {
+                    $post = $post->leftjoin('attach_files AS af', function($join){
+                        $join
+                            ->on('posts.id', '=', 'af.type_no')
+                            ->where('type', 'post');
+                    });
+                }
+
+                $post = $post
                         ->skip($pagination['skip'])
                         ->take($pagination['perPage'])
-                        ->get();
+                        ->orderBy('id', 'desc');
 
+//                var_dump($post->toSql());
+                $post = $post->get();
+
+                // 데이터 가공
                 $post->pluck('user')->each->setAppends([]);
+                foreach ($post as $index) {
+                    // 댓글 사용시
+                    if ( isset($set['reply']) && $set['reply'] ) {
+                        $replys = $index->replyCount;
+                        unset($index->replyCount);
+                        $index->replyCount = $replys->pluck('count')->toArray()[0];
+                    }
 
+                    $index->userName = $index->user->toArray()['name'];
+                    unset($index->user);
+                }
+
+//                $data = $post;
                 return $post;
             });
         }
