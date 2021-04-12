@@ -49,10 +49,11 @@ return [
     100151 => 'validation.image',                   // :attribute은(는) 이미지여야 합니다.
     100155 => 'validation.mimes',                   // 파일 확장자 형식
 
+    100501 => 'common.auth.incorrect_timeout',      // 잘못된 인증방식이거나 token의 유효시간이 지났습니다.
+    100502 => 'common.auth.incorrect_client',       // 잘못된 client 정보입니다.
+
     101001 => 'common.incorrect_page',              // 잘못된 접근입니다.
 
-    110501 => 'common.auth.incorrect_timeout',      // 잘못된 인증방식이거나 token의 유효시간이 지났습니다.
-    110502 => 'common.auth.incorrect_client',              // 잘못된 client 정보입니다.
 
 
     /**
@@ -81,36 +82,36 @@ return [
     /**
      * 게시글
      */
+    200003 => 'common.post.already_deleted',                               // 삭제된 게시글 입니다.
 
 
 
+//
+//    10020 => 'common.incorrect_page',          // 정상적인 페이지 요청이 아닙니다.
+//
+//    // password errors
+//    10100 => 'validation.custom.password.same_org', // 이전 비밀번호와 동일합니다.
+//    10101 => 'validation.custom.password.combination',  // 문자 조합 및 길이제한 체크
+//    10102 => 'validation.custom.password.continue',  // 연속된 문자, 동일한 문자 연속 체크
+//    10103 => 'validation.custom.password.empty',  // 공백 문자 체크
+//
+//    10111 => 'validation.custom.password.same_email',  // 비밀번호가 아이디와 4자이상 동일 할 경우
+//
 
-
-    10020 => 'common.incorrect_page',          // 정상적인 페이지 요청이 아닙니다.
-
-    // password errors
-    10100 => 'validation.custom.password.same_org', // 이전 비밀번호와 동일합니다.
-    10101 => 'validation.custom.password.combination',  // 문자 조합 및 길이제한 체크
-    10102 => 'validation.custom.password.continue',  // 연속된 문자, 동일한 문자 연속 체크
-    10103 => 'validation.custom.password.empty',  // 공백 문자 체크
-
-    10111 => 'validation.custom.password.same_email',  // 비밀번호가 아이디와 4자이상 동일 할 경우
-
-
-
-
-    //
-    10500 => 'common.required_login',           // 로그인이 필요한 서비스입니다.
-
-
-
-    /**
-     * Admin Error
-     * code => language trans string
-     * ex) 10000 => 'validation.unique' // /resources/lang/[locale]/validation.php => unique key
-     */
-
-    20401 => 'validation.exists',       // 필드 값 오류
+//
+//
+//    //
+//    10500 => 'common.required_login',           // 로그인이 필요한 서비스입니다.
+//
+//
+//
+//    /**
+//     * Admin Error
+//     * code => language trans string
+//     * ex) 10000 => 'validation.unique' // /resources/lang/[locale]/validation.php => unique key
+//     */
+//
+//    20401 => 'validation.exists',       // 필드 값 오류
 
 
 ];

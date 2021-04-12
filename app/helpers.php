@@ -2,7 +2,6 @@
 
 //use Illuminate\Support\Facades\Auth;
 //use Cache;
-use App;
 
 if (!function_exists('getErrorCode')) {
     function getErrorCode($code, ...$key) {

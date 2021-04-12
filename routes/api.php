@@ -126,6 +126,9 @@ Route::group([
         // 게시글 목록
         Route::get('/{boardNo}/post', [PostController::class, 'getList']);
 
+        // 게시글 상세 정보
+        Route::get('/{boardNo}/post/{id}', [PostController::class, 'getInfo']);
+
         // 인증 필요
         Route::group([
             'middleware' => 'auth:api',
@@ -136,6 +139,9 @@ Route::group([
 
             // 게시글 수정
             Route::patch('/{boardNo}/post/{id}', [PostController::class, 'modify']);
+
+            // 게시글 삭제
+            Route::delete('/{boardNo}/post/{id}', [PostController::class, 'delete']);
         });
     });
 

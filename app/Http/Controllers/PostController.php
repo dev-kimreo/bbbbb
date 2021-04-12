@@ -13,11 +13,14 @@ use App\Http\Controllers\BoardController;
 use App\Http\Controllers\AttachController;
 
 use App\Models\Post;
+use App\Models\Board;
+use App\Models\Reply;
 use App\Models\AttachFile;
 
 use App\Http\Requests\Posts\GetListPostsRequest;
 use App\Http\Requests\Posts\CreatePostsRequest;
 use App\Http\Requests\Posts\ModifyPostsRequest;
+use App\Http\Requests\Posts\DeletePostsRequest;
 
 use App\Libraries\PageCls;
 
@@ -93,10 +96,12 @@ class PostController extends Controller
      * @return mixed
      */
     public function create(CreatePostsRequest $request) {
+        // 필수 파라미터 확인
         if ( !isset($request->boardNo) ) {
             return response()->json(getResponseError(100001, 'boardNo'), 422);
         }
 
+        // 존재 하는 게시판인지 확인
         if ( ! intval($request->boardNo) ) {
             return response()->json(getResponseError(100041, 'boardNo'), 422);
         }
@@ -123,6 +128,7 @@ class PostController extends Controller
 
         foreach ( $board['options'] as $type => $val ) {
             switch ($type) {
+                // 섬네일
                 case 'thumbnail':
                     if ( $request->thumbnail ) {
                         $fileInfo = AttachFile::where(['id' => $request->thumbnail, 'user_no' => auth()->user()->id, 'type' => 'temp'])->first();
@@ -130,10 +136,12 @@ class PostController extends Controller
                     }
                     break;
 
+                // 첨부파일
                 case 'attachFile':
                     break;
 
-                case 'boardStatus':     // 게시글 상태 사용
+                // 게시글 상태 사용
+                case 'boardStatus':
                     if ( isset($val) && $val ) {
                         $etc['status'] = 'wait';
                     }
@@ -141,6 +149,7 @@ class PostController extends Controller
             }
         }
 
+        // 게시글 작성
         $post = New Post;
         $post->board_no = $request->boardNo;
         $post->user_no = auth()->user()->id;
@@ -153,9 +162,10 @@ class PostController extends Controller
 
         $post->save();
 
+        // 임시 섬네일 이동
         if ( !is_null($after['thumbnail']) ) {
             $attachCtl = new AttachController;
-            $attachCtl->move('post', $post->id, [
+            $attachCtl->move('postThumb', $post->id, [
                 $after['thumbnail']
             ]);
         }
@@ -169,9 +179,97 @@ class PostController extends Controller
     }
 
 
+    /**
+     * @param ModifyPostsRequest $request
+     * @return mixed
+     */
     public function modify(ModifyPostsRequest $request) {
-        echo $request->id;
-        print_r($request->all());
+
+        $post = Post::where(['id' => $request->id, 'board_no' => $request->boardNo])->first();
+
+        if ( !$post ) {
+            return response()->json(getResponseError(100005), 422);
+        }
+
+        // 게시글 정보
+        $postInfo = $post->toArray();
+
+        // 작성자와 동일 체크
+        if ( $postInfo['userNo'] != auth()->user()->id ) {
+            return response()->json(getResponseError(101001), 422);
+        }
+
+        // 이미 삭제된 게시글 일 경우
+        if ( $postInfo['del'] ) {
+            return response()->json(getResponseError(200003), 422);
+        }
+
+        $boardInfo = Board::find($request->boardNo)->toArray();
+
+        // 데이터 수정
+        if ( isset($request->title) ) {
+            $post->title = $request->title;
+        }
+
+        if ( isset($request->content) ) {
+            $post->content = $request->content;
+        }
+
+        $post->save();
+
+        return response()->json([
+            'message' => __('common.modified')
+        ], 200);
+
+//        foreach ( $boardInfo['options'] as $type => $val ) {
+//            switch ($type) {
+//                // 섬네일
+//                case 'thumbnail':
+//                    break;
+//
+//                // 첨부파일
+//                case 'attachFile':
+//                    break;
+//
+//                // 게시글 상태 사용
+//                case 'boardStatus':
+////                    if ( isset($val) && $val ) {
+////                        $etc['status'] = 'wait';
+////                    }
+//                    break;
+//            }
+//        }
+
+
+    }
+
+
+    /**
+     * @param DeletePostsRequest $request
+     * @return mixed
+     */
+    public function delete(DeletePostsRequest $request) {
+        $post = Post::where(['id' => $request->id, 'board_no' => $request->boardNo])->first();
+
+        if ( !$post ) {
+            return response()->json(getResponseError(100005), 422);
+        }
+
+        // 게시글 정보
+        $postInfo = $post->toArray();
+
+        // 작성자와 동일 체크
+        if ( $postInfo['userNo'] != auth()->user()->id ) {
+            return response()->json(getResponseError(101001), 422);
+        }
+
+        // 논리적 삭제 진행
+        $post->del = 1;
+        $post->save();
+
+        return response()->json([
+            'message' => __('common.deleted')
+        ], 200);
     }
 
 
@@ -303,7 +401,7 @@ class PostController extends Controller
                     $post = $post->leftjoin('attach_files AS af', function($join){
                         $join
                             ->on('posts.id', '=', 'af.type_no')
-                            ->where('type', 'post');
+                            ->where('type', 'postThumb');
                     });
                 }
 
@@ -325,6 +423,7 @@ class PostController extends Controller
                         $index->replyCount = $replys->pluck('count')->toArray()[0];
                     }
 
+                    // 유저 이름
                     $index->userName = $index->user->toArray()['name'];
                     unset($index->user);
                 }
@@ -350,5 +449,66 @@ class PostController extends Controller
         return response()->json($result, 200);
     }
 
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function getInfo(Request $request) {
+
+        $post = Post::where(['id' => $request->id, 'board_no' => $request->boardNo])->exists();
+
+        // 잘못된 정보입니다.
+        if ( !$post ) {
+            return response()->json(getResponseError(100005), 422);
+        }
+
+        // 게시판 정보
+        $board = BoardController::funcGetBoard($request->boardNo);
+        $boardInfo = $board->toArray();
+
+
+        $tags = separateTag('post.info');
+        $data = Cache::tags($tags)->remember($request->id, config('cache.custom.expire.common'), function() use ($request, $boardInfo) {
+            $select = ['id', 'title', 'boardNo', 'content', 'hidden', 'del', 'etc', 'userNo', 'regDate', 'uptDate'];
+
+            if ( $boardInfo['options']['thumbnail'] ) {
+                $select[] = 'af.url AS thumbnail';
+            }
+
+            if ( $boardInfo['options']['boardReply'] ) {
+                $select[] = 'comment';
+            }
+
+            $post = Post::select($select)->where(['posts.id' => $request->id, 'board_no' => $request->boardNo]);
+
+            // 섬네일 사용
+            if ( $boardInfo['options']['thumbnail'] ) {
+                $post = $post->leftjoin('attach_files AS af', function($join){
+                    $join
+                        ->on('posts.id', '=', 'af.type_no')
+                        ->where('type', 'postThumb');
+                });
+            }
+
+            $post = $post->first();
+
+            // 게시글 추가 정보 (회원)
+            $post->userName = $post->user->toArray()['name'];
+            unset($post->user);
+
+            return $post;
+        });
+
+        // 게시글 정보
+        $postInfo = $data->toArray();
+
+        // 이미 삭제된 게시글 일 경우
+        if ( $postInfo['del'] ) {
+            return response()->json(getResponseError(200003), 422);
+        }
+
+        return response()->json($postInfo, 200);
+    }
 
 }

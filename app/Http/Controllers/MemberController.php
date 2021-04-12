@@ -784,7 +784,7 @@ class MemberController extends Controller
      *                                  ),
      *                              ),
      *                              @OA\Property(
-     *                                  property="110501",
+     *                                  property="100501",
      *                                  type="object",
      *                                  description="잘못된 인증방식이거나 token의 유효시간이 지났습니다.",
      *                                  @OA\Property(
@@ -818,7 +818,7 @@ class MemberController extends Controller
 
         // Token 유효성 체크
         if( !Password::tokenExists($member, $request->token) ) {
-            return response()->json(getResponseError(110501), 422);
+            return response()->json(getResponseError(100501), 422);
         }
 
         return response()->json([
@@ -881,7 +881,7 @@ class MemberController extends Controller
      *                                  ),
      *                              ),
      *                              @OA\Property(
-     *                                  property="110501",
+     *                                  property="100501",
      *                                  type="object",
      *                                  description="잘못된 인증방식이거나 token의 유효시간이 지났습니다.",
      *                                  @OA\Property(
@@ -915,7 +915,7 @@ class MemberController extends Controller
 
         // Token 유효성 체크
         if( !Password::tokenExists($member, $request->token) ) {
-            return response()->json(getResponseError(110501), 422);
+            return response()->json(getResponseError(100501), 422);
         }
 
         // 비밀번호 체크

@@ -16,6 +16,9 @@ return [
     'required_login' => '로그인이 필요한 서비스입니다.',
     'exists' => '존재하지 않는 :attribute입니다.',
 
+    'post' => [
+        'already_deleted' => '삭제된 게시글입니다.',
+    ],
 
     'incorrect_page' => '잘못된 접근입니다.',
 

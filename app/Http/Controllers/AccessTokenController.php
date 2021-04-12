@@ -64,7 +64,7 @@ class AccessTokenController extends ATC {
      *                          ),
      *                          @OA\Schema(
      *                              @OA\Property(
-     *                                  property="110502",
+     *                                  property="100502",
      *                                  type="object",
      *                                  description="잘못된 client 정보입니다.",
      *                                  @OA\Property(
@@ -132,7 +132,7 @@ class AccessTokenController extends ATC {
         }
         catch (Exception $e) {
             ////return error message
-            return response()->json(getResponseError(110502), 422);
+            return response()->json(getResponseError(100502), 422);
         }
 
 

@@ -12,4 +12,4 @@ namespace App\Schemas;
  *
  * @package App\Models
  */
-abstract class BaseModel extends Model {}
+abstract class Base extends Model {}
