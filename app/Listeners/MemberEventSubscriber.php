@@ -29,7 +29,7 @@ class MemberEventSubscriber
             // 고유 url 생성
             $verifyBeUrl = URL::temporarySignedRoute(
                 $this->subName,
-                Carbon::now()->addMinutes(Config::get('auth.verification.expire', 30)),
+                Carbon::now()->addMinutes(Config::get('auth.verification.expire')),
                 [
                     'verifyKey' => $this->verifyKey,
                     'id' => $event->user->no,

@@ -5,6 +5,7 @@ namespace App\Http\Requests\Posts;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class ModifyPostsRequest extends FormRequest
 {
@@ -26,8 +27,14 @@ class ModifyPostsRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required_without_all:content|string|between:6,128',
-            'content' => 'required_without_all:title|string|min:10'
+            'title' => 'required_without_all:content,thumbnail,delFiles|string|between:6,128',
+            'content' => 'required_without_all:title,thumbnail,delFiles|string|min:10',
+            'thumbnail' => [
+                'sometimes',
+                'integer',
+                Rule::exists('App\Models\AttachFile', 'id')->where('type', 'temp')
+            ],
+            'delFiles.*' => 'sometimes|integer|exists:App\Models\AttachFile,id',
         ];
     }
 
@@ -41,6 +48,12 @@ class ModifyPostsRequest extends FormRequest
             'title.required_without_all' => getErrorCode(100003, null, '{title}'),
             'title.between' => getErrorCode(100053, 'title'),
             'content.required_without_all' => getErrorCode(100003, null, '{content}'),
+
+            'thumbnail.integer' => getErrorCode(100041, 'thumbnail'),
+            'thumbnail.exists' => getErrorCode(100021, 'thumbnail'),
+
+            'delFiles.*.integer' => getErrorCode(100041, '{delFiles}'),
+            'delFiles.*.exists' => getErrorCode(100021, '{delFiles}'),
         ];
     }
 //

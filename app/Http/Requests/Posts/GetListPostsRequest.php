@@ -28,7 +28,7 @@ class GetListPostsRequest extends FormRequest
         return [
             'boardInfo' => 'sometimes|in:0,1',
             'page' => 'sometimes|integer|min:1',
-            'view' => 'sometimes|integer', #|in:12,15
+            'view' => 'sometimes|integer|between:1,50',
         ];
     }
 
@@ -39,7 +39,11 @@ class GetListPostsRequest extends FormRequest
     public function messages()
     {
         return [
-            'boardNo.exists' => getErrorCode(10001),
+            'boardInfo.in' => getErrorCode(100081, 'boardInfo'),
+
+            'page.min' => getErrorCode(100063, 'page'),
+
+            'view.between' => getErrorCode(100051, 'view'),
         ];
     }
 //

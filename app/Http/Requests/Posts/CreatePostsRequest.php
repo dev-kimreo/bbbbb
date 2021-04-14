@@ -28,7 +28,11 @@ class CreatePostsRequest extends FormRequest
         return [
             'title' => 'required|string|between:6,128',
             'content' => 'required|string|min:10',
-            'thumbnail' => 'sometimes|integer|exists:App\Models\AttachFile,id'
+            'thumbnail' => [
+                'sometimes',
+                'integer',
+                Rule::exists('App\Models\AttachFile', 'id')->where('type', 'temp')
+            ],
         ];
     }
 
@@ -39,10 +43,6 @@ class CreatePostsRequest extends FormRequest
     public function messages()
     {
         return [
-//            'boardNo.required' => getErrorCode(100001, 'boardNo'),
-//            'boardNo.integer' => getErrorCode(100041, 'boardNo'),
-//            'boardNo.exists' => getErrorCode(100022, 'boardNo'),
-
             'title.required' => getErrorCode(100001, 'title'),
             'title.between' => getErrorCode(100053, 'title'),
 

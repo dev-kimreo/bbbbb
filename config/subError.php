@@ -25,20 +25,20 @@ return [
 
     100041 => 'validation.integer',                 // :key은(는) 정수여야 합니다.
 
-    100051 => 'validation.between.numeric',         // 값의 제한
-    100052 => 'validation.between.file',            // 파일의 바이트 수 제한
-    100053 => 'validation.between.string',          // 문자 길이 제한
-    100054 => 'validation.between.array',           // 배열의 항목 수 제한
+    100051 => 'validation.between.numeric',         // :key 값은 :min에서 :max 사이여야 합니다.
+    100052 => 'validation.between.file',            // :key의 용량은 :min에서 :max 킬로바이트 사이여야 합니다.
+    100053 => 'validation.between.string',          // :key의 길이는 :min에서 :max 문자 사이여야 합니다.
+    100054 => 'validation.between.array',           // :key의 항목 수는 :min에서 :max 개의 항목이 있어야 합니다.
 
-    100061 => 'validation.min.numeric',             // 최소 값 제한
-    100062 => 'validation.min.file',                // 최소 파일 크기 제한
-    100063 => 'validation.min.string',              // 최소 길이 제한
-    100064 => 'validation.min.array',               // 최소 항목 수 제한
+    100061 => 'validation.min.numeric',             // :key은(는) 최소한 :min이어야 합니다.
+    100062 => 'validation.min.file',                // :key은(는) 최소한 :min킬로바이트이어야 합니다.
+    100063 => 'validation.min.string',              // :key은(는) 최소한 :min자이어야 합니다.
+    100064 => 'validation.min.array',               // :key은(는) 최소한 :min개의 항목이 있어야 합니다.
 
-    100071 => 'validation.max.numeric',             // 최대 값 제한
-    100072 => 'validation.max.file',                // 최대 파일 크기 제한
-    100073 => 'validation.max.string',              // 최대 길이 제한
-    100074 => 'validation.max.array',               // 최대 항목 수 제한
+    100071 => 'validation.max.numeric',             // :key은(는) :max보다 클 수 없습니다.
+    100072 => 'validation.max.file',                // :key은(는) :max킬로바이트보다 클 수 없습니다.
+    100073 => 'validation.max.string',              // :key은(는) :max자보다 클 수 없습니다.
+    100074 => 'validation.max.array',               // :key은(는) :max개보다 많을 수 없습니다.
 
     100081 => 'validation.in',                      // 선택된 :key은(는) 올바르지 않습니다.
     100083 => 'validation.array',                   // :key은(는) 배열이어야 합니다.
@@ -46,8 +46,8 @@ return [
 
     100101 => 'validation.email',                   // 이메일 형식
 
-    100151 => 'validation.image',                   // :attribute은(는) 이미지여야 합니다.
-    100155 => 'validation.mimes',                   // 파일 확장자 형식
+    100151 => 'validation.image',                   // :key은(는) 이미지여야 합니다.
+    100155 => 'validation.mimes',                   // :key은(는) 다음의 파일 형식이어야 합니다: :values.
 
     100501 => 'common.auth.incorrect_timeout',      // 잘못된 인증방식이거나 token의 유효시간이 지났습니다.
     100502 => 'common.auth.incorrect_client',       // 잘못된 client 정보입니다.
@@ -59,6 +59,7 @@ return [
     /**
      * 회원
      */
+    110001 => 'common.required_login',              // 로그인이 필요한 서비스입니다.
 
     // 비밀번호
     110100 => 'common.password.same_org',           // 이전 비밀번호와 동일합니다.
@@ -74,15 +75,16 @@ return [
 
 
     // 이메일 인증
-    110401 => 'common.email.verify',  // 잘못된 인증 방식입니다.
-    110402 => 'common.email.verified',  // 이미 인증된 회원입니다.
-    110411 => 'common.email.limit_send',  // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
+    110401 => 'common.email.verify',                // 잘못된 인증 방식입니다.
+    110402 => 'common.email.verified',              // 이미 인증된 회원입니다.
+    110411 => 'common.email.limit_send',            // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
 
 
     /**
      * 게시글
      */
-    200003 => 'common.post.already_deleted',                               // 삭제된 게시글 입니다.
+    200003 => 'common.post.already_deleted',        // 삭제된 게시글 입니다.
+    200004 => 'common.post.hidden',                 // 숨김 처리된 게시글 입니다.
 
 
 

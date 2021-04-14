@@ -137,7 +137,7 @@ class AttachController extends Controller
     }
 
 
-    public function move($type, $typeNo, array $names) {
+    public function move($type, $typeNo, array $nos, $etc = []) {
         if ( $typeNo <= 0 || !in_array($type, $this->allowType) ) {
             return false;
         }
@@ -154,39 +154,43 @@ class AttachController extends Controller
 //        var_dump($this->path);
 //        var_dump($type . '/' . implode('/', $this->path));
 
-        if ( is_array($names) && count($names) ) {
-            foreach ($names as $n) {
-                $pathInfo = pathinfo($n);
+        if ( is_array($nos) && count($nos) ) {
+            $attach = AttachFile::where('type', 'temp')->whereIn('id', $nos)->get();
+            if ( $attach ) {
+                foreach ($attach as $arr) {
+                    $pathInfo = pathinfo($arr->url);
 
-                if ( !Storage::disk('public')->exists($this->tempDir . '/' . $pathInfo['basename']) ) {
-                    continue;
+                    if ( !Storage::disk('public')->exists($this->tempDir . '/' . $pathInfo['basename']) ) {
+                        continue;
+                    }
+
+                    $orgImg = Storage::disk('public')->get($this->tempDir . '/' . $pathInfo['basename']);
+
+                    // 폴더 존재여부
+                    if (!Storage::disk($disk)->exists($type . '/' . implode('/', $this->path))) {
+                        Storage::disk($disk)->makeDirectory($type . '/' . implode('/', $this->path));
+                    }
+
+                    // 이동
+                    Storage::disk($disk)->put($type . '/' . implode('/', $this->path) . '/' . $pathInfo['basename'], $orgImg);
+
+                    // 첨부파일 데이터 수정
+                    $url = Storage::disk($disk)->url($type . '/' . implode('/', $this->path) . '/' . $pathInfo['basename']);
+                    $pathInfo = pathinfo($url);
+                    $path = pathInfo(str_replace(config('filesystems.disks.' . $disk . '.url') . '/', '', $url))['dirname'];
+
+                    $attachModel = $arr;
+                    $attachModel->server = $disk;
+                    $attachModel->type = $type;
+                    $attachModel->type_no = $typeNo;
+                    $attachModel->url = $url;
+                    $attachModel->path = $path;
+                    $attachModel->etc = $etc;
+                    $attachModel->update();
+
+                    // 원본 삭제
+                    Storage::disk('public')->delete($this->tempDir . '/' . $pathInfo['basename']);
                 }
-
-                $orgImg = Storage::disk('public')->get($this->tempDir . '/' . $pathInfo['basename']);
-
-                // 폴더 존재여부
-                if (!Storage::disk($disk)->exists($type . '/' . implode('/', $this->path))) {
-                    Storage::disk($disk)->makeDirectory($type . '/' . implode('/', $this->path));
-                }
-
-                // 이동
-                Storage::disk($disk)->put($type . '/' . implode('/', $this->path) . '/' . $pathInfo['basename'], $orgImg);
-
-                // 첨부파일 데이터 수정
-                $url = Storage::disk($disk)->url($type . '/' . implode('/', $this->path) . '/' . $pathInfo['basename']);
-                $pathInfo = pathinfo($url);
-                $path = pathInfo(str_replace(config('filesystems.disks.' . $disk . '.url') . '/', '', $url))['dirname'];
-
-                $attachModel = AttachFile::where(['server' => 'public', 'type' => $this->tempDir, 'url' => $n])->first();
-                $attachModel->server = $disk;
-                $attachModel->type = $type;
-                $attachModel->type_no = $typeNo;
-                $attachModel->url = $url;
-                $attachModel->path = $path;
-                $attachModel->update();
-
-                // 원본 삭제
-                Storage::disk('public')->delete($this->tempDir . '/' . $pathInfo['basename']);
             }
         }
     }
@@ -238,7 +242,7 @@ class AttachController extends Controller
             $attachFile = AttachFile::where(['id' => $n, 'user_no' => auth()->user()->id])->first();
             // 파일이 존재하지 않을 경우
             if ( !$attachFile ) {
-                return false; //'파일 존재하지 않거나 내께 아니야'
+                continue; //'파일 존재하지 않거나 내께 아니야'
             }
 
             Storage::disk($attachFile->server)->delete($attachFile->path . '/' . $attachFile->name);
@@ -264,7 +268,9 @@ class AttachController extends Controller
         // 특정 파일만 삭제
         if ( is_array($no) && count($no) ) {
             foreach ($no as $n) {
-                $attachFile = AttachFile::where(['id' => $n, 'type' => $type, 'type_no' => $typeNo])->first();
+                echo $n . '--' . $type;
+                $attachFile = AttachFile::where(['id' => $n, 'type' => $type, 'type_no' => $typeNo, 'user_no' => auth()->user()->id])->first();
+
                 // 파일이 존재하지 않을 경우
                 if ( !$attachFile ) {
                     return '파일 존재하지 않아';

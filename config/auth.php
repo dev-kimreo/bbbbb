@@ -114,7 +114,7 @@ return [
     'password_timeout' => 10800,
 
     'verification' => [
-        'expire' => 30,
+        'expire' => 10,
         'send_limit_count' => 5,
         'send_limit_minutes' => 10,
     ],

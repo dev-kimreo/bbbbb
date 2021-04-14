@@ -124,10 +124,10 @@ class MemberController extends Controller
      *          description="",
      *          @OA\JsonContent(
      *              required={"name","email", "password", "passwordConfirmation"},
-     *              @OA\Property(property="name", type="string", example="홍길동", description="이름"),
-     *              @OA\Property(property="email", type="string", format="email", example="abcd@davinci.com", description="이메일"),
-     *              @OA\Property(property="password", type="string", format="password", example="1234qwer", description="비밀번호"),
-     *              @OA\Property(property="passwordConfirmation", type="string", format="password", example="1234qwer", description="비밀번호 재확인"),
+     *              @OA\Property(property="name", type="string", minimum="2", maximum="100", example="홍길동", description="이름"),
+     *              @OA\Property(property="email", type="string", format="email", maximum="100", example="abcd@davinci.com", description="이메일"),
+     *              @OA\Property(property="password", type="string", format="password", minimum="8", example="1234qwer", description="비밀번호"),
+     *              @OA\Property(property="passwordConfirmation", type="string", format="password", minimum="8", example="1234qwer", description="비밀번호 재확인"),
      *          ),
      *      ),
      *      @OA\Response(

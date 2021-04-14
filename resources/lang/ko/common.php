@@ -18,6 +18,15 @@ return [
 
     'post' => [
         'already_deleted' => '삭제된 게시글입니다.',
+        'hidden' => '숨김 처리된 게시글입니다.',
+
+        'etc' => [
+            'status' => [
+                'wait' => '접수',
+                'ing' => '확인중',
+                'end' => '답변완료',
+            ]
+        ]
     ],
 
     'incorrect_page' => '잘못된 접근입니다.',
