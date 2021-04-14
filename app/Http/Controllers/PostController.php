@@ -318,7 +318,8 @@ class PostController extends Controller
 
         // 캐시 초기화
         if ($flushFlag) {
-            Cache::tags(['post.list.' . $request->boardNo])->flush();
+            Cache::tags(['post.info'])->forget($request->id);               // 상세 정보 캐시 삭제
+            Cache::tags(['post.list.' . $request->boardNo])->flush();       // 상세 목록 캐시 flush
         }
 
         return response()->json([
@@ -397,6 +398,7 @@ class PostController extends Controller
         $post->save();
 
         // 캐시 초기화
+        Cache::tags(['post.info'])->forget($request->id);               // 상세 정보 캐시 삭제
         Cache::tags(['post.list.' . $postInfo['boardNo']])->flush();
 
         return response()->json([
@@ -683,7 +685,16 @@ class PostController extends Controller
     }
 
 
-    public function funcGetInfo($postNo, $boardNo) {
+    /**
+     * @param $postNo
+     * @param $boardNo
+     * @return mixed
+     */
+    public function funcGetInfo($postNo, $boardNo = 0) {
+        // 게시판 번호가 없을 경우
+        if ( !$boardNo ) {
+            $boardNo = Post::select('boardNo')->where('id', $postNo)->first()['boardNo'];
+        }
 
         // 게시판 정보
         $board = BoardController::funcGetBoard($boardNo);

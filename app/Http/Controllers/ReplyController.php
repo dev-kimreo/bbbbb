@@ -8,9 +8,9 @@ use Auth;
 use Cache;
 
 
-//use App\Http\Controllers\BoardController;
-//
-//use App\Models\Post;
+use App\Http\Controllers\BoardController;
+
+use App\Models\Post;
 //use App\Models\Board;
 //use App\Models\Reply;
 
@@ -94,13 +94,21 @@ class ReplyController extends Controller
         if ( ! intval($request->postNo) ) {
             return response()->json(getResponseError(100041, 'postNo'), 422);
         }
-//
-//        // 게시글 정보
-//        $board = BoardController::funcGetBoard($request->boardNo);
-//        if ( !$board ) {
-//            return response()->json(getResponseError(100022, 'boardNo'), 422);
-//        }
-//        $board = $board->toArray();
+
+
+        // 게시글 정보
+        $boardNo = Post::select('boardNo')->where('id', $request->postNo)->first()['boardNo'];
+        $board = BoardController::funcGetBoard($boardNo);
+
+        if ( !$board ) {
+            return response()->json(getResponseError(100022, 'boardNo'), 422);
+        }
+        $boardInfo = $board->toArray();
+        if ( !$boardInfo['options']['reply'] ) {
+
+        }
+
+
 //
 //        // 작성 가능 권한 체크
 //        if ( $board['options']['board'] == 'manager' && auth()->user()->grade != 100 ) {
