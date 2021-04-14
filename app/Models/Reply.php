@@ -29,16 +29,31 @@ class Reply extends Model
      * @var array
      */
     protected $hidden = [
+        'post_no',
+        'user_no',
+        'created_at',
+        'updated_at'
     ];
 
     protected $maps = [
+        'postNo' => 'post_no',
+        'userNo' => 'user_no',
+        'regDate' => 'created_at',
+        'uptDate' => 'updated_at',
     ];
 
     protected $appends = [
+        'userNo',
+        'regDate',
+        'uptDate'
     ];
 
     protected $casts = [
     ];
+
+    public function user(){
+        return $this->belongsTo('App\Models\User', 'user_no', 'id')->select(['id', 'name']);
+    }
 
     public function getCreatedAtAttribute($value){
         return Carbon::parse($value)->format('c');

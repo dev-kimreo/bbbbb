@@ -16,9 +16,14 @@ return [
     'required_login' => '로그인이 필요한 서비스입니다.',
     'exists' => '존재하지 않는 :attribute입니다.',
 
+    'board' => [
+        'not_reply' => '댓글을 작성할 수 없는 게시판입니다.',
+    ],
+
     'post' => [
         'already_deleted' => '삭제된 게시글입니다.',
         'hidden' => '숨김 처리된 게시글입니다.',
+        'deleted_or_hidden' => '삭제되었거나 숨김처리 된 게시글 입니다.',
 
         'etc' => [
             'status' => [
@@ -27,6 +32,12 @@ return [
                 'end' => '답변완료',
             ]
         ]
+    ],
+
+    'reply' => [
+        'already_deleted' => '삭제된 댓글입니다.',
+        'hidden' => '숨김 처리된 댓글입니다.',
+        'deleted_or_hidden' => '삭제되었거나 숨김처리 된 댓글 입니다.',
     ],
 
     'incorrect_page' => '잘못된 접근입니다.',

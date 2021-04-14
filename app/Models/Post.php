@@ -44,7 +44,6 @@ class Post extends Model
         'userNo' => 'user_no',
         'regDate' => 'created_at',
         'uptDate' => 'updated_at',
-        'user' => ['name']
     ];
 
     protected $appends = [

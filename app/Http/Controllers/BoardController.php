@@ -296,7 +296,7 @@ class BoardController extends Controller
             Cache::tags(['board.list'])->flush();
 
             // 변경된 게시판 cache forget
-            Cache::tags(['board.info'])->forget($request->id);
+            Cache::tags(['board.' . $request->id])->flush();
         }
 
         return response()->json([
@@ -466,9 +466,9 @@ class BoardController extends Controller
      * @return mixed
      */
     static public function funcGetBoard($boardNo) {
-        $tags = separateTag('board.info');
+        $tags = separateTag('board.' . $boardNo);
 
-        $data = Cache::tags($tags)->remember($boardNo, config('cache.custom.expire.common'), function() use ($boardNo) {
+        $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function() use ($boardNo) {
             $opt = Board::find($boardNo);
 
             if (!$opt) {
@@ -479,7 +479,7 @@ class BoardController extends Controller
         });
 
         if ( !$data ) {
-            Cache::tags($tags)->forget($boardNo);
+            Cache::tags($tags)->forget('info');
             return false;
         }
 

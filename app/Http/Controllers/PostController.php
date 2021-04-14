@@ -169,7 +169,7 @@ class PostController extends Controller
         }
 
         // 캐시 초기화
-        Cache::tags(['post.list.' . $request->boardNo])->flush();
+        Cache::tags(['board.' . $request->boardNo . '.post.list'])->flush();
 
         return response()->json([
             'message' => __('common.created'),
@@ -318,8 +318,8 @@ class PostController extends Controller
 
         // 캐시 초기화
         if ($flushFlag) {
-            Cache::tags(['post.info'])->forget($request->id);               // 상세 정보 캐시 삭제
-            Cache::tags(['post.list.' . $request->boardNo])->flush();       // 상세 목록 캐시 flush
+            Cache::tags(['board.' . $request->boardNo . '.post.' . $request->id])->forget('info');  // 상세 정보 캐시 삭제
+            Cache::tags(['board.' . $request->boardNo . '.post.list'])->flush();                    // 상세 목록 캐시 flush
         }
 
         return response()->json([
@@ -398,8 +398,8 @@ class PostController extends Controller
         $post->save();
 
         // 캐시 초기화
-        Cache::tags(['post.info'])->forget($request->id);               // 상세 정보 캐시 삭제
-        Cache::tags(['post.list.' . $postInfo['boardNo']])->flush();
+        Cache::tags(['board.' . $request->boardNo . '.post.' . $request->id])->flush();               // 상세 정보 캐시 삭제
+        Cache::tags(['board.' . $request->boardNo . '.post.list'])->flush();
 
         return response()->json([
             'message' => __('common.deleted')
@@ -495,7 +495,7 @@ class PostController extends Controller
             'boardInfo' => $boardInfoFlag,
             'page' => $request->page,
             'view' => $request->perPage,
-            'select' => ['id', 'title', 'boardNo', 'userNo', 'regDate', 'uptDate', 'af.url AS thumbnail']
+            'select' => ['id', 'title', 'boardNo', 'userNo', 'regDate', 'uptDate']
         ];
 
         // where 절 eloquent
@@ -504,6 +504,7 @@ class PostController extends Controller
         // 섬네일 기능 사용시
         if ( isset($board['options']['thumbnail']) && $board['options']['thumbnail'] ) {
             $set['thumbnail'] = true;
+            $set['select'][] = 'af.url AS thumbnail';
         }
 
         // 글 상태 사용시
@@ -539,7 +540,7 @@ class PostController extends Controller
         if ( $set['page'] <= $pagination['totalPage'] ) {
             // 데이터 cache
             $hash = substr(md5(json_encode($set)), 0, 5);
-            $tags = separateTag('post.list.' . $set['boardNo']);
+            $tags = separateTag('board.' . $set['boardNo'] . '.post.list');
             $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function() use ($set, $pagination, $whereModel) {
                 $post = $whereModel
                         ->with('user:id,name')
@@ -698,10 +699,15 @@ class PostController extends Controller
 
         // 게시판 정보
         $board = BoardController::funcGetBoard($boardNo);
+        if ( !$board ) {
+            return getResponseError(100022, 'boardNo');
+        }
+
         $boardInfo = $board->toArray();
 
-        $tags = separateTag('post.info');
-        $data = Cache::tags($tags)->remember($postNo, config('cache.custom.expire.common'), function() use ($postNo, $boardNo, $boardInfo) {
+        // 데이터 cache
+        $tags = separateTag('board.' . $boardNo . '.post.' . $postNo);
+        $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function() use ($postNo, $boardNo, $boardInfo) {
             $select = ['id', 'title', 'boardNo', 'content', 'hidden', 'del', 'etc', 'userNo', 'regDate', 'uptDate'];
 
             // 섬네일 지원 게시판일 경우

@@ -130,6 +130,11 @@ Route::group([
         // 게시글 상세 정보
         Route::get('/{boardNo}/post/{id}', [PostController::class, 'getInfo']);
 
+
+        // 댓글 목록
+        Route::get('/{boardNo}/post/{postNo}/reply', [ReplyController::class, 'getList']);
+
+
         // 인증 필요
         Route::group([
             'middleware' => 'auth:api',
@@ -143,6 +148,18 @@ Route::group([
 
             // 게시글 삭제
             Route::delete('/{boardNo}/post/{id}', [PostController::class, 'delete']);
+
+
+            // 댓글 작성
+            Route::post('/{boardNo}/post/{postNo}/reply', [ReplyController::class, 'create']);
+
+            // 댓글 수정
+            Route::patch('/{boardNo}/post/{postNo}/reply/{id}', [ReplyController::class, 'modify']);
+
+            // 댓글 삭제
+            Route::delete('/{boardNo}/post/{postNo}/reply/{id}', [ReplyController::class, 'delete']);
+
+
         });
     });
 
@@ -152,13 +169,13 @@ Route::group([
         'prefix' => 'post'
     ], function(){
 
+
+
         // 인증 필요
         Route::group([
             'middleware' => 'auth:api',
         ], function () {
 
-            // 댓글 작성
-            Route::post('/{postNo}/reply', [ReplyController::class, 'create']);
         });
 
 

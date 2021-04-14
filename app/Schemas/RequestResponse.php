@@ -480,6 +480,61 @@ namespace App\Schemas;
  *              example="숨김 처리된 게시글 입니다."
  *          ),
  *      ),
+ *      @OA\Property(
+ *          property="200005",
+ *          type="object",
+ *          description="삭제되었거나 숨김처리 된 게시글 입니다.",
+ *          @OA\Property(
+ *              property="message",
+ *              type="string",
+ *              description="메시지",
+ *              example="삭제되었거나 숨김처리 된 게시글 입니다."
+ *          ),
+ *      ),
+ *      @OA\Property(
+ *          property="210003",
+ *          type="object",
+ *          description="삭제된 댓글 입니다.",
+ *          @OA\Property(
+ *              property="message",
+ *              type="string",
+ *              description="메시지",
+ *              example="삭제된 댓글 입니다."
+ *          ),
+ *      ),
+ *      @OA\Property(
+ *          property="210004",
+ *          type="object",
+ *          description="숨김 처리된 댓글 입니다.",
+ *          @OA\Property(
+ *              property="message",
+ *              type="string",
+ *              description="메시지",
+ *              example="숨김 처리된 댓글 입니다."
+ *          ),
+ *      ),
+ *      @OA\Property(
+ *          property="210005",
+ *          type="object",
+ *          description="삭제되었거나 숨김처리 된 댓글 입니다.",
+ *          @OA\Property(
+ *              property="message",
+ *              type="string",
+ *              description="메시지",
+ *              example="삭제되었거나 숨김처리 된 댓글 입니다."
+ *          ),
+ *      ),
+ *      @OA\Property(
+ *          property="250001",
+ *          type="object",
+ *          description="댓글을 작성할 수 없는 게시판입니다.",
+ *          @OA\Property(
+ *              property="message",
+ *              type="string",
+ *              description="메시지",
+ *              example="댓글을 작성할 수 없는 게시판입니다."
+ *          ),
+ *      ),
  *  )
  */
 

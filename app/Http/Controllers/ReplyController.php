@@ -8,13 +8,15 @@ use Auth;
 use Cache;
 
 
-use App\Http\Controllers\BoardController;
+use App\Http\Controllers\BoardController as BoardController;
+use App\Http\Controllers\PostController as PostController;
 
-use App\Models\Post;
-//use App\Models\Board;
-//use App\Models\Reply;
+use App\Models\Reply;
 
-//use App\Http\Requests\Posts\GetListPostsRequest;
+use App\Http\Requests\Replies\CreateRepliesRequest;
+use App\Http\Requests\Replies\ModifyRepliesRequest;
+use App\Http\Requests\Replies\DeleteRepliesRequest;
+use App\Http\Requests\Replies\GetListRepliesRequest;
 
 use App\Libraries\PageCls;
 
@@ -29,21 +31,18 @@ class ReplyController extends Controller
     /**
      *  @OA\Schema (
      *      schema="replyCreate",
-     *      required={"title", "content"},
-     *      @OA\Property(property="title", type="string", example="게시글 입니다.", description="게시글 제목" ),
-     *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" ),
-     *      @OA\Property(property="thumbnail", type="integer", example=23, description="섬네일로 사용할 임시 이미지의 고유번호" )
+     *      required={"content"},
+     *      @OA\Property(property="content", type="string", example="댓글 내용입니다.", description="댓글 내용" )
      *  )
      */
-
 
     /**
      * @OA\Post(
      *      path="/v1/post/{postNo}/reply",
-     *      summary="게시판 글 작성",
-     *      description="게시판 글 작성",
-     *      operationId="postCreate",
-     *      tags={"게시판 글"},
+     *      summary="댓글 작성",
+     *      description="댓글 작성",
+     *      operationId="replyCreate",
+     *      tags={"게시판 댓글"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
@@ -71,6 +70,12 @@ class ReplyController extends Controller
      *                      allOf={
      *                          @OA\Schema(
      *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
+     *                              @OA\Property(property="100022", ref="#/components/schemas/RequestResponse/properties/100022"),
+     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
+     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
+     *                              @OA\Property(property="200005", ref="#/components/schemas/RequestResponse/properties/200005"),
+     *                              @OA\Property(property="250001", ref="#/components/schemas/RequestResponse/properties/250001"),
      *                          ),
      *                      }
      *                  ),
@@ -83,39 +88,379 @@ class ReplyController extends Controller
      *  )
      */
 
-    public function create(Request $request) {
+    public function create(CreateRepliesRequest $request) {
+
+        // 데이터 체크
+        $checkRes = $this->funcCheckUseReply($request->boardNo, $request->postNo);
+        if ( $checkRes !== true ) {
+            return response()->json($checkRes, 422);
+        }
+
+        // 댓글 작성
+        $reply = new Reply;
+        $reply->post_no = $request->postNo;
+        $reply->user_no = auth()->user()->id;
+        $reply->content = $request->content;
+        $reply->save();
+
+        // 캐시 초기화
+        Cache::tags(['board.' . $request->boardNo . '.post.' . $request->postNo . '.reply'])->flush();
+
+        return response()->json([
+            'message' => __('common.created')
+        ], 200);
+    }
+
+
+    /**
+     *  @OA\Schema (
+     *      schema="replyModify",
+     *      required={"content"},
+     *      @OA\Property(property="content", type="string", example="댓글 내용입니다.", description="댓글 내용" )
+     *  )
+     */
+
+    /**
+     * @OA\Patch(
+     *      path="/v1/post/{postNo}/reply/{id}",
+     *      summary="댓글 수정",
+     *      description="댓글 수정",
+     *      operationId="replyModify",
+     *      tags={"게시판 댓글"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              ref="#/components/schemas/replyModify"
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="수정되었습니다.",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="수정되었습니다." ),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="실패",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="statusCode",
+     *                      type="object",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
+     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
+     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
+     *                              @OA\Property(property="101001", ref="#/components/schemas/RequestResponse/properties/101001"),
+     *                              @OA\Property(property="200005", ref="#/components/schemas/RequestResponse/properties/200005"),
+     *                              @OA\Property(property="210003", ref="#/components/schemas/RequestResponse/properties/210003"),
+     *                              @OA\Property(property="250001", ref="#/components/schemas/RequestResponse/properties/250001"),
+     *                          ),
+     *                      }
+     *                  ),
+     *              )
+     *          )
+     *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
+     *  )
+     */
+    /**
+     * @param ModifyRepliesRequest $request
+     * @return mixed
+     */
+    public function modify(ModifyRepliesRequest $request) {
+
+        // 데이터 체크
+        $checkRes = $this->funcCheckUseReply($request->boardNo, $request->postNo);
+        if ( $checkRes !== true ) {
+            return response()->json($checkRes, 422);
+        }
+
+        $reply = Reply::find($request->id)->where('user_no', auth()->user()->id)->first();
+        if ( is_null($reply) ) {
+            return response()->json(getResponseError(101001), 422);
+        }
+
+        // 삭제된 댓글 일 경우
+        if ( $reply['del'] ) {
+            return response()->json(getResponseError(210003), 422);
+        }
+
+        $reply->content = $request->content;
+        $reply->update();
+
+        // 캐시 초기화
+        Cache::tags(['board.' . $request->boardNo . '.post.' . $request->postNo . '.reply'])->flush();
+
+        return response()->json([
+            'message' => __('common.modified')
+        ], 200);
+    }
+
+
+    /**
+     * @OA\Delete(
+     *      path="/v1/post/{postNo}/reply/{id}",
+     *      summary="댓글 삭제",
+     *      description="댓글 삭제",
+     *      operationId="replyDelete",
+     *      tags={"게시판 댓글"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="삭제되었습니다.",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="삭제되었습니다." ),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="실패",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="statusCode",
+     *                      type="object",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
+     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
+     *                              @OA\Property(property="101001", ref="#/components/schemas/RequestResponse/properties/101001"),
+     *                              @OA\Property(property="200005", ref="#/components/schemas/RequestResponse/properties/200005"),
+     *                              @OA\Property(property="210003", ref="#/components/schemas/RequestResponse/properties/210003"),
+     *                              @OA\Property(property="250001", ref="#/components/schemas/RequestResponse/properties/250001"),
+     *                          ),
+     *                      }
+     *                  ),
+     *              )
+     *          )
+     *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
+     *  )
+     */
+    /**
+     * @param DeleteRepliesRequest $request
+     * @return mixed
+     */
+    public function delete(DeleteRepliesRequest $request) {
+
+        $reply = Reply::where(['id' => $request->id, 'user_no' => auth()->user()->id])->first();
+        if ( is_null($reply) ) {
+            return response()->json(getResponseError(101001), 422);
+        }
+
+        // 삭제된 댓글 일 경우
+        if ( $reply['del'] ) {
+            return response()->json(getResponseError(210003), 422);
+        }
+
+        $reply->del = 1;
+        $reply->update();
+
+        // 캐시 초기화
+        Cache::tags(['board.' . $request->boardNo . '.post.' . $request->postNo . '.reply'])->flush();
+
+        return response()->json([
+            'message' => __('common.deleted')
+        ], 200);
+    }
+
+
+    /**
+     * @OA\Schema (
+     *      schema="replyList",
+     *      @OA\Property(property="page", type="integer", example=1, default=1, description="댓글 페이지" ),
+     *      @OA\Property(property="perPage", type="integer", example=15, description="한 페이지당 보여질 댓글 수" )
+     * )
+     *
+     * @OA\Get(
+     *      path="/v1/board/{boardNo}/post/{postNo}/reply",
+     *      summary="댓글 목록",
+     *      description="댓글 목록",
+     *      operationId="replyGetList",
+     *      tags={"게시판 댓글"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              ref="#/components/schemas/replyList"
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination" ),
+     *              @OA\Property(property="list", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="id", type="integer", example=1, description="댓글 고유번호" ),
+     *                      @OA\Property(property="content", type="string", example="댓글 내용입니다.", description="댓글 내용" ),
+     *                      @OA\Property(property="hidden", type="integer", example=0, default=0, description="게시글 숨김 여부<br/>0:노출<br/>1:숨김" ),
+     *                      @OA\Property(property="del", type="integer", example=0, default=0, description="게시글 삭제 여부<br/>0:노출<br/>1:삭제" ),
+     *                      @OA\Property(property="userName", type="string", example="홍길동", description="작성자" ),
+     *                      @OA\Property(property="userNo", type="integer", example=1, description="작성자 회원 고유번호" ),
+     *                      @OA\Property(property="regDate", type="datetime", example="2021-04-08T07:04:52+00:00", description="게시글 작성일자" ),
+     *                      @OA\Property(property="uptDate", type="datetime", example="2021-04-08T07:57:55+00:00", description="게시글 수정일자" ),
+     *                  )
+     *              ),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed get lists",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="statusCode",
+     *                      type="object",
+     *                      allOf={
+     *                          @OA\Schema(
+     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
+     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
+     *                              @OA\Property(property="100022", ref="#/components/schemas/RequestResponse/properties/100022"),
+     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
+     *                              @OA\Property(property="100051", ref="#/components/schemas/RequestResponse/properties/100051"),
+     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
+     *                              @OA\Property(property="101001", ref="#/components/schemas/RequestResponse/properties/101001"),
+     *                              @OA\Property(property="200005", ref="#/components/schemas/RequestResponse/properties/200005"),
+     *                              @OA\Property(property="250001", ref="#/components/schemas/RequestResponse/properties/250001"),
+     *                          ),
+     *                      }
+     *                  ),
+     *              )
+     *          )
+     *      ),
+     *  )
+     */
+    /**
+     * @param GetListRepliesRequest $request
+     * @return mixed
+     */
+    public function getList(GetListRepliesRequest $request) {
+        // 데이터 체크
+        $checkRes = $this->funcCheckUseReply($request->boardNo, $request->postNo);
+        if ( $checkRes !== true ) {
+            return response()->json($checkRes, 422);
+        }
+
+        // 댓글 목록
+        $set = [
+            'boardNo' => $request->boardNo,
+            'postNo' => $request->postNo,
+            'page' => $request->page,
+            'view' => $request->perPage,
+            'select' => ['id', 'userNo', 'content', 'hidden', 'del', 'regDate', 'uptDate']
+        ];
+
+        // where 절 eloquent
+        $whereModel = Reply::where(['post_no' => $set['postNo'], 'del' => 0]);
+
+
+        // pagination
+        $pagination = PageCls::set($set['page'], $whereModel->count(), $set['view']);
+        if ( !$pagination ) {
+            return response()->json(getResponseError(101001), 422);
+        }
+
+        if ( $set['page'] <= $pagination['totalPage'] ) {
+            // 데이터 cache
+            $hash = substr(md5(json_encode($set)), 0, 5);
+            $tags = separateTag('board.' . $set['boardNo'] . '.post.' . $set['postNo'] . '.reply');
+            $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function() use ($set, $pagination, $whereModel) {
+                $reply = $whereModel
+
+                    ->with('user:id,name')
+                    ->select($set['select']);
+
+                $reply = $reply
+                    ->skip($pagination['skip'])
+                    ->take($pagination['perPage'])
+                    ->orderBy('id', 'asc');
+
+                $reply = $reply->get();
+
+                // 데이터 가공
+                $reply->pluck('user')->each->setAppends([]);
+                foreach ($reply as $index) {
+                    // 유저 이름
+                    $index->userName = $index->user->toArray()['name'];
+                    unset($index->user);
+                }
+
+                return $reply;
+            });
+        }
+
+
+        $data = isset($data) ? $data->toArray() : array();
+
+        $result = ['header' => $pagination];
+        $result['list'] = $data;
+
+        return response()->json($result, 200);
+    }
+
+
+    public function funcCheckUseReply($boardNo, $postNo) {
 
         // 필수 파라미터 확인
-        if ( !isset($request->postNo) ) {
-            return response()->json(getResponseError(100001, 'postNo'), 422);
+        if ( !isset($boardNo) ) {
+            return getResponseError(100001, 'boardNo');
+        }
+
+        if ( !isset($postNo) ) {
+            return getResponseError(100001, 'postNo');
         }
 
         // 게시글 번호 확인
-        if ( ! intval($request->postNo) ) {
-            return response()->json(getResponseError(100041, 'postNo'), 422);
+        if ( ! intval($boardNo) ) {
+            return getResponseError(100041, 'boardNo');
         }
 
+        if ( ! intval($postNo) ) {
+            return getResponseError(100041, 'postNo');
+        }
 
-        // 게시글 정보
-        $boardNo = Post::select('boardNo')->where('id', $request->postNo)->first()['boardNo'];
-        $board = BoardController::funcGetBoard($boardNo);
+        // 게시글 댓글 작성 가능여부 체크
+        $post = new PostController;
+        $post = $post->funcGetInfo($postNo, $boardNo);
+        if ( isset($post['errors']) ) {
+            return $post;
+        }
+        $postInfo = $post->toArray();
 
+        $board = new BoardController;
+        $board = $board->funcGetBoard($boardNo);
         if ( !$board ) {
-            return response()->json(getResponseError(100022, 'boardNo'), 422);
+            return getResponseError(100005, 'boardNo');
         }
+
         $boardInfo = $board->toArray();
         if ( !$boardInfo['options']['reply'] ) {
-
+            return getResponseError(250001);
         }
 
+        // 게시글 삭제 & 숨김 여부
+        if ( $postInfo['del'] || $postInfo['hidden'] ) {
+            return getResponseError(200005);
+        }
 
-//
-//        // 작성 가능 권한 체크
-//        if ( $board['options']['board'] == 'manager' && auth()->user()->grade != 100 ) {
-//            return response()->json(getResponseError(101001), 422);
-//        }
+        return true;
     }
-
 
 
 }

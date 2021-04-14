@@ -85,6 +85,19 @@ return [
      */
     200003 => 'common.post.already_deleted',        // 삭제된 게시글 입니다.
     200004 => 'common.post.hidden',                 // 숨김 처리된 게시글 입니다.
+    200005 => 'common.post.deleted_or_hidden',      // 삭제되었거나 숨김처리 된 게시글 입니다.
+
+    /**
+     * 댓글
+     */
+    210003 => 'common.reply.already_deleted',        // 삭제된 댓글 입니다.
+    210004 => 'common.reply.hidden',                 // 숨김 처리된 댓글 입니다.
+    210005 => 'common.reply.deleted_or_hidden',      // 삭제되었거나 숨김처리 된 댓글 입니다.
+
+    /**
+     * 게시판
+     */
+    250001 => 'common.board.not_reply',             // 댓글을 작성할 수 없는 게시판입니다.
 
 
 
