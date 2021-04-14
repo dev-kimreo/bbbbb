@@ -8,6 +8,7 @@ use App\Http\Controllers\AccessTokenController;
 
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\AttachController;
 
 
@@ -151,6 +152,14 @@ Route::group([
         'prefix' => 'post'
     ], function(){
 
+        // 인증 필요
+        Route::group([
+            'middleware' => 'auth:api',
+        ], function () {
+
+            // 댓글 작성
+            Route::post('/{postNo}/reply', [ReplyController::class, 'create']);
+        });
 
 
     });

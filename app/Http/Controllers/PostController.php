@@ -410,7 +410,7 @@ class PostController extends Controller
      *      schema="postList",
      *      @OA\Property(property="boardInfo", type="integer", example=1, default=0, description="게시판 정보 출력 여부<br/>0 : 미출력<br/>1 : 출력" ),
      *      @OA\Property(property="page", type="integer", example=1, default=1, description="게시글 페이지" ),
-     *      @OA\Property(property="view", type="integer", example=15, description="한 페이지당 보여질 갯 수" )
+     *      @OA\Property(property="perPage", type="integer", example=15, description="한 페이지당 보여질 갯 수" )
      * )
      *
      * @OA\Get(
@@ -492,7 +492,7 @@ class PostController extends Controller
             'boardNo' => $request->boardNo,
             'boardInfo' => $boardInfoFlag,
             'page' => $request->page,
-            'view' => $request->view,
+            'view' => $request->perPage,
             'select' => ['id', 'title', 'boardNo', 'userNo', 'regDate', 'uptDate', 'af.url AS thumbnail']
         ];
 
@@ -616,7 +616,10 @@ class PostController extends Controller
      *              @OA\Property(property="etc", type="object", description="게시글 기타정보",
      *                  @OA\Property(property="status", type="string", example="wait", description="게시글 상태<br/>wait:접수<br/>ing:확인중<br/>end:답변완료" )
      *              ),
-     *              @OA\Property(property="thumbnail", type="string", example="http://local-api.qpicki.com/storage/post/048/000/000/caf4df2767fea15158143aaab145d94e.jpg", description="게시글 섬네일 이미지 url" ),
+     *              @OA\Property(property="thumbnail", type="object", description="게시글 섬네일 이미지 정보",
+     *                  @OA\Property(property="id", type="integer", example=4, description="이미지 고유 번호" ),
+     *                  @OA\Property(property="url", type="string", example="http://local-api.qpicki.com/storage/post/048/000/000/caf4df2767fea15158143aaab145d94e.jpg", description="이미지 url" ),
+     *              ),
      *              @OA\Property(property="status", type="string", example="접수", description="게시글 상태" ),
      *              @OA\Property(property="userName", type="string", example="홍길동", description="작성자" ),
      *              @OA\Property(property="boardNo", type="integer", example=1, description="게시판 고유번호" ),
@@ -662,49 +665,8 @@ class PostController extends Controller
             return response()->json(getResponseError(100005), 422);
         }
 
-        // 게시판 정보
-        $board = BoardController::funcGetBoard($request->boardNo);
-        $boardInfo = $board->toArray();
-
-        $tags = separateTag('post.info');
-        $data = Cache::tags($tags)->remember($request->id, config('cache.custom.expire.common'), function() use ($request, $boardInfo) {
-            $select = ['id', 'title', 'boardNo', 'content', 'hidden', 'del', 'etc', 'userNo', 'regDate', 'uptDate'];
-
-            // 섬네일 지원 게시판일 경우
-            if ( $boardInfo['options']['thumbnail'] ) {
-                $select[] = 'af.url AS thumbnail';
-            }
-
-            // 게시글 답변 지원 게시판 일 경우
-            if ( $boardInfo['options']['boardReply'] ) {
-                $select[] = 'comment';
-            }
-
-            $post = Post::select($select)->where(['posts.id' => $request->id, 'board_no' => $request->boardNo]);
-
-            // 섬네일 사용
-            if ( $boardInfo['options']['thumbnail'] ) {
-                $post = $post->leftjoin('attach_files AS af', function($join){
-                    $join
-                        ->on('posts.id', '=', 'af.type_no')
-                        ->where('type', $this->attachType)
-                        ->whereJsonContains('af.etc', ['type' => 'thumbnail']);
-                });
-            }
-
-            $post = $post->first();
-
-            // 기타정보 가공
-            $post->status = __('common.post.etc.status.' . $post->etc['status']);
-
-            // 게시글 추가 정보 (회원)
-            $post->userName = $post->user->toArray()['name'];
-            unset($post->user);
-
-            return $post;
-        });
-
         // 게시글 정보
+        $data = $this->funcGetInfo($request->id, $request->boardNo);
         $postInfo = $data->toArray();
 
         // 이미 삭제된 게시글 일 경우
@@ -718,6 +680,62 @@ class PostController extends Controller
         }
 
         return response()->json($postInfo, 200);
+    }
+
+
+    public function funcGetInfo($postNo, $boardNo) {
+
+        // 게시판 정보
+        $board = BoardController::funcGetBoard($boardNo);
+        $boardInfo = $board->toArray();
+
+        $tags = separateTag('post.info');
+        $data = Cache::tags($tags)->remember($postNo, config('cache.custom.expire.common'), function() use ($postNo, $boardNo, $boardInfo) {
+            $select = ['id', 'title', 'boardNo', 'content', 'hidden', 'del', 'etc', 'userNo', 'regDate', 'uptDate'];
+
+            // 섬네일 지원 게시판일 경우
+            if ( $boardInfo['options']['thumbnail'] ) {
+                $select[] = 'af.url AS thumbnail';
+                $select[] = 'af.id AS thumbNo';
+            }
+
+            // 게시글 답변 지원 게시판 일 경우
+            if ( $boardInfo['options']['boardReply'] ) {
+                $select[] = 'comment';
+            }
+
+            $post = Post::select($select)->where(['posts.id' => $postNo, 'board_no' => $boardNo]);
+
+            // 섬네일 사용
+            if ( $boardInfo['options']['thumbnail'] ) {
+                $post = $post->leftjoin('attach_files AS af', function($join){
+                    $join
+                        ->on('posts.id', '=', 'af.type_no')
+                        ->where('type', $this->attachType)
+                        ->whereJsonContains('af.etc', ['type' => 'thumbnail']);
+                });
+            }
+
+            $post = $post->first();
+
+            $post->thumbnail = [
+                'id' => $post->thumbNo,
+                'url' => $post->thumbnail
+            ];
+            unset($post->thumbNo);
+
+            // 기타정보 가공
+            $post->status = __('common.post.etc.status.' . $post->etc['status']);
+
+            // 게시글 추가 정보 (회원)
+            $post->userName = $post->user->toArray()['name'];
+            unset($post->user);
+
+            return $post;
+        });
+
+        return $data;
+
     }
 
 }

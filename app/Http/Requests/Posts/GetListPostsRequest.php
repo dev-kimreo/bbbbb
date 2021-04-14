@@ -28,7 +28,7 @@ class GetListPostsRequest extends FormRequest
         return [
             'boardInfo' => 'sometimes|in:0,1',
             'page' => 'sometimes|integer|min:1',
-            'view' => 'sometimes|integer|between:1,50',
+            'perPage' => 'sometimes|integer|between:1,50',
         ];
     }
 
@@ -43,7 +43,7 @@ class GetListPostsRequest extends FormRequest
 
             'page.min' => getErrorCode(100063, 'page'),
 
-            'view.between' => getErrorCode(100051, 'view'),
+            'perPage.between' => getErrorCode(100051, '{perPage}'),
         ];
     }
 //
