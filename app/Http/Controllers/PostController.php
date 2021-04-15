@@ -565,7 +565,8 @@ class PostController extends Controller
                 $post = $post->get();
 
                 // 데이터 가공
-                $post->pluck('user')->each->setAppends([]);
+//                $post->pluck('user')->each->setAppends([]);
+
                 foreach ($post as $index) {
                     // 댓글 사용시
                     if ( isset($set['reply']) && $set['reply'] ) {
@@ -575,7 +576,9 @@ class PostController extends Controller
                     }
 
                     // 유저 이름
-                    $index->userName = $index->user->toArray()['name'];
+                    if ($index->user) {
+                        $index->userName = $index->user->toArray()['name'];
+                    }
                     unset($index->user);
                 }
 
