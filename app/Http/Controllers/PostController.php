@@ -119,7 +119,7 @@ class PostController extends Controller
 
         // 작성 가능 권한 체크
         if ( $board['options']['board'] == 'manager' && auth()->user()->grade != 100 ) {
-            return response()->json(getResponseError(101001), 422);
+            return response()->json(getResponseError(101001), 403);
         }
 
         /**
