@@ -745,7 +745,9 @@ class PostController extends Controller
             unset($post->thumbNo);
 
             // 기타정보 가공
-            $post->status = __('common.post.etc.status.' . $post->etc['status']);
+            if ( isset($post->etc['status']) ) {
+                $post->status = __('common.post.etc.status.' . $post->etc['status']);
+            }
 
             // 게시글 추가 정보 (회원)
             $post->userName = $post->user->toArray()['name'];
