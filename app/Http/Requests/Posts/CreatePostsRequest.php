@@ -5,6 +5,7 @@ namespace App\Http\Requests\Posts;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class CreatePostsRequest extends FormRequest
 {

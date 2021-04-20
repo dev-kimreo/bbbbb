@@ -758,4 +758,10 @@ class PostController extends Controller
 
     }
 
+    public function test(Request $request) {
+
+        $aaa = \App\Models\Test::get();
+        print_r($aaa[0]->toArray());
+    }
+
 }

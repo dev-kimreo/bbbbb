@@ -169,6 +169,7 @@ Route::group([
         'prefix' => 'post'
     ], function(){
 
+        Route::get('/test', [PostController::class, 'test']);
 
 
         // 인증 필요

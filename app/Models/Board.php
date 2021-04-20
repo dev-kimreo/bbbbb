@@ -28,6 +28,7 @@ class Board extends Model
 {
     use HasFactory, Eloquence, Mappable;
 
+
     /**
      * The attributes that are mass assignable.
      *

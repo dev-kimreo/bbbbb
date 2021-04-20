@@ -38,7 +38,7 @@ class ReplyController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/v1/post/{postNo}/reply",
+     *      path="/v1/board/{boardNo}/post/{postNo}/reply",
      *      summary="댓글 작성",
      *      description="댓글 작성",
      *      operationId="replyCreate",
@@ -122,7 +122,7 @@ class ReplyController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/v1/post/{postNo}/reply/{id}",
+     *      path="/v1/board/{boardNo}/post/{postNo}/reply/{id}",
      *      summary="댓글 수정",
      *      description="댓글 수정",
      *      operationId="replyModify",
@@ -208,7 +208,7 @@ class ReplyController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/v1/post/{postNo}/reply/{id}",
+     *      path="/v1/board/{boardNo}/post/{postNo}/reply/{id}",
      *      summary="댓글 삭제",
      *      description="댓글 삭제",
      *      operationId="replyDelete",
