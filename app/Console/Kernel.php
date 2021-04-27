@@ -27,6 +27,9 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
 
+        // Telescope 데이터 제거
+        $schedule->command('telescope:prune')->daily();
+
     }
 
     /**

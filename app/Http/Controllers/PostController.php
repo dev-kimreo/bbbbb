@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Auth;
 use Cache;
+use Carbon\Carbon;
 
 
 use App\Http\Controllers\BoardController;
@@ -44,7 +45,7 @@ class PostController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/v1/board/{boardNo}/post",
+     *      path="/v1/board/{boardId}/post",
      *      summary="게시판 글 작성",
      *      description="게시판 글 작성",
      *      operationId="postCreate",
@@ -101,19 +102,19 @@ class PostController extends Controller
      */
     public function create(CreatePostsRequest $request) {
         // 필수 파라미터 확인
-        if ( !isset($request->boardNo) ) {
-            return response()->json(getResponseError(100001, 'boardNo'), 422);
+        if ( !isset($request->boardId) ) {
+            return response()->json(getResponseError(100001, 'boardId'), 422);
         }
 
         // 존재 하는 게시판인지 확인
-        if ( ! intval($request->boardNo) ) {
-            return response()->json(getResponseError(100041, 'boardNo'), 422);
+        if ( ! intval($request->boardId) ) {
+            return response()->json(getResponseError(100041, 'boardId'), 422);
         }
 
         // 게시판 정보
-        $board = BoardController::funcGetBoard($request->boardNo);
+        $board = BoardController::funcGetBoard($request->boardId);
         if ( !$board ) {
-            return response()->json(getResponseError(100022, 'boardNo'), 422);
+            return response()->json(getResponseError(100022, 'boardId'), 422);
         }
         $board = $board->toArray();
 
@@ -151,8 +152,8 @@ class PostController extends Controller
 
         // 게시글 작성
         $post = New Post;
-        $post->board_no = $request->boardNo;
-        $post->user_no = auth()->user()->id;
+        $post->board_id = $request->boardId;
+        $post->user_id = auth()->user()->id;
         $post->title = $request->title;
         $post->content = $request->content;
 
@@ -162,14 +163,14 @@ class PostController extends Controller
 
         $post->save();
 
-        // 임시 섬네일 이동
-        if ($request->thumbnail) {
+        // 섬네일 사용 게시판이고, 임시 섬네일이 있을경우 사용처로 이동
+        if (isset($board['options']['thumbnail']) && $board['options']['thumbnail'] && $request->thumbnail) {
             $attachCtl = new AttachController;
             $attachCtl->move($this->attachType, $post->id, [$request->thumbnail], ['type' => 'thumbnail']);
         }
 
         // 캐시 초기화
-        Cache::tags(['board.' . $request->boardNo . '.post.list'])->flush();
+        Cache::tags(['board.' . $request->boardId . '.post.list'])->flush();
 
         return response()->json([
             'message' => __('common.created'),
@@ -194,7 +195,7 @@ class PostController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/v1/board/{boardNo}/post/{id}",
+     *      path="/v1/board/{boardId}/post/{id}",
      *      summary="게시판 글 수정",
      *      description="게시판 글 수정",
      *      operationId="postModify",
@@ -250,7 +251,7 @@ class PostController extends Controller
      */
     public function modify(ModifyPostsRequest $request) {
 
-        $post = Post::where(['id' => $request->id, 'board_no' => $request->boardNo])->first();
+        $post = Post::where(['id' => $request->id, 'board_id' => $request->boardId])->first();
 
         if ( !$post ) {
             return response()->json(getResponseError(100005), 422);
@@ -260,7 +261,7 @@ class PostController extends Controller
         $postInfo = $post->toArray();
 
         // 작성자와 동일 체크
-        if ( $postInfo['userNo'] != auth()->user()->id ) {
+        if ( $postInfo['userId'] != auth()->user()->id ) {
             return response()->json(getResponseError(101001), 422);
         }
 
@@ -269,7 +270,7 @@ class PostController extends Controller
             return response()->json(getResponseError(200003), 422);
         }
 
-        $boardInfo = Board::find($request->boardNo)->toArray();
+        $boardInfo = Board::find($request->boardId)->toArray();
 //        print_r($request->all());
 //        print_r($boardInfo);
         $attachFlag = false;
@@ -318,8 +319,8 @@ class PostController extends Controller
 
         // 캐시 초기화
         if ($flushFlag) {
-            Cache::tags(['board.' . $request->boardNo . '.post.' . $request->id])->forget('info');  // 상세 정보 캐시 삭제
-            Cache::tags(['board.' . $request->boardNo . '.post.list'])->flush();                    // 상세 목록 캐시 flush
+            Cache::tags(['board.' . $request->boardId . '.post.' . $request->id])->forget('info');  // 상세 정보 캐시 삭제
+            Cache::tags(['board.' . $request->boardId . '.post.list'])->flush();                    // 상세 목록 캐시 flush
         }
 
         return response()->json([
@@ -330,7 +331,7 @@ class PostController extends Controller
 
     /**
      * @OA\delete(
-     *      path="/v1/board/{boardNo}/post/{id}",
+     *      path="/v1/board/{boardId}/post/{id}",
      *      summary="게시판 글 삭제",
      *      description="게시판 글 삭제",
      *      operationId="postDelete",
@@ -374,7 +375,7 @@ class PostController extends Controller
      * @return mixed
      */
     public function delete(DeletePostsRequest $request) {
-        $post = Post::where(['id' => $request->id, 'board_no' => $request->boardNo])->first();
+        $post = Post::where(['id' => $request->id, 'board_id' => $request->boardId])->first();
 
         if ( !$post ) {
             return response()->json(getResponseError(100005), 422);
@@ -389,7 +390,7 @@ class PostController extends Controller
         }
 
         // 작성자와 동일 체크
-        if ( $postInfo['userNo'] != auth()->user()->id ) {
+        if ( $postInfo['userId'] != auth()->user()->id ) {
             return response()->json(getResponseError(101001), 422);
         }
 
@@ -398,8 +399,8 @@ class PostController extends Controller
         $post->save();
 
         // 캐시 초기화
-        Cache::tags(['board.' . $request->boardNo . '.post.' . $request->id])->flush();               // 상세 정보 캐시 삭제
-        Cache::tags(['board.' . $request->boardNo . '.post.list'])->flush();
+        Cache::tags(['board.' . $request->boardId . '.post.' . $request->id])->flush();               // 상세 정보 캐시 삭제
+        Cache::tags(['board.' . $request->boardId . '.post.list'])->flush();
 
         return response()->json([
             'message' => __('common.deleted')
@@ -416,7 +417,7 @@ class PostController extends Controller
      * )
      *
      * @OA\Get(
-     *      path="/v1/board/{boardNo}/post",
+     *      path="/v1/board/{boardId}/post",
      *      summary="게시판 글 목록",
      *      description="게시판 글 목록",
      *      operationId="postGetList",
@@ -440,8 +441,8 @@ class PostController extends Controller
      *                      @OA\Property(property="thumbnail", type="string", example="http://local-api.qpicki.com/storage/post/048/000/000/caf4df2767fea15158143aaab145d94e.jpg", description="게시글 섬네일 이미지 url" ),
      *                      @OA\Property(property="replyCount", type="integer", example=20, description="게시글의 댓글 수" ),
      *                      @OA\Property(property="userName", type="string", example="홍길동", description="작성자" ),
-     *                      @OA\Property(property="boardNo", type="integer", example=1, description="게시판 고유번호" ),
-     *                      @OA\Property(property="userNo", type="integer", example=1, description="작성자 회원 고유번호" ),
+     *                      @OA\Property(property="boardId", type="integer", example=1, description="게시판 고유번호" ),
+     *                      @OA\Property(property="userId", type="integer", example=1, description="작성자 회원 고유번호" ),
      *                      @OA\Property(property="regDate", type="datetime", example="2021-04-08T07:04:52+00:00", description="게시글 작성일자" ),
      *                      @OA\Property(property="uptDate", type="datetime", example="2021-04-08T07:57:55+00:00", description="게시글 수정일자" ),
      *                  )
@@ -483,23 +484,23 @@ class PostController extends Controller
         $boardInfoFlag = isset($request->boardInfo) ? $request->boardInfo : 0;
 
         // 게시판 정보
-        $board = BoardController::funcGetBoard($request->boardNo);
+        $board = BoardController::funcGetBoard($request->boardId);
         if ( !$board ) {
-            return response()->json(getResponseError(100022, 'boardNo'), 422);
+            return response()->json(getResponseError(100022, 'boardId'), 422);
         }
         $board = $board->toArray();
 
         // 게시글 목록
         $set = [
-            'boardNo' => $request->boardNo,
+            'boardId' => $request->boardId,
             'boardInfo' => $boardInfoFlag,
             'page' => $request->page,
             'view' => $request->perPage,
-            'select' => ['id', 'title', 'boardNo', 'userNo', 'regDate', 'uptDate']
+            'select' => ['id', 'title', 'boardId', 'userId', 'regDate', 'uptDate']
         ];
 
         // where 절 eloquent
-        $whereModel = Post::where(['board_no' => $set['boardNo'], 'del' => 0]);
+        $whereModel = Post::where(['board_id' => $set['boardId'], 'del' => 0]);
 
         // 섬네일 기능 사용시
         if ( isset($board['options']['thumbnail']) && $board['options']['thumbnail'] ) {
@@ -518,7 +519,7 @@ class PostController extends Controller
                 return response()->json(getResponseError(110001), 422);
             }
 
-            $whereModel = $whereModel->where(['user_no' => auth()->user()->id]);
+            $whereModel = $whereModel->where(['user_id' => auth()->user()->id]);
         }
 
         // 댓글 사용시
@@ -540,27 +541,32 @@ class PostController extends Controller
         if ( $set['page'] <= $pagination['totalPage'] ) {
             // 데이터 cache
             $hash = substr(md5(json_encode($set)), 0, 5);
-            $tags = separateTag('board.' . $set['boardNo'] . '.post.list');
-            $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function() use ($set, $pagination, $whereModel) {
+            $tags = separateTag('board.' . $set['boardId'] . '.post.list');
+
+            $data = Cache::tags($tags)->get($hash);
+
+            if ( is_null($data) ||
+                (isset($data) && checkCacheStampede($data[1]->getPreciseTimestamp(3))) ) {
+
                 $post = $whereModel
-                        ->with('user:id,name')
-                        ->select($set['select']);
+                    ->with('user:id,name')
+                    ->select($set['select']);
 
                 // 섬네일 사용시
                 if ( isset($set['thumbnail']) && $set['thumbnail'] ) {
                     $post = $post->leftjoin('attach_files AS af', function($join){
                         $join
-                            ->on('posts.id', '=', 'af.type_no')
+                            ->on('posts.id', '=', 'af.type_id')
                             ->where('af.type', $this->attachType)
                             ->whereJsonContains('af.etc', ['type' => 'thumbnail']);
                     });
                 }
 
                 $post = $post
-                        ->groupBy('posts.id')
-                        ->skip($pagination['skip'])
-                        ->take($pagination['perPage'])
-                        ->orderBy('id', 'desc');
+                    ->groupBy('posts.id')
+                    ->skip($pagination['skip'])
+                    ->take($pagination['perPage'])
+                    ->orderBy('id', 'desc');
 
                 $post = $post->get();
 
@@ -582,12 +588,14 @@ class PostController extends Controller
                     unset($index->user);
                 }
 
-//                $data = $post;
-                return $post;
-            });
+                $data = [$post, Carbon::now()->addSeconds(config('cache.custom.expire.common'))];
+
+                Cache::tags($tags)->put($hash, $data, config('cache.custom.expire.common'));
+            }
         }
 
-        $data = isset($data) ? $data->toArray() : array();
+
+        $data = isset($data[0]) ? $data[0]->toArray() : array();
 
         $result = ['header' => $pagination];
 
@@ -605,7 +613,7 @@ class PostController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/board/{boardNo}/post/{id}",
+     *      path="/v1/board/{boardId}/post/{id}",
      *      summary="게시판 글 상세",
      *      description="게시판 글 상세",
      *      operationId="postGetInfo",
@@ -628,8 +636,8 @@ class PostController extends Controller
      *              ),
      *              @OA\Property(property="status", type="string", example="접수", description="게시글 상태" ),
      *              @OA\Property(property="userName", type="string", example="홍길동", description="작성자" ),
-     *              @OA\Property(property="boardNo", type="integer", example=1, description="게시판 고유번호" ),
-     *              @OA\Property(property="userNo", type="integer", example=1, description="작성자 회원 고유번호" ),
+     *              @OA\Property(property="boardId", type="integer", example=1, description="게시판 고유번호" ),
+     *              @OA\Property(property="userId", type="integer", example=1, description="작성자 회원 고유번호" ),
      *              @OA\Property(property="regDate", type="datetime", example="2021-04-08T07:04:52+00:00", description="게시글 작성일자" ),
      *              @OA\Property(property="uptDate", type="datetime", example="2021-04-08T07:57:55+00:00", description="게시글 수정일자" ),
      *          )
@@ -664,7 +672,7 @@ class PostController extends Controller
      */
     public function getInfo(Request $request) {
 
-        $post = Post::where(['id' => $request->id, 'board_no' => $request->boardNo])->exists();
+        $post = Post::where(['id' => $request->id, 'board_id' => $request->boardId])->exists();
 
         // 잘못된 정보입니다.
         if ( !$post ) {
@@ -672,7 +680,7 @@ class PostController extends Controller
         }
 
         // 게시글 정보
-        $data = $this->funcGetInfo($request->id, $request->boardNo);
+        $data = $this->funcGetInfo($request->id, $request->boardId);
         $postInfo = $data->toArray();
 
         // 이미 삭제된 게시글 일 경우
@@ -690,28 +698,28 @@ class PostController extends Controller
 
 
     /**
-     * @param $postNo
-     * @param $boardNo
+     * @param $postId
+     * @param $boardId
      * @return mixed
      */
-    public function funcGetInfo($postNo, $boardNo = 0) {
+    public function funcGetInfo($postId, $boardId = 0) {
         // 게시판 번호가 없을 경우
-        if ( !$boardNo ) {
-            $boardNo = Post::select('boardNo')->where('id', $postNo)->first()['boardNo'];
+        if ( !$boardId ) {
+            $boardId = Post::select('boardId')->where('id', $postId)->first()['boardId'];
         }
 
         // 게시판 정보
-        $board = BoardController::funcGetBoard($boardNo);
+        $board = BoardController::funcGetBoard($boardId);
         if ( !$board ) {
-            return getResponseError(100022, 'boardNo');
+            return getResponseError(100022, 'boardId');
         }
 
         $boardInfo = $board->toArray();
 
         // 데이터 cache
-        $tags = separateTag('board.' . $boardNo . '.post.' . $postNo);
-        $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function() use ($postNo, $boardNo, $boardInfo) {
-            $select = ['id', 'title', 'boardNo', 'content', 'hidden', 'del', 'etc', 'userNo', 'regDate', 'uptDate'];
+        $tags = separateTag('board.' . $boardId . '.post.' . $postId);
+        $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function() use ($postId, $boardId, $boardInfo) {
+            $select = ['id', 'title', 'boardId', 'content', 'hidden', 'del', 'etc', 'userId', 'regDate', 'uptDate'];
 
             // 섬네일 지원 게시판일 경우
             if ( $boardInfo['options']['thumbnail'] ) {
@@ -724,13 +732,13 @@ class PostController extends Controller
                 $select[] = 'comment';
             }
 
-            $post = Post::select($select)->where(['posts.id' => $postNo, 'board_no' => $boardNo]);
+            $post = Post::select($select)->where(['posts.id' => $postId, 'board_id' => $boardId]);
 
             // 섬네일 사용
             if ( $boardInfo['options']['thumbnail'] ) {
                 $post = $post->leftjoin('attach_files AS af', function($join){
                     $join
-                        ->on('posts.id', '=', 'af.type_no')
+                        ->on('posts.id', '=', 'af.type_id')
                         ->where('type', $this->attachType)
                         ->whereJsonContains('af.etc', ['type' => 'thumbnail']);
                 });
@@ -762,8 +770,15 @@ class PostController extends Controller
 
     public function test(Request $request) {
 
-        $aaa = \App\Models\Test::get();
-        print_r($aaa[0]->toArray());
+//        Cache::tags(['people', 'artists'])->put('John', 'jone');
+//        Cache::tags(['people', 'authors'])->put('Anne', 'anne');
+//
+//        var_dump(Cache::tags(['people', 'authors'])->get('Anne'));
+//        Cache::tags(['board'])->put();
+
+
+//        $aaa = \App\Models\Test::get();
+//        print_r($aaa[0]->toArray());
     }
 
 }

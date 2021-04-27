@@ -47,7 +47,7 @@ class SendMail implements ShouldQueue
 //            // 고유 생성 sign 키 저장
             $signedModel = New SignedCodes;
             $signedModel->name = $this->data['verification']['name'];
-            $signedModel->name_key = $this->data['user']['no'];
+            $signedModel->name_id = $this->data['user']['no'];
             $signedModel->hash = sha1($this->data['user']['email']);
             $signedModel->sign = $this->data['verification']['sign'];
             $signedModel->save();

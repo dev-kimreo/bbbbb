@@ -462,14 +462,14 @@ class BoardController extends Controller
     }
 
     /**
-     * @param $boardNo
+     * @param $boardId
      * @return mixed
      */
-    static public function funcGetBoard($boardNo) {
-        $tags = separateTag('board.' . $boardNo);
+    static public function funcGetBoard($boardId) {
+        $tags = separateTag('board.' . $boardId);
 
-        $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function() use ($boardNo) {
-            $opt = Board::find($boardNo);
+        $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function() use ($boardId) {
+            $opt = Board::find($boardId);
 
             if (!$opt) {
                 return false;

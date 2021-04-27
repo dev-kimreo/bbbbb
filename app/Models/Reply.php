@@ -29,21 +29,21 @@ class Reply extends Model
      * @var array
      */
     protected $hidden = [
-        'post_no',
-        'user_no',
+        'post_id',
+        'user_id',
         'created_at',
         'updated_at'
     ];
 
     protected $maps = [
-        'postNo' => 'post_no',
-        'userNo' => 'user_no',
+        'postId' => 'post_id',
+        'userId' => 'user_id',
         'regDate' => 'created_at',
         'uptDate' => 'updated_at',
     ];
 
     protected $appends = [
-        'userNo',
+        'userId',
         'regDate',
         'uptDate'
     ];
@@ -52,7 +52,7 @@ class Reply extends Model
     ];
 
     public function user(){
-        return $this->belongsTo('App\Models\User', 'user_no', 'id')->select(['id', 'name']);
+        return $this->belongsTo('App\Models\User', 'user_id', 'id')->select(['id', 'name']);
     }
 
     public function getCreatedAtAttribute($value){

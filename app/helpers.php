@@ -2,6 +2,7 @@
 
 //use Illuminate\Support\Facades\Auth;
 //use Cache;
+use Carbon\Carbon;
 
 if (!function_exists('getErrorCode')) {
     function getErrorCode($code, ...$key) {
@@ -214,6 +215,12 @@ if (!function_exists('separateTag')) {
             return $tagArr;
         }
 
+    }
+}
+
+if ( !function_exists('checkCachePER') ) {
+    function checkCacheStampede($ttl, $gapMs = 5000) {
+        return $ttl - Carbon::now()->getPreciseTimestamp(3) <= mt_rand() / mt_getrandmax() * $gapMs;
     }
 }
 

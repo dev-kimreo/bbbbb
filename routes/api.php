@@ -12,9 +12,6 @@ use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\AttachController;
 
 
-
-use App\Models\Board;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -26,21 +23,22 @@ use App\Models\Board;
 |
 */
 
-Route::patch('/home', function(){})->name('home');
+Route::patch('/home', function () {
+})->name('home');
 
 Route::get('/aaa', [MemberController::class, 'test']);
 
 Route::group([
     'prefix' => 'v1',
     'middleware' => 'language'
-], function (){
+], function () {
 
     /**
      * 회원 관련
      */
     Route::group([
         'prefix' => 'member'
-    ], function (){
+    ], function () {
 
         // 회원가입
         Route::post('', [MemberController::class, 'register']);
@@ -69,7 +67,7 @@ Route::group([
         Route::group([
             'prefix' => 'password',
             'middleware' => 'auth:api',
-        ], function(){
+        ], function () {
             // 비밀번호 검증
             Route::post('', [MemberController::class, 'checkPassword']);
 
@@ -96,7 +94,7 @@ Route::group([
     // 회원가입시 인증 메일 발송
     Route::group([
         'prefix' => 'email'
-    ], function($router){
+    ], function ($router) {
         // 이메일 인증 route
         Route::get('/{verifyKey}/{id}', [MemberController::class, 'verification'])->name('verification.verify');
 
@@ -115,7 +113,7 @@ Route::group([
     // 게시판 관련
     Route::group([
         'prefix' => 'board'
-    ], function(){
+    ], function () {
         // 게시판 상세 정보
         Route::get('/{id}', [BoardController::class, 'getBoardInfo']);
 
@@ -123,16 +121,15 @@ Route::group([
         Route::get('', [BoardController::class, 'getList']);
 
 
-
         // 게시글 목록
-        Route::get('/{boardNo}/post', [PostController::class, 'getList']);
+        Route::get('/{boardId}/post', [PostController::class, 'getList']);
 
         // 게시글 상세 정보
-        Route::get('/{boardNo}/post/{id}', [PostController::class, 'getInfo']);
+        Route::get('/{boardId}/post/{id}', [PostController::class, 'getInfo']);
 
 
         // 댓글 목록
-        Route::get('/{boardNo}/post/{postNo}/reply', [ReplyController::class, 'getList']);
+        Route::get('/{boardId}/post/{postId}/reply', [ReplyController::class, 'getList']);
 
 
         // 인증 필요
@@ -141,23 +138,23 @@ Route::group([
         ], function () {
 
             // 게시글 작성
-            Route::post('/{boardNo}/post', [PostController::class, 'create']);
+            Route::post('/{boardId}/post', [PostController::class, 'create']);
 
             // 게시글 수정
-            Route::patch('/{boardNo}/post/{id}', [PostController::class, 'modify']);
+            Route::patch('/{boardId}/post/{id}', [PostController::class, 'modify']);
 
             // 게시글 삭제
-            Route::delete('/{boardNo}/post/{id}', [PostController::class, 'delete']);
+            Route::delete('/{boardId}/post/{id}', [PostController::class, 'delete']);
 
 
             // 댓글 작성
-            Route::post('/{boardNo}/post/{postNo}/reply', [ReplyController::class, 'create']);
+            Route::post('/{boardId}/post/{postId}/reply', [ReplyController::class, 'create']);
 
             // 댓글 수정
-            Route::patch('/{boardNo}/post/{postNo}/reply/{id}', [ReplyController::class, 'modify']);
+            Route::patch('/{boardId}/post/{postId}/reply/{id}', [ReplyController::class, 'modify']);
 
             // 댓글 삭제
-            Route::delete('/{boardNo}/post/{postNo}/reply/{id}', [ReplyController::class, 'delete']);
+            Route::delete('/{boardId}/post/{postId}/reply/{id}', [ReplyController::class, 'delete']);
 
 
         });
@@ -167,7 +164,7 @@ Route::group([
     // 게시판 글
     Route::group([
         'prefix' => 'post'
-    ], function(){
+    ], function () {
 
         Route::get('/test', [PostController::class, 'test']);
 
@@ -185,9 +182,9 @@ Route::group([
 
     // 첨부파일
     Route::group([
-        'prefix'    => 'attach',
+        'prefix' => 'attach',
         'middleware' => 'auth:api'
-    ], function(){
+    ], function () {
         // 임시 파일 첨부
         Route::post('', [AttachController::class, 'create']);
 
@@ -197,16 +194,10 @@ Route::group([
     });
 
 
-
-
-
 //        Route::post('/logout', [AuthController::class, 'logout']);
 
 
-
-
 });
-
 
 
 //    Route::group([
@@ -222,12 +213,12 @@ Route::group([
 Route::group([
     'prefix' => 'admin',
     'middleware' => ['auth:api', 'admin']
-], function ($router){
+], function ($router) {
 
     // 게시판 관련
     Route::group([
         'prefix' => 'board'
-    ], function(){
+    ], function () {
 
         Route::get('/reInitOption', [BoardController::class, 'reInitBoardOption']);
 //            // 파라미터 bind

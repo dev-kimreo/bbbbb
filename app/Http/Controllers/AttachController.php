@@ -118,7 +118,7 @@ class AttachController extends Controller
             $attachModel = new AttachFile;
             $attachModel->server = 'public';
             $attachModel->type = $this->tempDir;
-            $attachModel->user_no = auth()->user() ? auth()->user()->id : 0;
+            $attachModel->user_id = auth()->user() ? auth()->user()->id : 0;
             $attachModel->url = $url;
             $attachModel->path = $path;
             $attachModel->name = $pathInfo['basename'];
@@ -137,18 +137,19 @@ class AttachController extends Controller
     }
 
 
-    public function move($type, $typeNo, array $nos, $etc = []) {
-        if ( $typeNo <= 0 || !in_array($type, $this->allowType) ) {
+    public function move($type, $typeId, array $nos, $etc = []) {
+        if ( $typeId <= 0 || !in_array($type, $this->allowType) ) {
             return false;
         }
 
-        $this->hexName = str_pad(dechex($typeNo), $this->hexLength, '0', STR_PAD_LEFT);
+        $this->hexName = str_pad(dechex($typeId), $this->hexLength, '0', STR_PAD_LEFT);
 
         for ($i = -$this->levelDepth; abs($i) <= $this->hexLength; $i-=$this->levelDepth) {
             $this->path[] = substr($this->hexName, $i, $this->levelDepth);
         }
 
         $disk = $this->funcGetServer();
+
 
 //        var_dump($disk);
 //        var_dump($this->path);
@@ -182,7 +183,7 @@ class AttachController extends Controller
                     $attachModel = $arr;
                     $attachModel->server = $disk;
                     $attachModel->type = $type;
-                    $attachModel->type_no = $typeNo;
+                    $attachModel->type_id = $typeId;
                     $attachModel->url = $url;
                     $attachModel->path = $path;
                     $attachModel->etc = $etc;
@@ -239,7 +240,7 @@ class AttachController extends Controller
         }
 
         foreach ($no as $n) {
-            $attachFile = AttachFile::where(['id' => $n, 'user_no' => auth()->user()->id])->first();
+            $attachFile = AttachFile::where(['id' => $n, 'user_id' => auth()->user()->id])->first();
             // 파일이 존재하지 않을 경우
             if ( !$attachFile ) {
                 continue; //'파일 존재하지 않거나 내께 아니야'
@@ -260,8 +261,8 @@ class AttachController extends Controller
     }
 
 
-    public function funcDelete($type, $typeNo, array $no = []) {
-        if ( !$typeNo ) {
+    public function funcDelete($type, $typeId, array $no = []) {
+        if ( !$typeId ) {
             return false;
         }
 
@@ -269,7 +270,7 @@ class AttachController extends Controller
         if ( is_array($no) && count($no) ) {
             foreach ($no as $n) {
                 echo $n . '--' . $type;
-                $attachFile = AttachFile::where(['id' => $n, 'type' => $type, 'type_no' => $typeNo, 'user_no' => auth()->user()->id])->first();
+                $attachFile = AttachFile::where(['id' => $n, 'type' => $type, 'type_id' => $typeId, 'user_id' => auth()->user()->id])->first();
 
                 // 파일이 존재하지 않을 경우
                 if ( !$attachFile ) {
@@ -283,11 +284,11 @@ class AttachController extends Controller
         // 전부 삭제
         else {
             // 존재 유무 체크
-            $AttachWhereModel = AttachFile::where(['type' => $type, 'type_no' => $typeNo]);
+            $AttachWhereModel = AttachFile::where(['type' => $type, 'type_id' => $typeId]);
 
             if ( $attachFile = $AttachWhereModel->first() ) {
                 Storage::disk($attachFile->server)->deleteDirectory($attachFile->path);
-                AttachFile::where(['type' => $type, 'type_no' => $typeNo])->delete();
+                AttachFile::where(['type' => $type, 'type_id' => $typeId])->delete();
             }
         }
 

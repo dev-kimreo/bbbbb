@@ -20,8 +20,8 @@ class Post extends Model
      * @var array
      */
     protected $fillable = [
-        'board_no',
-        'user_no',
+        'board_id',
+        'user_id',
         'title',
         'content',
     ];
@@ -33,22 +33,22 @@ class Post extends Model
      * @var array
      */
     protected $hidden = [
-        'board_no',
-        'user_no',
+        'board_id',
+        'user_id',
         'created_at',
         'updated_at'
     ];
 
     protected $maps = [
-        'boardNo' => 'board_no',
-        'userNo' => 'user_no',
+        'boardId' => 'board_id',
+        'userId' => 'user_id',
         'regDate' => 'created_at',
         'uptDate' => 'updated_at',
     ];
 
     protected $appends = [
-        'boardNo',
-        'userNo',
+        'boardId',
+        'userId',
         'regDate',
         'uptDate'
     ];
@@ -66,11 +66,11 @@ class Post extends Model
     }
 
     public function user(){
-        return $this->belongsTo('App\Models\User', 'user_no', 'id')->select(['id', 'name']);
+        return $this->belongsTo('App\Models\User', 'user_id', 'id')->select(['id', 'name']);
     }
 
     public function replyCount(){
-        return $this->hasMany('App\Models\Reply', 'post_no', 'id')->selectRaw('count(id) as count');
+        return $this->hasMany('App\Models\Reply', 'post_id', 'id')->selectRaw('count(id) as count');
     }
 
     public function thumbnails(){

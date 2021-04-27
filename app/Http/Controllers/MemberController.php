@@ -400,7 +400,7 @@ class MemberController extends Controller
     public function verification(Request $request){
         $exp = explode('/', $request->path());
         $signExists = SignedCodes::where('name', $exp[count($exp)-2])
-            ->where('name_key', $request->id)
+            ->where('name_id', $request->id)
             ->where('hash', $request->hash)
             ->where('sign', $request->signature)
             ->exists();
@@ -421,7 +421,7 @@ class MemberController extends Controller
 
             // 가상 서명키 제거
             SignedCodes::where('name', $exp[count($exp)-2])
-                            ->where('name_key', $request->id)
+                            ->where('name_id', $request->id)
                             ->delete();
         } else {
             return response()->json(getResponseError(110401), 422);

@@ -9,7 +9,7 @@ return [
     'files' => '첨부파일',
 
     'email' => '이메일',
-    'boardNo' => '게시판 고유번호',
+    'boardId' => '게시판 고유번호',
 
     'name' => '이름',
     'username' => '이메일',

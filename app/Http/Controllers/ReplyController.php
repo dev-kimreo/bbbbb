@@ -38,7 +38,7 @@ class ReplyController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/v1/board/{boardNo}/post/{postNo}/reply",
+     *      path="/v1/board/{boardId}/post/{postId}/reply",
      *      summary="댓글 작성",
      *      description="댓글 작성",
      *      operationId="replyCreate",
@@ -91,20 +91,20 @@ class ReplyController extends Controller
     public function create(CreateRepliesRequest $request) {
 
         // 데이터 체크
-        $checkRes = $this->funcCheckUseReply($request->boardNo, $request->postNo);
+        $checkRes = $this->funcCheckUseReply($request->boardId, $request->postId);
         if ( $checkRes !== true ) {
             return response()->json($checkRes, 422);
         }
 
         // 댓글 작성
         $reply = new Reply;
-        $reply->post_no = $request->postNo;
-        $reply->user_no = auth()->user()->id;
+        $reply->post_id = $request->postId;
+        $reply->user_id = auth()->user()->id;
         $reply->content = $request->content;
         $reply->save();
 
         // 캐시 초기화
-        Cache::tags(['board.' . $request->boardNo . '.post.' . $request->postNo . '.reply'])->flush();
+        Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
 
         return response()->json([
             'message' => __('common.created')
@@ -122,7 +122,7 @@ class ReplyController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/v1/board/{boardNo}/post/{postNo}/reply/{id}",
+     *      path="/v1/board/{boardId}/post/{postId}/reply/{id}",
      *      summary="댓글 수정",
      *      description="댓글 수정",
      *      operationId="replyModify",
@@ -179,12 +179,12 @@ class ReplyController extends Controller
     public function modify(ModifyRepliesRequest $request) {
 
         // 데이터 체크
-        $checkRes = $this->funcCheckUseReply($request->boardNo, $request->postNo);
+        $checkRes = $this->funcCheckUseReply($request->boardId, $request->postId);
         if ( $checkRes !== true ) {
             return response()->json($checkRes, 422);
         }
 
-        $reply = Reply::find($request->id)->where('user_no', auth()->user()->id)->first();
+        $reply = Reply::find($request->id)->where('user_id', auth()->user()->id)->first();
         if ( is_null($reply) ) {
             return response()->json(getResponseError(101001), 422);
         }
@@ -198,7 +198,7 @@ class ReplyController extends Controller
         $reply->update();
 
         // 캐시 초기화
-        Cache::tags(['board.' . $request->boardNo . '.post.' . $request->postNo . '.reply'])->flush();
+        Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
 
         return response()->json([
             'message' => __('common.modified')
@@ -208,7 +208,7 @@ class ReplyController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/v1/board/{boardNo}/post/{postNo}/reply/{id}",
+     *      path="/v1/board/{boardId}/post/{postId}/reply/{id}",
      *      summary="댓글 삭제",
      *      description="댓글 삭제",
      *      operationId="replyDelete",
@@ -256,7 +256,7 @@ class ReplyController extends Controller
      */
     public function delete(DeleteRepliesRequest $request) {
 
-        $reply = Reply::where(['id' => $request->id, 'user_no' => auth()->user()->id])->first();
+        $reply = Reply::where(['id' => $request->id, 'user_id' => auth()->user()->id])->first();
         if ( is_null($reply) ) {
             return response()->json(getResponseError(101001), 422);
         }
@@ -270,7 +270,7 @@ class ReplyController extends Controller
         $reply->update();
 
         // 캐시 초기화
-        Cache::tags(['board.' . $request->boardNo . '.post.' . $request->postNo . '.reply'])->flush();
+        Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
 
         return response()->json([
             'message' => __('common.deleted')
@@ -286,7 +286,7 @@ class ReplyController extends Controller
      * )
      *
      * @OA\Get(
-     *      path="/v1/board/{boardNo}/post/{postNo}/reply",
+     *      path="/v1/board/{boardId}/post/{postId}/reply",
      *      summary="댓글 목록",
      *      description="댓글 목록",
      *      operationId="replyGetList",
@@ -310,7 +310,7 @@ class ReplyController extends Controller
      *                      @OA\Property(property="hidden", type="integer", example=0, default=0, description="게시글 숨김 여부<br/>0:노출<br/>1:숨김" ),
      *                      @OA\Property(property="del", type="integer", example=0, default=0, description="게시글 삭제 여부<br/>0:노출<br/>1:삭제" ),
      *                      @OA\Property(property="userName", type="string", example="홍길동", description="작성자" ),
-     *                      @OA\Property(property="userNo", type="integer", example=1, description="작성자 회원 고유번호" ),
+     *                      @OA\Property(property="userId", type="integer", example=1, description="작성자 회원 고유번호" ),
      *                      @OA\Property(property="regDate", type="datetime", example="2021-04-08T07:04:52+00:00", description="게시글 작성일자" ),
      *                      @OA\Property(property="uptDate", type="datetime", example="2021-04-08T07:57:55+00:00", description="게시글 수정일자" ),
      *                  )
@@ -352,22 +352,22 @@ class ReplyController extends Controller
      */
     public function getList(GetListRepliesRequest $request) {
         // 데이터 체크
-        $checkRes = $this->funcCheckUseReply($request->boardNo, $request->postNo);
+        $checkRes = $this->funcCheckUseReply($request->boardId, $request->postId);
         if ( $checkRes !== true ) {
             return response()->json($checkRes, 422);
         }
 
         // 댓글 목록
         $set = [
-            'boardNo' => $request->boardNo,
-            'postNo' => $request->postNo,
+            'boardId' => $request->boardId,
+            'postId' => $request->postId,
             'page' => $request->page,
             'view' => $request->perPage,
-            'select' => ['id', 'userNo', 'content', 'hidden', 'del', 'regDate', 'uptDate']
+            'select' => ['id', 'userId', 'content', 'hidden', 'del', 'regDate', 'uptDate']
         ];
 
         // where 절 eloquent
-        $whereModel = Reply::where(['post_no' => $set['postNo'], 'del' => 0]);
+        $whereModel = Reply::where(['post_id' => $set['postId'], 'del' => 0]);
 
 
         // pagination
@@ -379,7 +379,7 @@ class ReplyController extends Controller
         if ( $set['page'] <= $pagination['totalPage'] ) {
             // 데이터 cache
             $hash = substr(md5(json_encode($set)), 0, 5);
-            $tags = separateTag('board.' . $set['boardNo'] . '.post.' . $set['postNo'] . '.reply');
+            $tags = separateTag('board.' . $set['boardId'] . '.post.' . $set['postId'] . '.reply');
             $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function() use ($set, $pagination, $whereModel) {
                 $reply = $whereModel
 
@@ -415,38 +415,38 @@ class ReplyController extends Controller
     }
 
 
-    public function funcCheckUseReply($boardNo, $postNo) {
+    public function funcCheckUseReply($boardId, $postId) {
 
         // 필수 파라미터 확인
-        if ( !isset($boardNo) ) {
-            return getResponseError(100001, 'boardNo');
+        if ( !isset($boardId) ) {
+            return getResponseError(100001, 'boardId');
         }
 
-        if ( !isset($postNo) ) {
-            return getResponseError(100001, 'postNo');
+        if ( !isset($postId) ) {
+            return getResponseError(100001, 'postId');
         }
 
         // 게시글 번호 확인
-        if ( ! intval($boardNo) ) {
-            return getResponseError(100041, 'boardNo');
+        if ( ! intval($boardId) ) {
+            return getResponseError(100041, 'boardId');
         }
 
-        if ( ! intval($postNo) ) {
-            return getResponseError(100041, 'postNo');
+        if ( ! intval($postId) ) {
+            return getResponseError(100041, 'postId');
         }
 
         // 게시글 댓글 작성 가능여부 체크
         $post = new PostController;
-        $post = $post->funcGetInfo($postNo, $boardNo);
+        $post = $post->funcGetInfo($postId, $boardId);
         if ( isset($post['errors']) ) {
             return $post;
         }
         $postInfo = $post->toArray();
 
         $board = new BoardController;
-        $board = $board->funcGetBoard($boardNo);
+        $board = $board->funcGetBoard($boardId);
         if ( !$board ) {
-            return getResponseError(100005, 'boardNo');
+            return getResponseError(100005, 'boardId');
         }
 
         $boardInfo = $board->toArray();

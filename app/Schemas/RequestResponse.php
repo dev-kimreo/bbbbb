@@ -127,7 +127,7 @@ namespace App\Schemas;
  *              property="key",
  *              type="string",
  *              description="필드 값",
- *              example="boardNo",
+ *              example="boardId",
  *          ),
  *          @OA\Property(
  *              property="message",

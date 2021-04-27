@@ -74,7 +74,7 @@ class MemberEventSubscriber
     public function handleMemberVerifyEmailCheck($event) {
 
         $signCount = SignedCodes::where('name',  $this->verifyKey)
-                                ->where('name_key', $event->user->no)
+                                ->where('name_id', $event->user->no)
                                 ->where('created_at', '>', carbon::now()->subMinutes(Config::get('auth.verification.send_limit_minutes')))->get()->count();
 
         if ($signCount >= Config::get('auth.verification.send_limit_count')) {
