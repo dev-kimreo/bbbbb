@@ -14,6 +14,7 @@ class CreateFlightsTable extends Migration
     public function up()
     {
         Schema::create('flights', function (Blueprint $table) {
+            $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->timestamps();
         });

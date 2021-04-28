@@ -51,7 +51,6 @@ class BoardOption extends Model
      * @var array
      */
     protected $hidden = [
-        'data_type',
         'created_at',
         'updated_at',
     ];
@@ -61,11 +60,9 @@ class BoardOption extends Model
     ];
 
     protected $maps = [
-        'dataType' => 'data_type',
     ];
 
     protected $appends = [
-        'dataType',
     ];
 
 

@@ -17,7 +17,6 @@ use Carbon\Carbon;
  *      @OA\Property(property="id", type="string", example=1, description="게시판 고유 번호" ),
  *      @OA\Property(property="name", type="string", example="공지사항", description="게시판 명" ),
  *      @OA\Property(property="type", type="string", example="notice", description="게시판 타입" ),
- *      @OA\Property(property="data_type", type="string", example="radio", description="게시판 옵션 데이터 타입" ),
  *      @OA\Property(property="hidden", type="string", example="0", description="게시판 숨김여부<br/>0:노출, 1:숨김" ),
  *  )
  *

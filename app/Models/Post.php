@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Sofa\Eloquence\Eloquence;
 use Sofa\Eloquence\Mappable;
 use Carbon\Carbon;
@@ -12,7 +13,7 @@ use Carbon\Carbon;
 
 class Post extends Model
 {
-    use HasFactory, Eloquence, Mappable;
+    use HasFactory, Eloquence, Mappable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

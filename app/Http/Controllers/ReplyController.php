@@ -189,11 +189,6 @@ class ReplyController extends Controller
             return response()->json(getResponseError(101001), 422);
         }
 
-        // 삭제된 댓글 일 경우
-        if ( $reply['del'] ) {
-            return response()->json(getResponseError(210003), 422);
-        }
-
         $reply->content = $request->content;
         $reply->update();
 
@@ -261,13 +256,8 @@ class ReplyController extends Controller
             return response()->json(getResponseError(101001), 422);
         }
 
-        // 삭제된 댓글 일 경우
-        if ( $reply['del'] ) {
-            return response()->json(getResponseError(210003), 422);
-        }
-
-        $reply->del = 1;
-        $reply->update();
+        // 댓글 소프트 삭제
+        $reply->delete();
 
         // 캐시 초기화
         Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
@@ -308,7 +298,6 @@ class ReplyController extends Controller
      *                      @OA\Property(property="id", type="integer", example=1, description="댓글 고유번호" ),
      *                      @OA\Property(property="content", type="string", example="댓글 내용입니다.", description="댓글 내용" ),
      *                      @OA\Property(property="hidden", type="integer", example=0, default=0, description="게시글 숨김 여부<br/>0:노출<br/>1:숨김" ),
-     *                      @OA\Property(property="del", type="integer", example=0, default=0, description="게시글 삭제 여부<br/>0:노출<br/>1:삭제" ),
      *                      @OA\Property(property="userName", type="string", example="홍길동", description="작성자" ),
      *                      @OA\Property(property="userId", type="integer", example=1, description="작성자 회원 고유번호" ),
      *                      @OA\Property(property="regDate", type="datetime", example="2021-04-08T07:04:52+00:00", description="게시글 작성일자" ),
@@ -363,11 +352,11 @@ class ReplyController extends Controller
             'postId' => $request->postId,
             'page' => $request->page,
             'view' => $request->perPage,
-            'select' => ['id', 'userId', 'content', 'hidden', 'del', 'regDate', 'uptDate']
+            'select' => ['id', 'userId', 'content', 'hidden', 'regDate', 'uptDate']
         ];
 
         // where 절 eloquent
-        $whereModel = Reply::where(['post_id' => $set['postId'], 'del' => 0]);
+        $whereModel = Reply::where(['post_id' => $set['postId']]);
 
 
         // pagination
@@ -454,8 +443,8 @@ class ReplyController extends Controller
             return getResponseError(250001);
         }
 
-        // 게시글 삭제 & 숨김 여부
-        if ( $postInfo['del'] || $postInfo['hidden'] ) {
+        // 게시글 숨김 여부
+        if ( $postInfo['hidden'] ) {
             return getResponseError(200005);
         }
 

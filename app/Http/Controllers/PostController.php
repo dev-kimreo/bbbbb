@@ -265,11 +265,6 @@ class PostController extends Controller
             return response()->json(getResponseError(101001), 422);
         }
 
-        // 이미 삭제된 게시글 일 경우
-        if ( $postInfo['del'] ) {
-            return response()->json(getResponseError(200003), 422);
-        }
-
         $boardInfo = Board::find($request->boardId)->toArray();
 //        print_r($request->all());
 //        print_r($boardInfo);
@@ -384,19 +379,13 @@ class PostController extends Controller
         // 게시글 정보
         $postInfo = $post->toArray();
 
-        // 이미 삭제처리 되어있는 경우
-        if ( $postInfo['del'] ) {
-            return response()->json(getResponseError(200003), 422);
-        }
-
         // 작성자와 동일 체크
         if ( $postInfo['userId'] != auth()->user()->id ) {
             return response()->json(getResponseError(101001), 422);
         }
 
-        // 논리적 삭제 진행
-        $post->del = 1;
-        $post->save();
+        // 소프트 삭제 진행
+        $post->delete();
 
         // 캐시 초기화
         Cache::tags(['board.' . $request->boardId . '.post.' . $request->id])->flush();               // 상세 정보 캐시 삭제
@@ -500,7 +489,7 @@ class PostController extends Controller
         ];
 
         // where 절 eloquent
-        $whereModel = Post::where(['board_id' => $set['boardId'], 'del' => 0]);
+        $whereModel = Post::where(['board_id' => $set['boardId']]);
 
         // 섬네일 기능 사용시
         if ( isset($board['options']['thumbnail']) && $board['options']['thumbnail'] ) {
@@ -626,7 +615,6 @@ class PostController extends Controller
      *              @OA\Property(property="title", type="string", example="게시글 제목입니다.", description="게시글 제목" ),
      *              @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" ),
      *              @OA\Property(property="hidden", type="integer", example=0, default=0, description="게시글 숨김 여부<br/>0:노출<br/>1:숨김" ),
-     *              @OA\Property(property="del", type="integer", example=0, default=0, description="게시글 삭제 여부<br/>0:노출<br/>1:삭제" ),
      *              @OA\Property(property="etc", type="object", description="게시글 기타정보",
      *                  @OA\Property(property="status", type="string", example="wait", description="게시글 상태<br/>wait:접수<br/>ing:확인중<br/>end:답변완료" )
      *              ),
@@ -683,11 +671,6 @@ class PostController extends Controller
         $data = $this->funcGetInfo($request->id, $request->boardId);
         $postInfo = $data->toArray();
 
-        // 이미 삭제된 게시글 일 경우
-        if ( $postInfo['del'] ) {
-            return response()->json(getResponseError(200003), 422);
-        }
-
         // 이미 숨김 처리된 게시글 일 경우
         if ( $postInfo['hidden'] ) {
             return response()->json(getResponseError(200004), 422);
@@ -719,7 +702,7 @@ class PostController extends Controller
         // 데이터 cache
         $tags = separateTag('board.' . $boardId . '.post.' . $postId);
         $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function() use ($postId, $boardId, $boardInfo) {
-            $select = ['id', 'title', 'boardId', 'content', 'hidden', 'del', 'etc', 'userId', 'regDate', 'uptDate'];
+            $select = ['id', 'title', 'boardId', 'content', 'hidden', 'etc', 'userId', 'regDate', 'uptDate'];
 
             // 섬네일 지원 게시판일 경우
             if ( $boardInfo['options']['thumbnail'] ) {
