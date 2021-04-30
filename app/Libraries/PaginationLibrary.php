@@ -2,7 +2,7 @@
 
 namespace App\Libraries;
 
-class PageCls {
+class PaginationLibrary {
 //    private static $cacheCls = null;
 //    public static $tags = null;
 //    public static $tagArr = [];
@@ -25,7 +25,7 @@ class PageCls {
 
     public static function init() {
         if (is_null(self::$pageCls)) {
-            self::$pageCls = new PageCls();
+            self::$pageCls = new PaginationLibrary();
         }
     }
 
