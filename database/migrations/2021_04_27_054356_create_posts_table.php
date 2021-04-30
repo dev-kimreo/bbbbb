@@ -20,8 +20,8 @@ class CreatePostsTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->string('title', 128);
             $table->longText('content');
-            $table->mediumText('comment');
-            $table->json('etc');
+            $table->mediumText('comment')->nullable();
+            $table->json('etc')->nullable();
             $table->unsignedTinyInteger('hidden')->nullable()->default(0);
             $table->timestamps();
             $table->softDeletes('deleted_at', 0);

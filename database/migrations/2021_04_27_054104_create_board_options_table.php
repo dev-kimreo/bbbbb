@@ -19,7 +19,7 @@ class CreateBoardOptionsTable extends Migration
             $table->string('name', 32);
             $table->string('type', 32);
             $table->string('default', 32);
-            $table->json('options');
+            $table->json('options')->nullable();
             $table->unsignedInteger('sort');
             $table->timestamps();
         });
