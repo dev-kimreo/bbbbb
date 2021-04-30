@@ -4,13 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Sofa\Eloquence\Eloquence;
-use Sofa\Eloquence\Mappable;
 use Carbon\Carbon;
 
 class SignedCodes extends Model
 {
-    use HasFactory, Eloquence, Mappable;
+    use HasFactory;
 
     protected $dates = [
         'created_at',

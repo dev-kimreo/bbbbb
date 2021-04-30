@@ -14,7 +14,8 @@ use App\Models\AttachFile;
 
 use App\Http\Requests\Attaches\CreateAttachRequest;
 
-use App\Libraries\PageCls;
+use App\Libraries\PaginationLibrary;
+use App\Libraries\CollectionLibrary;
 
 /**
  * Class AttachController
@@ -133,7 +134,7 @@ class AttachController extends Controller
             ];
         }
 
-        return response()->json($res, 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($res)), 200);
     }
 
 
@@ -149,11 +150,6 @@ class AttachController extends Controller
         }
 
         $disk = $this->funcGetServer();
-
-
-//        var_dump($disk);
-//        var_dump($this->path);
-//        var_dump($type . '/' . implode('/', $this->path));
 
         if ( is_array($nos) && count($nos) ) {
             $attach = AttachFile::where('type', 'temp')->whereIn('id', $nos)->get();

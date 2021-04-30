@@ -6,8 +6,6 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Sofa\Eloquence\Eloquence;
-use Sofa\Eloquence\Mappable;
 use Carbon\Carbon;
 
 use Laravel\Passport\HasApiTokens;
@@ -34,7 +32,7 @@ use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, HasApiTokens, Eloquence, Mappable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -53,28 +51,8 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $hidden = [
-        'password',
-        'remember_token',
-        'id',
-        'email_verified_at',
-        'created_at',
-        'updated_at'
+        'password'
     ];
-
-    protected $maps = [
-        'no' => 'id',
-        'emailVerifiedDate' => 'email_verified_at',
-        'regDate' => 'created_at',
-        'uptDate' => 'updated_at'
-    ];
-
-    protected $appends = [
-        'no',
-        'emailVerifiedDate',
-        'regDate',
-        'uptDate',
-    ];
-
 
     public function getEmailVerifiedAtAttribute($value){
         if (isset($value)) {

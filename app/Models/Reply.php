@@ -5,15 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Sofa\Eloquence\Eloquence;
-use Sofa\Eloquence\Mappable;
 use Carbon\Carbon;
 
 
 
 class Reply extends Model
 {
-    use HasFactory, Eloquence, Mappable, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -30,23 +28,9 @@ class Reply extends Model
      * @var array
      */
     protected $hidden = [
-        'post_id',
-        'user_id',
-        'created_at',
-        'updated_at'
-    ];
-
-    protected $maps = [
-        'postId' => 'post_id',
-        'userId' => 'user_id',
-        'regDate' => 'created_at',
-        'uptDate' => 'updated_at',
     ];
 
     protected $appends = [
-        'userId',
-        'regDate',
-        'uptDate'
     ];
 
     protected $casts = [

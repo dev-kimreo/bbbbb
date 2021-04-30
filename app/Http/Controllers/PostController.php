@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Auth;
 use Cache;
 use Carbon\Carbon;
+use Str;
 
 
 use App\Http\Controllers\BoardController;
@@ -22,7 +23,9 @@ use App\Http\Requests\Posts\CreatePostsRequest;
 use App\Http\Requests\Posts\ModifyPostsRequest;
 use App\Http\Requests\Posts\DeletePostsRequest;
 
-use App\Libraries\PageCls;
+use App\Libraries\PaginationLibrary;
+
+use App\Libraries\CollectionLibrary;
 
 /**
  * Class PostController
@@ -38,7 +41,9 @@ class PostController extends Controller
      *      required={"title", "content"},
      *      @OA\Property(property="title", type="string", example="게시글 입니다.", description="게시글 제목" ),
      *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" ),
-     *      @OA\Property(property="thumbnail", type="integer", example=23, description="섬네일로 사용할 임시 이미지의 고유번호" )
+     *      @OA\Property(property="thumbnail", type="object",
+     *          @OA\Property(property="id", type="interger", example=23, description="섬네일로 사용할 임시 이미지의 고유번호" )
+     *      ),
      *  )
      */
 
@@ -164,9 +169,9 @@ class PostController extends Controller
         $post->save();
 
         // 섬네일 사용 게시판이고, 임시 섬네일이 있을경우 사용처로 이동
-        if (isset($board['options']['thumbnail']) && $board['options']['thumbnail'] && $request->thumbnail) {
+        if (isset($board['options']['thumbnail']) && $board['options']['thumbnail'] && isset($request->thumbnail)) {
             $attachCtl = new AttachController;
-            $attachCtl->move($this->attachType, $post->id, [$request->thumbnail], ['type' => 'thumbnail']);
+            $attachCtl->move($this->attachType, $post->id, [$request->thumbnail->id], ['type' => 'thumbnail']);
         }
 
         // 캐시 초기화
@@ -186,7 +191,9 @@ class PostController extends Controller
      *      schema="postModify",
      *      @OA\Property(property="title", type="string", example="게시글 입니다.", description="게시글 제목" ),
      *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" ),
-     *      @OA\Property(property="thumbnail", type="integer", example=42, description="섬네일로 사용할 임시 이미지의 고유번호" ),
+     *      @OA\Property(property="thumbnail", type="object",
+     *          @OA\Property(property="id", type="integer", example=42, description="섬네일로 사용할 임시 이미지의 고유번호" ),
+     *      ),
      *      @OA\Property(property="delFiles", type="array", example={23,52}, description="삭제할 파일의 고유번호",
      *          @OA\Items(type="integer" ),
      *      )
@@ -261,13 +268,11 @@ class PostController extends Controller
         $postInfo = $post->toArray();
 
         // 작성자와 동일 체크
-        if ( $postInfo['userId'] != auth()->user()->id ) {
+        if ( $postInfo['user_id'] != auth()->user()->id ) {
             return response()->json(getResponseError(101001), 422);
         }
 
         $boardInfo = Board::find($request->boardId)->toArray();
-//        print_r($request->all());
-//        print_r($boardInfo);
         $attachFlag = false;
 
         $flushFlag = false;
@@ -287,9 +292,9 @@ class PostController extends Controller
             switch ($type) {
                 // 섬네일
                 case 'thumbnail':
-                    if ($request->thumbnail) {
+                    if (isset($request->thumbnail)) {
                         $attachCtl = new AttachController;
-                        $attachCtl->move($this->attachType, $request->id, [$request->thumbnail], ['type' => 'thumbnail']);
+                        $attachCtl->move($this->attachType, $request->id, [$request->thumbnail->id], ['type' => 'thumbnail']);
                     }
 
                 case 'attachFile':
@@ -314,7 +319,7 @@ class PostController extends Controller
 
         // 캐시 초기화
         if ($flushFlag) {
-            Cache::tags(['board.' . $request->boardId . '.post.' . $request->id])->forget('info');  // 상세 정보 캐시 삭제
+            Cache::tags(['board.' . $request->boardId . '.post.' . $request->id])->flush();  // 상세 정보 캐시 삭제
             Cache::tags(['board.' . $request->boardId . '.post.list'])->flush();                    // 상세 목록 캐시 flush
         }
 
@@ -380,7 +385,7 @@ class PostController extends Controller
         $postInfo = $post->toArray();
 
         // 작성자와 동일 체크
-        if ( $postInfo['userId'] != auth()->user()->id ) {
+        if ( $postInfo['user_id'] != auth()->user()->id ) {
             return response()->json(getResponseError(101001), 422);
         }
 
@@ -427,7 +432,9 @@ class PostController extends Controller
      *                  @OA\Items(type="object",
      *                      @OA\Property(property="id", type="integer", example=1, description="게시글 고유번호" ),
      *                      @OA\Property(property="title", type="string", example="게시글 제목입니다.", description="게시글 제목" ),
-     *                      @OA\Property(property="thumbnail", type="string", example="http://local-api.qpicki.com/storage/post/048/000/000/caf4df2767fea15158143aaab145d94e.jpg", description="게시글 섬네일 이미지 url" ),
+     *                      @OA\Property(property="thumbnail", type="object",
+     *                          @OA\Property(property="url", example="http://local-api.qpicki.com/storage/post/048/000/000/caf4df2767fea15158143aaab145d94e.jpg", description="게시글 섬네일 이미지 url" ),
+     *                      ),
      *                      @OA\Property(property="replyCount", type="integer", example=20, description="게시글의 댓글 수" ),
      *                      @OA\Property(property="userName", type="string", example="홍길동", description="작성자" ),
      *                      @OA\Property(property="boardId", type="integer", example=1, description="게시판 고유번호" ),
@@ -485,7 +492,7 @@ class PostController extends Controller
             'boardInfo' => $boardInfoFlag,
             'page' => $request->page,
             'view' => $request->perPage,
-            'select' => ['id', 'title', 'boardId', 'userId', 'regDate', 'uptDate']
+            'select' => ['posts.id', 'title', 'board_id', 'posts.user_id', 'posts.created_at', 'posts.updated_at']
         ];
 
         // where 절 eloquent
@@ -522,7 +529,7 @@ class PostController extends Controller
         }
 
         // pagination
-        $pagination = PageCls::set($set['page'], $whereModel->count(), $set['view']);
+        $pagination = PaginationLibrary::set($set['page'], $whereModel->count(), $set['view']);
         if ( !$pagination ) {
             return response()->json(getResponseError(101001), 422);
         }
@@ -560,7 +567,6 @@ class PostController extends Controller
                 $post = $post->get();
 
                 // 데이터 가공
-//                $post->pluck('user')->each->setAppends([]);
 
                 foreach ($post as $index) {
                     // 댓글 사용시
@@ -574,6 +580,14 @@ class PostController extends Controller
                     if ($index->user) {
                         $index->userName = $index->user->toArray()['name'];
                     }
+
+                    // 섬네일
+                    if ($index->thumbnail) {
+                        $index->thumbnail = [
+                            'url' => $index->thumbnail
+                        ];
+                    }
+
                     unset($index->user);
                 }
 
@@ -595,7 +609,7 @@ class PostController extends Controller
 
         $result['list'] = $data;
 
-        return response()->json($result, 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($result)), 200);
     }
 
 
@@ -676,7 +690,7 @@ class PostController extends Controller
             return response()->json(getResponseError(200004), 422);
         }
 
-        return response()->json($postInfo, 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($postInfo)), 200);
     }
 
 
@@ -688,7 +702,7 @@ class PostController extends Controller
     public function funcGetInfo($postId, $boardId = 0) {
         // 게시판 번호가 없을 경우
         if ( !$boardId ) {
-            $boardId = Post::select('boardId')->where('id', $postId)->first()['boardId'];
+            $boardId = Post::select('board_id')->where('id', $postId)->first()['board_id'];
         }
 
         // 게시판 정보
@@ -702,7 +716,7 @@ class PostController extends Controller
         // 데이터 cache
         $tags = separateTag('board.' . $boardId . '.post.' . $postId);
         $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function() use ($postId, $boardId, $boardInfo) {
-            $select = ['id', 'title', 'boardId', 'content', 'hidden', 'etc', 'userId', 'regDate', 'uptDate'];
+            $select = ['posts.id', 'title', 'board_id', 'content', 'hidden', 'posts.etc', 'posts.user_id', 'posts.created_at', 'posts.updated_at'];
 
             // 섬네일 지원 게시판일 경우
             if ( $boardInfo['options']['thumbnail'] ) {
@@ -753,6 +767,11 @@ class PostController extends Controller
 
     public function test(Request $request) {
 
+//        $aaa = $this->toCamelCase(['board_id'=> 'asdasdsad', 'user_info' => ['name_s' => 'asds', 'schools_a' => ['middle_s' => 'asdasd', 'high_v' => 'asdasd']]]);
+//        print_r($aaa);
+
+//        return response()->json(, 200);
+
 //        Cache::tags(['people', 'artists'])->put('John', 'jone');
 //        Cache::tags(['people', 'authors'])->put('Anne', 'anne');
 //
@@ -760,8 +779,22 @@ class PostController extends Controller
 //        Cache::tags(['board'])->put();
 
 
-//        $aaa = \App\Models\Test::get();
-//        print_r($aaa[0]->toArray());
+        $aaa = \App\Models\Test::get();
+        //dd(get_class($aaa));
+//        $aaa = collect(['asdasd' => 'asdasdasdasd', 'nasd_namd' => ['asda_adasd' => 'asdsad' , '123_ads' => 'asdasd'] ]);
+        return CollectionLibrary::toCamelCase($aaa);
+//         dd(get_class($aaa));
+
+
+
+//        print_r($bbb);
+
+
+        //return response()->json();
+//        print_r($bbb);
+//        $aaa->boardId = 'asd';
+//        print_r($aaa->board_id );
     }
+
 
 }

@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\CollectionLibrary;
 use Illuminate\Http\Request;
 use Auth;
 use Cache;
@@ -18,7 +19,7 @@ use App\Http\Requests\Replies\ModifyRepliesRequest;
 use App\Http\Requests\Replies\DeleteRepliesRequest;
 use App\Http\Requests\Replies\GetListRepliesRequest;
 
-use App\Libraries\PageCls;
+use App\Libraries\PaginationLibrary;
 
 /**
  * Class PostController
@@ -352,7 +353,7 @@ class ReplyController extends Controller
             'postId' => $request->postId,
             'page' => $request->page,
             'view' => $request->perPage,
-            'select' => ['id', 'userId', 'content', 'hidden', 'regDate', 'uptDate']
+            'select' => ['id', 'user_id', 'content', 'hidden', 'created_at', 'updated_at']
         ];
 
         // where 절 eloquent
@@ -360,7 +361,7 @@ class ReplyController extends Controller
 
 
         // pagination
-        $pagination = PageCls::set($set['page'], $whereModel->count(), $set['view']);
+        $pagination = PaginationLibrary::set($set['page'], $whereModel->count(), $set['view']);
         if ( !$pagination ) {
             return response()->json(getResponseError(101001), 422);
         }
@@ -371,7 +372,6 @@ class ReplyController extends Controller
             $tags = separateTag('board.' . $set['boardId'] . '.post.' . $set['postId'] . '.reply');
             $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function() use ($set, $pagination, $whereModel) {
                 $reply = $whereModel
-
                     ->with('user:id,name')
                     ->select($set['select']);
 
@@ -400,7 +400,7 @@ class ReplyController extends Controller
         $result = ['header' => $pagination];
         $result['list'] = $data;
 
-        return response()->json($result, 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($result)), 200);
     }
 
 

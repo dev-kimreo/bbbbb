@@ -5,15 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Sofa\Eloquence\Eloquence;
-use Sofa\Eloquence\Mappable;
 use Carbon\Carbon;
 
 
 
 class Post extends Model
 {
-    use HasFactory, Eloquence, Mappable, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -34,24 +32,9 @@ class Post extends Model
      * @var array
      */
     protected $hidden = [
-        'board_id',
-        'user_id',
-        'created_at',
-        'updated_at'
-    ];
-
-    protected $maps = [
-        'boardId' => 'board_id',
-        'userId' => 'user_id',
-        'regDate' => 'created_at',
-        'uptDate' => 'updated_at',
     ];
 
     protected $appends = [
-        'boardId',
-        'userId',
-        'regDate',
-        'uptDate'
     ];
 
     protected $casts = [

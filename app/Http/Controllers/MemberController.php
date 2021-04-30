@@ -31,8 +31,7 @@ use Password;
 
 use App\Jobs\SendMail;
 
-use App\Libraries\CacheCls;
-
+use App\Libraries\CollectionLibrary;
 
 
 /**
@@ -194,7 +193,7 @@ class MemberController extends Controller
 
         return response()->json([
             'message' => __('common.registered'),
-            'member' => $member
+            'member' => CollectionLibrary::toCamelCase(collect($member))
         ], 200);
     }
 
@@ -232,7 +231,7 @@ class MemberController extends Controller
      */
     public function info() {
         // 회원정보
-        return response()->json(auth()->user());
+        return response()->json(CollectionLibrary::toCamelCase(collect(auth()->user())));
     }
 
 
@@ -411,8 +410,8 @@ class MemberController extends Controller
             $member = User::find($request->id);
 
             // 인증되지 않은 경우
-            if ( is_null($member->emailVerifiedDate) ) {
-                $member->emailVerifiedDate = carbon::now();
+            if ( is_null($member->email_verified_at) ) {
+                $member->email_verified_at = carbon::now();
                 $member->save();
             } else {
                 // 이미 인증된 회원입니다.

@@ -14,6 +14,7 @@ use App\Models\BoardOption;
 use App\Http\Requests\Admins\Boards\CreateBoardsRequest;
 use App\Http\Requests\Admins\Boards\ModifyBoardsRequest;
 
+use App\Libraries\CollectionLibrary;
 
 
 class BoardController extends Controller
@@ -338,7 +339,7 @@ class BoardController extends Controller
             return $brd;
         });
 
-        return response()->json($data, 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 200);
     }
 
     /**
@@ -374,7 +375,7 @@ class BoardController extends Controller
     public function getOptionList(Request $request) {
         $data = $this->funcGetOptionList()->toArray();
 
-        return response()->json($data);
+        return response()->json(CollectionLibrary::toCamelCase(collect($data)));
     }
 
 
@@ -426,7 +427,7 @@ class BoardController extends Controller
             return response()->json(getResponseError(100005), 422);
         }
 
-        return response()->json($board);
+        return response()->json(CollectionLibrary::toCamelCase(collect($board)));
     }
 
 

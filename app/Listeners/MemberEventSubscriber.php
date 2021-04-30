@@ -32,7 +32,7 @@ class MemberEventSubscriber
                 Carbon::now()->addMinutes(Config::get('auth.verification.expire')),
                 [
                     'verifyKey' => $this->verifyKey,
-                    'id' => $event->user->no,
+                    'id' => $event->user->id,
                     'hash' => sha1($event->user->email)
                 ]
             );
@@ -74,7 +74,7 @@ class MemberEventSubscriber
     public function handleMemberVerifyEmailCheck($event) {
 
         $signCount = SignedCodes::where('name',  $this->verifyKey)
-                                ->where('name_id', $event->user->no)
+                                ->where('name_id', $event->user->id)
                                 ->where('created_at', '>', carbon::now()->subMinutes(Config::get('auth.verification.send_limit_minutes')))->get()->count();
 
         if ($signCount >= Config::get('auth.verification.send_limit_count')) {
