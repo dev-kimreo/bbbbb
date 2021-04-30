@@ -133,13 +133,13 @@ class MemberController extends Controller
      *          response=200,
      *          description="successfully registered",
      *          @OA\JsonContent(
-     *              @OA\Property(property="no", type="integer", example="14", description="회원번호"),
+     *              @OA\Property(property="id", type="integer", example="14", description="회원번호"),
      *              @OA\Property(property="name", type="string", example="홍길동", description="이름"),
      *              @OA\Property(property="email", type="string", format="email", example="abcd@davinci.com", description="이메일"),
      *              @OA\Property(property="grade", type="integer", example="0", description="회원 등급"),
-     *              @OA\Property(property="emailVerifiedDate", type="string", format="timezone", example="null", description="이메일 인증일자"),
-     *              @OA\Property(property="regDate", type="string", format="timezone", example="2021-03-10T00:25:31+00:00", description="가입일자"),
-     *              @OA\Property(property="uptDate", type="string", format="timezone",  example="2021-03-10T00:25:31+00:00", description="수정일자"),
+     *              @OA\Property(property="emailVerifiedAt", type="string", format="timezone", example="null", description="이메일 인증일자"),
+     *              @OA\Property(property="createdAt", type="string", format="timezone", example="2021-03-10T00:25:31+00:00", description="가입일자"),
+     *              @OA\Property(property="updatedAt", type="string", format="timezone",  example="2021-03-10T00:25:31+00:00", description="수정일자"),
      *          )
      *      ),
      *      @OA\Response(
@@ -209,13 +209,13 @@ class MemberController extends Controller
      *          response=200,
      *          description="successfully registered",
      *          @OA\JsonContent(
-     *              @OA\Property(property="no", type="integer", example="14", description="회원번호"),
+     *              @OA\Property(property="id", type="integer", example="14", description="회원번호"),
      *              @OA\Property(property="name", type="string", example="홍길동", description="이름"),
      *              @OA\Property(property="email", type="string", format="email", example="abcd@davinci.com", description="이메일"),
      *              @OA\Property(property="grade", type="integer", example="0", description="회원 등급"),
-     *              @OA\Property(property="emailVerifiedDate", type="string", format="timezone", example="null", description="이메일 인증일자"),
-     *              @OA\Property(property="regDate", type="string", format="timezone", example="2021-03-10T00:25:31+00:00", description="가입일자"),
-     *              @OA\Property(property="uptDate", type="string", format="timezone",  example="2021-03-10T00:25:31+00:00", description="수정일자"),
+     *              @OA\Property(property="emailVerifiedAt", type="string", format="timezone", example="null", description="이메일 인증일자"),
+     *              @OA\Property(property="createdAt", type="string", format="timezone", example="2021-03-10T00:25:31+00:00", description="가입일자"),
+     *              @OA\Property(property="updatedAt", type="string", format="timezone",  example="2021-03-10T00:25:31+00:00", description="수정일자"),
      *          )
      *      ),
      *      security={{
@@ -984,36 +984,9 @@ class MemberController extends Controller
 
         $bbb = 'asdasasd';
 
-
         $c = rand(1, 100);
 
         echo 'asdad';
-
-//
-//        $member = auth()->user();
-
-//        print_r($member);
-//        if ( Auth::attempt(['email' => $request->email, 'password' => $request->password]) ) {
-//            print_r(Auth::user());
-//            Auth::login(Auth::user());
-//        } else {
-//            echo 'asdasdsad';
-//        }
-//        var_dump(User::loginValidationRules());
-
-//        $member = User::where(['email' => $request->username])->get();
-//
-//        if ( !hash::check($request->password, $member->password) ) {
-//
-//        }
-//
-//        return $this->withErrorHandling(function () use ($request) {
-//            return $this->convertResponse(
-//                $this->server->respondToAccessTokenRequest($request, new Psr7Response)
-//            );
-//        });
-
-//        Auth::guard('web')->logout();
     }
 
     public function testa() {

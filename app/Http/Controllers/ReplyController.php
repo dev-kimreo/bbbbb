@@ -301,8 +301,8 @@ class ReplyController extends Controller
      *                      @OA\Property(property="hidden", type="integer", example=0, default=0, description="게시글 숨김 여부<br/>0:노출<br/>1:숨김" ),
      *                      @OA\Property(property="userName", type="string", example="홍길동", description="작성자" ),
      *                      @OA\Property(property="userId", type="integer", example=1, description="작성자 회원 고유번호" ),
-     *                      @OA\Property(property="regDate", type="datetime", example="2021-04-08T07:04:52+00:00", description="게시글 작성일자" ),
-     *                      @OA\Property(property="uptDate", type="datetime", example="2021-04-08T07:57:55+00:00", description="게시글 수정일자" ),
+     *                      @OA\Property(property="createdAt", type="datetime", example="2021-04-08T07:04:52+00:00", description="게시글 작성일자" ),
+     *                      @OA\Property(property="updatedAt", type="datetime", example="2021-04-08T07:57:55+00:00", description="게시글 수정일자" ),
      *                  )
      *              ),
      *          )
