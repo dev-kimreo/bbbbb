@@ -177,6 +177,11 @@ return [
         App\Providers\TelescopeServiceProvider::class,
 
         /*
+         * Qpick's Custom Service Providers...
+         */
+        App\Providers\Sha512HashingServiceProvider::class,
+
+        /*
          * Laravel Framework Service Providers...
          */
         L5Swagger\L5SwaggerServiceProvider::class,
