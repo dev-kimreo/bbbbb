@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 /**
  *
- *  @OA\Schema(
+ * @OA\Schema(
  *      @OA\Xml(name="게시판 옵션"),
  *      @OA\Property(property="id", type="string", example=1, description="게시판 옵션 고유 번호" ),
  *      @OA\Property(property="name", type="string", example="글 작성", description="게시판 옵션 명" ),
@@ -63,12 +63,18 @@ class BoardOption extends Model
     protected $appends = [
     ];
 
+    public static function getByType($type)
+    {
+        return self::where('type', $type);
+    }
 
-    public function getCreatedAtAttribute($value){
+    public function getCreatedAtAttribute($value)
+    {
         return Carbon::parse($value)->format('c');
     }
 
-    public function getUpdatedAtAttribute($value){
+    public function getUpdatedAtAttribute($value)
+    {
         return Carbon::parse($value)->format('c');
     }
 

@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
 
-
 class Post extends Model
 {
     use HasFactory, SoftDeletes;
@@ -41,23 +40,44 @@ class Post extends Model
         'etc' => 'array'
     ];
 
-    public function getCreatedAtAttribute($value){
+    public function scopeId($q, $id)
+    {
+        return $q->where('id', $id);
+    }
+
+    public function scopeBoardId($q, $boardId)
+    {
+        return $q->where('board_id', $boardId);
+    }
+
+    public function getByBoardId($id, $boardId)
+    {
+        $this->id($id)->boardId($boardId);
+        return $this;
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
         return Carbon::parse($value)->format('c');
     }
 
-    public function getUpdatedAtAttribute($value){
+    public function getUpdatedAtAttribute($value)
+    {
         return Carbon::parse($value)->format('c');
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo('App\Models\User', 'user_id', 'id')->select(['id', 'name']);
     }
 
-    public function replyCount(){
+    public function replyCount()
+    {
         return $this->hasMany('App\Models\Reply', 'post_id', 'id')->selectRaw('count(id) as count');
     }
 
-    public function thumbnails(){
+    public function thumbnails()
+    {
         return $this->hasOne('App\Models\AttachFile')->select(['url']);
     }
 

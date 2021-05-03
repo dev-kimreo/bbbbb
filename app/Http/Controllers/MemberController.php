@@ -35,7 +35,7 @@ use App\Libraries\CollectionLibrary;
 
 
 /**
- *  @OA\Schema (
+ * @OA\Schema (
  *      schema="passwordPattern",
  *      @OA\Property(
  *          property="110101",
@@ -99,8 +99,6 @@ use App\Libraries\CollectionLibrary;
  *      ),
  *  )
  */
-
-
 class MemberController extends Controller
 {
     /**
@@ -108,7 +106,8 @@ class MemberController extends Controller
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
     }
 
     /**
@@ -176,11 +175,12 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(StoreMembersRequest $request) {
+    public function register(StoreMembersRequest $request)
+    {
 
         // 비밀번호 체크
         $checkPwdRes = $this->checkPasswordPattern($request->password, $request->email);
-        if ( $checkPwdRes !== true ) {
+        if ($checkPwdRes !== true) {
             return response()->json($checkPwdRes, 422);
         }
 
@@ -229,7 +229,8 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function info() {
+    public function info()
+    {
         // 회원정보
         return response()->json(CollectionLibrary::toCamelCase(collect(auth()->user())));
     }
@@ -256,7 +257,8 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout() {
+    public function logout()
+    {
         // 엑세스 토큰 제거
         auth()->user()->token()->revoke();
 
@@ -325,15 +327,16 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function verificationResend(Request $request) {
+    public function verificationResend(Request $request)
+    {
 
         // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
-        if ( !VerifyEmailCheck::dispatch(auth()->user()) ) {
+        if (!VerifyEmailCheck::dispatch(auth()->user())) {
             return response()->json(getResponseError(110411), 422);
         }
 
         // // 이미 인증된 회원입니다.
-        if ( !VerifyEmail::dispatch(auth()->user()) ) {
+        if (!VerifyEmail::dispatch(auth()->user())) {
             return response()->json(getResponseError(110402), 422);
         }
 
@@ -396,21 +399,18 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function verification(Request $request){
+    public function verification(Request $request)
+    {
         $exp = explode('/', $request->path());
-        $signExists = SignedCodes::where('name', $exp[count($exp)-2])
-            ->where('name_id', $request->id)
-            ->where('hash', $request->hash)
-            ->where('sign', $request->signature)
-            ->exists();
+        $signCode = SignedCodes::getBySignCode($exp, $request->id, $request->hash, $request->signature)->select('id')->first();
 
         // 가상 서명키 유효성 체크
-        if ($request->hasValidSignature() && $signExists) {
+        if ($request->hasValidSignature() && $signCode && $signCode['id']) {
 
             $member = User::find($request->id);
 
             // 인증되지 않은 경우
-            if ( is_null($member->email_verified_at) ) {
+            if (is_null($member->email_verified_at)) {
                 $member->email_verified_at = carbon::now();
                 $member->save();
             } else {
@@ -419,9 +419,7 @@ class MemberController extends Controller
             }
 
             // 가상 서명키 제거
-            SignedCodes::where('name', $exp[count($exp)-2])
-                            ->where('name_id', $request->id)
-                            ->delete();
+            $signCode->delete();
         } else {
             return response()->json(getResponseError(110401), 422);
         }
@@ -485,8 +483,9 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function checkPassword(CheckPwdMemberRequest $request) {
-        if ( ! $this::funcCheckPassword($request->password) ){
+    public function checkPassword(CheckPwdMemberRequest $request)
+    {
+        if (!$this::funcCheckPassword($request->password)) {
             return response()->json(getResponseError(110311), 422);
         }
 
@@ -550,9 +549,10 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function modify(ModifyMemberRequest $request) {
+    public function modify(ModifyMemberRequest $request)
+    {
 
-        if ( ! $this::funcCheckPassword($request->password) ){
+        if (!$this::funcCheckPassword($request->password)) {
             return response()->json(getResponseError(110311, 'password'), 422);
         }
 
@@ -623,9 +623,10 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function modifyPassword(ModifyMemberPwdRequest $request) {
+    public function modifyPassword(ModifyMemberPwdRequest $request)
+    {
         // 현재 패스워드 체크
-        if ( ! $this::funcCheckPassword($request->password) ){
+        if (!$this::funcCheckPassword($request->password)) {
             return response()->json(getResponseError(110311, 'password'), 422);
         }
 
@@ -636,7 +637,7 @@ class MemberController extends Controller
 
         // 비밀번호 체크
         $checkPwdRes = $this->checkPasswordPattern($request->changePassword, auth()->user()->email);
-        if ( $checkPwdRes !== true ) {
+        if ($checkPwdRes !== true) {
             return response()->json($checkPwdRes, 422);
         }
 
@@ -702,7 +703,8 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function passwordResetSendLink(PasswordResetSendLinkRequest $request) {
+    public function passwordResetSendLink(PasswordResetSendLinkRequest $request)
+    {
         // 회원 정보
         $member = User::where('email', $request->email)->first();
 
@@ -804,10 +806,11 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function changePwdVerification(CheckChangePwdAuthRequest $request) {
+    public function changePwdVerification(CheckChangePwdAuthRequest $request)
+    {
         // 비밀번호 재설정 Token 발행여부 체크
         $res = DB::table('password_resets')->where('email', $request->email)->first();
-        if ( !$res ) {
+        if (!$res) {
             // 일치하는 정보가 없습니다.
             return response()->json(getResponseError(100005), 422);
         }
@@ -816,7 +819,7 @@ class MemberController extends Controller
         $member = User::where('email', $request->email)->first();
 
         // Token 유효성 체크
-        if( !Password::tokenExists($member, $request->token) ) {
+        if (!Password::tokenExists($member, $request->token)) {
             return response()->json(getResponseError(100501), 422);
         }
 
@@ -902,10 +905,11 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function passwordReset(PasswordResetRequest $request) {
+    public function passwordReset(PasswordResetRequest $request)
+    {
         // 비밀번호 재설정 Token 발행여부 체크
         $res = DB::table('password_resets')->where('email', $request->email)->first();
-        if ( !$res ) {
+        if (!$res) {
             return response()->json(getResponseError(100005), 422);
         }
 
@@ -913,13 +917,13 @@ class MemberController extends Controller
         $member = User::where('email', $request->email)->first();
 
         // Token 유효성 체크
-        if( !Password::tokenExists($member, $request->token) ) {
+        if (!Password::tokenExists($member, $request->token)) {
             return response()->json(getResponseError(100501), 422);
         }
 
         // 비밀번호 체크
         $checkPwdRes = $this->checkPasswordPattern($request->password, $request->email);
-        if ( $checkPwdRes !== true ) {
+        if ($checkPwdRes !== true) {
             return response()->json($checkPwdRes, 422);
         }
 
@@ -936,13 +940,13 @@ class MemberController extends Controller
     }
 
 
-
     /**
      * 비밀번호 패턴 체크 함수
      *
      * @return
      */
-    static function checkPasswordPattern(string $pwd, string $email = null) {
+    static function checkPasswordPattern(string $pwd, string $email = null)
+    {
         /**
          * 비밀번호 패턴 체크
          */
@@ -958,7 +962,7 @@ class MemberController extends Controller
         /**
          * 비밀번호와 아이디 동일 여부 체크
          */
-        if ( isset($email) ) {
+        if (isset($email)) {
             $chkPwdSameIdRes = checkPwdSameId($pwd, $email);
             if (!$chkPwdSameIdRes) {
                 return getResponseError(110114, 'password');
@@ -968,8 +972,9 @@ class MemberController extends Controller
         return true;
     }
 
-    static function funcCheckPassword($pwd) {
-        if ( !hash::check($pwd, auth()->user()->password) ){
+    static function funcCheckPassword($pwd)
+    {
+        if (!hash::check($pwd, auth()->user()->password)) {
             return false;
         }
 
@@ -977,7 +982,8 @@ class MemberController extends Controller
     }
 
 
-    public function test(Request $request) {
+    public function test(Request $request)
+    {
         echo gethostname() . "\r\n";
 
         $aaa = gethostname();
@@ -989,11 +995,11 @@ class MemberController extends Controller
         echo 'asdad';
     }
 
-    public function testa() {
+    public function testa()
+    {
         echo gethostname();
         print_r(Auth::user());
     }
-
 
 
 }

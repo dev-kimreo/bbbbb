@@ -35,6 +35,10 @@ class PostController extends Controller
 {
     public $attachType = 'post';
 
+    public function __construct(Post $post) {
+        $this->post = $post;
+    }
+
     /**
      *  @OA\Schema (
      *      schema="postCreate",
@@ -258,7 +262,7 @@ class PostController extends Controller
      */
     public function modify(ModifyPostsRequest $request) {
 
-        $post = Post::where(['id' => $request->id, 'board_id' => $request->boardId])->first();
+        $post = $this->post->getByBoardId($request->id, $request->boardId)->first();
 
         if ( !$post ) {
             return response()->json(getResponseError(100005), 422);

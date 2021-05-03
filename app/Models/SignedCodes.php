@@ -15,11 +15,31 @@ class SignedCodes extends Model
         'updated_at'
     ];
 
-    public function getCreatedAtAttribute($value){
+    public static function scopeNameId($q, $nameId)
+    {
+        return $q->where('name_id', $nameId);
+    }
+
+    public static function scopeName($q, $name)
+    {
+        return $q->where('name', $name);
+    }
+
+    public static function getBySignCode($exp, $id, $hash, $sign)
+    {
+        return self::name($exp[count($exp) - 2])
+            ->nameId($id)
+            ->where('hash', $hash)
+            ->where('sign', $sign);
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
         return Carbon::parse($value)->format('c');
     }
 
-    public function getUpdatedAtAttribute($value){
+    public function getUpdatedAtAttribute($value)
+    {
         return Carbon::parse($value)->format('c');
     }
 }
