@@ -17,6 +17,15 @@ use \Laravel\Passport\Http\Controllers\AccessTokenController as ATC;
 class AccessTokenController extends ATC {
 
     /**
+     * AccessTokenController constructor.
+     */
+    public function __construct(User $user)
+    {
+        $this->user = $user;
+    }
+
+
+    /**
      * @OA\Post(
      *      path="/v1/member/auth",
      *      summary="로그인",
@@ -111,7 +120,7 @@ class AccessTokenController extends ATC {
             $username = $request->getParsedBody()['username'];
             $password = $request->getParsedBody()['password'];
 
-            $member = User::where('email', $username)->first();
+            $member = $this->user->where('email', $username)->first();
 
             if( !$member ) {
                 return response()->json(getResponseError(100021, 'username'), 422);
