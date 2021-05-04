@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Auth;
 use Closure;
 use Cache;
+use Exception;
 
 use App\Models\Board;
 use App\Models\BoardOption;
@@ -16,9 +17,18 @@ use App\Http\Requests\Admins\Boards\ModifyBoardsRequest;
 
 use App\Libraries\CollectionLibrary;
 
+use App\Services\BoardService;
+
 
 class BoardController extends Controller
 {
+    private $boardService;
+
+
+    public function __construct(BoardService $boardService)
+    {
+        $this->boardService = $boardService;
+    }
 
     /**
      * @OA\Post(
@@ -84,10 +94,9 @@ class BoardController extends Controller
          */
         $optArrs = $request->options;
 
-        $optDefaultArrs = $this->funcGetOptionList(['sel' => ['type', 'default']])->toArray();
+        $optDefaultArrs = $this->boardService->getOptionList(['sel' => ['type', 'default']])->toArray();
 
         if (is_array($optArrs) && count($optArrs)) {
-
 
             foreach ($optArrs as $type => $val) {
 
@@ -375,7 +384,7 @@ class BoardController extends Controller
      */
     public function getOptionList(Request $request)
     {
-        $data = $this->funcGetOptionList()->toArray();
+        $data = $this->boardService->getOptionList()->toarray();
 
         return response()->json(CollectionLibrary::toCamelCase(collect($data)));
     }
@@ -424,44 +433,13 @@ class BoardController extends Controller
      */
     public function getBoardInfo(Request $request)
     {
-        $board = $this->funcGetBoard($request->id);
+        try {
+            $board = $this->boardService->getInfo($request->id);
 
-        if (!$board) {
-            return response()->json(getResponseError(100005), 422);
+            return response()->json(CollectionLibrary::toCamelCase($board));
+        } catch (\Throwable $e) {
+            return response()->json(getResponseError($e->getMessage()), $e->getCode());
         }
-
-        return response()->json(CollectionLibrary::toCamelCase(collect($board)));
-    }
-
-
-    public function reInitBoardOption(Request $request)
-    {
-        $this->funcReInitBoardOption();
-    }
-
-
-    /**
-     * 게시판 옵션 검색 메소드
-     * @param array $set
-     * @return mixed
-     */
-    static public function funcGetOptionList($set = [])
-    {
-        $tags = separateTag('board.options.list');
-
-        $data = Cache::tags($tags)->remember(md5(json_encode($set)), config('cache.custom.expire.common'), function () use ($set) {
-            $opt = new BoardOption;
-
-            if (isset($set['sel'])) {
-                $opt = $opt->select($set['sel']);
-            }
-
-            $opt = $opt->orderBy('sort', 'asc')->orderBy('id', 'asc')->get();
-
-            return $opt;
-        });
-
-        return $data;
     }
 
     /**
@@ -490,6 +468,10 @@ class BoardController extends Controller
         return $data;
     }
 
+    public function reInitBoardOption(Request $request)
+    {
+        $this->funcReInitBoardOption();
+    }
 
     static public function funcReInitBoardOption()
     {
