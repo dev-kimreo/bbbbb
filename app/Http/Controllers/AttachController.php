@@ -31,6 +31,11 @@ class AttachController extends Controller
 
     protected $allowType = ['temp', 'board', 'post'];
 
+    public function __construct(AttachFile $attachFile)
+    {
+        $this->attach = $attachFile;
+    }
+
     /**
      * @OA\Post(
      *      path="/v1/attach",
@@ -94,15 +99,16 @@ class AttachController extends Controller
      * @param Request $request
      * @return mixed
      */
-    public function create(CreateAttachRequest $request) {
+    public function create(CreateAttachRequest $request)
+    {
         $files = $request->file('files');
         $uploadFiles = [];
         $res = [];
 
-        if ( is_array($files) && count($files) ) {
-            foreach ( $files as $img ) {
+        if (is_array($files) && count($files)) {
+            foreach ($files as $img) {
                 $uploadFiles[] = [
-                    'path' => Storage::disk('public')->putFileAs($this->tempDir, $img, md5($img->getClientOriginalName() . microtime()) . "." .  $img->getClientOriginalExtension()),
+                    'path' => Storage::disk('public')->putFileAs($this->tempDir, $img, md5($img->getClientOriginalName() . microtime()) . "." . $img->getClientOriginalExtension()),
                     'orgName' => $img->getClientOriginalName()
                 ];
             }
@@ -116,19 +122,18 @@ class AttachController extends Controller
             $path = pathInfo(str_replace(config('filesystems.disks.public.url') . '/', '', $url))['dirname'];
 
             // 저장
-            $attachModel = new AttachFile;
-            $attachModel->server = 'public';
-            $attachModel->type = $this->tempDir;
-            $attachModel->user_id = auth()->user() ? auth()->user()->id : 0;
-            $attachModel->url = $url;
-            $attachModel->path = $path;
-            $attachModel->name = $pathInfo['basename'];
-            $attachModel->org_name = $f['orgName'];
-            $attachModel->save();
+            $this->attach->server = 'public';
+            $this->attach->type = $this->tempDir;
+            $this->attach->user_id = auth()->user() ? auth()->user()->id : 0;
+            $this->attach->url = $url;
+            $this->attach->path = $path;
+            $this->attach->name = $pathInfo['basename'];
+            $this->attach->org_name = $f['orgName'];
+            $this->attach->save();
 
             $res[] = [
-                'no' => $attachModel->id,
-                'url' => $attachModel->url,
+                'no' => $this->attach->id,
+                'url' => $this->attach->url,
                 'orgName' => $f['orgName'],
                 'extension' => $pathInfo['extension']
             ];
@@ -138,26 +143,27 @@ class AttachController extends Controller
     }
 
 
-    public function move($type, $typeId, array $nos, $etc = []) {
-        if ( $typeId <= 0 || !in_array($type, $this->allowType) ) {
+    public function move($type, $typeId, array $nos, $etc = [])
+    {
+        if ($typeId <= 0 || !in_array($type, $this->allowType)) {
             return false;
         }
 
         $this->hexName = str_pad(dechex($typeId), $this->hexLength, '0', STR_PAD_LEFT);
 
-        for ($i = -$this->levelDepth; abs($i) <= $this->hexLength; $i-=$this->levelDepth) {
+        for ($i = -$this->levelDepth; abs($i) <= $this->hexLength; $i -= $this->levelDepth) {
             $this->path[] = substr($this->hexName, $i, $this->levelDepth);
         }
 
         $disk = $this->funcGetServer();
 
-        if ( is_array($nos) && count($nos) ) {
-            $attach = AttachFile::where('type', 'temp')->whereIn('id', $nos)->get();
-            if ( $attach ) {
+        if (is_array($nos) && count($nos)) {
+            $attach = $this->attach->where('type', 'temp')->whereIn('id', $nos)->get();
+            if ($attach) {
                 foreach ($attach as $arr) {
                     $pathInfo = pathinfo($arr->url);
 
-                    if ( !Storage::disk('public')->exists($this->tempDir . '/' . $pathInfo['basename']) ) {
+                    if (!Storage::disk('public')->exists($this->tempDir . '/' . $pathInfo['basename'])) {
                         continue;
                     }
 
@@ -198,9 +204,10 @@ class AttachController extends Controller
      * @param Request $request
      * @return bool|null
      */
-    public function delete($id, Request $request) {
+    public function delete($id, Request $request)
+    {
         $res = $this->directDelete([$request->id]);
-        if ( !$res ) {
+        if (!$res) {
             return response()->json(getResponseError(10001), 422);
         }
 
@@ -210,7 +217,8 @@ class AttachController extends Controller
     }
 
 
-    public function test (Request $request) {
+    public function test(Request $request)
+    {
 
 ////        // temp 파일 리얼 type쪽으로 이동
 //        $this->move('board', 125, [
@@ -230,15 +238,16 @@ class AttachController extends Controller
     }
 
 
-    public function directDelete(array $no = []) {
-        if ( !count($no) ) {
+    public function directDelete(array $no = [])
+    {
+        if (!count($no)) {
             return false;
         }
 
         foreach ($no as $n) {
-            $attachFile = AttachFile::where(['id' => $n, 'user_id' => auth()->user()->id])->first();
+            $attachFile = $this->attach->where(['id' => $n, 'user_id' => auth()->user()->id])->first();
             // 파일이 존재하지 않을 경우
-            if ( !$attachFile ) {
+            if (!$attachFile) {
                 continue; //'파일 존재하지 않거나 내께 아니야'
             }
 
@@ -249,7 +258,8 @@ class AttachController extends Controller
         return true;
     }
 
-    public function funcGetServer() {
+    public function funcGetServer()
+    {
         $diskServer = config('filesystems.custom.servers');
         $curServer = $diskServer[hexdec($this->path[0]) % count($diskServer)];
 
@@ -257,68 +267,38 @@ class AttachController extends Controller
     }
 
 
-    public function funcDelete($type, $typeId, array $no = []) {
-        if ( !$typeId ) {
+    public function funcDelete($type, $typeId, array $no = [])
+    {
+        if (!$typeId) {
             return false;
         }
 
         // 특정 파일만 삭제
-        if ( is_array($no) && count($no) ) {
+        if (is_array($no) && count($no)) {
             foreach ($no as $n) {
                 echo $n . '--' . $type;
-                $attachFile = AttachFile::where(['id' => $n, 'type' => $type, 'type_id' => $typeId, 'user_id' => auth()->user()->id])->first();
+                $attachFile = $this->attach->where(['id' => $n, 'type' => $type, 'type_id' => $typeId, 'user_id' => auth()->user()->id])->first();
 
                 // 파일이 존재하지 않을 경우
-                if ( !$attachFile ) {
+                if (!$attachFile) {
                     return '파일 존재하지 않아';
                 }
 
                 Storage::disk($attachFile->server)->delete($attachFile->path . '/' . $attachFile->name);
                 $attachFile->delete();
             }
-        }
-        // 전부 삭제
+        } // 전부 삭제
         else {
             // 존재 유무 체크
-            $AttachWhereModel = AttachFile::where(['type' => $type, 'type_id' => $typeId]);
+            $AttachWhereModel = $this->attach->where(['type' => $type, 'type_id' => $typeId]);
 
-            if ( $attachFile = $AttachWhereModel->first() ) {
+            if ($attachFile = $AttachWhereModel->first()) {
                 Storage::disk($attachFile->server)->deleteDirectory($attachFile->path);
-                AttachFile::where(['type' => $type, 'type_id' => $typeId])->delete();
+                $this->attach->where(['type' => $type, 'type_id' => $typeId])->delete();
             }
         }
 
     }
-
-
-
-
-//
-//        Storage::disk('public')
-//                    ->putFileAs('temp', $request->file('image'), md5($request->file('image')->getClientOriginalName() . microtime()) . "." .  $request->file('image')->getClientOriginalExtension());
-
-//        var_dump(hexdec('9d'));
-//        echo $request->file('image')->getClientMimeType();
-//        echo $request->file('image')->getClientOriginalName();
-//        echo $request->file('image')->getClientOriginalExtension();
-//        echo $request->file('image')->extension();
-
-//        Storage::disk('public')->putFile('temp', $request->file('image'));
-
-
-//        echo Storage::disk('temp')->url('자연환경02.png');
-
-
-
-//        Artisan::call('tempAttach:delete');
-//        Storage::disk('temp')->putFileAs('', $request->file('image'), $request->file('image')->getClientOriginalName());
-
-//        $request->file('image')->getClientOriginalName()
-//        print_r($request->file('image')->getClientMimeType());
-//        print_r($request->file('image')->extension());
-
-
-
 
 
 }
