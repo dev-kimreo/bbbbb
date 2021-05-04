@@ -16,14 +16,11 @@ use \Laravel\Passport\Http\Controllers\AccessTokenController as ATC;
 
 class AccessTokenController extends ATC {
 
-    /**
-     * AccessTokenController constructor.
-     */
-    public function __construct(User $user)
+    public function login(ServerRequestInterface $request, User $user)
     {
         $this->user = $user;
+        return $this->issueToken($request);        
     }
-
 
     /**
      * @OA\Post(

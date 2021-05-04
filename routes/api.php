@@ -44,7 +44,7 @@ Route::group([
         Route::post('', [MemberController::class, 'register']);
 
         // 로그인
-        Route::post('/auth', [AccessTokenController::class, 'issueToken']);
+        Route::post('/auth', [AccessTokenController::class, 'login']);
 
         // 인증 필요
         Route::group([
