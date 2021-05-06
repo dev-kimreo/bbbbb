@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Libraries\CollectionLibrary;
+use App\Models\Post;
 use Illuminate\Http\Request;
 use Auth;
 use Cache;
@@ -22,6 +23,7 @@ use App\Http\Requests\Replies\GetListRepliesRequest;
 use App\Libraries\PaginationLibrary;
 
 use App\Services\BoardService;
+use App\Services\PostService;
 
 /**
  * Class PostController
@@ -31,9 +33,10 @@ class ReplyController extends Controller
 {
     public $attachType = 'reply';
 
-    public function __construct(BoardService $boardService)
+    public function __construct(BoardService $boardService, PostService $postService)
     {
         $this->boardService = $boardService;
+        $this->postService = $postService;
     }
 
     /**
@@ -437,12 +440,8 @@ class ReplyController extends Controller
             }
 
             // 게시글 댓글 작성 가능여부 체크
-            $post = new PostController;
-            $post = $post->funcGetInfo($postId, $boardId);
-            if (isset($post['errors'])) {
-                return $post;
-            }
-            $postInfo = $post->toArray();
+            $postCollect = $this->postService->getInfo($postId);
+            $postInfo = $postCollect->toArray();
 
             $boardCollect = $this->boardService->getInfo($boardId);
             $boardInfo = $boardCollect->toArray();

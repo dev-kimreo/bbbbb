@@ -28,6 +28,7 @@ use App\Libraries\PaginationLibrary;
 use App\Libraries\CollectionLibrary;
 
 use App\Services\BoardService;
+use App\Services\PostService;
 
 /**
  * Class PostController
@@ -37,11 +38,12 @@ class PostController extends Controller
 {
     public $attachType = 'post';
 
-    public function __construct(Post $post, Board $board, BoardService $boardService)
+    public function __construct(Post $post, Board $board, BoardService $boardService, PostService $postService)
     {
         $this->post = $post;
         $this->board = $board;
         $this->boardService = $boardService;
+        $this->postService = $postService;
     }
 
     /**
@@ -692,8 +694,8 @@ class PostController extends Controller
         }
 
         // 게시글 정보
-        $data = $this->funcGetInfo($request->id, $request->boardId);
-        $postInfo = $data->toArray();
+        $postCollect = $this->postService->getInfo($request->id);
+        $postInfo = $postCollect->toArray();
 
         // 이미 숨김 처리된 게시글 일 경우
         if ($postInfo['hidden']) {
@@ -704,78 +706,7 @@ class PostController extends Controller
     }
 
 
-    /**
-     * @param $postId
-     * @param $boardId
-     * @return mixed
-     */
-    public function funcGetInfo($postId, $boardId = 0)
-    {
-        try {
-
-            // 게시판 번호가 없을 경우
-            if (!$boardId) {
-                $boardId = $this->post->select('board_id')->where('id', $postId)->first()['board_id'];
-            }
-
-            // 게시판 정보
-            $boardCollect = $this->boardService->getInfo($boardId);
-            $boardInfo = $boardCollect->toArray();
-
-            // 데이터 cache
-            $tags = separateTag('board.' . $boardId . '.post.' . $postId);
-            $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function () use ($postId, $boardId, $boardInfo) {
-                $select = ['posts.id', 'title', 'board_id', 'content', 'hidden', 'posts.etc', 'posts.user_id', 'posts.created_at', 'posts.updated_at'];
-
-                // 섬네일 지원 게시판일 경우
-                if ($boardInfo['options']['thumbnail']) {
-                    $select[] = 'af.url AS thumbnail';
-                    $select[] = 'af.id AS thumbNo';
-                }
-
-                // 게시글 답변 지원 게시판 일 경우
-                if ($boardInfo['options']['boardReply']) {
-                    $select[] = 'comment';
-                }
-
-                $post = $this->post->select($select)->where(['posts.id' => $postId, 'board_id' => $boardId]);
-
-                // 섬네일 사용
-                if ($boardInfo['options']['thumbnail']) {
-                    $post = $post->leftjoin('attach_files AS af', function ($join) {
-                        $join
-                            ->on('posts.id', '=', 'af.type_id')
-                            ->where('type', $this->attachType)
-                            ->whereJsonContains('af.etc', ['type' => 'thumbnail']);
-                    });
-                }
-
-                $post = $post->first();
-
-                $post->thumbnail = [
-                    'id' => $post->thumbNo,
-                    'url' => $post->thumbnail
-                ];
-                unset($post->thumbNo);
-
-                // 기타정보 가공
-                if (isset($post->etc['status'])) {
-                    $post->status = __('common.post.etc.status.' . $post->etc['status']);
-                }
-
-                // 게시글 추가 정보 (회원)
-                $post->userName = $post->user->toArray()['name'];
-                unset($post->user);
-
-                return $post;
-            });
-
-            return $data;
-        } catch (\Throwable $e) {
-            return response()->json(getResponseError($e->getMessage()), $e->getCode());
-        }
-    }
-
+    
     public function test(Request $request)
     {
 
