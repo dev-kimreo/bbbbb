@@ -442,32 +442,6 @@ class BoardController extends Controller
         }
     }
 
-    /**
-     * @param $boardId
-     * @return mixed
-     */
-    static public function funcGetBoard($boardId)
-    {
-        $tags = separateTag('board.' . $boardId);
-
-        $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function () use ($boardId) {
-            $opt = Board::find($boardId);
-
-            if (!$opt) {
-                return false;
-            }
-
-            return $opt;
-        });
-
-        if (!$data) {
-            Cache::tags($tags)->forget('info');
-            return false;
-        }
-
-        return $data;
-    }
-
     public function reInitBoardOption(Request $request)
     {
         $this->funcReInitBoardOption();
