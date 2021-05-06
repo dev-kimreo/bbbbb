@@ -89,6 +89,11 @@ class BoardController extends Controller
      */
     public function create(CreateBoardsRequest $request)
     {
+        // check Policy
+        if (!auth()->user()->can('create', Board::class)) {
+            return response()->json(getResponseError(101001), 403);
+        }
+
         /**
          * 옵션
          */
@@ -233,6 +238,10 @@ class BoardController extends Controller
      */
     public function modify(ModifyBoardsRequest $request)
     {
+        // check Policy
+        if (!auth()->user()->can('update', Board::class)) {
+            return response()->json(getResponseError(101001), 403);
+        }
 
         $board = Board::where('id', $request->id);
         $boardData = $board->first();
@@ -340,7 +349,6 @@ class BoardController extends Controller
      */
     public function getList(Request $request)
     {
-
         // 게시판 목록 데이터
         $tags = separateTag('board.list');
 

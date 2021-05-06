@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Board;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BoardPolicy
@@ -17,23 +16,42 @@ class BoardPolicy
      */
     public function __construct()
     {
-        //
+
+    }
+
+    public function before(User $user, $ability)
+    {
+        if ($user->checkAdmin()) {
+            return true;
+        }
+    }
+
+    public function viewAny(User $user)
+    {
+
+    }
+
+    public function view(User $user)
+    {
+
     }
 
     /**
      * @param User $user
-     * @param Board $board
      * @return bool
      */
-    public function create(User $user, Board $board) {
-        if ($board->options['board'] == 'manager') {
-            if ($user->grade != 100) {
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            return true;
-        }
+    public function create(User $user)
+    {
     }
+
+    public function update(User $user)
+    {
+
+    }
+
+    public function delete(User $user)
+    {
+
+    }
+
 }
