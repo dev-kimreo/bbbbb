@@ -28,6 +28,7 @@ use App\Libraries\PaginationLibrary;
 use App\Libraries\CollectionLibrary;
 
 use App\Services\BoardService;
+use App\Services\PostService;
 
 /**
  * Class PostController
@@ -37,11 +38,12 @@ class PostController extends Controller
 {
     public $attachType = 'post';
 
-    public function __construct(Post $post, Board $board, BoardService $boardService)
+    public function __construct(Post $post, Board $board, BoardService $boardService, PostService $postService)
     {
         $this->post = $post;
         $this->board = $board;
         $this->boardService = $boardService;
+        $this->postService = $postService;
     }
 
     /**
@@ -692,8 +694,8 @@ class PostController extends Controller
         }
 
         // 게시글 정보
-        $data = $this->funcGetInfo($request->id, $request->boardId);
-        $postInfo = $data->toArray();
+        $postCollect = $this->postService->getInfo($request->id);
+        $postInfo = $postCollect->toArray();
 
         // 이미 숨김 처리된 게시글 일 경우
         if ($postInfo['hidden']) {
