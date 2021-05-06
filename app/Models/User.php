@@ -54,6 +54,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'password'
     ];
 
+    public function checkAdmin() {
+        return $this->grade != 100 ? false : true;
+    }
+
     public function getEmailVerifiedAtAttribute($value){
         if (isset($value)) {
             return Carbon::parse($value)->format('c');
