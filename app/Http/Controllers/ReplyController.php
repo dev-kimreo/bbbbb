@@ -21,6 +21,8 @@ use App\Http\Requests\Replies\GetListRepliesRequest;
 
 use App\Libraries\PaginationLibrary;
 
+use App\Services\BoardService;
+
 /**
  * Class PostController
  * @package App\Http\Controllers
@@ -29,8 +31,13 @@ class ReplyController extends Controller
 {
     public $attachType = 'reply';
 
+    public function __construct(BoardService $boardService)
+    {
+        $this->boardService = $boardService;
+    }
+
     /**
-     *  @OA\Schema (
+     * @OA\Schema (
      *      schema="replyCreate",
      *      required={"content"},
      *      @OA\Property(property="content", type="string", example="댓글 내용입니다.", description="댓글 내용" )
@@ -89,11 +96,12 @@ class ReplyController extends Controller
      *  )
      */
 
-    public function create(CreateRepliesRequest $request) {
+    public function create(CreateRepliesRequest $request)
+    {
 
         // 데이터 체크
         $checkRes = $this->funcCheckUseReply($request->boardId, $request->postId);
-        if ( $checkRes !== true ) {
+        if ($checkRes !== true) {
             return response()->json($checkRes, 422);
         }
 
@@ -114,7 +122,7 @@ class ReplyController extends Controller
 
 
     /**
-     *  @OA\Schema (
+     * @OA\Schema (
      *      schema="replyModify",
      *      required={"content"},
      *      @OA\Property(property="content", type="string", example="댓글 내용입니다.", description="댓글 내용" )
@@ -177,16 +185,17 @@ class ReplyController extends Controller
      * @param ModifyRepliesRequest $request
      * @return mixed
      */
-    public function modify(ModifyRepliesRequest $request) {
+    public function modify(ModifyRepliesRequest $request)
+    {
 
         // 데이터 체크
         $checkRes = $this->funcCheckUseReply($request->boardId, $request->postId);
-        if ( $checkRes !== true ) {
+        if ($checkRes !== true) {
             return response()->json($checkRes, 422);
         }
 
         $reply = Reply::find($request->id)->where('user_id', auth()->user()->id)->first();
-        if ( is_null($reply) ) {
+        if (is_null($reply)) {
             return response()->json(getResponseError(101001), 422);
         }
 
@@ -250,10 +259,11 @@ class ReplyController extends Controller
      * @param DeleteRepliesRequest $request
      * @return mixed
      */
-    public function delete(DeleteRepliesRequest $request) {
+    public function delete(DeleteRepliesRequest $request)
+    {
 
         $reply = Reply::where(['id' => $request->id, 'user_id' => auth()->user()->id])->first();
-        if ( is_null($reply) ) {
+        if (is_null($reply)) {
             return response()->json(getResponseError(101001), 422);
         }
 
@@ -340,10 +350,11 @@ class ReplyController extends Controller
      * @param GetListRepliesRequest $request
      * @return mixed
      */
-    public function getList(GetListRepliesRequest $request) {
+    public function getList(GetListRepliesRequest $request)
+    {
         // 데이터 체크
         $checkRes = $this->funcCheckUseReply($request->boardId, $request->postId);
-        if ( $checkRes !== true ) {
+        if ($checkRes !== true) {
             return response()->json($checkRes, 422);
         }
 
@@ -362,15 +373,15 @@ class ReplyController extends Controller
 
         // pagination
         $pagination = PaginationLibrary::set($set['page'], $whereModel->count(), $set['view']);
-        if ( !$pagination ) {
+        if (!$pagination) {
             return response()->json(getResponseError(101001), 422);
         }
 
-        if ( $set['page'] <= $pagination['totalPage'] ) {
+        if ($set['page'] <= $pagination['totalPage']) {
             // 데이터 cache
             $hash = substr(md5(json_encode($set)), 0, 5);
             $tags = separateTag('board.' . $set['boardId'] . '.post.' . $set['postId'] . '.reply');
-            $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function() use ($set, $pagination, $whereModel) {
+            $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function () use ($set, $pagination, $whereModel) {
                 $reply = $whereModel
                     ->with('user:id,name')
                     ->select($set['select']);
@@ -404,51 +415,51 @@ class ReplyController extends Controller
     }
 
 
-    public function funcCheckUseReply($boardId, $postId) {
+    public function funcCheckUseReply($boardId, $postId)
+    {
+        try {
+            // 필수 파라미터 확인
+            if (!isset($boardId)) {
+                return getResponseError(100001, 'boardId');
+            }
 
-        // 필수 파라미터 확인
-        if ( !isset($boardId) ) {
-            return getResponseError(100001, 'boardId');
+            if (!isset($postId)) {
+                return getResponseError(100001, 'postId');
+            }
+
+            // 게시글 번호 확인
+            if (!intval($boardId)) {
+                return getResponseError(100041, 'boardId');
+            }
+
+            if (!intval($postId)) {
+                return getResponseError(100041, 'postId');
+            }
+
+            // 게시글 댓글 작성 가능여부 체크
+            $post = new PostController;
+            $post = $post->funcGetInfo($postId, $boardId);
+            if (isset($post['errors'])) {
+                return $post;
+            }
+            $postInfo = $post->toArray();
+
+            $boardCollect = $this->boardService->getInfo($boardId);
+            $boardInfo = $boardCollect->toArray();
+            if (!$boardInfo['options']['reply']) {
+                return getResponseError(250001);
+            }
+
+            // 게시글 숨김 여부
+            if ($postInfo['hidden']) {
+                return getResponseError(200005);
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            return response()->json(getResponseError($e->getMessage()), $e->getCode());
         }
 
-        if ( !isset($postId) ) {
-            return getResponseError(100001, 'postId');
-        }
-
-        // 게시글 번호 확인
-        if ( ! intval($boardId) ) {
-            return getResponseError(100041, 'boardId');
-        }
-
-        if ( ! intval($postId) ) {
-            return getResponseError(100041, 'postId');
-        }
-
-        // 게시글 댓글 작성 가능여부 체크
-        $post = new PostController;
-        $post = $post->funcGetInfo($postId, $boardId);
-        if ( isset($post['errors']) ) {
-            return $post;
-        }
-        $postInfo = $post->toArray();
-
-        $board = new BoardController;
-        $board = $board->funcGetBoard($boardId);
-        if ( !$board ) {
-            return getResponseError(100005, 'boardId');
-        }
-
-        $boardInfo = $board->toArray();
-        if ( !$boardInfo['options']['reply'] ) {
-            return getResponseError(250001);
-        }
-
-        // 게시글 숨김 여부
-        if ( $postInfo['hidden'] ) {
-            return getResponseError(200005);
-        }
-
-        return true;
     }
 
 
