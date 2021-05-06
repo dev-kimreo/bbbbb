@@ -48,7 +48,7 @@ class BoardService
      * @param $boardId
      * @return Collection
      */
-    public function getInfo($boardId): Collection
+    public function getInfo($boardId): Board
     {
         $tags = separateTag('board.' . $boardId);
 
@@ -67,7 +67,7 @@ class BoardService
             throw new \Exception(100005, 422);
         }
 
-        return collect($data);
+        return $data;
     }
 
 }
