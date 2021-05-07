@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Models\Board;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BoardPolicy
@@ -42,6 +43,7 @@ class BoardPolicy
      */
     public function create(User $user)
     {
+
     }
 
     public function update(User $user)
@@ -53,5 +55,6 @@ class BoardPolicy
     {
 
     }
+
 
 }
