@@ -41,11 +41,4 @@ class ModifyRepliesRequest extends FormRequest
             'content.min' => getErrorCode(100063, 'content'),
         ];
     }
-//
-    protected function failedValidation(Validator $validator) {
-        $resErr = getValidationErrToArr($validator->errors());
-        throw new HttpResponseException(response()->json($resErr, 422));
-    }
-
-
 }

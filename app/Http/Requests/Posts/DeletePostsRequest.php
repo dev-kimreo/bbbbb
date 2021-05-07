@@ -38,11 +38,4 @@ class DeletePostsRequest extends FormRequest
         return [
         ];
     }
-//
-    protected function failedValidation(Validator $validator) {
-        $resErr = getValidationErrToArr($validator->errors());
-        throw new HttpResponseException(response()->json($resErr, 422));
-    }
-
-
 }

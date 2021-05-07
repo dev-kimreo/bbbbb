@@ -54,11 +54,4 @@ class CreatePostsRequest extends FormRequest
             'thumbnail.exists' => getErrorCode(100021, 'thumbnail'),
         ];
     }
-//
-    protected function failedValidation(Validator $validator) {
-        $resErr = getValidationErrToArr($validator->errors());
-        throw new HttpResponseException(response()->json($resErr, 422));
-    }
-
-
 }

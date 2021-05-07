@@ -43,11 +43,4 @@ class GetListRepliesRequest extends FormRequest
             'perPage.between' => getErrorCode(100051, '{perPage}'),
         ];
     }
-//
-    protected function failedValidation(Validator $validator) {
-        $resErr = getValidationErrToArr($validator->errors());
-        throw new HttpResponseException(response()->json($resErr, 422));
-    }
-
-
 }
