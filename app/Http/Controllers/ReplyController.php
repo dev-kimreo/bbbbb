@@ -4,7 +4,6 @@
 namespace App\Http\Controllers;
 
 use App\Libraries\CollectionLibrary;
-use App\Models\Post;
 use Illuminate\Http\Request;
 use Auth;
 use Cache;
@@ -14,6 +13,7 @@ use App\Http\Controllers\BoardController as BoardController;
 use App\Http\Controllers\PostController as PostController;
 
 use App\Models\Reply;
+use App\Models\Post;
 
 use App\Http\Requests\Replies\CreateRepliesRequest;
 use App\Http\Requests\Replies\ModifyRepliesRequest;
@@ -33,8 +33,9 @@ class ReplyController extends Controller
 {
     public $attachType = 'reply';
 
-    public function __construct(BoardService $boardService, PostService $postService)
+    public function __construct(Reply $reply, BoardService $boardService, PostService $postService)
     {
+        $this->reply = $reply;
         $this->boardService = $boardService;
         $this->postService = $postService;
     }
@@ -103,17 +104,16 @@ class ReplyController extends Controller
     {
 
         // 데이터 체크
-        $checkRes = $this->funcCheckUseReply($request->boardId, $request->postId);
+        $checkRes = $this->funcCheckUseReply($request->boardId, $request->postId, 'create');
         if ($checkRes !== true) {
             return response()->json($checkRes, 422);
         }
 
         // 댓글 작성
-        $reply = new Reply;
-        $reply->post_id = $request->postId;
-        $reply->user_id = auth()->user()->id;
-        $reply->content = $request->content;
-        $reply->save();
+        $this->reply->post_id = $request->postId;
+        $this->reply->user_id = auth()->user()->id;
+        $this->reply->content = $request->content;
+        $this->reply->save();
 
         // 캐시 초기화
         Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
@@ -197,7 +197,7 @@ class ReplyController extends Controller
             return response()->json($checkRes, 422);
         }
 
-        $reply = Reply::find($request->id)->where('user_id', auth()->user()->id)->first();
+        $reply = $this->reply::find($request->id)->where('user_id', auth()->user()->id)->first();
         if (is_null($reply)) {
             return response()->json(getResponseError(101001), 422);
         }
@@ -265,7 +265,7 @@ class ReplyController extends Controller
     public function delete(DeleteRepliesRequest $request)
     {
 
-        $reply = Reply::where(['id' => $request->id, 'user_id' => auth()->user()->id])->first();
+        $reply = $this->reply::where(['id' => $request->id, 'user_id' => auth()->user()->id])->first();
         if (is_null($reply)) {
             return response()->json(getResponseError(101001), 422);
         }
@@ -371,7 +371,7 @@ class ReplyController extends Controller
         ];
 
         // where 절 eloquent
-        $whereModel = Reply::where(['post_id' => $set['postId']]);
+        $whereModel = $this->reply::where(['post_id' => $set['postId']]);
 
 
         // pagination
@@ -418,7 +418,7 @@ class ReplyController extends Controller
     }
 
 
-    public function funcCheckUseReply($boardId, $postId)
+    public function funcCheckUseReply($boardId, $postId, $checkMethod)
     {
         try {
             // 필수 파라미터 확인
