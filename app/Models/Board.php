@@ -51,6 +51,7 @@ class Board extends Model
         'options' => 'array'
     ];
 
+
     public function getCreatedAtAttribute($value){
         return Carbon::parse($value)->format('c');
     }

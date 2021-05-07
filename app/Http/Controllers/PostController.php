@@ -121,14 +121,11 @@ class PostController extends Controller
         try {
             // 게시판 정보
             $boardCollect = $this->boardService->getInfo($request->boardId);
-
             $board = $boardCollect->toArray();
 
-//            var_dump(auth()->user()->can('create', $boardCollect));
-
-            // 작성 가능 권한 체크
-            if ($board['options']['board'] == 'manager' && auth()->user()->grade != 100) {
-                throw new \Exception(101001, 403);
+            // check write post Policy
+            if (!auth()->user()->can('create', [$this->post, $boardCollect])) {
+                return response()->json(getResponseError(101001), 403);
             }
 
             /**
@@ -263,20 +260,19 @@ class PostController extends Controller
      */
     public function modify(ModifyPostsRequest $request)
     {
+        $postCollect = $this->post->getByBoardId($request->id, $request->boardId)->first();
 
-        $post = $this->post->getByBoardId($request->id, $request->boardId)->first();
-
-        if (!$post) {
+        if (!$postCollect) {
             return response()->json(getResponseError(100005), 422);
         }
 
-        // 게시글 정보
-        $postInfo = $post->toArray();
-
-        // 작성자와 동일 체크
-        if ($postInfo['user_id'] != auth()->user()->id) {
-            return response()->json(getResponseError(101001), 422);
+        // check update post Policy
+        if (!auth()->user()->can('update', $postCollect)) {
+            return response()->json(getResponseError(101001), 403);
         }
+
+        // 게시글 정보
+        $postInfo = $postCollect->toArray();
 
         $boardInfo = $this->board->find($request->boardId)->toArray();
         $attachFlag = false;
@@ -319,7 +315,7 @@ class PostController extends Controller
 
         // 변경사항이 있을 경우
         if (count($uptArrs)) {
-            $post->update($uptArrs);
+            $postCollect->update($uptArrs);
             $flushFlag = true;
         }
 
@@ -382,22 +378,22 @@ class PostController extends Controller
      */
     public function delete(DeletePostsRequest $request)
     {
-        $post = $this->post->where(['id' => $request->id, 'board_id' => $request->boardId])->first();
+        $postCollect = $this->post->where(['id' => $request->id, 'board_id' => $request->boardId])->first();
 
-        if (!$post) {
+        if (!$postCollect) {
             return response()->json(getResponseError(100005), 422);
         }
 
-        // 게시글 정보
-        $postInfo = $post->toArray();
-
-        // 작성자와 동일 체크
-        if ($postInfo['user_id'] != auth()->user()->id) {
-            return response()->json(getResponseError(101001), 422);
+        // check update post Policy
+        if (!auth()->user()->can('delete', $postCollect)) {
+            return response()->json(getResponseError(101001), 403);
         }
 
+        // 게시글 정보
+        $postInfo = $postCollect->toArray();
+
         // 소프트 삭제 진행
-        $post->delete();
+        $postCollect->delete();
 
         // 캐시 초기화
         Cache::tags(['board.' . $request->boardId . '.post.' . $request->id])->flush();               // 상세 정보 캐시 삭제
@@ -706,7 +702,7 @@ class PostController extends Controller
     }
 
 
-    
+
     public function test(Request $request)
     {
 

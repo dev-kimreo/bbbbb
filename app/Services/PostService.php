@@ -29,11 +29,16 @@ class PostService
      */
     public function getInfo($postId): Post
     {
-        $boardId = $this->post->select('board_id')->where('id', $postId)->first()['board_id'];
+        $postCollect = $this->post->select('board_id')->where('id', $postId)->first();
+        if (!$postCollect) {
+            throw new \Exception(100005, 422);
+        }
+        $boardId = $postCollect['board_id'];
 
         // 게시판 정보
         $boardCollect = $this->boardService->getInfo($boardId);
         $boardInfo = $boardCollect->toArray();
+
 
         // 데이터 cache
         $tags = separateTag('board.' . $boardId . '.post.' . $postId);
@@ -65,6 +70,10 @@ class PostService
 
             $post = $post->first();
 
+            if (!$post) {
+                return false;
+            }
+
             $post->thumbnail = [
                 'id' => $post->thumbNo,
                 'url' => $post->thumbnail
@@ -82,6 +91,11 @@ class PostService
 
             return $post;
         });
+
+        if (!$data) {
+            Cache::tags($tags)->forget('info');
+            throw new \Exception(100005, 422);
+        }
 
         return $data;
     }

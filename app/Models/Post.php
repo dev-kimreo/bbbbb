@@ -52,8 +52,7 @@ class Post extends Model
 
     public function getByBoardId($id, $boardId)
     {
-        $this->id($id)->boardId($boardId);
-        return $this;
+        return $this->id($id)->boardId($boardId);
     }
 
     public function getCreatedAtAttribute($value)
