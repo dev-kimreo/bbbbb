@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Exceptions\QpickHttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -74,6 +75,9 @@ class Handler extends ExceptionHandler
                 'code' => 'system.http.' . $statusCode,
                 'msg' => $e->getMessage()
             ];           
+        } elseif ($e instanceof QpickHttpException) {
+            $statusCode = $e->getStatusCode();
+            $response['errors'] = $e->getErrors();
         } elseif($e instanceof ErrorException || $e instanceof Error) {
             $statusCode = 500;
             $response['errors'][] = [
