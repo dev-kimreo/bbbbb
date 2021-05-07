@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Throwable;
+use Error;
 use ErrorException;
 
 class Handler extends ExceptionHandler
@@ -73,7 +74,7 @@ class Handler extends ExceptionHandler
                 'code' => 'system.http.' . $statusCode,
                 'msg' => $e->getMessage()
             ];           
-        } elseif($e instanceof ErrorException) {
+        } elseif($e instanceof ErrorException || $e instanceof Error) {
             $statusCode = 500;
             $response['errors'][] = [
                 'code' => 'system.internalError',
