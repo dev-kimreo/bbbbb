@@ -54,5 +54,10 @@ class PostPolicy
         return $user->id === $post->user_id;
     }
 
+    public function isHidden(User $user, Post $post)
+    {
+        return $post->hidden ? true : false;
+    }
+
 
 }

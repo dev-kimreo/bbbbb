@@ -56,5 +56,9 @@ class BoardPolicy
 
     }
 
+    public function checkUsableReply(User $user, Board $board)
+    {
+        return $board->options['reply'] ? true : false;
+    }
 
 }
