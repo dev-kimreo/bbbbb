@@ -25,8 +25,10 @@ class BoardController extends Controller
     private $boardService;
 
 
-    public function __construct(BoardService $boardService)
+    public function __construct(Board $board, BoardOption $boardOption, BoardService $boardService)
     {
+        $this->board = $board;
+        $this->boardOption = $boardOption;
         $this->boardService = $boardService;
     }
 
@@ -109,7 +111,7 @@ class BoardController extends Controller
                 $tags = separateTag('board.options.info');
 
                 $data = Cache::tags($tags)->remember($type, config('cache.custom.expire.common'), function () use ($type) {
-                    $opt = BoardOption::getByType($type);
+                    $opt = $this->boardOption::getByType($type);
                     $opt = $opt->first();
 
                     if (!$opt) {
@@ -161,17 +163,16 @@ class BoardController extends Controller
             }
         }
 
-        $board = new Board;
-        $board->name = $request->name;
-        $board->type = $request->type;
+        $this->board->name = $request->name;
+        $this->board->type = $request->type;
 
         if ($request->hidden) {
-            $board->hidden = $request->hidden;
+            $this->board->hidden = $request->hidden;
         }
 
-        $board->options = is_array($optArrs) && count($optArrs) ? $optArrs : $defaultOpt;
+        $this->board->options = is_array($optArrs) && count($optArrs) ? $optArrs : $defaultOpt;
 
-        $board->save();
+        $this->board->save();
 
         // 게시판 목록 데이터 cache flush
         Cache::tags(['board.list'])->flush();
@@ -239,11 +240,11 @@ class BoardController extends Controller
     public function modify(ModifyBoardsRequest $request)
     {
         // check Policy
-        if (!auth()->user()->can('update', Board::class)) {
+        if (!auth()->user()->can('update', $this->board)) {
             return response()->json(getResponseError(101001), 403);
         }
 
-        $board = Board::where('id', $request->id);
+        $board = $this->board::where('id', $request->id);
         $boardData = $board->first();
         if (!$boardData) {
             return response()->json(getResponseError(100022, '{id}'), 422);
@@ -268,7 +269,7 @@ class BoardController extends Controller
                 $tags = separateTag('board.options.info');
 
                 $data = Cache::tags($tags)->remember($type, config('cache.custom.expire.common'), function () use ($type) {
-                    $opt = BoardOption::getByType($type);
+                    $opt = $this->boardOption::getByType($type);
 //                      $opt->whereJsonContains('options', ['value' => $val]);
                     $opt = $opt->first();
 
@@ -311,7 +312,7 @@ class BoardController extends Controller
 
         // 변경사항이 있을 경우
         if (count($uptArrs)) {
-            $board->update($uptArrs);
+            $this->board->update($uptArrs);
 
             // 게시판 목록 데이터 cache flush
             Cache::tags(['board.list'])->flush();
@@ -353,7 +354,7 @@ class BoardController extends Controller
         $tags = separateTag('board.list');
 
         $data = Cache::tags($tags)->remember('common', config('cache.custom.expire.common'), function () {
-            $brd = Board::select(['id', 'name', 'type', 'options'])->get();
+            $brd = $this->board::select(['id', 'name', 'type', 'options'])->get();
             $brd = $brd->toArray();
 
             return $brd;
