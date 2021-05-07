@@ -6,13 +6,13 @@ use App\Models\User;
 
 use Hash;
 use Exception;
+use App\Exceptions\QpickHttpException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Psr\Http\Message\ServerRequestInterface;
 use Response;
 use Validator;
-use \Laravel\Passport\Http\Controllers\AccessTokenController as ATC;
-
+use Laravel\Passport\Http\Controllers\AccessTokenController as ATC;
 
 class AccessTokenController extends ATC {
 
@@ -88,60 +88,41 @@ class AccessTokenController extends ATC {
      */
     public function issueToken(ServerRequestInterface $request) {
 
-        try {
-            $mess = [
-                'username.required' => getErrorCode(100001, 'username'),
-                'username.email' => getErrorCode(100101, 'username'),
-                'password.required' => getErrorCode(100001, 'password'),
-                'password.min' => getErrorCode(100063, 'password'),
-                'grant_type.required' => getErrorCode(100001),
-                'client_id.required' => getErrorCode(100001),
-                'client_secret.required' => getErrorCode(100001),
-            ];
+        // Getting the body of request
+        $requestBody = $request->getParsedBody();
 
-            $validator = Validator::make($request->getParsedBody(), [
-                'username' => 'required|email',
-                'password' => 'required|string|min:8',
-                'grant_type' => 'required',
-                'client_id' => 'required|integer',
-                'client_secret' => 'required|string',
-            ], $mess);
+        // Validation
+        $mess = [
+            'username.required' => getErrorCode(100001, 'username'),
+            'username.email' => getErrorCode(100101, 'username'),
+            'password.required' => getErrorCode(100001, 'password'),
+            'password.min' => getErrorCode(100063, 'password'),
+            'grant_type.required' => getErrorCode(100001),
+            'client_id.required' => getErrorCode(100001),
+            'client_secret.required' => getErrorCode(100001),
+        ];
 
+        $validator = Validator::make($requestBody, [
+            'username' => 'required|email',
+            'password' => 'required|string|min:8',
+            'grant_type' => 'required',
+            'client_id' => 'required|integer',
+            'client_secret' => 'required|string',
+        ], $mess)->validate();
 
-            $resErr = getValidationErrToArr($validator->errors());
+        // Check Email 
+        $username = $requestBody['username'];
+        $password = $requestBody['password'];
+        $member = $this->user->where('email', $username)->first();
 
-            if ($validator->fails()) {
-                return response()->json($resErr, 422);
-            }
-
-            $username = $request->getParsedBody()['username'];
-            $password = $request->getParsedBody()['password'];
-
-            $member = $this->user->where('email', $username)->first();
-
-            if( !$member ) {
-                return response()->json(getResponseError(100021, 'username'), 422);
-            }
-
-            if ( !hash::check($password, $member->password) ) {
-                return response()->json(getResponseError(110311, 'password'), 422);
-            }
-
-            $tokenResponse = parent::issueToken($request);
-            //convert response to json string
-            $content = $tokenResponse->getContent();
-
-            //convert json to array
-            $data = json_decode($content, true);
-
-            return response()->json($data, 200);
-        }
-        catch (Exception $e) {
-            ////return error message
-            return response()->json(getResponseError(100502), 422);
+        if(!$member) {
+            throw new QpickHttpException(404, 100021, 'username');
         }
 
+        if(!hash::check($password, $member->password)) {
+            throw new QpickHttpException(422, 110311, 'password');
+        }
 
+        return parent::issueToken($request);
     }
-
 }
