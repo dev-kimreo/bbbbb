@@ -3,7 +3,9 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
 use Throwable;
+use ErrorException;
 
 class Handler extends ExceptionHandler
 {
@@ -37,5 +39,68 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    /**
+     * Render an exception into an HTTP response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Throwable  $e
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \Throwable
+     */
+    public function render($request, Throwable $e)
+    {
+        // Define the response
+        $response = [
+            'errors' => []
+        ];
+
+        // If the app is in debug mode
+        if (config('app.debug')) {
+            // Add the exception class name, message and stack trace to response
+            $response['debug'] = [
+                'class' => get_class($e),
+                'trace' => $e->getTrace()
+            ];
+        }
+        
+        // Grab the HTTP status code and message from the Exception
+        if($this->isHttpException($e) && method_exists($e, 'getStatusCode')) {
+            $statusCode = $e->getStatusCode();
+            $response['errors'][] = [
+                'code' => 'system.http.' . $statusCode,
+                'msg' => $e->getMessage()
+            ];           
+        } elseif($e instanceof ErrorException) {
+            $statusCode = 500;
+            $response['errors'][] = [
+                'code' => 'system.internalError',
+                'msg' => $e->getMessage()
+            ];           
+        } elseif ($e instanceof ValidationException) {
+            $statusCode = 422;
+            foreach($e->errors() as $k => $v) {
+                foreach($v as $v2) {
+                    $v2 = json_decode($v2);
+                    $response['errors'][] = [
+                        'code' => $v2->code,
+                        'target' => $k,
+                        'msg' => $v2->message
+                    ];
+                }
+            }
+        } else {
+            $o = parent::render($request, $e);
+            $statusCode = $o->getStatusCode();
+            $response['errors'][] = [
+                'code' => 'system.http.' . $statusCode,
+                'msg' => $o->original['message']
+            ];
+        }
+
+        // Default Renderder
+        return response()->json($response, $statusCode);
     }
 }
