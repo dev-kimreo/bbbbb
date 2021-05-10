@@ -42,12 +42,4 @@ class CreateAttachRequest extends FormRequest
             'files.*.mimes' => getErrorCode(100155, 'files'),
         ];
     }
-//
-    protected function failedValidation(Validator $validator) {
-        $resErr = getValidationErrToArr($validator->errors());
-
-        throw new HttpResponseException(response()->json($resErr, 422));
-    }
-
-
 }

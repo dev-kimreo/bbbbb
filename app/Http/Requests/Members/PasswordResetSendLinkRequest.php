@@ -43,11 +43,4 @@ class PasswordResetSendLinkRequest extends FormRequest
             'email.exists' => getErrorCode(100021, 'email'),
         ];
     }
-//
-    protected function failedValidation(Validator $validator) {
-        $resErr = getValidationErrToArr($validator->errors());
-        throw new HttpResponseException(response()->json($resErr, 422));
-    }
-
-
 }

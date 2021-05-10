@@ -31,7 +31,7 @@ class PostService
     {
         $postCollect = $this->post->select('board_id')->where('id', $postId)->first();
         if (!$postCollect) {
-            throw new \Exception(100005, 422);
+            throw new QpickHttpException(422, 100005);
         }
         $boardId = $postCollect['board_id'];
 
@@ -94,7 +94,7 @@ class PostService
 
         if (!$data) {
             Cache::tags($tags)->forget('info');
-            throw new \Exception(100005, 422);
+            throw new QpickHttpException(422, 100005);
         }
 
         return $data;

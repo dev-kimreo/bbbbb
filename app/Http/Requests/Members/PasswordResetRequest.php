@@ -52,11 +52,4 @@ class PasswordResetRequest extends FormRequest
             'passwordConfirmation.same' => getErrorCode(100011, 'passwordConfirmation', 'password'),
         ];
     }
-//
-    protected function failedValidation(Validator $validator) {
-        $resErr = getValidationErrToArr($validator->errors());
-        throw new HttpResponseException(response()->json($resErr, 422));
-    }
-
-
 }

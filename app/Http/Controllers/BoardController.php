@@ -15,6 +15,8 @@ use App\Models\BoardOption;
 use App\Http\Requests\Admins\Boards\CreateBoardsRequest;
 use App\Http\Requests\Admins\Boards\ModifyBoardsRequest;
 
+use App\Exceptions\QpickHttpException;
+
 use App\Libraries\CollectionLibrary;
 
 use App\Services\BoardService;
@@ -93,7 +95,7 @@ class BoardController extends Controller
     {
         // check Policy
         if (!auth()->user()->can('create', Board::class)) {
-            return response()->json(getResponseError(101001), 403);
+            throw new QpickHttpException(403, 101001);
         }
 
         /**
@@ -126,7 +128,7 @@ class BoardController extends Controller
                 // 옵션 데이터 존재하지 않을 경우
                 if (!$data) {
                     Cache::tags($tags)->forget($type);
-                    return response()->json(getResponseError(100022, 'options.type'), 422);
+                    throw new QpickHttpException(422, 100022, 'options.type');
                 }
 
                 // 옵션 값 체크
@@ -144,7 +146,7 @@ class BoardController extends Controller
                 }
 
                 if (!$valCheck) {
-                    return response()->json(getResponseError(100022, 'options.' . $type . '.value'), 422);
+                    throw new QpickHttpException(422, 100022, 'options.' . $type . '.value');
                 }
 
                 unset($data);
@@ -241,13 +243,13 @@ class BoardController extends Controller
     {
         // check Policy
         if (!auth()->user()->can('update', $this->board)) {
-            return response()->json(getResponseError(101001), 403);
+            throw new QpickHttpException(403, 101001);
         }
 
         $board = $this->board::where('id', $request->id);
         $boardData = $board->first();
         if (!$boardData) {
-            return response()->json(getResponseError(100022, '{id}'), 422);
+            throw new QpickHttpException(422, 100022, 'id');
         }
 
         // 변경 할 사항
@@ -285,7 +287,7 @@ class BoardController extends Controller
                 // 옵션 데이터 존재하지 않을 경우
                 if (!$data) {
                     Cache::tags($tags)->forget($type);
-                    return response()->json(getResponseError(100022, 'options.type'), 422);
+                    throw new QpickHttpException(422, 100022, 'options.type');
                 }
 
                 // 옵션 값 체크
@@ -302,7 +304,7 @@ class BoardController extends Controller
                 }
 
                 if (!$valCheck) {
-                    return response()->json(getResponseError(100022, 'options.' . $type . '.value'), 422);
+                    throw new QpickHttpException(422, 100022, 'options.' . $type . '.value');
                 }
 
                 $uptArrs['options->' . $type] = $val;
@@ -442,13 +444,8 @@ class BoardController extends Controller
      */
     public function getBoardInfo(Request $request)
     {
-        try {
-            $board = $this->boardService->getInfo($request->id);
-
-            return response()->json(CollectionLibrary::toCamelCase($board));
-        } catch (\Throwable $e) {
-            return response()->json(getResponseError($e->getMessage()), $e->getCode());
-        }
+        $board = $this->boardService->getInfo($request->id);
+        return response()->json(CollectionLibrary::toCamelCase($board));
     }
 
     public function reInitBoardOption(Request $request)

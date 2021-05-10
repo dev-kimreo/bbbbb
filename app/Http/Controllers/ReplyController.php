@@ -20,6 +20,8 @@ use App\Http\Requests\Replies\ModifyRepliesRequest;
 use App\Http\Requests\Replies\DeleteRepliesRequest;
 use App\Http\Requests\Replies\GetListRepliesRequest;
 
+use App\Exceptions\QpickHttpException;
+
 use App\Libraries\PaginationLibrary;
 
 use App\Services\BoardService;
@@ -104,26 +106,21 @@ class ReplyController extends Controller
 
     public function create(CreateRepliesRequest $request)
     {
-        try {
-            // 댓글 사용 여부 체크
-            $this->replyService->checkUse($request->boardId, $request->postId);
+        // 댓글 사용 여부 체크
+        $this->replyService->checkUse($request->boardId, $request->postId);
 
-            // 댓글 작성
-            $this->reply->post_id = $request->postId;
-            $this->reply->user_id = auth()->user()->id;
-            $this->reply->content = $request->content;
-            $this->reply->save();
+        // 댓글 작성
+        $this->reply->post_id = $request->postId;
+        $this->reply->user_id = auth()->user()->id;
+        $this->reply->content = $request->content;
+        $this->reply->save();
 
-            // 캐시 초기화
-            Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
+        // 캐시 초기화
+        Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
 
-            return response()->json([
-                'message' => __('common.created')
-            ], 200);
-
-        } catch (\Throwable $e) {
-            return response()->json(getResponseError($e->getMessage()), $e->getCode());
-        }
+        return response()->json([
+            'message' => __('common.created')
+        ], 200);
     }
 
 
@@ -193,29 +190,25 @@ class ReplyController extends Controller
      */
     public function modify(ModifyRepliesRequest $request)
     {
-        try {
-            // 댓글 사용 여부
-            $this->replyService->checkUse($request->boardId, $request->postId);
+        // 댓글 사용 여부
+        $this->replyService->checkUse($request->boardId, $request->postId);
 
-            $replyCollect = $this->reply::find($request->id);
+        $replyCollect = $this->reply::find($request->id);
 
-            // 댓글 수정 권한 체크
-            if (!auth()->user()->can('update', $replyCollect)) {
-                return response()->json(getResponseError(101001), 422);
-            }
-
-            $replyCollect->content = $request->content;
-            $replyCollect->update();
-
-            // 캐시 초기화
-            Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
-
-            return response()->json([
-                'message' => __('common.modified')
-            ], 200);
-        } catch (\Throwable $e) {
-            return response()->json(getResponseError($e->getMessage()), $e->getCode());
+        // 댓글 수정 권한 체크
+        if (!auth()->user()->can('update', $replyCollect)) {
+            throw new QpickHttpException(422, 101001);
         }
+
+        $replyCollect->content = $request->content;
+        $replyCollect->update();
+
+        // 캐시 초기화
+        Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
+
+        return response()->json([
+            'message' => __('common.modified')
+        ], 200);
     }
 
 
@@ -269,27 +262,22 @@ class ReplyController extends Controller
      */
     public function delete(DeleteRepliesRequest $request)
     {
-        try {
-            $replyCollect = $this->reply::find($request->id);
+        $replyCollect = $this->reply::find($request->id);
 
-            // 삭제 권한 체크
-            if (!auth()->user()->can('delete', $replyCollect)) {
-                return response()->json(getResponseError(101001), 422);
-            }
-
-            // 댓글 소프트 삭제
-            $replyCollect->delete();
-
-            // 캐시 초기화
-            Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
-
-            return response()->json([
-                'message' => __('common.deleted')
-            ], 200);
-
-        } catch (\Throwable $e) {
-            return response()->json(getResponseError($e->getMessage()), $e->getCode());
+        // 삭제 권한 체크
+        if (!auth()->user()->can('delete', $replyCollect)) {
+            throw new QpickHttpException(422, 101001);
         }
+
+        // 댓글 소프트 삭제
+        $replyCollect->delete();
+
+        // 캐시 초기화
+        Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
+
+        return response()->json([
+            'message' => __('common.deleted')
+        ], 200);
     }
 
 
@@ -366,67 +354,61 @@ class ReplyController extends Controller
      */
     public function getList(GetListRepliesRequest $request)
     {
-        try {
-            // 댓글 사용 여부
-            $this->replyService->checkUse($request->boardId, $request->postId);
+        // 댓글 사용 여부
+        $this->replyService->checkUse($request->boardId, $request->postId);
 
-            // 댓글 목록
-            $set = [
-                'boardId' => $request->boardId,
-                'postId' => $request->postId,
-                'page' => $request->page,
-                'view' => $request->perPage,
-                'select' => ['id', 'user_id', 'content', 'hidden', 'created_at', 'updated_at']
-            ];
+        // 댓글 목록
+        $set = [
+            'boardId' => $request->boardId,
+            'postId' => $request->postId,
+            'page' => $request->page,
+            'view' => $request->perPage,
+            'select' => ['id', 'user_id', 'content', 'hidden', 'created_at', 'updated_at']
+        ];
 
-            // where 절 eloquent
-            $whereModel = $this->reply::where(['post_id' => $set['postId']]);
+        // where 절 eloquent
+        $whereModel = $this->reply::where(['post_id' => $set['postId']]);
 
 
-            // pagination
-            $pagination = PaginationLibrary::set($set['page'], $whereModel->count(), $set['view']);
-            if (!$pagination) {
-                return response()->json(getResponseError(101001), 422);
-            }
-
-            if ($set['page'] <= $pagination['totalPage']) {
-                // 데이터 cache
-                $hash = substr(md5(json_encode($set)), 0, 5);
-                $tags = separateTag('board.' . $set['boardId'] . '.post.' . $set['postId'] . '.reply');
-                $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function () use ($set, $pagination, $whereModel) {
-                    $reply = $whereModel
-                        ->with('user:id,name')
-                        ->select($set['select']);
-
-                    $reply = $reply
-                        ->skip($pagination['skip'])
-                        ->take($pagination['perPage'])
-                        ->orderBy('id', 'asc');
-
-                    $reply = $reply->get();
-
-                    // 데이터 가공
-                    $reply->pluck('user')->each->setAppends([]);
-                    foreach ($reply as $index) {
-                        // 유저 이름
-                        $index->userName = $index->user->toArray()['name'];
-                        unset($index->user);
-                    }
-
-                    return $reply;
-                });
-            }
-
-            $data = isset($data) ? $data->toArray() : array();
-
-            $result = ['header' => $pagination];
-            $result['list'] = $data;
-
-            return response()->json(CollectionLibrary::toCamelCase(collect($result)), 200);
-        } catch (\Throwable $e) {
-            return response()->json(getResponseError($e->getMessage()), $e->getCode());
+        // pagination
+        $pagination = PaginationLibrary::set($set['page'], $whereModel->count(), $set['view']);
+        if (!$pagination) {
+            throw new QpickHttpException(422, 101001);
         }
+
+        if ($set['page'] <= $pagination['totalPage']) {
+            // 데이터 cache
+            $hash = substr(md5(json_encode($set)), 0, 5);
+            $tags = separateTag('board.' . $set['boardId'] . '.post.' . $set['postId'] . '.reply');
+            $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function () use ($set, $pagination, $whereModel) {
+                $reply = $whereModel
+                    ->with('user:id,name')
+                    ->select($set['select']);
+
+                $reply = $reply
+                    ->skip($pagination['skip'])
+                    ->take($pagination['perPage'])
+                    ->orderBy('id', 'asc');
+
+                $reply = $reply->get();
+
+                // 데이터 가공
+                $reply->pluck('user')->each->setAppends([]);
+                foreach ($reply as $index) {
+                    // 유저 이름
+                    $index->userName = $index->user->toArray()['name'];
+                    unset($index->user);
+                }
+
+                return $reply;
+            });
+        }
+
+        $data = isset($data) ? $data->toArray() : array();
+
+        $result = ['header' => $pagination];
+        $result['list'] = $data;
+
+        return response()->json(CollectionLibrary::toCamelCase(collect($result)), 200);
     }
-
-
 }

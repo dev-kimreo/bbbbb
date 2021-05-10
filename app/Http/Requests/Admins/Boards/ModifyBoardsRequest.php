@@ -47,11 +47,4 @@ class ModifyBoardsRequest extends FormRequest
             'options.array' => getErrorCode(100083,  '{options}'),
         ];
     }
-//
-    protected function failedValidation(Validator $validator) {
-        $resErr = getValidationErrToArr($validator->errors());
-        throw new HttpResponseException(response()->json($resErr, 422));
-    }
-
-
 }

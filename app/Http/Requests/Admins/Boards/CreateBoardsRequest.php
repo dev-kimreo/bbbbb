@@ -47,11 +47,4 @@ class CreateBoardsRequest extends FormRequest
             'type.unique' => getErrorCode(100002, 'type'),
         ];
     }
-//
-    protected function failedValidation(Validator $validator) {
-        $resErr = getValidationErrToArr($validator->errors());
-        throw new HttpResponseException(response()->json($resErr, 422));
-    }
-
-
 }
