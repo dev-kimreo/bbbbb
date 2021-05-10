@@ -16,8 +16,7 @@ class CreateSignedCodesTable extends Migration
         Schema::create('signed_codes', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
-            $table->string('name', 32);
-            $table->foreignId('name_id');
+            $table->foreignId('user_id')->constrained();
             $table->string('hash', 40);
             $table->string('sign', 64);
             $table->timestamps();

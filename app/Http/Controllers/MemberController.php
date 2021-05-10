@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use Hash;
 
 use App\Models\User;
-use App\Models\SignedCodes;
+use App\Models\SignedCode;
 
 use App\Events\Member\VerifyEmail;
 use App\Events\Member\VerifyEmailCheck;
@@ -103,13 +103,17 @@ use App\Libraries\CollectionLibrary;
  */
 class MemberController extends Controller
 {
+    private $user, $signedCode;
+
     /**
      * Create a new AuthController instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(User $user, SignedCode $signedCode)
     {
+        $this->user = $user;
+        $this->signedCode = $signedCode;
     }
 
     /**
@@ -186,7 +190,7 @@ class MemberController extends Controller
             return response()->json($checkPwdRes, 422);
         }
 
-        $member = User::create(array_merge(
+        $member = $this->user::create(array_merge(
             $request->all(),
             ['password' => hash::make($request->password)]
         ));
@@ -404,12 +408,12 @@ class MemberController extends Controller
     public function verification(Request $request)
     {
         $exp = explode('/', $request->path());
-        $signCode = SignedCodes::getBySignCode($exp, $request->id, $request->hash, $request->signature)->select('id')->first();
+        $signCode = SignedCode::getBySignCode($request->id, $request->hash, $request->signature)->select('id')->first();
 
         // 가상 서명키 유효성 체크
         if ($request->hasValidSignature() && $signCode && $signCode['id']) {
 
-            $member = User::find($request->id);
+            $member = $this->user::find($request->id);
 
             // 인증되지 않은 경우
             if (is_null($member->email_verified_at)) {
@@ -708,7 +712,7 @@ class MemberController extends Controller
     public function passwordResetSendLink(PasswordResetSendLinkRequest $request)
     {
         // 회원 정보
-        $member = User::where('email', $request->email)->first();
+        $member = $this->user::where('email', $request->email)->first();
 
         $verifyToken = Password::createToken($member);
         $verifyUrl = config('services.qpick.domain') . config('services.qpick.verifyPasswordPath') . '?token=' . $verifyToken . "&email=" . $request->email;
@@ -818,7 +822,7 @@ class MemberController extends Controller
         }
 
         // 회원정보
-        $member = User::where('email', $request->email)->first();
+        $member = $this->user::where('email', $request->email)->first();
 
         // Token 유효성 체크
         if (!Password::tokenExists($member, $request->token)) {
@@ -916,7 +920,7 @@ class MemberController extends Controller
         }
 
         // 회원정보
-        $member = User::where('email', $request->email)->first();
+        $member = $this->user::where('email', $request->email)->first();
 
         // Token 유효성 체크
         if (!Password::tokenExists($member, $request->token)) {

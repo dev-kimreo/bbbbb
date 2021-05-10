@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
-use App\Models\SignedCodes;
+use App\Models\SignedCode;
 
 class SendMail implements ShouldQueue
 {
@@ -45,9 +45,8 @@ class SendMail implements ShouldQueue
 
         if ( isset($this->data['verification']) && is_array($this->data['verification']) ) {
 //            // 고유 생성 sign 키 저장
-            $signedModel = New SignedCodes;
-            $signedModel->name = $this->data['verification']['name'];
-            $signedModel->name_id = $this->data['user']['id'];
+            $signedModel = New SignedCode;
+            $signedModel->user_id = $this->data['user']['id'];
             $signedModel->hash = sha1($this->data['user']['email']);
             $signedModel->sign = $this->data['verification']['sign'];
             $signedModel->save();
