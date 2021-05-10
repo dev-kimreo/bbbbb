@@ -29,7 +29,6 @@ use Laravel\Passport\HasApiTokens;
  * Class User
  *
  */
-
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, HasApiTokens;
@@ -54,21 +53,30 @@ class User extends Authenticatable implements MustVerifyEmail
         'password'
     ];
 
-    public function checkAdmin() {
+    public function checkAdmin()
+    {
         return $this->grade != 100 ? false : true;
     }
 
-    public function getEmailVerifiedAtAttribute($value){
+    public function isLoginToManagerService()
+    {
+        return $this->token()->client_id == 2 ? true : false;
+    }
+
+    public function getEmailVerifiedAtAttribute($value)
+    {
         if (isset($value)) {
             return Carbon::parse($value)->format('c');
         }
     }
 
-    public function getCreatedAtAttribute($value){
+    public function getCreatedAtAttribute($value)
+    {
         return Carbon::parse($value)->format('c');
     }
 
-    public function getUpdatedAtAttribute($value){
+    public function getUpdatedAtAttribute($value)
+    {
         return Carbon::parse($value)->format('c');
     }
 
