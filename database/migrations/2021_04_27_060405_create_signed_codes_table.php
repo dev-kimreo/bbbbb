@@ -17,7 +17,7 @@ class CreateSignedCodesTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->string('name', 32);
-            $table->unsignedBiginteger('name_id');
+            $table->foreignId('name_id');
             $table->string('hash', 40);
             $table->string('sign', 64);
             $table->timestamps();

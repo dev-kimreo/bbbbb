@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Migration;
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,8 +20,8 @@ class CreateAttachFilesTable extends Migration
             $table->id();
             $table->string('server', 32);
             $table->string('type', 32);
-            $table->unsignedBigInteger('type_id');
-            $table->unsignedBigInteger('user_id');
+            $table->foreignId('type_id');
+            $table->foreignId('user_id')->constrained();
             $table->string('url');
             $table->string('path');
             $table->string('name', 128);
