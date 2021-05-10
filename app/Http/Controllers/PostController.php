@@ -23,8 +23,9 @@ use App\Http\Requests\Posts\CreatePostsRequest;
 use App\Http\Requests\Posts\ModifyPostsRequest;
 use App\Http\Requests\Posts\DeletePostsRequest;
 
-use App\Libraries\PaginationLibrary;
+use App\Exceptions\QpickHttpException;
 
+use App\Libraries\PaginationLibrary;
 use App\Libraries\CollectionLibrary;
 
 use App\Services\BoardService;
@@ -118,73 +119,69 @@ class PostController extends Controller
      */
     public function create(CreatePostsRequest $request)
     {
-        try {
-            // 게시판 정보
-            $boardCollect = $this->boardService->getInfo($request->boardId);
-            $board = $boardCollect->toArray();
+        // 게시판 정보
+        $boardCollect = $this->boardService->getInfo($request->boardId);
+        $board = $boardCollect->toArray();
 
-            // check write post Policy
-            if (!auth()->user()->can('create', [$this->post, $boardCollect])) {
-                return response()->json(getResponseError(101001), 403);
-            }
-
-            /**
-             * 게시글 작성 데이터
-             */
-            $etc = [];
-
-            // 후처리
-            $after['thumbnail'] = null;
-
-            foreach ($board['options'] as $type => $val) {
-                switch ($type) {
-                    // 섬네일
-                    case 'thumbnail':
-                        break;
-
-                    // TODO 첨부파일
-                    case 'attachFile':
-                        break;
-
-                    // 게시글 상태 사용
-                    case 'boardStatus':
-                        if (isset($val) && $val) {
-                            $etc['status'] = 'wait';
-                        }
-                        break;
-                }
-            }
-
-            // 게시글 작성
-            $this->post->board_id = $request->boardId;
-            $this->post->user_id = auth()->user()->id;
-            $this->post->title = $request->title;
-            $this->post->content = $request->content;
-
-            if (count($etc)) {
-                $this->post->etc = $etc;
-            }
-
-            $this->post->save();
-
-            // 섬네일 사용 게시판이고, 임시 섬네일이 있을경우 사용처로 이동
-            if (isset($board['options']['thumbnail']) && $board['options']['thumbnail'] && isset($request->thumbnail)) {
-                $attachCtl = new AttachController;
-                $attachCtl->move($this->attachType, $this->post->id, [$request->thumbnail->id], ['type' => 'thumbnail']);
-            }
-
-            // 캐시 초기화
-            Cache::tags(['board.' . $request->boardId . '.post.list'])->flush();
-
-            return response()->json([
-                'message' => __('common.created'),
-                'data' => [
-                    'no' => $this->post->id
-                ]
-            ], 200);
-        } catch (\Throwable $e) {
-            return response()->json(getResponseError($e->getMessage()), $e->getCode());
+        // check write post Policy
+        if (!auth()->user()->can('create', [$this->post, $boardCollect])) {
+            throw new QpickHttpException(403, 101001);
         }
+
+        /**
+         * 게시글 작성 데이터
+         */
+        $etc = [];
+
+        // 후처리
+        $after['thumbnail'] = null;
+
+        foreach ($board['options'] as $type => $val) {
+            switch ($type) {
+                // 섬네일
+                case 'thumbnail':
+                    break;
+
+                // TODO 첨부파일
+                case 'attachFile':
+                    break;
+
+                // 게시글 상태 사용
+                case 'boardStatus':
+                    if (isset($val) && $val) {
+                        $etc['status'] = 'wait';
+                    }
+                    break;
+            }
+        }
+
+        // 게시글 작성
+        $this->post->board_id = $request->boardId;
+        $this->post->user_id = auth()->user()->id;
+        $this->post->title = $request->title;
+        $this->post->content = $request->content;
+
+        if (count($etc)) {
+            $this->post->etc = $etc;
+        }
+
+        $this->post->save();
+
+        // 섬네일 사용 게시판이고, 임시 섬네일이 있을경우 사용처로 이동
+        if (isset($board['options']['thumbnail']) && $board['options']['thumbnail'] && isset($request->thumbnail)) {
+            $attachCtl = new AttachController;
+            $attachCtl->move($this->attachType, $this->post->id, [$request->thumbnail->id], ['type' => 'thumbnail']);
+        }
+
+        // 캐시 초기화
+        Cache::tags(['board.' . $request->boardId . '.post.list'])->flush();
+
+        return response()->json([
+            'message' => __('common.created'),
+            'data' => [
+                'no' => $this->post->id
+            ]
+        ], 200);
     }
 
 
@@ -263,12 +260,12 @@ class PostController extends Controller
         $postCollect = $this->post->getByBoardId($request->id, $request->boardId)->first();
 
         if (!$postCollect) {
-            return response()->json(getResponseError(100005), 422);
+            throw new QpickHttpException(422, 100005);
         }
 
         // check update post Policy
         if (!auth()->user()->can('update', $postCollect)) {
-            return response()->json(getResponseError(101001), 403);
+            throw new QpickHttpException(403, 101001);
         }
 
         // 게시글 정보
@@ -381,12 +378,12 @@ class PostController extends Controller
         $postCollect = $this->post->where(['id' => $request->id, 'board_id' => $request->boardId])->first();
 
         if (!$postCollect) {
-            return response()->json(getResponseError(100005), 422);
+            throw new QpickHttpException(422, 100005);
         }
 
         // check update post Policy
         if (!auth()->user()->can('delete', $postCollect)) {
-            return response()->json(getResponseError(101001), 403);
+            throw new QpickHttpException(403, 101001);
         }
 
         // 게시글 정보
@@ -480,143 +477,137 @@ class PostController extends Controller
      */
     public function getList(GetListPostsRequest $request)
     {
-        try {
+        // init
+        $boardInfoFlag = isset($request->boardInfo) ? $request->boardInfo : 0;
 
-            // init
-            $boardInfoFlag = isset($request->boardInfo) ? $request->boardInfo : 0;
+        // 게시판 정보
+        $boardCollect = $this->boardService->getInfo($request->boardId);
+        $board = $boardCollect->toArray();
 
-            // 게시판 정보
-            $boardCollect = $this->boardService->getInfo($request->boardId);
-            $board = $boardCollect->toArray();
+        // 게시글 목록
+        $set = [
+            'boardId' => $request->boardId,
+            'boardInfo' => $boardInfoFlag,
+            'page' => $request->page,
+            'view' => $request->perPage,
+            'select' => ['posts.id', 'title', 'board_id', 'posts.user_id', 'posts.created_at', 'posts.updated_at']
+        ];
 
-            // 게시글 목록
-            $set = [
-                'boardId' => $request->boardId,
-                'boardInfo' => $boardInfoFlag,
-                'page' => $request->page,
-                'view' => $request->perPage,
-                'select' => ['posts.id', 'title', 'board_id', 'posts.user_id', 'posts.created_at', 'posts.updated_at']
-            ];
+        // where 절 eloquent
+        $whereModel = $this->post->where(['board_id' => $set['boardId']]);
 
-            // where 절 eloquent
-            $whereModel = $this->post->where(['board_id' => $set['boardId']]);
-
-            // 섬네일 기능 사용시
-            if (isset($board['options']['thumbnail']) && $board['options']['thumbnail']) {
-                $set['thumbnail'] = true;
-                $set['select'][] = 'af.url AS thumbnail';
-            }
-
-            // 글 상태 사용시
-            if (isset($board['options']['boardStatus']) && $board['options']['boardStatus']) {
-                $set['select'][] = 'etc';
-            }
-
-            // 시크릿 기능 사용시
-            if (isset($board['options']['secret']) && $board['options']['secret']) {
-                if (!auth()->user()) {
-                    return response()->json(getResponseError(110001), 422);
-                }
-
-                $whereModel = $whereModel->where(['user_id' => auth()->user()->id]);
-            }
-
-            // 댓글 사용시
-            if ($board['options']['reply']) {
-                $set['reply'] = true;
-            }
-
-            // 파일 첨부 **check**
-            if (isset($board['options']['attachFile']) && $board['options']['attachFile']) {
-
-            }
-
-            // pagination
-            $pagination = PaginationLibrary::set($set['page'], $whereModel->count(), $set['view']);
-            if (!$pagination) {
-                return response()->json(getResponseError(101001), 422);
-            }
-
-            if ($set['page'] <= $pagination['totalPage']) {
-                // 데이터 cache
-                $hash = substr(md5(json_encode($set)), 0, 5);
-                $tags = separateTag('board.' . $set['boardId'] . '.post.list');
-
-                $data = Cache::tags($tags)->get($hash);
-
-                if (is_null($data) ||
-                    (isset($data) && checkCacheStampede($data[1]->getPreciseTimestamp(3)))) {
-
-                    $post = $whereModel
-                        ->with('user:id,name')
-                        ->select($set['select']);
-
-                    // 섬네일 사용시
-                    if (isset($set['thumbnail']) && $set['thumbnail']) {
-                        $post = $post->leftjoin('attach_files AS af', function ($join) {
-                            $join
-                                ->on('posts.id', '=', 'af.type_id')
-                                ->where('af.type', $this->attachType)
-                                ->whereJsonContains('af.etc', ['type' => 'thumbnail']);
-                        });
-                    }
-
-                    $post = $post
-                        ->groupBy('posts.id')
-                        ->skip($pagination['skip'])
-                        ->take($pagination['perPage'])
-                        ->orderBy('id', 'desc');
-
-                    $post = $post->get();
-
-                    // 데이터 가공
-
-                    foreach ($post as $index) {
-                        // 댓글 사용시
-                        if (isset($set['reply']) && $set['reply']) {
-                            $replys = $index->replyCount;
-                            unset($index->replyCount);
-                            $index->replyCount = $replys->pluck('count')->toArray()[0];
-                        }
-
-                        // 유저 이름
-                        if ($index->user) {
-                            $index->userName = $index->user->toArray()['name'];
-                        }
-
-                        // 섬네일
-                        if ($index->thumbnail) {
-                            $index->thumbnail = [
-                                'url' => $index->thumbnail
-                            ];
-                        }
-
-                        unset($index->user);
-                    }
-
-                    $data = [$post, Carbon::now()->addSeconds(config('cache.custom.expire.common'))];
-
-                    Cache::tags($tags)->put($hash, $data, config('cache.custom.expire.common'));
-                }
-            }
-
-
-            $data = isset($data[0]) ? $data[0]->toArray() : array();
-
-            $result = ['header' => $pagination];
-
-            // 게시판 정보 필요시
-            if ($boardInfoFlag) {
-                $result['board'] = $board;
-            }
-
-            $result['list'] = $data;
-
-            return response()->json(CollectionLibrary::toCamelCase(collect($result)), 200);
-
-        } catch (\Throwable $e) {
-            return response()->json(getResponseError($e->getMessage()), $e->getCode());
+        // 섬네일 기능 사용시
+        if (isset($board['options']['thumbnail']) && $board['options']['thumbnail']) {
+            $set['thumbnail'] = true;
+            $set['select'][] = 'af.url AS thumbnail';
         }
+
+        // 글 상태 사용시
+        if (isset($board['options']['boardStatus']) && $board['options']['boardStatus']) {
+            $set['select'][] = 'etc';
+        }
+
+        // 시크릿 기능 사용시
+        if (isset($board['options']['secret']) && $board['options']['secret']) {
+            if (!auth()->user()) {
+                throw new QpickHttpException(422, 110001);
+            }
+
+            $whereModel = $whereModel->where(['user_id' => auth()->user()->id]);
+        }
+
+        // 댓글 사용시
+        if ($board['options']['reply']) {
+            $set['reply'] = true;
+        }
+
+        // 파일 첨부 **check**
+        if (isset($board['options']['attachFile']) && $board['options']['attachFile']) {
+
+        }
+
+        // pagination
+        $pagination = PaginationLibrary::set($set['page'], $whereModel->count(), $set['view']);
+        if (!$pagination) {
+            throw new QpickHttpException(422, 110001);
+        }
+
+        if ($set['page'] <= $pagination['totalPage']) {
+            // 데이터 cache
+            $hash = substr(md5(json_encode($set)), 0, 5);
+            $tags = separateTag('board.' . $set['boardId'] . '.post.list');
+
+            $data = Cache::tags($tags)->get($hash);
+
+            if (is_null($data) ||
+                (isset($data) && checkCacheStampede($data[1]->getPreciseTimestamp(3)))) {
+
+                $post = $whereModel
+                    ->with('user:id,name')
+                    ->select($set['select']);
+
+                // 섬네일 사용시
+                if (isset($set['thumbnail']) && $set['thumbnail']) {
+                    $post = $post->leftjoin('attach_files AS af', function ($join) {
+                        $join
+                            ->on('posts.id', '=', 'af.type_id')
+                            ->where('af.type', $this->attachType)
+                            ->whereJsonContains('af.etc', ['type' => 'thumbnail']);
+                    });
+                }
+
+                $post = $post
+                    ->groupBy('posts.id')
+                    ->skip($pagination['skip'])
+                    ->take($pagination['perPage'])
+                    ->orderBy('id', 'desc');
+
+                $post = $post->get();
+
+                // 데이터 가공
+
+                foreach ($post as $index) {
+                    // 댓글 사용시
+                    if (isset($set['reply']) && $set['reply']) {
+                        $replys = $index->replyCount;
+                        unset($index->replyCount);
+                        $index->replyCount = $replys->pluck('count')->toArray()[0];
+                    }
+
+                    // 유저 이름
+                    if ($index->user) {
+                        $index->userName = $index->user->toArray()['name'];
+                    }
+
+                    // 섬네일
+                    if ($index->thumbnail) {
+                        $index->thumbnail = [
+                            'url' => $index->thumbnail
+                        ];
+                    }
+
+                    unset($index->user);
+                }
+
+                $data = [$post, Carbon::now()->addSeconds(config('cache.custom.expire.common'))];
+
+                Cache::tags($tags)->put($hash, $data, config('cache.custom.expire.common'));
+            }
+        }
+
+
+        $data = isset($data[0]) ? $data[0]->toArray() : array();
+
+        $result = ['header' => $pagination];
+
+        // 게시판 정보 필요시
+        if ($boardInfoFlag) {
+            $result['board'] = $board;
+        }
+
+        $result['list'] = $data;
+
+        return response()->json(CollectionLibrary::toCamelCase(collect($result)), 200);
     }
 
 
@@ -686,7 +677,7 @@ class PostController extends Controller
 
         // 잘못된 정보입니다.
         if (!$post) {
-            return response()->json(getResponseError(100005), 422);
+            throw new QpickHttpException(422, 100005);
         }
 
         // 게시글 정보
@@ -695,7 +686,7 @@ class PostController extends Controller
 
         // 이미 숨김 처리된 게시글 일 경우
         if ($postInfo['hidden']) {
-            return response()->json(getResponseError(200004), 422);
+            throw new QpickHttpException(422, 200004);
         }
 
         return response()->json(CollectionLibrary::toCamelCase(collect($postInfo)), 200);

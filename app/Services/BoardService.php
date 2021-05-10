@@ -6,6 +6,7 @@ use Cache;
 use App\Models\Board;
 use App\Models\BoardOption;
 use Illuminate\Support\Collection;
+use App\Exceptions\QpickHttpException;
 
 class BoardService
 {
@@ -64,7 +65,7 @@ class BoardService
 
         if (!$data) {
             Cache::tags($tags)->forget('info');
-            throw new \Exception(100005, 422);
+            throw new QpickHttpException(422, 100005);
         }
 
         return $data;

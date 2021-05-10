@@ -14,6 +14,8 @@ use App\Models\AttachFile;
 
 use App\Http\Requests\Attaches\CreateAttachRequest;
 
+use App\Exceptions\QpickHttpException;
+
 use App\Libraries\PaginationLibrary;
 use App\Libraries\CollectionLibrary;
 
@@ -113,7 +115,7 @@ class AttachController extends Controller
                 ];
             }
         } else {
-            return response()->json(getResponseError(100001, '{files[]}'), 422);
+            throw new QpickHttpException(422, 100001, '{files[]}');
         }
 
         foreach ($uploadFiles as $f) {
@@ -208,7 +210,7 @@ class AttachController extends Controller
     {
         $res = $this->directDelete([$request->id]);
         if (!$res) {
-            return response()->json(getResponseError(10001), 422);
+            throw new QpickHttpException(422, 10001);
         }
 
         return response()->json([

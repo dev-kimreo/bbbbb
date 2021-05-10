@@ -22,6 +22,8 @@ use App\Http\Requests\Members\PasswordResetSendLinkRequest;
 use App\Http\Requests\Members\CheckChangePwdAuthRequest;
 use App\Http\Requests\Members\PasswordResetRequest;
 
+use App\Exceptions\QpickHttpException;
+
 use Config;
 use URL;
 use DB;
@@ -332,12 +334,12 @@ class MemberController extends Controller
 
         // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
         if (!VerifyEmailCheck::dispatch(auth()->user())) {
-            return response()->json(getResponseError(110411), 422);
+            throw new QpickHttpException(422, 110411);
         }
 
         // // 이미 인증된 회원입니다.
         if (!VerifyEmail::dispatch(auth()->user())) {
-            return response()->json(getResponseError(110402), 422);
+            throw new QpickHttpException(422, 110402);
         }
 
         return response()->json([
@@ -415,13 +417,13 @@ class MemberController extends Controller
                 $member->save();
             } else {
                 // 이미 인증된 회원입니다.
-                return response()->json(getResponseError(110402), 422);
+                throw new QpickHttpException(422, 110402);
             }
 
             // 가상 서명키 제거
             $signCode->delete();
         } else {
-            return response()->json(getResponseError(110401), 422);
+            throw new QpickHttpException(422, 110401);
         }
 
         return response()->json([
@@ -486,7 +488,7 @@ class MemberController extends Controller
     public function checkPassword(CheckPwdMemberRequest $request)
     {
         if (!$this::funcCheckPassword($request->password)) {
-            return response()->json(getResponseError(110311), 422);
+            throw new QpickHttpException(422, 110311);
         }
 
         return response()->json([
@@ -553,7 +555,7 @@ class MemberController extends Controller
     {
 
         if (!$this::funcCheckPassword($request->password)) {
-            return response()->json(getResponseError(110311, 'password'), 422);
+            throw new QpickHttpException(422, 110311, 'password');
         }
 
         $member = auth()->user();
@@ -627,12 +629,12 @@ class MemberController extends Controller
     {
         // 현재 패스워드 체크
         if (!$this::funcCheckPassword($request->password)) {
-            return response()->json(getResponseError(110311, 'password'), 422);
+            throw new QpickHttpException(422, 110311, 'password');
         }
 
         // 기존 비밀번호와 변경할 비밀번호가 같을 경우
         if (hash::check($request->changePassword, auth()->user()->password)) {
-            return response()->json(getResponseError(110100, 'changePassword'), 422);
+            throw new QpickHttpException(422, 110100, 'changePassword');
         }
 
         // 비밀번호 체크
@@ -812,7 +814,7 @@ class MemberController extends Controller
         $res = DB::table('password_resets')->where('email', $request->email)->first();
         if (!$res) {
             // 일치하는 정보가 없습니다.
-            return response()->json(getResponseError(100005), 422);
+            throw new QpickHttpException(422, 100005);
         }
 
         // 회원정보
@@ -820,7 +822,7 @@ class MemberController extends Controller
 
         // Token 유효성 체크
         if (!Password::tokenExists($member, $request->token)) {
-            return response()->json(getResponseError(100501), 422);
+            throw new QpickHttpException(422, 100501);
         }
 
         return response()->json([
@@ -910,7 +912,7 @@ class MemberController extends Controller
         // 비밀번호 재설정 Token 발행여부 체크
         $res = DB::table('password_resets')->where('email', $request->email)->first();
         if (!$res) {
-            return response()->json(getResponseError(100005), 422);
+            throw new QpickHttpException(422, 100005);
         }
 
         // 회원정보
@@ -918,7 +920,7 @@ class MemberController extends Controller
 
         // Token 유효성 체크
         if (!Password::tokenExists($member, $request->token)) {
-            return response()->json(getResponseError(100501), 422);
+            throw new QpickHttpException(422, 100501);
         }
 
         // 비밀번호 체크
