@@ -16,15 +16,15 @@ class CreatePostsTable extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
-            $table->unsignedBigInteger('board_id');
-            $table->unsignedBigInteger('user_id');
+            $table->foreignId('board_id')->constrained();
+            $table->foreignId('user_id')->constrained();
             $table->string('title', 128);
             $table->longText('content');
             $table->mediumText('comment')->nullable();
             $table->json('etc')->nullable();
             $table->unsignedTinyInteger('hidden')->nullable()->default(0);
             $table->timestamps();
-            $table->softDeletes('deleted_at', 0);
+            $table->softDeletes();
         });
     }
 
