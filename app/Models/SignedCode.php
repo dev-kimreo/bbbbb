@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
-class SignedCodes extends Model
+class SignedCode extends Model
 {
     use HasFactory;
 
@@ -17,18 +17,12 @@ class SignedCodes extends Model
 
     public static function scopeNameId($q, $nameId)
     {
-        return $q->where('name_id', $nameId);
+        return $q->where('user_id', $nameId);
     }
 
-    public static function scopeName($q, $name)
+    public static function getBySignCode($id, $hash, $sign)
     {
-        return $q->where('name', $name);
-    }
-
-    public static function getBySignCode($exp, $id, $hash, $sign)
-    {
-        return self::name($exp[count($exp) - 2])
-            ->nameId($id)
+        return self::nameId($id)
             ->where('hash', $hash)
             ->where('sign', $sign);
     }
