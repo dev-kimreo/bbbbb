@@ -22,7 +22,7 @@ class CreatePostsTable extends Migration
             $table->longText('content');
             $table->mediumText('comment')->nullable();
             $table->json('etc')->nullable();
-            $table->unsignedTinyInteger('hidden')->nullable()->default(0);
+            $table->boolean('hidden')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

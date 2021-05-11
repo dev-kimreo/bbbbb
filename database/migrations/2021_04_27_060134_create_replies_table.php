@@ -19,7 +19,7 @@ class CreateRepliesTable extends Migration
             $table->foreignId('post_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->mediumText('content');
-            $table->unsignedTinyInteger('hidden')->nullable()->default(0);
+            $table->boolean('hidden')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });
