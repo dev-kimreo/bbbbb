@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use App\Exceptions\QpickHttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Throwable;
 use Error;
 use ErrorException;
@@ -96,12 +97,18 @@ class Handler extends ExceptionHandler
                     ];
                 }
             }
+        } else if($e instanceof RouteNotFoundException) {
+            $statusCode = 404;
+            $response['errors'][] = [
+                'code' => 'system.http.' . $statusCode,
+                'msg' => $e->getMessage()
+            ];
         } else {
             $o = parent::render($request, $e);
             $statusCode = $o->getStatusCode();
             $response['errors'][] = [
                 'code' => 'system.http.' . $statusCode,
-                'msg' => $o->original['message']
+                'msg' => $e->getMeesage() ?? $o->original['message']
             ];
         }
 
