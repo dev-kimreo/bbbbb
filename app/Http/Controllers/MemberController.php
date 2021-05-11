@@ -958,11 +958,11 @@ class MemberController extends Controller
          */
         $chkPasswordRes = checkPwdPattern($pwd);
         if (!$chkPasswordRes['combination']) {  // 특수문자, 문자, 숫자 포함 체크
-            return getResponseError(110101, 'password');
+            throw new QpickHttpException(422, 110101, 'password');
         } else if (!$chkPasswordRes['continue']) {  // 연속된 문자, 동일한 문자 연속 체크
-            return getResponseError(110102, 'password');
+            throw new QpickHttpException(422, 110102, 'password');
         } else if (!$chkPasswordRes['empty']) { // 공백 문자 체크
-            return getResponseError(110103, 'password');
+            throw new QpickHttpException(422, 110103, 'password');
         }
 
         /**
@@ -971,7 +971,7 @@ class MemberController extends Controller
         if (isset($email)) {
             $chkPwdSameIdRes = checkPwdSameId($pwd, $email);
             if (!$chkPwdSameIdRes) {
-                return getResponseError(110114, 'password');
+                throw new QpickHttpException(422, 110114, 'password');
             }
         }
 
