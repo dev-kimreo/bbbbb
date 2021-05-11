@@ -19,7 +19,7 @@ class CreateBoardsTable extends Migration
             $table->string('name', 32);
             $table->string('type', 32);
             $table->json('options');
-            $table->tinyInteger('hidden')->nullable()->default('0');
+            $table->boolean('hidden')->default('0');
             $table->timestamps();
             $table->index('type');
         });
