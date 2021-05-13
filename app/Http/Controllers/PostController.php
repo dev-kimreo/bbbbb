@@ -133,8 +133,6 @@ class PostController extends Controller
         /**
          * 게시글 작성 데이터
          */
-        $etc = [];
-
         // 후처리
         $after['thumbnail'] = null;
 
@@ -147,13 +145,6 @@ class PostController extends Controller
                 // TODO 첨부파일
                 case 'attachFile':
                     break;
-
-                // 게시글 상태 사용
-                case 'boardStatus':
-                    if (isset($val) && $val) {
-                        $etc['status'] = 'wait';
-                    }
-                    break;
             }
         }
 
@@ -162,10 +153,6 @@ class PostController extends Controller
         $this->post->user_id = auth()->user()->id;
         $this->post->title = $request->title;
         $this->post->content = $request->content;
-
-        if (count($etc)) {
-            $this->post->etc = $etc;
-        }
 
         $this->post->save();
 
@@ -501,11 +488,6 @@ class PostController extends Controller
             $set['thumbnail'] = true;
         }
 
-        // 글 상태 사용시
-        if (isset($board['options']['boardStatus']) && $board['options']['boardStatus']) {
-            $set['select'][] = 'etc';
-        }
-
         // 시크릿 기능 사용시
         if (isset($board['options']['secret']) && $board['options']['secret']) {
             if (!auth()->user()) {
@@ -625,14 +607,10 @@ class PostController extends Controller
      *              @OA\Property(property="title", type="string", example="게시글 제목입니다.", description="게시글 제목" ),
      *              @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" ),
      *              @OA\Property(property="hidden", type="integer", example=0, default=0, description="게시글 숨김 여부<br/>0:노출<br/>1:숨김" ),
-     *              @OA\Property(property="etc", type="object", description="게시글 기타정보",
-     *                  @OA\Property(property="status", type="string", example="wait", description="게시글 상태<br/>wait:접수<br/>ing:확인중<br/>end:답변완료" )
-     *              ),
      *              @OA\Property(property="thumbnail", type="object", description="게시글 섬네일 이미지 정보",
      *                  @OA\Property(property="id", type="integer", example=4, description="이미지 고유 번호" ),
      *                  @OA\Property(property="url", type="string", example="http://local-api.qpicki.com/storage/post/048/000/000/caf4df2767fea15158143aaab145d94e.jpg", description="이미지 url" ),
      *              ),
-     *              @OA\Property(property="status", type="string", example="접수", description="게시글 상태" ),
      *              @OA\Property(property="userName", type="string", example="홍길동", description="작성자" ),
      *              @OA\Property(property="boardId", type="integer", example=1, description="게시판 고유번호" ),
      *              @OA\Property(property="userId", type="integer", example=1, description="작성자 회원 고유번호" ),
