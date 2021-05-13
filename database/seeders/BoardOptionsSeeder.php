@@ -26,15 +26,6 @@ class BoardOptionsSeeder extends Seeder
                 ])
             ],
             [
-                "name" => '글 답변 작성',
-                "type" => 'boardReply',
-                "default" => '0',
-                "options" => json_encode([
-                    ["value" => "0", "comment" => "사용 안함"],
-                    ["value" => "1", "comment" => "사용 함"]
-                ])
-            ],
-            [
                 "name" => '게시판 테마',
                 "type" => 'thema',
                 "default" => 'boardDefaultThema',
@@ -44,24 +35,6 @@ class BoardOptionsSeeder extends Seeder
             [
                 "name" => '섬네일 사용',
                 "type" => 'thumbnail',
-                "default" => '0',
-                "options" => json_encode([
-                    ["value" => "0", "comment" => "사용 안함"],
-                    ["value" => "1", "comment" => "사용 함"]
-                ])
-            ],
-            [
-                "name" => '글 상태',
-                "type" => 'boardStatus',
-                "default" => '0',
-                "options" => json_encode([
-                    ["value" => "0", "comment" => "사용 안함"],
-                    ["value" => "1", "comment" => "사용 함"]
-                ])
-            ],
-            [
-                "name" => '시크릿',
-                "type" => 'secret',
                 "default" => '0',
                 "options" => json_encode([
                     ["value" => "0", "comment" => "사용 안함"],
