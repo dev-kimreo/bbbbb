@@ -20,8 +20,6 @@ class CreatePostsTable extends Migration
             $table->foreignId('user_id')->constrained();
             $table->string('title', 128);
             $table->longText('content');
-            $table->mediumText('comment')->nullable();
-            $table->json('etc')->nullable();
             $table->boolean('hidden')->default(0);
             $table->timestamps();
             $table->softDeletes();
