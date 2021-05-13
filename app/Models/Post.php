@@ -75,9 +75,11 @@ class Post extends Model
         return $this->hasMany('App\Models\Reply', 'post_id', 'id')->selectRaw('count(id) as count');
     }
 
-    public function thumbnails()
+    public function attachFiles()
     {
-        return $this->hasOne('App\Models\AttachFile')->select(['url']);
+        return $this->morphMany('App\Models\AttachFile', 'attachable');
     }
+
+
 
 }

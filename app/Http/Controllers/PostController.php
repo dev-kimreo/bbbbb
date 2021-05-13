@@ -30,6 +30,7 @@ use App\Libraries\CollectionLibrary;
 
 use App\Services\BoardService;
 use App\Services\PostService;
+use App\Services\AttachService;
 
 /**
  * Class PostController
@@ -39,12 +40,13 @@ class PostController extends Controller
 {
     public $attachType = 'post';
 
-    public function __construct(Post $post, Board $board, BoardService $boardService, PostService $postService)
+    public function __construct(Post $post, Board $board, BoardService $boardService, PostService $postService, AttachService $attachService)
     {
         $this->post = $post;
         $this->board = $board;
         $this->boardService = $boardService;
         $this->postService = $postService;
+        $this->attachService = $attachService;
     }
 
     /**
@@ -169,8 +171,7 @@ class PostController extends Controller
 
         // 섬네일 사용 게시판이고, 임시 섬네일이 있을경우 사용처로 이동
         if (isset($board['options']['thumbnail']) && $board['options']['thumbnail'] && isset($request->thumbnail)) {
-            $attachCtl = new AttachController;
-            $attachCtl->move($this->attachType, $this->post->id, [$request->thumbnail->id], ['type' => 'thumbnail']);
+            $this->attachService->move($this->post, [$request->thumbnail['id']], ['type' => 'thumbnail']);
         }
 
         // 캐시 초기화
@@ -292,8 +293,7 @@ class PostController extends Controller
                 // 섬네일
                 case 'thumbnail':
                     if (isset($request->thumbnail)) {
-                        $attachCtl = new AttachController;
-                        $attachCtl->move($this->attachType, $request->id, [$request->thumbnail->id], ['type' => 'thumbnail']);
+                        $this->attachService->move($postCollect, [$request->thumbnail['id']], ['type' => 'thumbnail']);
                     }
 
                 case 'attachFile':
@@ -304,8 +304,7 @@ class PostController extends Controller
 
         // 삭제할 파일
         if ($attachFlag && isset($request->delFiles) && is_array($request->delFiles)) {
-            $attachCtl = new AttachController;
-            $attachCtl->directDelete($request->delFiles);
+            $this->attachService->delete($request->delFiles);
 
             $flushFlag = true;
         }
@@ -391,6 +390,7 @@ class PostController extends Controller
 
         // 소프트 삭제 진행
         $postCollect->delete();
+
 
         // 캐시 초기화
         Cache::tags(['board.' . $request->boardId . '.post.' . $request->id])->flush();               // 상세 정보 캐시 삭제
@@ -499,7 +499,6 @@ class PostController extends Controller
         // 섬네일 기능 사용시
         if (isset($board['options']['thumbnail']) && $board['options']['thumbnail']) {
             $set['thumbnail'] = true;
-            $set['select'][] = 'af.url AS thumbnail';
         }
 
         // 글 상태 사용시
@@ -548,12 +547,10 @@ class PostController extends Controller
 
                 // 섬네일 사용시
                 if (isset($set['thumbnail']) && $set['thumbnail']) {
-                    $post = $post->leftjoin('attach_files AS af', function ($join) {
-                        $join
-                            ->on('posts.id', '=', 'af.type_id')
-                            ->where('af.type', $this->attachType)
-                            ->whereJsonContains('af.etc', ['type' => 'thumbnail']);
-                    });
+                    $post = $post
+                        ->with(['attachFiles' => function ($query) {
+                            $query->select('url', 'attachable_id', 'attachable_type')->whereJsonContains('etc', ['type' => 'thumbnail']);
+                        }]);
                 }
 
                 $post = $post
@@ -564,37 +561,38 @@ class PostController extends Controller
 
                 $post = $post->get();
 
-                // 데이터 가공
 
-                foreach ($post as $index) {
-                    // 댓글 사용시
-                    if (isset($set['reply']) && $set['reply']) {
-                        $replys = $index->replyCount;
-                        unset($index->replyCount);
-                        $index->replyCount = $replys->pluck('count')->toArray()[0];
-                    }
+                // 데이터 가공
+                $post->each(function (&$v) use ($set) {
 
                     // 유저 이름
-                    if ($index->user) {
-                        $index->userName = $index->user->toArray()['name'];
+                    if ($v->user) {
+                        $v->userName = $v->user->toArray()['name'];
+                        unset($v->user);
                     }
 
-                    // 섬네일
-                    if ($index->thumbnail) {
-                        $index->thumbnail = [
-                            'url' => $index->thumbnail
-                        ];
+                    // 섬네일 있을 경우
+                    if ($v->attachFiles) {
+                        $v->attachFiles->each(function (&$v2) {
+                            unset($v2->attachable_id, $v2->attachable_type);
+                        });
+                        $v->thumbnail = $v->attachFiles;
+                        unset($v->attachFiles);
                     }
 
-                    unset($index->user);
-                }
+                    // 댓글 사용시
+                    if (isset($set['reply']) && $set['reply']) {
+                        $replys = $v->replyCount;
+                        unset($v->replyCount);
+                        $v->replyCount = $replys->pluck('count')->toArray()[0];
+                    }
+                });
 
                 $data = [$post, Carbon::now()->addSeconds(config('cache.custom.expire.common'))];
 
                 Cache::tags($tags)->put($hash, $data, config('cache.custom.expire.common'));
             }
         }
-
 
         $data = isset($data[0]) ? $data[0]->toArray() : array();
 
@@ -691,7 +689,6 @@ class PostController extends Controller
 
         return response()->json(CollectionLibrary::toCamelCase(collect($postInfo)), 200);
     }
-
 
 
     public function test(Request $request)

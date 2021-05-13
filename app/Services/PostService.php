@@ -33,23 +33,17 @@ class PostService
         if (!$postCollect) {
             throw new QpickHttpException(422, 100005);
         }
+        $alias = $postCollect->getMorphClass();
         $boardId = $postCollect['board_id'];
 
         // 게시판 정보
         $boardCollect = $this->boardService->getInfo($boardId);
         $boardInfo = $boardCollect->toArray();
 
-
         // 데이터 cache
         $tags = separateTag('board.' . $boardId . '.post.' . $postId);
-        $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function () use ($postId, $boardId, $boardInfo) {
+        $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function () use ($postId, $boardId, $boardInfo, $alias) {
             $select = ['posts.id', 'title', 'board_id', 'content', 'hidden', 'posts.etc', 'posts.user_id', 'posts.created_at', 'posts.updated_at'];
-
-            // 섬네일 지원 게시판일 경우
-            if ($boardInfo['options']['thumbnail']) {
-                $select[] = 'af.url AS thumbnail';
-                $select[] = 'af.id AS thumbNo';
-            }
 
             // 게시글 답변 지원 게시판 일 경우
             if ($boardInfo['options']['boardReply']) {
@@ -58,15 +52,11 @@ class PostService
 
             $post = $this->post->select($select)->where(['posts.id' => $postId, 'board_id' => $boardId]);
 
-            // 섬네일 사용
-            if ($boardInfo['options']['thumbnail']) {
-                $post = $post->leftjoin('attach_files AS af', function ($join) {
-                    $join
-                        ->on('posts.id', '=', 'af.type_id')
-                        ->where('type', $this->attachType)
-                        ->whereJsonContains('af.etc', ['type' => 'thumbnail']);
-                });
-            }
+            // 첨부 파일
+            $post = $post
+                ->with(['attachFiles' => function ($query) {
+                    $query->select('id', 'url', 'attachable_id', 'attachable_type', 'etc');
+                }]);
 
             $post = $post->first();
 
@@ -74,20 +64,29 @@ class PostService
                 return false;
             }
 
-            $post->thumbnail = [
-                'id' => $post->thumbNo,
-                'url' => $post->thumbnail
-            ];
-            unset($post->thumbNo);
+            // 데이터 가공
+            $post->attachFiles->each(function ($v, $k) use ($post, $boardInfo) {
+                $etc = $v->etc;
+                unset($v->attachable_id, $v->attachable_type, $v->etc);
+
+                // 첨부 파일 중 섬네일 구분
+                if (isset($etc['type']) && $etc['type'] == 'thumbnail') {
+                    if ($boardInfo['options']['thumbnail']) {
+                        $post->thumbnail = $v;
+                        $post->attachFiles->forget($k);
+                    }
+                }
+            });
+
+            // 다차원을 일차원으로 단순화
+            $attachFileFlatten = $post->attachFiles->flatten();
+            unset($post->attachFiles);
+            $post->attachFiles = $attachFileFlatten;
 
             // 기타정보 가공
             if (isset($post->etc['status'])) {
                 $post->status = __('common.post.etc.status.' . $post->etc['status']);
             }
-
-            // 게시글 추가 정보 (회원)
-            $post->userName = $post->user->toArray()['name'];
-            unset($post->user);
 
             return $post;
         });

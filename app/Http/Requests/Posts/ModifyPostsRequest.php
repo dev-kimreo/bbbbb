@@ -29,10 +29,10 @@ class ModifyPostsRequest extends FormRequest
         return [
             'title' => 'required_without_all:content,thumbnail,delFiles|string|between:6,128',
             'content' => 'required_without_all:title,thumbnail,delFiles|string|min:10',
-            'thumbnail' => [
+            'thumbnail.id' => [
                 'sometimes',
                 'integer',
-                Rule::exists('App\Models\AttachFile', 'id')->where('type', 'temp')
+                Rule::exists('App\Models\AttachFile', 'id')->where('attachable_type', 'temp')
             ],
             'delFiles.*' => 'sometimes|integer|exists:App\Models\AttachFile,id',
         ];
@@ -49,8 +49,8 @@ class ModifyPostsRequest extends FormRequest
             'title.between' => getErrorCode(100053, 'title'),
             'content.required_without_all' => getErrorCode(100003, null, '{content}'),
 
-            'thumbnail.integer' => getErrorCode(100041, 'thumbnail'),
-            'thumbnail.exists' => getErrorCode(100021, 'thumbnail'),
+            'thumbnail.id.integer' => getErrorCode(100041, 'thumbnail.id'),
+            'thumbnail.id.exists' => getErrorCode(100021, 'thumbnail.id'),
 
             'delFiles.*.integer' => getErrorCode(100041, '{delFiles}'),
             'delFiles.*.exists' => getErrorCode(100021, '{delFiles}'),
