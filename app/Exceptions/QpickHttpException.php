@@ -27,46 +27,44 @@ class QpickHttpException extends Exception
     }
 
     protected function getErrorInfo($code, ...$key) {
-        $codeType = 'subError';
-        $errCfg = config($codeType . '.' . $code);        
+        // Getting Translated Message
+        $msg = __(is_integer($code)? config('subError.' . $code): 'messages.' . $code);
 
-        if (isset($errCfg)) {
-            // Getting a message
-            $msg = __($errCfg);
+        // Invalid message
+        if(!$msg || $msg == $code) {
+            return [
+                'code' => 'unknown',
+                'message' => 'There is no matched message.'
+            ];
+        }
 
-            preg_match_all("/:{1}[^\s]+[a-z]+/", $msg, $matchArrs);
+        // Replacing
+        preg_match_all("/:{1}[^\s]+[a-z]+/", $msg, $matchArrs);
 
-            foreach ($matchArrs[0] as $k => $attr) {
-                if ( is_array($key) && count($key) ) {
-                    if ( isset($key[$k]) && $key[$k] ) {
-                        if (preg_match("/^\{{1}[^\{\}]+\}{1}$/", $key[$k])) {
-                            $key[$k] = preg_replace('/\{|\}/', '', $key[$k]);
-                            $msg = str_replace($attr, $key[$k], $msg);
-                        } else {
-                            $msg = str_replace($attr, __('words.' . $key[$k]), $msg);
-                        }
+        foreach ($matchArrs[0] as $k => $attr) {
+            if ( is_array($key) && count($key) ) {
+                if ( isset($key[$k]) && $key[$k] ) {
+                    if (preg_match("/^\{{1}[^\{\}]+\}{1}$/", $key[$k])) {
+                        $key[$k] = preg_replace('/\{|\}/', '', $key[$k]);
+                        $msg = str_replace($attr, $key[$k], $msg);
+                    } else {
+                        $msg = str_replace($attr, __('words.' . $key[$k]), $msg);
                     }
                 }
             }
-
-            // Generating Response Data
-            $res = [
-                'code' => $code,
-                'target' => $key[0]?? false,
-                'message' => $msg
-            ];
-
-            if($res['target'] === false) {
-                unset($res['target']);
-            }
-
-        } else {
-            $res = [
-                'code' => 'unknown',
-                'message' => 'There is no matched message.'
-            ];;
         }
-        
+
+        // Generating Response Data
+        $res = [
+            'code' => $code,
+            'target' => $key[0]?? false,
+            'message' => $msg
+        ];
+
+        if($res['target'] === false) {
+            unset($res['target']);
+        }
+
         // Return
         return $res;
     }

@@ -47,7 +47,7 @@ class BuildTranslations extends Command
             function ($v) use (&$res) {
                 $v->translationContent->each(
                     function ($v2) use ($v, &$res) {
-                        $this->assignArrayByPath($res[$v2->lang], $v->code, $v2->value);
+                        $this->assignArrayByPath($res[$v2->lang][$v->type], $v->code, $v2->value);
                     }
                 );
             }
