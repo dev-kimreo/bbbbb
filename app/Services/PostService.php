@@ -43,12 +43,7 @@ class PostService
         // 데이터 cache
         $tags = separateTag('board.' . $boardId . '.post.' . $postId);
         $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function () use ($postId, $boardId, $boardInfo, $alias) {
-            $select = ['posts.id', 'title', 'board_id', 'content', 'hidden', 'posts.etc', 'posts.user_id', 'posts.created_at', 'posts.updated_at'];
-
-            // 게시글 답변 지원 게시판 일 경우
-            if ($boardInfo['options']['boardReply']) {
-                $select[] = 'comment';
-            }
+            $select = ['posts.id', 'title', 'board_id', 'content', 'hidden', 'posts.user_id', 'posts.created_at', 'posts.updated_at'];
 
             $post = $this->post->select($select)->where(['posts.id' => $postId, 'board_id' => $boardId]);
 
@@ -82,11 +77,6 @@ class PostService
             $attachFileFlatten = $post->attachFiles->flatten();
             unset($post->attachFiles);
             $post->attachFiles = $attachFileFlatten;
-
-            // 기타정보 가공
-            if (isset($post->etc['status'])) {
-                $post->status = __('common.post.etc.status.' . $post->etc['status']);
-            }
 
             return $post;
         });
