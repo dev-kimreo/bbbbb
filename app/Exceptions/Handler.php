@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use App\Exceptions\QpickHttpException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
@@ -68,14 +69,14 @@ class Handler extends ExceptionHandler
                 'trace' => $e->getTrace()
             ];
         }
-        
+
         // Grab the HTTP status code and message from the Exception
         if($this->isHttpException($e) && method_exists($e, 'getStatusCode')) {
             $statusCode = $e->getStatusCode();
             $response['errors'][] = [
                 'code' => 'system.http.' . $statusCode,
                 'msg' => $e->getMessage()
-            ];           
+            ];
         } elseif ($e instanceof QpickHttpException) {
             $statusCode = $e->getStatusCode();
             $response['errors'] = $e->getErrors();
@@ -84,7 +85,7 @@ class Handler extends ExceptionHandler
             $response['errors'][] = [
                 'code' => 'system.internalError',
                 'msg' => $e->getMessage()
-            ];           
+            ];
         } elseif ($e instanceof ValidationException) {
             $statusCode = 422;
             foreach($e->errors() as $k => $v) {
@@ -103,12 +104,18 @@ class Handler extends ExceptionHandler
                 'code' => 'system.http.' . $statusCode,
                 'msg' => $e->getMessage()
             ];
+        } elseif ($e instanceof QueryException) {
+            $statusCode = 500;
+            $response['errors'][] = [
+                'code' => 'system.databaseError',
+                'msg' => $e->getMessage()
+            ];
         } else {
             $o = parent::render($request, $e);
             $statusCode = $o->getStatusCode();
             $response['errors'][] = [
                 'code' => 'system.http.' . $statusCode,
-                'msg' => $e->getMeesage() ?? $o->original['message']
+                'msg' => method_exists($e, 'getMessage')? $e->getMessage(): $o->original['message']
             ];
         }
 
