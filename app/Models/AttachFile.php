@@ -46,6 +46,7 @@ class AttachFile extends Model
     ];
 
     protected $casts = [
+        'etc' => 'array'
     ];
 
     protected $maps = [
@@ -54,6 +55,9 @@ class AttachFile extends Model
     protected $appends = [
     ];
 
+    public function scopeTempType($q) {
+        return $q->where('attachable_type', 'temp');
+    }
 
     public function getCreatedAtAttribute($value){
         return Carbon::parse($value)->format('c');
@@ -63,4 +67,8 @@ class AttachFile extends Model
         return Carbon::parse($value)->format('c');
     }
 
+    public function attachable()
+    {
+        return $this->morphTo(__FUNCTION__, 'attachable_type', 'attachable_id');
+    }
 }
