@@ -24,14 +24,6 @@ return [
         'already_deleted' => '삭제된 게시글입니다.',
         'hidden' => '숨김 처리된 게시글입니다.',
         'deleted_or_hidden' => '삭제되었거나 숨김처리 된 게시글 입니다.',
-
-        'etc' => [
-            'status' => [
-                'wait' => '접수',
-                'ing' => '확인중',
-                'end' => '답변완료',
-            ]
-        ]
     ],
 
     'reply' => [
