@@ -29,10 +29,10 @@ class CreatePostsRequest extends FormRequest
         return [
             'title' => 'required|string|between:6,128',
             'content' => 'required|string|min:10',
-            'thumbnail' => [
+            'thumbnail.id' => [
                 'sometimes',
                 'integer',
-                Rule::exists('App\Models\AttachFile', 'id')->where('type', 'temp')
+                Rule::exists('App\Models\AttachFile', 'id')->where('attachable_type', 'temp')
             ],
         ];
     }
@@ -50,8 +50,8 @@ class CreatePostsRequest extends FormRequest
             'content.required' => getErrorCode(100001, 'content'),
             'content.min' => getErrorCode(100063, 'content'),
 
-            'thumbnail.integer' => getErrorCode(100041, 'thumbnail'),
-            'thumbnail.exists' => getErrorCode(100021, 'thumbnail'),
+            'thumbnail.id.integer' => getErrorCode(100041, 'thumbnail.id'),
+            'thumbnail.id.exists' => getErrorCode(100021, 'thumbnail.id'),
         ];
     }
 }

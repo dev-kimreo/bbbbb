@@ -445,7 +445,7 @@ class BoardController extends Controller
     public function getBoardInfo(Request $request)
     {
         $board = $this->boardService->getInfo($request->id);
-        return response()->json(CollectionLibrary::toCamelCase($board));
+        return response()->json(CollectionLibrary::toCamelCase(collect($board)));
     }
 
     public function reInitBoardOption(Request $request)
