@@ -37,8 +37,6 @@ class CreateRepliesRequest extends FormRequest
     public function messages()
     {
         return [
-            'content.required' => getErrorCode(100001, 'content'),
-            'content.min' => getErrorCode(100063, 'content'),
         ];
     }
 }

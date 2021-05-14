@@ -41,19 +41,6 @@ class StoreMembersRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => getErrorCode(100001, 'name'),
-            'name.between' => getErrorCode(100053, 'name'),
-
-            'email.required' => getErrorCode(100001, 'email'),
-            'email.email' => getErrorCode(100101, 'email'),
-            'email.max' => getErrorCode(100073, 'email'),
-            'email.unique' => getErrorCode(100002, 'email'),
-
-            'password.required' => getErrorCode(100001, 'password'),
-            'password.min' => getErrorCode(100063, 'password'),
-
-            'passwordConfirmation.required' => getErrorCode(100001, 'passwordConfirmation'),
-            'passwordConfirmation.same' => getErrorCode(100011, 'passwordConfirmation', 'password'),
         ];
     }
 }

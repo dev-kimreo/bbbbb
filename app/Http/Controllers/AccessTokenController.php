@@ -92,23 +92,13 @@ class AccessTokenController extends ATC {
         $requestBody = $request->getParsedBody();
 
         // Validation
-        $mess = [
-            'username.required' => getErrorCode(100001, 'username'),
-            'username.email' => getErrorCode(100101, 'username'),
-            'password.required' => getErrorCode(100001, 'password'),
-            'password.min' => getErrorCode(100063, 'password'),
-            'grant_type.required' => getErrorCode(100001),
-            'client_id.required' => getErrorCode(100001),
-            'client_secret.required' => getErrorCode(100001),
-        ];
-
         $validator = Validator::make($requestBody, [
             'username' => 'required|email',
             'password' => 'required|string|min:8',
             'grant_type' => 'required',
             'client_id' => 'required|integer',
             'client_secret' => 'required|string',
-        ], $mess)->validate();
+        ])->validate();
 
         // Check Email 
         $username = $requestBody['username'];

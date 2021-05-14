@@ -39,12 +39,6 @@ class ModifyBoardsRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required_without_all' => getErrorCode(100003, null, '{name}'),
-            'name.between' => getErrorCode(100053, 'name'),
-            'hidden.required_without_all' => getErrorCode(100003, null, '{hidden}'),
-            'hidden.in' => getErrorCode(100081, 'hidden'),
-            'options.required_without_all' => getErrorCode(100003, null, '{options}'),
-            'options.array' => getErrorCode(100083,  '{options}'),
         ];
     }
 }

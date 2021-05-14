@@ -39,11 +39,6 @@ class GetListPostsRequest extends FormRequest
     public function messages()
     {
         return [
-            'boardInfo.in' => getErrorCode(100081, 'boardInfo'),
-
-            'page.min' => getErrorCode(100063, 'page'),
-
-            'perPage.between' => getErrorCode(100051, '{perPage}'),
         ];
     }
 }

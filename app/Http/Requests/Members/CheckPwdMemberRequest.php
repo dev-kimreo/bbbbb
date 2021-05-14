@@ -37,7 +37,6 @@ class CheckPwdMemberRequest extends FormRequest
     public function messages()
     {
         return [
-            'password.required' => getErrorCode(100001, 'password'),
         ];
     }
 }

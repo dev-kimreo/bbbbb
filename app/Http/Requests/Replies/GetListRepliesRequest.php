@@ -38,9 +38,6 @@ class GetListRepliesRequest extends FormRequest
     public function messages()
     {
         return [
-            'page.min' => getErrorCode(100063, 'page'),
-
-            'perPage.between' => getErrorCode(100051, '{perPage}'),
         ];
     }
 }

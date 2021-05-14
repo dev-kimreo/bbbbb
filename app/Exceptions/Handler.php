@@ -88,13 +88,16 @@ class Handler extends ExceptionHandler
             ];
         } elseif ($e instanceof ValidationException) {
             $statusCode = 422;
-            foreach($e->errors() as $k => $v) {
-                foreach($v as $v2) {
-                    $v2 = json_decode($v2);
+            $rules = $e->validator->failed();
+
+            foreach($e->errors() as $field => $v) {
+                $rule = array_keys($rules[$field]);
+
+                foreach($v as $k => $message) {
                     $response['errors'][] = [
-                        'code' => $v2->code,
-                        'target' => $k,
-                        'msg' => $v2->message
+                        'code' => 'common.validation.' . lcfirst($rule[$k]),
+                        'target' => $field,
+                        'msg' => $message
                     ];
                 }
             }
