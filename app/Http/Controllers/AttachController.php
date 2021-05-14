@@ -12,12 +12,17 @@ use Artisan;
 use App\Models\AttachFile;
 
 use App\Http\Requests\Attaches\CreateAttachRequest;
+use App\Http\Requests\Attaches\UpdateRequest;
 
 use App\Exceptions\QpickHttpException;
 
 use App\Libraries\CollectionLibrary;
 
 use App\Services\AttachService;
+
+
+use Illuminate\Database\Eloquent\Relations\Relation;
+
 
 /**
  * Class AttachController
@@ -110,7 +115,7 @@ class AttachController extends Controller
                 ];
             }
         } else {
-            throw new QpickHttpException(400, 'common.bad_request');
+            throw new QpickHttpException(422, 100001, '{files[]}');
         }
 
         foreach ($uploadFiles as $f) {
@@ -128,17 +133,55 @@ class AttachController extends Controller
             $this->attach->name = $pathInfo['basename'];
             $this->attach->org_name = $f['orgName'];
             $this->attach->save();
-
-            $res[] = [
-                'no' => $this->attach->id,
-                'url' => $this->attach->url,
-                'orgName' => $f['orgName'],
-                'extension' => $pathInfo['extension']
-            ];
         }
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($res)), 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($this->attach)), 200);
     }
+
+
+    public function update($id, UpdateRequest $request)
+    {
+        // Attach find
+        $attachCollect = $this->attach->where(['id' => $id, 'attachable_type' => 'temp'])->first();
+        if (!$attachCollect) {
+            throw new QpickHttpException(422, 100005);
+        }
+
+        if (!auth()->user()->can('update', $attachCollect)) {
+            throw new QpickHttpException(403, 101001);
+        }
+
+        // type check
+        $typeModel = Relation::getMorphedModel($request->type);
+        if (!$typeModel) {
+            throw new QpickHttpException(422, 100005);
+        }
+        eval("\$typeCollect = \\" . $typeModel . '::find(' . $request->typeId . ');');
+
+        if (!$typeCollect) {
+            throw new QpickHttpException(422, 100005);
+        }
+
+        // check use upload file
+        $this->attachService->checkUploadAttachFile($typeCollect);
+
+        // check upload file limit count
+        $this->attachService->checkUploadLimit($typeCollect);
+
+        // type Move
+        if ($request->has('thumbnail')) {
+            $this->attachService->move($typeCollect, [$id], ['type' => 'thumbnail']);
+        } else {
+            $this->attachService->move($typeCollect, [$id]);
+        }
+
+        // Attach Collection Refresh
+        $attachCollect->refresh();
+
+        // return
+        return response()->json($attachCollect, 201);
+    }
+
 
     /**
      * 단일 첨부파일 삭제
@@ -147,14 +190,9 @@ class AttachController extends Controller
      */
     public function delete($id, Request $request)
     {
-        $res = $this->attachService->delete([$request->id]);
-        if (!$res) {
-            throw new QpickHttpException(422, 'common.incorrect');
-        }
+        $this->attachService->delete([$request->id]);
 
-        return response()->json([
-            'message' => __('common.deleted')
-        ], 200);
+        return response()->noContent();
     }
 
 
