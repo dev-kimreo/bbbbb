@@ -35,12 +35,12 @@ class ReplyService
 
         // 댓글 사용 여부
         if (!auth()->user()->can('checkUsableReply', $boardCollect)) {
-            throw new QpickHttpException(403, 250001);
+            throw new QpickHttpException(403, 'reply.disable.board_option');
         }
 
         // 게시글 숨김 여부
         if (auth()->user()->can('isHidden', $postCollect)) {
-            throw new QpickHttpException(403, 250005);
+            throw new QpickHttpException(403, 'reply.disable.post_hidden');
         }
 
         return true;

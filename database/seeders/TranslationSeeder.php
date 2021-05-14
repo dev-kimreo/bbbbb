@@ -19,6 +19,60 @@ class TranslationSeeder extends Seeder
         $words = [
             [
                 'messages',
+                'common.not_found',
+                '요청한 데이터를 찾을 수 없습니다.',
+                'Not found.'
+            ],
+            [
+                'messages',
+                'common.unauthorized',
+                '요청 권한이 없습니다.',
+                'Unauthorized.'
+            ],
+            [
+                'messages',
+                'common.bad_request',
+                '잘못된 요청입니다.',
+                'Bad Request.'
+            ],
+            [
+                'messages',
+                'common.validation.required',
+                '필수 값이 누락되었습니다.',
+                'Missing required value.'
+            ],
+            [
+                'messages',
+                'common.validation.between',
+                '글자수는 :min자와 :max자 사이가 되어야 합니다.',
+                'The input has to be between :min and :max characters long.'
+            ],
+            [
+                'messages',
+                'common.validation.max',
+                '해당 값은 :max보다 작아야 합니다.',
+                'The input must be less than or equal to :max.'
+            ],
+            [
+                'messages',
+                'common.validation.min',
+                '해당 값은 :min보다 커야 합니다.',
+                'The input must be greater than or equal to :min.'
+            ],
+            [
+                'messages',
+                'common.validation.unique',
+                '이미 해당 값을 사용하고 있는 데이터가 있습니다.',
+                'The input already used by other data.'
+            ],
+            [
+                'messages',
+                'common.pagination.out_of_bounds',
+                '표시할 수 있는 총 페이지 수를 넘어섰습니다.',
+                'The page is out of bounds.'
+            ],
+            [
+                'messages',
                 'auth.incorrect_timeout',
                 '잘못된 인증방식이거나 token의 유효시간이 지났습니다.',
                 'Either incorrect information or the token expiration time has expired.'
@@ -34,6 +88,12 @@ class TranslationSeeder extends Seeder
                 'user.password.incorrect',
                 '비밀번호가 일치하지 않습니다.',
                 'Incorrect password.'
+            ],
+            [
+                'messages',
+                'user.password.reuse',
+                '입력하신 비밀번호는 변경 전과 동일하여 다시 사용할 수 없습니다.',
+                'Can\'t reuse the password you used before the change.'
             ],
             [
                 'messages',
@@ -85,6 +145,24 @@ class TranslationSeeder extends Seeder
             ],
             [
                 'messages',
+                'board.option.disable.unknown_key',
+                '입력할 수 있는 게시판 옵션이 아닙니다.',
+                'Can\'t use the key as board\'s option.'
+            ],
+            [
+                'messages',
+                'board.option.disable.wrong_value',
+                '입력한 값은 해당 게시판 옵션의 값으로 사용할 수 없습니다.',
+                'Can\'t use the value as board\'s option.'
+            ],
+            [
+                'messages',
+                'post.disable.hidden',
+                '숨겨진 게시글입니다.',
+                'Can\'t read because post is hidden.'
+            ],
+            [
+                'messages',
                 'reply.disable.board_option',
                 '댓글을 작성할 수 없도록 설정된 게시판입니다.',
                 'Can\'t writing a reply on this board.'
@@ -103,10 +181,14 @@ class TranslationSeeder extends Seeder
             ]
         ];
 
-        Schema::disableForeignKeyConstraints();
-        Translation::truncate();
-        TranslationContent::truncate();
+        // Truncate tables
+        if(app()->environment() == 'local') {
+            Schema::disableForeignKeyConstraints();
+            Translation::truncate();
+            TranslationContent::truncate();
+        }
 
+        // Insert data
         foreach($words as $v) {
             $word = new Translation;
             $word->type = $v[0];

@@ -116,11 +116,11 @@ class AccessTokenController extends ATC {
         $member = $this->user->where('email', $username)->first();
 
         if(!$member) {
-            throw new QpickHttpException(404, 100021, 'username');
+            throw new QpickHttpException(404, 'user.username.incorrect');
         }
 
         if(!hash::check($password, $member->password)) {
-            throw new QpickHttpException(422, 110311, 'password');
+            throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
         return parent::issueToken($request);

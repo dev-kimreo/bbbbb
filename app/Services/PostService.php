@@ -31,7 +31,7 @@ class PostService
     {
         $postCollect = $this->post->select('board_id')->where('id', $postId)->first();
         if (!$postCollect) {
-            throw new QpickHttpException(422, 100005);
+            throw new QpickHttpException(422, 'common.not_found');
         }
         $alias = $postCollect->getMorphClass();
         $boardId = $postCollect['board_id'];
@@ -83,7 +83,7 @@ class PostService
 
         if (!$data) {
             Cache::tags($tags)->forget('info');
-            throw new QpickHttpException(422, 100005);
+            throw new QpickHttpException(422, 'common.not_found');
         }
 
         return $data;
