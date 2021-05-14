@@ -79,6 +79,11 @@ return [
     110402 => 'common.email.verified',              // 이미 인증된 회원입니다.
     110411 => 'common.email.limit_send',            // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
 
+    /**
+     * 첨부파일
+     */
+    150000 => 'common.attach_file.not_use',         // 업로드 기능을 사용할 수 없습니다.
+    150001 => 'common.attach_file.limit_over',      // 업로드 갯수를 초과하였습니다.
 
     /**
      * 게시글
