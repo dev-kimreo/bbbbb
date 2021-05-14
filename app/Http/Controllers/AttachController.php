@@ -152,21 +152,21 @@ class AttachController extends Controller
         }
 
         // type check
-        $typeModel = Relation::getMorphedModel($request->type);
+        $typeModel = '\\' . Relation::getMorphedModel($request->type);
         if (!$typeModel) {
             throw new QpickHttpException(422, 100005);
         }
-        eval("\$typeCollect = \\" . $typeModel . '::find(' . $request->typeId . ');');
+        $typeCollect = $typeModel::find($request->typeId);
 
         if (!$typeCollect) {
             throw new QpickHttpException(422, 100005);
         }
 
         // check use upload file
-        $this->attachService->checkUploadAttachFile($typeCollect);
+        $this->attachService->checkAttachableModel($typeCollect);
 
         // check upload file limit count
-        $this->attachService->checkUploadLimit($typeCollect);
+        $this->attachService->checkUnderUploadLimit($typeCollect);
 
         // type Move
         if ($request->has('thumbnail')) {

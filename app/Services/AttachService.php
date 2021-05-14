@@ -127,14 +127,16 @@ class AttachService
         }
     }
 
-    public function checkUploadAttachFile($collect)
+    public function checkAttachableModel($collect): bool
     {
-        if (method_exists($collect, 'checkUploadAttachFile') && !$collect->checkUploadAttachFile()) {
+        if (method_exists($collect, 'checkAttachableModel') && !$collect->checkAttachableModel()) {
             throw new QpickHttpException(422, 150000);
         }
+
+        return true;
     }
 
-    public function checkUploadLimit($collect)
+    public function checkUnderUploadLimit($collect): bool
     {
         $alias = $collect->getMorphClass();
 
@@ -151,6 +153,8 @@ class AttachService
         if ($collect->getAttachFileLimit() <= $uploadCount) {
             throw new QpickHttpException(422, 150001);
         }
+
+        return true;
     }
 
 }

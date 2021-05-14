@@ -80,21 +80,19 @@ class Post extends Model
         return $this->morphMany('App\Models\AttachFile', 'attachable');
     }
 
-    public function getAttachFileLimit()
+    public function board()
     {
-        $res = 0;
-        $this->belongsTo('App\Models\Board', 'board_id', 'id')->each(function($v) use (&$res){
-            $res = $v->options['attachLimit'];
-        });
-        return $res;
+        return $this->belongsTo('App\Models\Board', 'board_id', 'id');
     }
 
-    public function checkUploadAttachFile() {
-        $res = false;
-        $this->belongsTo('App\Models\Board', 'board_id', 'id')->each(function($v) use (&$res){
-            $res = intval($v->options['attach']);
-        });
-        return $res;
+    public function getAttachFileLimit(): int
+    {
+        return intval($this->board->options['attachLimit']);
+    }
+
+    public function checkAttachableModel(): bool
+    {
+        return intval($this->board->options['attach']) ? true : false;
     }
 
 

@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap([
             'attach' => 'App\Models\AttachFile',
             'post' => 'App\Models\Post',
+            'inquiry' => 'App\Models\Inquiry',
         ]);
     }
 }
