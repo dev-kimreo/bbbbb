@@ -2,6 +2,8 @@
 
 namespace App\Libraries;
 
+use App\Exceptions\QpickHttpException;
+
 class PaginationLibrary {
 //    private static $cacheCls = null;
 //    public static $tags = null;
@@ -47,7 +49,7 @@ class PaginationLibrary {
 
         // 현재 페이지가 총 페이지보다 클 경우
         if ( self::$page > self::$totalPage ) {
-            return false;
+            throw new QpickHttpException(404, 'common.pagination.out_of_bounds');
         }
 
         self::$block = ceil(self::$page / self::$perBlock);

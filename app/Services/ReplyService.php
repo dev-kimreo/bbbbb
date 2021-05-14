@@ -8,6 +8,8 @@ use Gate;
 use App\Models\Reply;
 use Illuminate\Support\Collection;
 
+use App\Exceptions\QpickHttpException;
+
 use App\Services\BoardService;
 use App\Services\PostService;
 
@@ -33,12 +35,12 @@ class ReplyService
 
         // 댓글 사용 여부
         if (!auth()->user()->can('checkUsableReply', $boardCollect)) {
-            return getResponseError(250001);
+            throw new QpickHttpException(403, 'reply.disable.board_option');
         }
 
         // 게시글 숨김 여부
         if (auth()->user()->can('isHidden', $postCollect)) {
-            return getResponseError(200005);
+            throw new QpickHttpException(403, 'reply.disable.post_hidden');
         }
 
         return true;

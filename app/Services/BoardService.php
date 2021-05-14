@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use Cache;
 use App\Models\Board;
 use App\Models\BoardOption;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use App\Exceptions\QpickHttpException;
 
 class BoardService
@@ -29,20 +29,34 @@ class BoardService
     public function getOptionList(array $set = []): Collection
     {
         $tags = separateTag('board.options.list');
+        $key = md5(json_encode($set));
+        $ttl = config('cache.custom.expire.common');
 
-        $data = Cache::tags($tags)->remember(md5(json_encode($set)), config('cache.custom.expire.common'), function () use ($set) {
-            $opt = $this->boardOpt;
+        return Cache::tags($tags)->remember($key, $ttl, function () use ($set) {
+            return $this->boardOpt
+                ->select($set['sel'] ?? '*')
+                ->orderBy('sort', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+        });
+    }
 
-            if (isset($set['sel'])) {
-                $opt = $opt->select($set['sel']);
+    /**
+     * @param $type
+     * @return BoardOption
+     */
+    public function getOptiontByType($type, $requestKey): BoardOption
+    {
+        $tags = separateTag('board.options.info');
+        $ttl = config('cache.custom.expire.common');
+
+        return Cache::tags($tags)->remember($type, $ttl, function () use ($type, $requestKey) {
+            if(!$data = $this->boardOpt::getByType($type)->first()) {
+                throw new QpickHttpException(422, 'board.option.disable.unknown_key', $requestKey);
             }
 
-            $opt = $opt->orderBy('sort', 'asc')->orderBy('id', 'asc')->get();
-
-            return $opt;
+            return $data;
         });
-
-        return $data;
     }
 
     /**
@@ -52,23 +66,15 @@ class BoardService
     public function getInfo($boardId): Board
     {
         $tags = separateTag('board.' . $boardId);
+        $key = 'info';
+        $ttl = config('cache.custom.expire.common');
 
-        $data = Cache::tags($tags)->remember('info', config('cache.custom.expire.common'), function () use ($boardId) {
-            $opt = $this->board->find($boardId);
-
-            if (!$opt) {
-                return false;
+        return Cache::tags($tags)->remember($key, $ttl, function () use ($boardId) {
+            if(!$data = $this->board->find($boardId)) {
+                throw new QpickHttpException(422, 'common.not_found');
             }
 
-            return $opt;
+            return $data;
         });
-
-        if (!$data) {
-            Cache::tags($tags)->forget('info');
-            throw new QpickHttpException(422, 100005);
-        }
-
-        return $data;
     }
-
 }

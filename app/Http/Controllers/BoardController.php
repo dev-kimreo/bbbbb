@@ -95,85 +95,37 @@ class BoardController extends Controller
     {
         // check Policy
         if (!auth()->user()->can('create', Board::class)) {
-            throw new QpickHttpException(403, 101001);
+            throw new QpickHttpException(403, 'board.disable.not_permitted');
         }
 
-        /**
-         * 옵션
-         */
-        $optArrs = $request->options;
+        // 게시판 옵션 기본값 가져오기
+        $opts = [];
+        $this->boardService->getOptionList(['sel' => ['type', 'default']])->each(
+            function ($v) use (&$opts) {
+                $opts[$v->type] = $v->default;
+            }
+        );
 
-        $optDefaultArrs = $this->boardService->getOptionList(['sel' => ['type', 'default']])->toArray();
-
-        if (is_array($optArrs) && count($optArrs)) {
-
-            foreach ($optArrs as $type => $val) {
-
-                // 옵션 데이터
-                $tags = separateTag('board.options.info');
-
-                $data = Cache::tags($tags)->remember($type, config('cache.custom.expire.common'), function () use ($type) {
-                    $opt = $this->boardOption::getByType($type);
-                    $opt = $opt->first();
-
-                    if (!$opt) {
-                        return false;
-                    }
-
-                    $opt = $opt->toArray();
-
-                    return $opt;
-                });
-
-                // 옵션 데이터 존재하지 않을 경우
-                if (!$data) {
-                    Cache::tags($tags)->forget($type);
-                    throw new QpickHttpException(422, 100022, 'options.type');
-                }
-
-                // 옵션 값 체크
-                $valCheck = true;
-                switch ($type) {
-                    case 'thema':
-                        $optArrs[$type] = isset($val) ? $val : $data['default'];
-                        break;
-                    default:
-                        $valArrs = array_column($data['options'], 'value');
-                        if (!in_array($val, $valArrs)) {
-                            $valCheck = false;
-                        }
-                        break;
-                }
-
-                if (!$valCheck) {
-                    throw new QpickHttpException(422, 100022, 'options.' . $type . '.value');
-                }
-
-                unset($data);
+        // 요청 파라미터로 입력받은 옵션 처리
+        foreach ($request->options ?? [] as $type => $val) {
+            if (!$val) {
+                continue;
             }
 
-            foreach ($optDefaultArrs as $k => $arr) {
-                if (!isset($optArrs[$arr['type']])) {
-                    $optArrs[$arr['type']] = $arr['default'];
-                }
-            }
-
-        } else {
-            $defaultOpt = [];
-            foreach ($optDefaultArrs as $k => $arr) {
-                $defaultOpt[$arr['type']] = $arr['default'];
+            // 옵션 데이터에 선택할 수 없는 값이 들어간 경우의 오류처리
+            $requestKey = 'options[' . $type . ']';
+            $data = $this->boardService->getOptiontByType($type, $requestKey)->options;
+            if(!collect($data)->where('value', $val)->count())
+            {
+                throw new QpickHttpException(422, 'board.option.disable.wrong_value', $requestKey);
             }
         }
 
+        // 쿼리
         $this->board->name = $request->name;
         $this->board->type = $request->type;
-
-        if ($request->hidden) {
-            $this->board->hidden = $request->hidden;
-        }
-
-        $this->board->options = is_array($optArrs) && count($optArrs) ? $optArrs : $defaultOpt;
-
+        $this->board->options = $opts;
+        $this->board->hidden = $request->hidden ?? 0;
         $this->board->save();
 
         // 게시판 목록 데이터 cache flush
@@ -243,13 +195,13 @@ class BoardController extends Controller
     {
         // check Policy
         if (!auth()->user()->can('update', $this->board)) {
-            throw new QpickHttpException(403, 101001);
+            throw new QpickHttpException(403, 'board.disable.not_permitted');
         }
 
         $board = $this->board::where('id', $request->id);
         $boardData = $board->first();
         if (!$boardData) {
-            throw new QpickHttpException(422, 100022, 'id');
+            throw new QpickHttpException(404, 'common.incorrect');
         }
 
         // 변경 할 사항
@@ -268,43 +220,18 @@ class BoardController extends Controller
             foreach ($optArrs as $type => $val) {
 
                 // 옵션 데이터
-                $tags = separateTag('board.options.info');
-
-                $data = Cache::tags($tags)->remember($type, config('cache.custom.expire.common'), function () use ($type) {
-                    $opt = $this->boardOption::getByType($type);
-//                      $opt->whereJsonContains('options', ['value' => $val]);
-                    $opt = $opt->first();
-
-                    if (!$opt) {
-                        return false;
-                    }
-
-                    $opt = $opt->toArray();
-
-                    return $opt;
-                });
-
-                // 옵션 데이터 존재하지 않을 경우
-                if (!$data) {
-                    Cache::tags($tags)->forget($type);
-                    throw new QpickHttpException(422, 100022, 'options.type');
-                }
+                $data = $this->boardService->getOptiontByType($type)->toArray();
 
                 // 옵션 값 체크
-                $valCheck = true;
                 switch ($type) {
                     case 'thema':
                         break;
                     default:
                         $valArrs = array_column($data['options'], 'value');
                         if (!in_array($val, $valArrs)) {
-                            $valCheck = false;
+                            throw new QpickHttpException(422, 'board.option.disable.wrong_value', 'options.' . $type . '.value');
                         }
                         break;
-                }
-
-                if (!$valCheck) {
-                    throw new QpickHttpException(422, 100022, 'options.' . $type . '.value');
                 }
 
                 $uptArrs['options->' . $type] = $val;
@@ -354,8 +281,9 @@ class BoardController extends Controller
     {
         // 게시판 목록 데이터
         $tags = separateTag('board.list');
+        $ttl = config('cache.custom.expire.common');
 
-        $data = Cache::tags($tags)->remember('common', config('cache.custom.expire.common'), function () {
+        $data = Cache::tags($tags)->remember('common', $ttl, function () {
             $brd = $this->board::select(['id', 'name', 'type', 'options'])->get();
             $brd = $brd->toArray();
 

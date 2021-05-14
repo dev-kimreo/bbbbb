@@ -38,9 +38,6 @@ class ModifyMemberRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => getErrorCode(100001, 'name'),
-            'name.between' => getErrorCode(100053, 'name'),
-            'password.required' => getErrorCode(100001, 'password'),
         ];
     }
 }

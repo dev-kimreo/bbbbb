@@ -127,7 +127,7 @@ class PostController extends Controller
 
         // check write post Policy
         if (!auth()->user()->can('create', [$this->post, $boardCollect])) {
-            throw new QpickHttpException(403, 101001);
+            throw new QpickHttpException(403, 'common.unauthorized');
         }
 
         /**
@@ -248,12 +248,12 @@ class PostController extends Controller
         $postCollect = $this->post->getByBoardId($request->id, $request->boardId)->first();
 
         if (!$postCollect) {
-            throw new QpickHttpException(422, 100005);
+            throw new QpickHttpException(422, 'common.not_found');
         }
 
         // check update post Policy
         if (!auth()->user()->can('update', $postCollect)) {
-            throw new QpickHttpException(403, 101001);
+            throw new QpickHttpException(403, 'common.unauthorized');
         }
 
         // 게시글 정보
@@ -364,12 +364,12 @@ class PostController extends Controller
         $postCollect = $this->post->where(['id' => $request->id, 'board_id' => $request->boardId])->first();
 
         if (!$postCollect) {
-            throw new QpickHttpException(422, 100005);
+            throw new QpickHttpException(422, 'common.not_found');
         }
 
         // check update post Policy
         if (!auth()->user()->can('delete', $postCollect)) {
-            throw new QpickHttpException(403, 101001);
+            throw new QpickHttpException(403, 'common.unauthorized');
         }
 
         // 게시글 정보
@@ -491,7 +491,7 @@ class PostController extends Controller
         // 시크릿 기능 사용시
         if (isset($board['options']['secret']) && $board['options']['secret']) {
             if (!auth()->user()) {
-                throw new QpickHttpException(422, 110001);
+                throw new QpickHttpException(401, 'common.required_login');
             }
 
             $whereModel = $whereModel->where(['user_id' => auth()->user()->id]);
@@ -509,9 +509,6 @@ class PostController extends Controller
 
         // pagination
         $pagination = PaginationLibrary::set($set['page'], $whereModel->count(), $set['view']);
-        if (!$pagination) {
-            throw new QpickHttpException(422, 110001);
-        }
 
         if ($set['page'] <= $pagination['totalPage']) {
             // 데이터 cache
@@ -653,7 +650,7 @@ class PostController extends Controller
 
         // 잘못된 정보입니다.
         if (!$post) {
-            throw new QpickHttpException(422, 100005);
+            throw new QpickHttpException(422, 'common.not_found');
         }
 
         // 게시글 정보
@@ -662,7 +659,7 @@ class PostController extends Controller
 
         // 이미 숨김 처리된 게시글 일 경우
         if ($postInfo['hidden']) {
-            throw new QpickHttpException(422, 200004);
+            throw new QpickHttpException(403, 'post.disable.hidden');
         }
 
         return response()->json(CollectionLibrary::toCamelCase(collect($postInfo)), 200);

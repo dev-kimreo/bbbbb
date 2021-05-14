@@ -110,7 +110,7 @@ class AttachController extends Controller
                 ];
             }
         } else {
-            throw new QpickHttpException(422, 100001, '{files[]}');
+            throw new QpickHttpException(400, 'common.bad_request');
         }
 
         foreach ($uploadFiles as $f) {
@@ -149,7 +149,7 @@ class AttachController extends Controller
     {
         $res = $this->attachService->delete([$request->id]);
         if (!$res) {
-            throw new QpickHttpException(422, 10001);
+            throw new QpickHttpException(422, 'common.incorrect');
         }
 
         return response()->json([

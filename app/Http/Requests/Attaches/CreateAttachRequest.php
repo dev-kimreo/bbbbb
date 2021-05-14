@@ -38,8 +38,6 @@ class CreateAttachRequest extends FormRequest
     public function messages()
     {
         return [
-            'files.*.required' => getErrorCode(100001, 'files'),
-            'files.*.mimes' => getErrorCode(100155, 'files'),
         ];
     }
 }

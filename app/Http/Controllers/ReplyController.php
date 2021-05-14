@@ -197,7 +197,7 @@ class ReplyController extends Controller
 
         // 댓글 수정 권한 체크
         if (!auth()->user()->can('update', $replyCollect)) {
-            throw new QpickHttpException(422, 101001);
+            throw new QpickHttpException(403, 'reply.disable.writer_only');
         }
 
         $replyCollect->content = $request->content;
@@ -266,7 +266,7 @@ class ReplyController extends Controller
 
         // 삭제 권한 체크
         if (!auth()->user()->can('delete', $replyCollect)) {
-            throw new QpickHttpException(422, 101001);
+            throw new QpickHttpException(403, 'reply.disable.writer_only');
         }
 
         // 댓글 소프트 삭제
@@ -372,9 +372,6 @@ class ReplyController extends Controller
 
         // pagination
         $pagination = PaginationLibrary::set($set['page'], $whereModel->count(), $set['view']);
-        if (!$pagination) {
-            throw new QpickHttpException(422, 101001);
-        }
 
         if ($set['page'] <= $pagination['totalPage']) {
             // 데이터 cache

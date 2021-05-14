@@ -39,12 +39,6 @@ class CreateBoardsRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => getErrorCode(100001, 'name'),
-            'name.between' => getErrorCode(100053, 'name'),
-
-            'type.required' => getErrorCode(100001, 'type'),
-            'type.max' => getErrorCode(100073, 'type'),
-            'type.unique' => getErrorCode(100002, 'type'),
         ];
     }
 }

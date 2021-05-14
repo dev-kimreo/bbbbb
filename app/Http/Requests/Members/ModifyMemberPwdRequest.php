@@ -39,11 +39,6 @@ class ModifyMemberPwdRequest extends FormRequest
     public function messages()
     {
         return [
-            'password.required' => getErrorCode(100001, 'password'),
-            'changePassword.required' => getErrorCode(100001, 'changePassword'),
-            'changePassword.min' => getErrorCode(100063, 'changePassword'),
-            'passwordConfirmation.required' => getErrorCode(100001, 'passwordConfirmation'),
-            'passwordConfirmation.same' => getErrorCode(100011, 'passwordConfirmation', 'changePassword'),
         ];
     }
 }

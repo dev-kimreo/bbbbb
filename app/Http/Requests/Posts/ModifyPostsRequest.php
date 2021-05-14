@@ -45,15 +45,6 @@ class ModifyPostsRequest extends FormRequest
     public function messages()
     {
         return [
-            'title.required_without_all' => getErrorCode(100003, null, '{title}'),
-            'title.between' => getErrorCode(100053, 'title'),
-            'content.required_without_all' => getErrorCode(100003, null, '{content}'),
-
-            'thumbnail.id.integer' => getErrorCode(100041, 'thumbnail.id'),
-            'thumbnail.id.exists' => getErrorCode(100021, 'thumbnail.id'),
-
-            'delFiles.*.integer' => getErrorCode(100041, '{delFiles}'),
-            'delFiles.*.exists' => getErrorCode(100021, '{delFiles}'),
         ];
     }
 }
