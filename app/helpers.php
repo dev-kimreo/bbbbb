@@ -4,46 +4,6 @@
 //use Cache;
 use Carbon\Carbon;
 
-if (!function_exists('getErrorCode')) {
-    function getErrorCode($code, ...$key) {
-        $codeType = 'subError';
-        $errCfg = config($codeType . '.' . $code);
-
-        if (isset($errCfg)) {
-            $res = [
-                'code' => '',
-                'message' => '',
-                'key' => ''
-            ];
-
-            $msg = __($errCfg);
-
-            preg_match_all("/:{1}[^\s]+[a-z]+/", $msg, $matchArrs);
-//            print_r($matchArrs);
-
-            foreach ($matchArrs[0] as $k => $attr) {
-                if ( is_array($key) && count($key) ) {
-                    if ( isset($key[$k]) && $key[$k] ) {
-                        if (preg_match("/^\{{1}[^\{\}]+\}{1}$/", $key[$k])) {
-                            $key[$k] = preg_replace('/\{|\}/', '', $key[$k]);
-                            $msg = str_replace($attr, $key[$k], $msg);
-                        } else {
-                            $msg = str_replace($attr, __('words.' . $key[$k]), $msg);
-                        }
-                    }
-                }
-            }
-
-            $res['code'] = $code;
-            $res['message'] = $msg;
-
-            return json_encode($res);
-        } else {
-            return false;
-        }
-    }
-}
-
 if (!function_exists('checkPwdPattern')) {
     function checkPwdPattern (string $str) {
 
