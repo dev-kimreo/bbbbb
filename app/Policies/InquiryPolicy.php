@@ -20,6 +20,11 @@ class InquiryPolicy
         //
     }
 
+    public function before(User $user) {
+        // 준회원이 아닐 경우
+        return $user->grade != 0;
+    }
+
     public function viewAny()
     {
     }
@@ -31,8 +36,6 @@ class InquiryPolicy
 
     public function create(User $user, Inquiry $inquiry)
     {
-        // 준회원이 아닐 경우
-        return $user->grade != 0;
     }
 
     public function update(User $user, Post $post)
@@ -44,11 +47,5 @@ class InquiryPolicy
     {
         return $user->id === $post->user_id;
     }
-
-    public function isHidden(User $user, Post $post)
-    {
-        return $post->hidden ? true : false;
-    }
-
 
 }

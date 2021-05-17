@@ -11,7 +11,7 @@ use Artisan;
 
 use App\Models\AttachFile;
 
-use App\Http\Requests\Attaches\CreateAttachRequest;
+use App\Http\Requests\Attaches\CreateRequest;
 use App\Http\Requests\Attaches\UpdateRequest;
 
 use App\Exceptions\QpickHttpException;
@@ -101,7 +101,7 @@ class AttachController extends Controller
      * @param Request $request
      * @return mixed
      */
-    public function create(CreateAttachRequest $request)
+    public function create(CreateRequest $request)
     {
         $files = $request->file('files');
         $uploadFiles = [];
@@ -135,7 +135,7 @@ class AttachController extends Controller
             $this->attach->save();
         }
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($this->attach)), 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($this->attach)), 201);
     }
 
 
@@ -144,22 +144,23 @@ class AttachController extends Controller
         // Attach find
         $attachCollect = $this->attach->where(['id' => $id, 'attachable_type' => 'temp'])->first();
         if (!$attachCollect) {
-            throw new QpickHttpException(422, 100005);
+            throw new QpickHttpException(422, 'common.not_found');
         }
 
         if (!auth()->user()->can('update', $attachCollect)) {
-            throw new QpickHttpException(403, 101001);
+            throw new QpickHttpException(403, 'common.unauthorized');
         }
 
         // type check
-        $typeModel = '\\' . Relation::getMorphedModel($request->type);
+        $typeModel = Relation::getMorphedModel($request->type);
         if (!$typeModel) {
-            throw new QpickHttpException(422, 100005);
+            throw new QpickHttpException(422, 'common.not_found', 'type');
         }
+        $typeModel = '\\' . $typeModel;
         $typeCollect = $typeModel::find($request->typeId);
 
         if (!$typeCollect) {
-            throw new QpickHttpException(422, 100005);
+            throw new QpickHttpException(422, 'common.not_found', 'typeId');
         }
 
         // check use upload file

@@ -14,10 +14,10 @@ class CreateManagersTable extends Migration
     public function up()
     {
         Schema::create('managers', function (Blueprint $table) {
+            $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->tinyInt('grade', 3);
-            $table->timestamps();
+            $table->unsignedTinyInteger('grade');
             $table->timestamps();
         });
     }

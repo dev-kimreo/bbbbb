@@ -40,9 +40,6 @@ class UpdateRequest extends FormRequest
     public function messages()
     {
         return [
-            'type.required' => getErrorCode(100001, 'type'),
-            'typeId.required' => getErrorCode(100001, 'typeId'),
-            'thumbnail.in' => getErrorCode(100081, 'thumbnail'),
         ];
     }
 }

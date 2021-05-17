@@ -200,7 +200,7 @@ class MemberController extends Controller
         return response()->json([
             'message' => __('common.registered'),
             'member' => CollectionLibrary::toCamelCase(collect($member))
-        ], 200);
+        ], 201);
     }
 
 

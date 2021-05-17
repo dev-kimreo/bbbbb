@@ -45,15 +45,6 @@ class UpdateRequest extends FormRequest
     public function messages()
     {
         return [
-            'title.required_without_all' => getErrorCode(100003, null, 'title'),
-            'title.between' => getErrorCode(100053, 'title'),
-            'question.required_without_all' => getErrorCode(100003, null, 'question'),
-
-            'attachFiles.id.*.integer' => getErrorCode(100041, 'attachFiles.id'),
-            'attachFiles.id.*.exists' => getErrorCode(100021, 'attachFiles.id'),
-
-            'delFiles.*.integer' => getErrorCode(100041, 'delFiles'),
-            'delFiles.*.exists' => getErrorCode(100021, 'delFiles'),
         ];
     }
 }

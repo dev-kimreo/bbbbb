@@ -115,11 +115,11 @@ class AttachService
             $attachFile = $this->attach->where(['id' => $n])->first();
             // 파일이 존재하지 않을 경우
             if (!$attachFile) {
-                throw new QpickHttpException(422, 100005);
+                throw new QpickHttpException(422, 'common.not_found');
             }
 
             if (!auth()->user()->can('delete', $attachFile)) {
-                throw new QpickHttpException(403, 101001);
+                throw new QpickHttpException(403, 'common.unauthorized');
             }
 
             Storage::disk($attachFile->server)->delete($attachFile->path . '/' . $attachFile->name);
@@ -130,7 +130,7 @@ class AttachService
     public function checkAttachableModel($collect): bool
     {
         if (method_exists($collect, 'checkAttachableModel') && !$collect->checkAttachableModel()) {
-            throw new QpickHttpException(422, 150000);
+            throw new QpickHttpException(403, 'attach.disable.upload');
         }
 
         return true;
@@ -141,7 +141,7 @@ class AttachService
         $alias = $collect->getMorphClass();
 
         if (!$alias) {
-            throw new QpickHttpException(422, 100005);
+            throw new QpickHttpException(422, 'common.not_found');
         }
 
         $uploadCount = $this->attach->where([
@@ -151,7 +151,7 @@ class AttachService
         ])->count();
 
         if ($collect->getAttachFileLimit() <= $uploadCount) {
-            throw new QpickHttpException(422, 150001);
+            throw new QpickHttpException(422, 'attach.over.limit');
         }
 
         return true;
