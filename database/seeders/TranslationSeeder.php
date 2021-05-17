@@ -178,7 +178,19 @@ class TranslationSeeder extends Seeder
                 'reply.disable.writer_only',
                 '댓글의 수정이나 삭제는 작성자만 할 수 있습니다.',
                 'Can\'t writing a reply because you are not writer.'
-            ]
+            ],
+            [
+                'messages',
+                'attach.disable.upload',
+                '업로드 기능을 사용할 수 없습니다.',
+                '업로드 기능을 사용할 수 없습니다.'
+            ],
+            [
+                'messages',
+                'attach.over.limit',
+                '업로드 제한 갯수를 초과 하였습니다.',
+                '업로드 제한 갯수를 초과 하였습니다.'
+            ],
         ];
 
         // Truncate tables

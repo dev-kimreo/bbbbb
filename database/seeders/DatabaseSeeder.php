@@ -16,7 +16,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             BoardsSeeder::class,
             BoardOptionsSeeder::class,
-            OauthClientsSeeder::class
+            OauthClientsSeeder::class,
+            TranslationSeeder::class
         ]);
 
         // \App\Models\User::factory(10)->create();
