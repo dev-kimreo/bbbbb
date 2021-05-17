@@ -16,6 +16,11 @@ return [
     'required_login' => '로그인이 필요한 서비스입니다.',
     'exists' => '존재하지 않는 :attribute입니다.',
 
+    'attach_file' => [
+        'not_use' => '업로드 기능을 사용할 수 없습니다.',
+        'limit_over' => '업로드 갯수를 초과하였습니다.',
+    ],
+
     'board' => [
         'not_reply' => '댓글을 작성할 수 없는 게시판입니다.',
     ],

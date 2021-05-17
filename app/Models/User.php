@@ -33,6 +33,12 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, HasApiTokens;
 
+    // 회원 등급
+    public $userGrade = [
+        0,  // 준회원
+        1   // 정회원
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -56,6 +62,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function checkAdmin()
     {
         return $this->grade != 100 ? false : true;
+    }
+
+    public function manager()
+    {
+        return $this->hasOne('App\Models\Manager');
     }
 
     public function isLoginToManagerService()

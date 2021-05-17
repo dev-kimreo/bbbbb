@@ -2,15 +2,18 @@
 
 namespace App\Services;
 
+use App\Exceptions\QpickHttpException;
 use App\Models\AttachFile;
 use Storage;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
+use App\Services\BoardService;
+
 
 class AttachService
 {
-    private $attach;
+    private $attach, $boardService;
 
     public $tempDir = 'temp';       // 임시 파일 저장 디렉토리
     private $hexLength = 9;          // hex 길이 16진수 9승 687억개 가능
@@ -24,9 +27,10 @@ class AttachService
      * PostService constructor.
      * @param Post $post
      */
-    public function __construct(AttachFile $attach)
+    public function __construct(AttachFile $attach, BoardService $boardService)
     {
         $this->attach = $attach;
+        $this->boardService = $boardService;
     }
 
 
@@ -108,51 +112,49 @@ class AttachService
         }
 
         foreach ($no as $n) {
-            $attachFile = $this->attach->where(['id' => $n, 'user_id' => auth()->user()->id])->first();
+            $attachFile = $this->attach->where(['id' => $n])->first();
             // 파일이 존재하지 않을 경우
             if (!$attachFile) {
-                continue; //'파일 존재하지 않거나 내께 아니야'
+                throw new QpickHttpException(422, 100005);
+            }
+
+            if (!auth()->user()->can('delete', $attachFile)) {
+                throw new QpickHttpException(403, 101001);
             }
 
             Storage::disk($attachFile->server)->delete($attachFile->path . '/' . $attachFile->name);
             $attachFile->delete();
         }
+    }
+
+    public function checkAttachableModel($collect): bool
+    {
+        if (method_exists($collect, 'checkAttachableModel') && !$collect->checkAttachableModel()) {
+            throw new QpickHttpException(422, 150000);
+        }
 
         return true;
     }
 
+    public function checkUnderUploadLimit($collect): bool
+    {
+        $alias = $collect->getMorphClass();
 
-//    public function morphDelete($type, $typeId, array $no = [])
-//    {
-//        if (!$typeId) {
-//            return false;
-//        }
-//
-//        // 특정 파일만 삭제
-//        if (is_array($no) && count($no)) {
-//            foreach ($no as $n) {
-//                $attachFile = $this->attach->where(['id' => $n, 'type' => $type, 'type_id' => $typeId, 'user_id' => auth()->user()->id])->first();
-//
-//                // 파일이 존재하지 않을 경우
-//                if (!$attachFile) {
-//                    return '파일 존재하지 않아';
-//                }
-//
-//                Storage::disk($attachFile->server)->delete($attachFile->path . '/' . $attachFile->name);
-//                $attachFile->delete();
-//            }
-//        } // 전부 삭제
-//        else {
-//            // 존재 유무 체크
-//            $AttachWhereModel = $this->attach->where(['type' => $type, 'type_id' => $typeId]);
-//
-//            if ($attachFile = $AttachWhereModel->first()) {
-//                Storage::disk($attachFile->server)->deleteDirectory($attachFile->path);
-//                $this->attach->where(['type' => $type, 'type_id' => $typeId])->delete();
-//            }
-//        }
-//
-//    }
+        if (!$alias) {
+            throw new QpickHttpException(422, 100005);
+        }
 
+        $uploadCount = $this->attach->where([
+            'attachable_type' => $alias,
+            'attachable_id' => $collect->id,
+            'user_id' => auth()->user()->id
+        ])->count();
+
+        if ($collect->getAttachFileLimit() <= $uploadCount) {
+            throw new QpickHttpException(422, 150001);
+        }
+
+        return true;
+    }
 
 }

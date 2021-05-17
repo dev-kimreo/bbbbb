@@ -10,6 +10,7 @@ use App\Http\Controllers\BoardController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\AttachController;
+use App\Http\Controllers\InquiryController;
 
 
 /*
@@ -155,9 +156,30 @@ Route::group([
 
             // 댓글 삭제
             Route::delete('/{boardId}/post/{postId}/reply/{id}', [ReplyController::class, 'delete']);
-
-
         });
+    });
+
+    // 1:1 문의
+    Route::group([
+        'prefix' => 'inquiry',
+        'middleware' => 'auth:api',
+    ], function(){
+
+        // 문의 목록
+        Route::get('', [InquiryController::class, 'index']);
+
+        // 문의 상세정보
+        Route::get('/{inquiryId}', [InquiryController::class, 'show']);
+
+        // 문의 작성
+        Route::post('', [InquiryController::class, 'store']);
+
+        // 문의 수정
+        Route::patch('{inquiryId}', [InquiryController::class, 'update']);
+
+        // 문의 삭제
+        Route::delete('{inquiryId}', [InquiryController::class, 'destroy']);
+
     });
 
 
@@ -190,6 +212,9 @@ Route::group([
 
         // 파일 삭제
         Route::delete('/{id}', [AttachController::class, 'delete']);
+
+        // 파일 이동
+        Route::patch('/{id}', [AttachController::class, 'update']);
 
     });
 
