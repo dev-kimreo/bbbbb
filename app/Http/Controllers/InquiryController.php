@@ -47,7 +47,7 @@ class InquiryController extends Controller
         } else {
             // check write Policy
             if (!auth()->user()->can('create', [$this->inquiry])) {
-                throw new QpickHttpException(403, 101001);
+                throw new QpickHttpException(403, 'common.unauthorized');
             }
 
             // 데이터 가공
@@ -115,7 +115,7 @@ class InquiryController extends Controller
                 ])
                 ->first();
             if (!$collect) {
-                throw new QpickHttpException(422, 100005);
+                throw new QpickHttpException(422, 'common.not_found');
             }
         }
 
@@ -133,7 +133,7 @@ class InquiryController extends Controller
                 ->where(['id' => $id, 'user_id' => auth()->user()->id])
                 ->first();
             if (!$collect) {
-                throw new QpickHttpException(422, 100005);
+                throw new QpickHttpException(422, 'common.not_found');
             }
 
             $collect->title = $request->title ?? $collect->title;
@@ -163,7 +163,7 @@ class InquiryController extends Controller
                 ])
                 ->first();
             if (!$collect) {
-                throw new QpickHttpException(422, 100005);
+                throw new QpickHttpException(422, 'common.not_found');
             }
 
             // 첨부파일 삭제
