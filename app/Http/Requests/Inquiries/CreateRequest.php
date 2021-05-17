@@ -44,14 +44,6 @@ class CreateRequest extends FormRequest
     public function messages()
     {
         return [
-            'title.required' => getErrorCode(100001, 'title'),
-            'title.between' => getErrorCode(100053, 'title'),
-
-            'question.required' => getErrorCode(100001, 'question'),
-            'question.min' => getErrorCode(100063, 'question'),
-
-//            'thumbnail.id.integer' => getErrorCode(100041, 'thumbnail.id'),
-//            'thumbnail.id.exists' => getErrorCode(100021, 'thumbnail.id'),
         ];
     }
 }
