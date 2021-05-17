@@ -68,6 +68,13 @@ class BoardOptionsSeeder extends Seeder
                     ["value" => "0", "comment" => "사용 안함"],
                     ["value" => "1", "comment" => "사용 함"]
                 ])
+            ],
+            [
+                "name" => '파일 첨부 갯수 제한',
+                "type" => 'attachLimit',
+                "default" => '10',
+                "options" => json_encode([
+                ])
             ]
         ];
         //
