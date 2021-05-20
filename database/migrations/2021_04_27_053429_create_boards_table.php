@@ -17,11 +17,9 @@ class CreateBoardsTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->string('name', 32);
-            $table->string('type', 32);
             $table->json('options');
             $table->boolean('hidden')->default('0');
             $table->timestamps();
-            $table->index('type');
         });
     }
 
