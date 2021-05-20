@@ -62,12 +62,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function checkAdmin()
     {
-        return $this->grade != 100 ? false : true;
+        return $this->manager()->exists();
     }
 
     public function manager()
     {
-        return $this->hasOne('App\Models\Manager');
+        return $this->hasOne(Manager::class);
     }
 
     public function isLoginToManagerService()
