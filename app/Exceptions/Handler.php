@@ -95,7 +95,7 @@ class Handler extends ExceptionHandler
 
                 foreach($v as $k => $message) {
                     $response['errors'][] = [
-                        'code' => 'common.validation.' . lcfirst($rule[$k]),
+                        'code' => 'validation.' . lcfirst($rule[$k]),
                         'target' => $field,
                         'msg' => $message
                     ];
