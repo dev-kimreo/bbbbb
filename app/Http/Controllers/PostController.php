@@ -9,19 +9,13 @@ use Cache;
 use Carbon\Carbon;
 use Str;
 
-
-use App\Http\Controllers\BoardController;
-use App\Http\Controllers\AttachController;
-
 use App\Models\Post;
 use App\Models\Board;
-use App\Models\Reply;
-use App\Models\AttachFile;
 
-use App\Http\Requests\Posts\GetListPostsRequest;
-use App\Http\Requests\Posts\CreatePostsRequest;
-use App\Http\Requests\Posts\ModifyPostsRequest;
-use App\Http\Requests\Posts\DeletePostsRequest;
+use App\Http\Requests\Posts\CreateRequest;
+use App\Http\Requests\Posts\UpdateRequest;
+use App\Http\Requests\Posts\DestroyRequest;
+use App\Http\Requests\Posts\IndexRequest;
 
 use App\Exceptions\QpickHttpException;
 
@@ -38,8 +32,6 @@ use App\Services\AttachService;
  */
 class PostController extends Controller
 {
-    public $attachType = 'post';
-
     public function __construct(Post $post, Board $board, BoardService $boardService, PostService $postService, AttachService $attachService)
     {
         $this->post = $post;
@@ -54,10 +46,7 @@ class PostController extends Controller
      *      schema="postCreate",
      *      required={"title", "content"},
      *      @OA\Property(property="title", type="string", example="게시글 입니다.", description="게시글 제목" ),
-     *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" ),
-     *      @OA\Property(property="thumbnail", type="object",
-     *          @OA\Property(property="id", type="interger", example=23, description="섬네일로 사용할 임시 이미지의 고유번호" )
-     *      ),
+     *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" )
      *  )
      */
 
@@ -77,36 +66,19 @@ class PostController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="생성되었습니다.",
+     *          response=201,
+     *          description="created",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="생성되었습니다." ),
      *          )
      *      ),
      *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
      *          response=422,
-     *          description="실패",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100021", ref="#/components/schemas/RequestResponse/properties/100021"),
-     *                              @OA\Property(property="100022", ref="#/components/schemas/RequestResponse/properties/100022"),
-     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
-     *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
-     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
-     *                              @OA\Property(property="101001", ref="#/components/schemas/RequestResponse/properties/101001"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -116,36 +88,17 @@ class PostController extends Controller
 
     /**
      * 게시글 작성
-     * @param CreatePostsRequest $request
+     * @param CreateRequest $request
      * @return mixed
      */
-    public function create(CreatePostsRequest $request)
+    public function create(CreateRequest $request)
     {
         // 게시판 정보
         $boardCollect = $this->boardService->getInfo($request->boardId);
-        $board = $boardCollect->toArray();
 
         // check write post Policy
         if (!auth()->user()->can('create', [$this->post, $boardCollect])) {
             throw new QpickHttpException(403, 'common.unauthorized');
-        }
-
-        /**
-         * 게시글 작성 데이터
-         */
-        // 후처리
-        $after['thumbnail'] = null;
-
-        foreach ($board['options'] as $type => $val) {
-            switch ($type) {
-                // 섬네일
-                case 'thumbnail':
-                    break;
-
-                // TODO 첨부파일
-                case 'attachFile':
-                    break;
-            }
         }
 
         // 게시글 작성
@@ -156,20 +109,12 @@ class PostController extends Controller
 
         $this->post->save();
 
-        // 섬네일 사용 게시판이고, 임시 섬네일이 있을경우 사용처로 이동
-        if (isset($board['options']['thumbnail']) && $board['options']['thumbnail'] && isset($request->thumbnail)) {
-            $this->attachService->move($this->post, [$request->thumbnail['id']], ['type' => 'thumbnail']);
-        }
+        $this->post->refresh();
 
         // 캐시 초기화
         Cache::tags(['board.' . $request->boardId . '.post.list'])->flush();
 
-        return response()->json([
-            'message' => __('common.created'),
-            'data' => [
-                'no' => $this->post->id
-            ]
-        ], 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($this->post)), 201);
     }
 
 
@@ -177,13 +122,7 @@ class PostController extends Controller
      * @OA\Schema (
      *      schema="postModify",
      *      @OA\Property(property="title", type="string", example="게시글 입니다.", description="게시글 제목" ),
-     *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" ),
-     *      @OA\Property(property="thumbnail", type="object",
-     *          @OA\Property(property="id", type="integer", example=42, description="섬네일로 사용할 임시 이미지의 고유번호" ),
-     *      ),
-     *      @OA\Property(property="delFiles", type="array", example={23,52}, description="삭제할 파일의 고유번호",
-     *          @OA\Items(type="integer" ),
-     *      )
+     *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" )
      *  )
      */
 
@@ -202,36 +141,19 @@ class PostController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="수정되었습니다.",
+     *          response=201,
+     *          description="modified",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="수정되었습니다." ),
      *          )
      *      ),
      *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
      *          response=422,
-     *          description="실패",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100021", ref="#/components/schemas/RequestResponse/properties/100021"),
-     *                              @OA\Property(property="100022", ref="#/components/schemas/RequestResponse/properties/100022"),
-     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
-     *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
-     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
-     *                              @OA\Property(property="101001", ref="#/components/schemas/RequestResponse/properties/101001"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -240,27 +162,21 @@ class PostController extends Controller
      */
 
     /**
-     * @param ModifyPostsRequest $request
+     * @param UpdateRequest $request
      * @return mixed
      */
-    public function modify(ModifyPostsRequest $request)
+    public function modify(UpdateRequest $request)
     {
-        $postCollect = $this->post->getByBoardId($request->id, $request->boardId)->first();
+        $this->post = $this->post->getByBoardId($request->id, $request->boardId)->first();
 
-        if (!$postCollect) {
-            throw new QpickHttpException(422, 'common.not_found');
+        if (!$this->post) {
+            throw new QpickHttpException(404, 'common.not_found');
         }
 
         // check update post Policy
-        if (!auth()->user()->can('update', $postCollect)) {
+        if (!auth()->user()->can('update', $this->post)) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
-
-        // 게시글 정보
-        $postInfo = $postCollect->toArray();
-
-        $boardInfo = $this->board->find($request->boardId)->toArray();
-        $attachFlag = false;
 
         $flushFlag = false;
         $uptArrs = [];
@@ -275,30 +191,9 @@ class PostController extends Controller
             $uptArrs['content'] = $request->content;
         }
 
-        foreach ($boardInfo['options'] as $type => $val) {
-            switch ($type) {
-                // 섬네일
-                case 'thumbnail':
-                    if (isset($request->thumbnail)) {
-                        $this->attachService->move($postCollect, [$request->thumbnail['id']], ['type' => 'thumbnail']);
-                    }
-
-                case 'attachFile':
-                    $attachFlag = true;
-                    break;
-            }
-        }
-
-        // 삭제할 파일
-        if ($attachFlag && isset($request->delFiles) && is_array($request->delFiles)) {
-            $this->attachService->delete($request->delFiles);
-
-            $flushFlag = true;
-        }
-
         // 변경사항이 있을 경우
         if (count($uptArrs)) {
-            $postCollect->update($uptArrs);
+            $this->post->update($uptArrs);
             $flushFlag = true;
         }
 
@@ -308,9 +203,7 @@ class PostController extends Controller
             Cache::tags(['board.' . $request->boardId . '.post.list'])->flush();                    // 상세 목록 캐시 flush
         }
 
-        return response()->json([
-            'message' => __('common.modified')
-        ], 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($this->post)), 201);
     }
 
 
@@ -322,32 +215,20 @@ class PostController extends Controller
      *      operationId="postDelete",
      *      tags={"게시판 글"},
      *      @OA\Response(
-     *          response=200,
-     *          description="삭제되었습니다.",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="삭제되었습니다." ),
-     *          )
+     *          response=204,
+     *          description="deleted"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="not found"
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="실패",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
-     *                              @OA\Property(property="101001", ref="#/components/schemas/RequestResponse/properties/101001"),
-     *                              @OA\Property(property="200003", ref="#/components/schemas/RequestResponse/properties/200003"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -356,15 +237,15 @@ class PostController extends Controller
      */
 
     /**
-     * @param DeletePostsRequest $request
+     * @param DestroyRequest $request
      * @return mixed
      */
-    public function delete(DeletePostsRequest $request)
+    public function delete(DestroyRequest $request)
     {
         $postCollect = $this->post->where(['id' => $request->id, 'board_id' => $request->boardId])->first();
 
         if (!$postCollect) {
-            throw new QpickHttpException(422, 'common.not_found');
+            throw new QpickHttpException(404, 'common.not_found');
         }
 
         // check update post Policy
@@ -372,20 +253,17 @@ class PostController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        // 게시글 정보
-        $postInfo = $postCollect->toArray();
+        // 첨부파일 삭제
+        $this->attachService->delete($postCollect->attachFiles->modelKeys());
 
         // 소프트 삭제 진행
         $postCollect->delete();
-
 
         // 캐시 초기화
         Cache::tags(['board.' . $request->boardId . '.post.' . $request->id])->flush();               // 상세 정보 캐시 삭제
         Cache::tags(['board.' . $request->boardId . '.post.list'])->flush();
 
-        return response()->json([
-            'message' => __('common.deleted')
-        ], 200);
+        return response()->noContent();
     }
 
 
@@ -412,7 +290,7 @@ class PostController extends Controller
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="successfully Created",
+     *          description="successfully",
      *          @OA\JsonContent(
      *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination" ),
      *              @OA\Property(property="list", type="array",
@@ -434,35 +312,15 @@ class PostController extends Controller
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="failed get lists",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100022", ref="#/components/schemas/RequestResponse/properties/100022"),
-     *                              @OA\Property(property="100051", ref="#/components/schemas/RequestResponse/properties/100051"),
-     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
-     *                              @OA\Property(property="100081", ref="#/components/schemas/RequestResponse/properties/100081"),
-     *                              @OA\Property(property="110001", ref="#/components/schemas/RequestResponse/properties/110001"),
-     *                              @OA\Property(property="101001", ref="#/components/schemas/RequestResponse/properties/101001"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *  )
      */
     /**
-     * @param GetListPostsRequest $request
+     * @param IndexRequest $request
      * @return mixed
      */
-    public function getList(GetListPostsRequest $request)
+    public function getList(IndexRequest $request)
     {
         // init
         $boardInfoFlag = isset($request->boardInfo) ? $request->boardInfo : 0;
@@ -484,12 +342,12 @@ class PostController extends Controller
         $whereModel = $this->post->where(['board_id' => $set['boardId']]);
 
         // 섬네일 기능 사용시
-        if (isset($board['options']['thumbnail']) && $board['options']['thumbnail']) {
+        if (isset($boardCollect->options['thumbnail']) && $boardCollect->options['thumbnail']) {
             $set['thumbnail'] = true;
         }
 
         // 시크릿 기능 사용시
-        if (isset($board['options']['secret']) && $board['options']['secret']) {
+        if (isset($boardCollect->options['secret']) && $boardCollect->options['secret']) {
             if (!auth()->user()) {
                 throw new QpickHttpException(401, 'common.required_login');
             }
@@ -498,12 +356,12 @@ class PostController extends Controller
         }
 
         // 댓글 사용시
-        if ($board['options']['reply']) {
+        if ($boardCollect->options['reply']) {
             $set['reply'] = true;
         }
 
         // 파일 첨부 **check**
-        if (isset($board['options']['attachFile']) && $board['options']['attachFile']) {
+        if (isset($boardCollect->options['attachFile']) && $boardCollect->options['attachFile']) {
 
         }
 
@@ -536,6 +394,7 @@ class PostController extends Controller
                     ->groupBy('posts.id')
                     ->skip($pagination['skip'])
                     ->take($pagination['perPage'])
+                    ->orderBy('sort', 'asc')
                     ->orderBy('id', 'desc');
 
                 $post = $post->get();
@@ -579,7 +438,7 @@ class PostController extends Controller
 
         // 게시판 정보 필요시
         if ($boardInfoFlag) {
-            $result['board'] = $board;
+            $result['board'] = $boardCollect;
         }
 
         $result['list'] = $data;
@@ -598,7 +457,7 @@ class PostController extends Controller
      *      tags={"게시판 글"},
      *      @OA\Response(
      *          response=200,
-     *          description="successfully Created",
+     *          description="successfully",
      *          @OA\JsonContent(
      *              @OA\Property(property="id", type="integer", example=1, description="게시글 고유번호" ),
      *              @OA\Property(property="title", type="string", example="게시글 제목입니다.", description="게시글 제목" ),
@@ -617,24 +476,7 @@ class PostController extends Controller
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="failed get lists",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
-     *                              @OA\Property(property="200003", ref="#/components/schemas/RequestResponse/properties/200003"),
-     *                              @OA\Property(property="200004", ref="#/components/schemas/RequestResponse/properties/200004"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *  )
      */
@@ -650,51 +492,18 @@ class PostController extends Controller
 
         // 잘못된 정보입니다.
         if (!$post) {
-            throw new QpickHttpException(422, 'common.not_found');
+            throw new QpickHttpException(404, 'common.not_found');
         }
 
         // 게시글 정보
         $postCollect = $this->postService->getInfo($request->id);
-        $postInfo = $postCollect->toArray();
 
         // 이미 숨김 처리된 게시글 일 경우
-        if ($postInfo['hidden']) {
+        if ($postCollect->hidden) {
             throw new QpickHttpException(403, 'post.disable.hidden');
         }
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($postInfo)), 200);
-    }
-
-
-    public function test(Request $request)
-    {
-
-//        $aaa = $this->toCamelCase(['board_id'=> 'asdasdsad', 'user_info' => ['name_s' => 'asds', 'schools_a' => ['middle_s' => 'asdasd', 'high_v' => 'asdasd']]]);
-//        print_r($aaa);
-
-//        return response()->json(, 200);
-
-//        Cache::tags(['people', 'artists'])->put('John', 'jone');
-//        Cache::tags(['people', 'authors'])->put('Anne', 'anne');
-//
-//        var_dump(Cache::tags(['people', 'authors'])->get('Anne'));
-//        Cache::tags(['board'])->put();
-
-
-        $aaa = \App\Models\Test::get();
-        //dd(get_class($aaa));
-//        $aaa = collect(['asdasd' => 'asdasdasdasd', 'nasd_namd' => ['asda_adasd' => 'asdsad' , '123_ads' => 'asdasd'] ]);
-        return CollectionLibrary::toCamelCase($aaa);
-//         dd(get_class($aaa));
-
-
-//        print_r($bbb);
-
-
-        //return response()->json();
-//        print_r($bbb);
-//        $aaa->boardId = 'asd';
-//        print_r($aaa->board_id );
+        return response()->json(CollectionLibrary::toCamelCase(collect($postCollect)), 200);
     }
 
 
