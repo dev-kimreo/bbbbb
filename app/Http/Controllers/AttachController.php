@@ -52,45 +52,25 @@ class AttachController extends Controller
      *              mediaType="multipart/form-data",
      *              @OA\Schema(
      *                  @OA\Property(
-     *                      property="files[]", type="array", description="",
-     *                      @OA\Items(type="string", format="binary")
+     *                      property="files", type="string", description="", format="binary"
      *                  )
      *              ),
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="successfully Created",
+     *          response=201,
+     *          description="created",
      *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(type="object",
-     *                  @OA\Property(property="url", type="string", example="http://local-api.qpicki.com/storage/temp/75bc15bf36e777ae26ad9be0b1745e08.jpg", description="url" ),
-     *                  @OA\Property(property="orgName", type="string", example="자연환경.png", description="원본 파일명" ),
-     *                  @OA\Property(property="extension", type="string", example="png", description="원본 확장자" ),
-     *              ),
+     *              ref="#/components/schemas/AttachFile"
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="bad request"
+     *      ),
+     *      @OA\Response(
      *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100003", ref="#/components/schemas/RequestResponse/properties/100003"),
-     *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
-     *                              @OA\Property(property="100081", ref="#/components/schemas/RequestResponse/properties/100081"),
-     *                              @OA\Property(property="100083", ref="#/components/schemas/RequestResponse/properties/100083"),
-     *                          ),
-     *                      }
-     *                  )
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -105,18 +85,15 @@ class AttachController extends Controller
     {
         $files = $request->file('files');
         $uploadFiles = [];
-        $res = [];
 
-        if (is_array($files) && count($files)) {
-            foreach ($files as $img) {
-                $uploadFiles[] = [
-                    'path' => Storage::disk('public')->putFileAs($this->attachService->tempDir, $img, md5($img->getClientOriginalName() . microtime()) . "." . $img->getClientOriginalExtension()),
-                    'orgName' => $img->getClientOriginalName()
-                ];
-            }
-        } else {
-            throw new QpickHttpException(400, 'common.bad_request');
-        }
+        $uploadFiles[] = [
+            'path' => Storage::disk('public')
+                ->putFileAs(
+                    $this->attachService->tempDir, $files,
+                    md5($files->getClientOriginalName() . microtime()) . "." . $files->getClientOriginalExtension()
+                ),
+            'orgName' => $files->getClientOriginalName()
+        ];
 
         foreach ($uploadFiles as $f) {
             $url = Storage::disk('public')->url($f['path']);
@@ -135,10 +112,60 @@ class AttachController extends Controller
             $this->attach->save();
         }
 
+        $this->attach->refresh();
+
         return response()->json(CollectionLibrary::toCamelCase(collect($this->attach)), 201);
     }
 
 
+    /**
+     * @OA\Schema (
+     *      schema="attachModify",
+     *      required={"type", "typeId"},
+     *      @OA\Property(property="type", type="string", example="post", description="사용처" ),
+     *      @OA\Property(property="typeId", type="integer", example=1, description="사용처의 고유번호" ),
+     *      @OA\Property(property="thumbnail", type="integer", example=1, default=0, description="섬네일로 사용 여부, 1:사용" )
+     *  )
+     */
+
+    /**
+     * @OA\Patch(
+     *      path="/v1/attach/{id}",
+     *      summary="첨부파일 수정",
+     *      description="첨부파일 수정",
+     *      operationId="attachFileModify",
+     *      tags={"첨부파일"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              ref="#/components/schemas/attachModify"
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="modified",
+     *          @OA\JsonContent(
+     *              ref="#/components/schemas/AttachFile"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="bad request"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
+     *  )
+     */
     public function update($id, UpdateRequest $request)
     {
         // Attach find
@@ -183,6 +210,31 @@ class AttachController extends Controller
         return response()->json($attachCollect, 201);
     }
 
+
+    /**
+     * @OA\Delete(
+     *      path="/v1/attach/{id}",
+     *      summary="첨부파일 삭제",
+     *      description="첨부파일 삭제",
+     *      operationId="replyDelete",
+     *      tags={"첨부파일"},
+     *      @OA\Response(
+     *          response=204,
+     *          description="deleted."
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
+     *  )
+     */
 
     /**
      * 단일 첨부파일 삭제
