@@ -21,6 +21,7 @@ class CreatePostsTable extends Migration
             $table->string('title', 128);
             $table->longText('content');
             $table->boolean('hidden')->default(0);
+            $table->unsignedSmallInteger('sort')->default(999);
             $table->timestamps();
             $table->softDeletes();
         });
