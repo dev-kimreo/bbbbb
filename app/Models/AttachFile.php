@@ -13,16 +13,18 @@ use Carbon\Carbon;
  *      @OA\Xml(name="이미지"),
  *      @OA\Property(property="id", type="integer", example=1, description="업로드 파일 고유 번호" ),
  *      @OA\Property(property="server", type="string", example="public", description="업로드된 서버" ),
- *      @OA\Property(property="type", type="string", example="temp", description=" 업로드 타입" ),
- *      @OA\Property(property="type_id", type="integer", example=1, description="타입의 고유 번호" ),
- *      @OA\Property(property="user_id", type="integer", example=1, description="회원 고유 번호" ),
- *      @OA\Property(property="url", type="integer", example=1, description="회원 고유 번호" ),
- *      @OA\Property(property="path", type="integer", example=1, description="회원 고유 번호" ),
- *      @OA\Property(property="name", type="integer", example=1, description="회원 고유 번호" ),
- *      @OA\Property(property="sort", type="string", example="0", description="게시판 옵션 순서 " ),
+ *      @OA\Property(property="attachableType", type="string", example="temp", description=" 업로드 타입" ),
+ *      @OA\Property(property="attachableId", type="integer", example=1, description="타입의 고유 번호" ),
+ *      @OA\Property(property="userId", type="integer", example=1, description="회원 고유 번호" ),
+ *      @OA\Property(property="url", type="string", example="http://qpicki.com/storage/temp/123asfd12ju4121.jpg", description="파일 url" ),
+ *      @OA\Property(property="path", type="string", example="temp", description="파일 경로" ),
+ *      @OA\Property(property="name", type="string", example="123asfd12ju4121.jpg", description="파일 이름" ),
+ *      @OA\Property(property="orgName", type="string", example="홍길동.jpg", description="파일 원래 이름" ),
+ *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자", readOnly="true"),
+ *      @OA\Property(property="updatedDt", type="string", format="date-time", description="수정 일자", readOnly="true")
  *  )
  *
- * Class BoardOption
+ *
  *
  */
 class AttachFile extends Model
