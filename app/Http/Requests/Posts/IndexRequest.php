@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Admins\Boards;
+namespace App\Http\Requests\Posts;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ModifyBoardsRequest extends FormRequest
+class IndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,9 +26,9 @@ class ModifyBoardsRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required_without_all:hidden,options|string|between:2,32',
-            'hidden' => 'required_without_all:name,options|in:0,1',
-            'options' => 'required_without_all:name,hidden|array',
+            'boardInfo' => 'sometimes|in:0,1',
+            'page' => 'sometimes|integer|min:1',
+            'perPage' => 'sometimes|integer|between:1,50',
         ];
     }
 

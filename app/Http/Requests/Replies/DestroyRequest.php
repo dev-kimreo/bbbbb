@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Posts;
+namespace App\Http\Requests\Replies;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class DeletePostsRequest extends FormRequest
+class DestroyRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

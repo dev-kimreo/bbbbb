@@ -16,7 +16,7 @@ class UpdateRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return auth()->user()->grade != 0;
     }
 
     /**
@@ -27,14 +27,8 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required_without_all:question,attachFiles,delFiles|string|between:6,100',
-            'question' => 'required_without_all:title,attachFiles,delFiles|string|min:10',
-            'attachFiles.id.*' => [
-                'sometimes',
-                'integer',
-                Rule::exists('App\Models\AttachFile', 'id')->where('attachable_type', 'temp')
-            ],
-            'delFiles.id.*' => 'sometimes|integer|exists:App\Models\AttachFile,id',
+            'title' => 'required_without_all:question|string|between:6,100',
+            'question' => 'required_without_all:title|string|min:10'
         ];
     }
 

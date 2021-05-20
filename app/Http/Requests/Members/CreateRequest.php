@@ -5,8 +5,9 @@ namespace App\Http\Requests\Members;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use App;
 
-class ModifyMemberRequest extends FormRequest
+class CreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,7 +28,9 @@ class ModifyMemberRequest extends FormRequest
     {
         return [
             'name' => 'required|string|between:2,100',
-            'password' => 'required'
+            'email' => 'required|string|email|max:100|unique:App\Models\User,email',
+            'password' => 'required|string|min:8',
+            'passwordConfirmation' => 'required|string|same:password'
         ];
     }
 

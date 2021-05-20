@@ -27,7 +27,7 @@ class CreateRequest extends FormRequest
     public function rules()
     {
         return [
-            "files.*" => 'required|mimes:jpg,jpeg,png,gif,webp',
+            "files" => 'required|mimes:jpg,jpeg,png,gif,webp',
         ];
     }
 

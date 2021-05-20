@@ -7,7 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
-class CreatePostsRequest extends FormRequest
+class CreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,12 +28,7 @@ class CreatePostsRequest extends FormRequest
     {
         return [
             'title' => 'required|string|between:6,128',
-            'content' => 'required|string|min:10',
-            'thumbnail.id' => [
-                'sometimes',
-                'integer',
-                Rule::exists('App\Models\AttachFile', 'id')->where('attachable_type', 'temp')
-            ],
+            'content' => 'required|string|min:10'
         ];
     }
 

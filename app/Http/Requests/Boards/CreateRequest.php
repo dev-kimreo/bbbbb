@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Posts;
+namespace App\Http\Requests\Boards;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class GetListPostsRequest extends FormRequest
+class CreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,9 +26,8 @@ class GetListPostsRequest extends FormRequest
     public function rules()
     {
         return [
-            'boardInfo' => 'sometimes|in:0,1',
-            'page' => 'sometimes|integer|min:1',
-            'perPage' => 'sometimes|integer|between:1,50',
+            'name' => 'required|string|between:2,32'
+//            'options' => 'required|string|min:8',
         ];
     }
 

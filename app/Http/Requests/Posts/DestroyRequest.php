@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Replies;
+namespace App\Http\Requests\Posts;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class GetListRepliesRequest extends FormRequest
+class DestroyRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,8 +26,6 @@ class GetListRepliesRequest extends FormRequest
     public function rules()
     {
         return [
-            'page' => 'sometimes|integer|min:1',
-            'perPage' => 'sometimes|integer|between:1,50',
         ];
     }
 
