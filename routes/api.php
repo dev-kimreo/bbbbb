@@ -38,7 +38,7 @@ Route::group([
      * 회원 관련
      */
     Route::group([
-        'prefix' => 'member'
+        'prefix' => 'user'
     ], function () {
 
         // 회원가입
@@ -59,55 +59,73 @@ Route::group([
 
             // 로그아웃
             Route::delete('/auth', [MemberController::class, 'logout']);
+
+
+        });
+
+
+        // 이메일 재 인증 관련
+        Route::group([
+            'prefix' => 'email-verification'
+        ], function () {
+
+            // 인증 필요
+            Route::group([
+                'middleware' => 'auth:api',
+            ], function () {
+                // 이메일 인증 재발송
+                Route::post('', [MemberController::class, 'resendVerificationEmail']);
+            });
+
+            // 이메일 인증 route
+            Route::get('/{verifyKey}/{id}', [MemberController::class, 'verification'])->name('verification.verify');
         });
 
 
         /**
-         * 비밀번호 변경
+         * 비밀번호 관련
          */
         Route::group([
             'prefix' => 'password',
-            'middleware' => 'auth:api',
         ], function () {
-            // 비밀번호 검증
-            Route::post('', [MemberController::class, 'checkPassword']);
 
-            // 비밀번호 변경
-            Route::patch('', [MemberController::class, 'modifyPassword']);
+            /**
+             * 비밀번호 찾기 프로세스
+             */
+            Route::group([
+                'prefix' => 'reset-mail'
+            ], function () {
+                // 비밀번호 변경 링크 발송
+                Route::post('', [MemberController::class, 'passwordResetSendLink']);
+
+                // 비밀번호 변경 링크 유효성 체크
+                Route::get('', [MemberController::class, 'changePwdVerification']);
+
+                // 비밀번호 변경 링크 발송 후 변경
+                Route::patch('', [MemberController::class, 'passwordReset']);
+            });
+
+            // 인증 필요
+            Route::group([
+                'middleware' => 'auth:api',
+            ], function () {
+                // 비밀번호 검증
+                Route::post('', [MemberController::class, 'checkPassword']);
+
+                // 비밀번호 변경
+                Route::patch('', [MemberController::class, 'modifyPassword']);
+            });
+
         });
-
-        /**
-         * 비밀번호 찾기 프로세스
-         */
-        // 비밀번호 변경 링크 발송
-        Route::post('/passwordResetSendLink', [MemberController::class, 'passwordResetSendLink']);
-
-        // 비밀번호 변경 링크 유효성 체크
-        Route::post('/checkChangePwdAuth', [MemberController::class, 'changePwdVerification']);
-
-        // 비밀번호 변경 링크 발송 후 변경
-        Route::patch('/passwordReset', [MemberController::class, 'passwordReset']);
 
 
     });
 
 
-    // 회원가입시 인증 메일 발송
+    // 메일
     Route::group([
         'prefix' => 'email'
     ], function ($router) {
-        // 이메일 인증 route
-        Route::get('/{verifyKey}/{id}', [MemberController::class, 'verification'])->name('verification.verify');
-
-        // 인증 필요
-        Route::group([
-            'middleware' => 'auth:api',
-        ], function () {
-
-            // 이메일 인증 재발송
-            Route::post('/verificationResend', [MemberController::class, 'verificationResend']);
-
-        });
     });
 
 
@@ -115,6 +133,25 @@ Route::group([
     Route::group([
         'prefix' => 'board'
     ], function () {
+
+
+        // 어드민 체크 필요
+        Route::group([
+            'middleware' => ['auth:api', 'admin'],
+        ], function () {
+            // 게시판 생성
+            Route::post('', [BoardController::class, 'create']);
+
+            // 게시판 수정
+            Route::patch('/{id}', [BoardController::class, 'modify']);
+
+            // 게시판 옵션 목록
+            Route::get('/option', [BoardController::class, 'getOptionList']);
+
+        });
+
+
+
         // 게시판 상세 정보
         Route::get('/{id}', [BoardController::class, 'getBoardInfo']);
 
@@ -163,7 +200,7 @@ Route::group([
     Route::group([
         'prefix' => 'inquiry',
         'middleware' => 'auth:api',
-    ], function(){
+    ], function () {
 
         // 문의 목록
         Route::get('', [InquiryController::class, 'index']);
@@ -252,14 +289,7 @@ Route::group([
 //                return $data;
 //            });
 
-        // 게시판 생성
-        Route::post('', [BoardController::class, 'create']);
 
-        // 게시판 정보 수정
-        Route::patch('/{id}', [BoardController::class, 'modify']);
-
-        // 게시판 옵션 목록
-        Route::get('/options', [BoardController::class, 'getOptionList']);
 
     });
 
