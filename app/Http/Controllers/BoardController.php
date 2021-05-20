@@ -241,8 +241,10 @@ class BoardController extends Controller
      *          response=200,
      *          description="successfully",
      *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(type="object", ref="#/components/schemas/BoardOptionJson"),
+     *              @OA\Property(property="header", type="object" ),
+     *              @OA\Property(property="list", type="array",
+     *                  @OA\Items(type="object", ref="#/components/schemas/BoardOptionJson")
+     *              )
      *          )
      *      )
      *  )
@@ -260,7 +262,11 @@ class BoardController extends Controller
             return $this->board::select(['id', 'name', 'options'])->get();
         });
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 200);
+        $res = [];
+        $res['header'] = [];
+        $res['list'] = $data;
+
+        return response()->json(CollectionLibrary::toCamelCase(collect($res)), 200);
     }
 
     /**
