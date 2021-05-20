@@ -14,7 +14,8 @@ use Response;
 use Validator;
 use Laravel\Passport\Http\Controllers\AccessTokenController as ATC;
 
-class AccessTokenController extends ATC {
+class AccessTokenController extends ATC
+{
 
     public function login(ServerRequestInterface $request, User $user)
     {
@@ -65,7 +66,8 @@ class AccessTokenController extends ATC {
      *      )
      *  )
      */
-    public function issueToken(ServerRequestInterface $request) {
+    public function issueToken(ServerRequestInterface $request)
+    {
 
         // Getting the body of request
         $requestBody = $request->getParsedBody();
@@ -82,13 +84,20 @@ class AccessTokenController extends ATC {
         // Check Email
         $username = $requestBody['username'];
         $password = $requestBody['password'];
-        $member = $this->user->where('email', $username)->first();
+        $user = $this->user->where('email', $username)->first();
 
-        if(!$member) {
+        // Backoffice 로그인 권한 체크
+        if ($requestBody['client_id'] == '2') {
+            if (!$user->manager) {
+                throw new QpickHttpException(403, 'common.unauthorized');
+            }
+        }
+
+        if (!$user) {
             throw new QpickHttpException(404, 'user.username.incorrect');
         }
 
-        if(!hash::check($password, $member->password)) {
+        if (!hash::check($password, $user->password)) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
