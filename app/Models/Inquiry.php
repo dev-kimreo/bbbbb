@@ -7,6 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
+
+/**
+ *
+ *  @OA\Schema(
+ *      @OA\Property(property="id", type="integer", example=1, description="고유 번호" ),
+ *      @OA\Property(property="userId", type="integer", example=1, description="작성자 고유번호" ),
+ *      @OA\Property(property="userName", type="string", example="홍길동", description="작성자 이름" ),
+ *      @OA\Property(property="title", type="string", example="1:1 문의 제목", description="1:1문의 제목" ),
+ *      @OA\Property(property="question", type="string", example="1:1 문의 내용", description="1:1문의 내용" ),
+ *      @OA\Property(property="status", type="string", example="waiting", description="처리상태<br/>waiting:접수<br/>answering:확인중<br/>answered:완료" ),
+ *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자", readOnly="true"),
+ *      @OA\Property(property="updatedDt", type="string", format="date-time", description="수정 일자", readOnly="true")
+ *  )
+ */
 class Inquiry extends Model
 {
     use HasFactory, SoftDeletes;
@@ -14,7 +28,7 @@ class Inquiry extends Model
     public $timestamps = false;
 
     public $status = [
-        'wating',       // 접수
+        'waiting',       // 접수
         'answering',    // 확인중
         'answered',     // 완료
     ];
