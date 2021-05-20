@@ -70,9 +70,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Manager::class);
     }
 
-    public function isLoginToManagerService()
+    public function isLoginToManagerService(): bool
     {
         return $this->token()->client_id == 2 ? true : false;
+    }
+
+    public function checkUsableManagerService(): bool
+    {
+        return $this->manager && $this->isLoginToManagerService();
     }
 
     public function getEmailVerifiedAtAttribute($value)
