@@ -37,7 +37,7 @@ class PostService
         $boardId = $postCollect['board_id'];
 
         // 게시판 정보
-        $boardCollect = $this->boardService->getInfo($boardId);
+        $boardCollect = $postCollect->board;
         $boardInfo = $boardCollect->toArray();
 
         // 데이터 cache
@@ -48,10 +48,12 @@ class PostService
             $post = $this->post->select($select)->where(['posts.id' => $postId, 'board_id' => $boardId]);
 
             // 첨부 파일
-            $post = $post
-                ->with(['attachFiles' => function ($query) {
-                    $query->select('id', 'url', 'attachable_id', 'attachable_type', 'etc');
-                }]);
+            if ($boardInfo['options']['thumbnail'] || $boardInfo['options']['attach']) {
+                $post = $post
+                    ->with(['attachFiles' => function ($query) {
+                        $query->select('id', 'url', 'attachable_id', 'attachable_type', 'etc');
+                    }]);
+            }
 
             $post = $post->first();
 
@@ -60,23 +62,25 @@ class PostService
             }
 
             // 데이터 가공
-            $post->attachFiles->each(function ($v, $k) use ($post, $boardInfo) {
-                $etc = $v->etc;
-                unset($v->attachable_id, $v->attachable_type, $v->etc);
+            if ($boardInfo['options']['thumbnail'] || $boardInfo['options']['attach']) {
+                $post->attachFiles->each(function ($v, $k) use ($post, $boardInfo) {
+                    $etc = $v->etc;
+                    unset($v->attachable_id, $v->attachable_type, $v->etc);
 
-                // 첨부 파일 중 섬네일 구분
-                if (isset($etc['type']) && $etc['type'] == 'thumbnail') {
-                    if ($boardInfo['options']['thumbnail']) {
-                        $post->thumbnail = $v;
-                        $post->attachFiles->forget($k);
+                    // 첨부 파일 중 섬네일 구분
+                    if (isset($etc['type']) && $etc['type'] == 'thumbnail') {
+                        if ($boardInfo['options']['thumbnail']) {
+                            $post->thumbnail = $v;
+                            $post->attachFiles->forget($k);
+                        }
                     }
-                }
-            });
+                });
 
-            // 다차원을 일차원으로 단순화
-            $attachFileFlatten = $post->attachFiles->flatten();
-            unset($post->attachFiles);
-            $post->attachFiles = $attachFileFlatten;
+                // 다차원을 일차원으로 단순화
+                $attachFileFlatten = $post->attachFiles->flatten();
+                unset($post->attachFiles);
+                $post->attachFiles = $attachFileFlatten;
+            }
 
             return $post;
         });

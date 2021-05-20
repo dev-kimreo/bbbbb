@@ -71,7 +71,7 @@ class BoardService
 
         return Cache::tags($tags)->remember($key, $ttl, function () use ($boardId) {
             if(!$data = $this->board->find($boardId)) {
-                throw new QpickHttpException(422, 'common.not_found');
+                throw new QpickHttpException(404, 'common.not_found');
             }
 
             return $data;
