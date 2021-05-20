@@ -31,7 +31,7 @@ class ReplyService
     public function checkUse($boardId, $postId)
     {
         $postCollect = $this->postService->getInfo($postId);
-        $boardCollect = $this->boardService->getInfo($boardId);
+        $boardCollect = $postCollect->board;
 
         // 댓글 사용 여부
         if (!auth()->user()->can('checkUsableReply', $boardCollect)) {

@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Members;
+namespace App\Http\Requests\Boards;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use App;
 
-class StoreMembersRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,10 +26,9 @@ class StoreMembersRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|between:2,100',
-            'email' => 'required|string|email|max:100|unique:App\Models\User,email',
-            'password' => 'required|string|min:8',
-            'passwordConfirmation' => 'required|string|same:password'
+            'name' => 'required_without_all:hidden,options|string|between:2,32',
+            'hidden' => 'required_without_all:name,options|in:0,1',
+            'options' => 'required_without_all:name,hidden|array',
         ];
     }
 

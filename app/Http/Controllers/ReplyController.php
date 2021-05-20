@@ -8,17 +8,12 @@ use Illuminate\Http\Request;
 use Auth;
 use Cache;
 
-
-use App\Http\Controllers\BoardController as BoardController;
-use App\Http\Controllers\PostController as PostController;
-
 use App\Models\Reply;
-use App\Models\Post;
 
-use App\Http\Requests\Replies\CreateRepliesRequest;
-use App\Http\Requests\Replies\ModifyRepliesRequest;
-use App\Http\Requests\Replies\DeleteRepliesRequest;
-use App\Http\Requests\Replies\GetListRepliesRequest;
+use App\Http\Requests\Replies\CreateRequest;
+use App\Http\Requests\Replies\UpdateRequest;
+use App\Http\Requests\Replies\DestroyRequest;
+use App\Http\Requests\Replies\IndexRequest;
 
 use App\Exceptions\QpickHttpException;
 
@@ -34,8 +29,6 @@ use App\Services\ReplyService;
  */
 class ReplyController extends Controller
 {
-    public $attachType = 'reply';
-
     public function __construct(Reply $reply, BoardService $boardService, PostService $postService, ReplyService $replyService)
     {
         $this->reply = $reply;
@@ -67,36 +60,19 @@ class ReplyController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="생성되었습니다.",
+     *          response=201,
+     *          description="created",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="생성되었습니다." ),
      *          )
      *      ),
      *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
      *          response=422,
-     *          description="실패",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
-     *                              @OA\Property(property="100022", ref="#/components/schemas/RequestResponse/properties/100022"),
-     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
-     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
-     *                              @OA\Property(property="200005", ref="#/components/schemas/RequestResponse/properties/200005"),
-     *                              @OA\Property(property="250001", ref="#/components/schemas/RequestResponse/properties/250001"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -104,23 +80,23 @@ class ReplyController extends Controller
      *  )
      */
 
-    public function create(CreateRepliesRequest $request)
+    public function create(CreateRequest $request)
     {
         // 댓글 사용 여부 체크
         $this->replyService->checkUse($request->boardId, $request->postId);
 
         // 댓글 작성
-        $this->reply->post_id = $request->postId;
+        $this->reply->post_id = intval($request->postId);
         $this->reply->user_id = auth()->user()->id;
         $this->reply->content = $request->content;
         $this->reply->save();
 
+        $this->reply->refresh();
+
         // 캐시 초기화
         Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
 
-        return response()->json([
-            'message' => __('common.created')
-        ], 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($this->reply)), 201);
     }
 
 
@@ -147,37 +123,16 @@ class ReplyController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="수정되었습니다.",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="수정되었습니다." ),
-     *          )
+     *          response=201,
+     *          description="modified."
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="실패",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
-     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
-     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
-     *                              @OA\Property(property="101001", ref="#/components/schemas/RequestResponse/properties/101001"),
-     *                              @OA\Property(property="200005", ref="#/components/schemas/RequestResponse/properties/200005"),
-     *                              @OA\Property(property="210003", ref="#/components/schemas/RequestResponse/properties/210003"),
-     *                              @OA\Property(property="250001", ref="#/components/schemas/RequestResponse/properties/250001"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -185,30 +140,28 @@ class ReplyController extends Controller
      *  )
      */
     /**
-     * @param ModifyRepliesRequest $request
+     * @param UpdateRequest $request
      * @return mixed
      */
-    public function modify(ModifyRepliesRequest $request)
+    public function modify(UpdateRequest $request)
     {
         // 댓글 사용 여부
         $this->replyService->checkUse($request->boardId, $request->postId);
 
-        $replyCollect = $this->reply::find($request->id);
+        $this->reply = $this->reply::find($request->id);
 
         // 댓글 수정 권한 체크
-        if (!auth()->user()->can('update', $replyCollect)) {
+        if (!auth()->user()->can('update', $this->reply)) {
             throw new QpickHttpException(403, 'reply.disable.writer_only');
         }
 
-        $replyCollect->content = $request->content;
-        $replyCollect->update();
+        $this->reply->content = $request->content;
+        $this->reply->update();
 
         // 캐시 초기화
         Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
 
-        return response()->json([
-            'message' => __('common.modified')
-        ], 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($this->reply)), 201);
     }
 
 
@@ -220,36 +173,16 @@ class ReplyController extends Controller
      *      operationId="replyDelete",
      *      tags={"게시판 댓글"},
      *      @OA\Response(
-     *          response=200,
-     *          description="삭제되었습니다.",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="삭제되었습니다." ),
-     *          )
+     *          response=204,
+     *          description="deleted."
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="실패",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
-     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
-     *                              @OA\Property(property="101001", ref="#/components/schemas/RequestResponse/properties/101001"),
-     *                              @OA\Property(property="200005", ref="#/components/schemas/RequestResponse/properties/200005"),
-     *                              @OA\Property(property="210003", ref="#/components/schemas/RequestResponse/properties/210003"),
-     *                              @OA\Property(property="250001", ref="#/components/schemas/RequestResponse/properties/250001"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -257,27 +190,25 @@ class ReplyController extends Controller
      *  )
      */
     /**
-     * @param DeleteRepliesRequest $request
+     * @param DestroyRequest $request
      * @return mixed
      */
-    public function delete(DeleteRepliesRequest $request)
+    public function delete(DestroyRequest $request)
     {
-        $replyCollect = $this->reply::find($request->id);
+        $this->reply = $this->reply::find($request->id);
 
         // 삭제 권한 체크
-        if (!auth()->user()->can('delete', $replyCollect)) {
+        if (!auth()->user()->can('delete', $this->reply)) {
             throw new QpickHttpException(403, 'reply.disable.writer_only');
         }
 
         // 댓글 소프트 삭제
-        $replyCollect->delete();
+        $this->reply->delete();
 
         // 캐시 초기화
         Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
 
-        return response()->json([
-            'message' => __('common.deleted')
-        ], 200);
+        return response()->noContent();
     }
 
 
@@ -303,7 +234,7 @@ class ReplyController extends Controller
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="success",
+     *          description="successfully",
      *          @OA\JsonContent(
      *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination" ),
      *              @OA\Property(property="list", type="array",
@@ -320,39 +251,20 @@ class ReplyController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
      *          response=422,
-     *          description="failed get lists",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
-     *                              @OA\Property(property="100022", ref="#/components/schemas/RequestResponse/properties/100022"),
-     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
-     *                              @OA\Property(property="100051", ref="#/components/schemas/RequestResponse/properties/100051"),
-     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
-     *                              @OA\Property(property="101001", ref="#/components/schemas/RequestResponse/properties/101001"),
-     *                              @OA\Property(property="200005", ref="#/components/schemas/RequestResponse/properties/200005"),
-     *                              @OA\Property(property="250001", ref="#/components/schemas/RequestResponse/properties/250001"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *  )
      */
     /**
-     * @param GetListRepliesRequest $request
+     * @param IndexRequest $request
      * @return mixed
      */
-    public function getList(GetListRepliesRequest $request)
+    public function getList(IndexRequest $request)
     {
         // 댓글 사용 여부
         $this->replyService->checkUse($request->boardId, $request->postId);
@@ -401,7 +313,7 @@ class ReplyController extends Controller
             });
         }
 
-        $data = isset($data) ? $data->toArray() : array();
+        $data = $data ?? array();
 
         $result = ['header' => $pagination];
         $result['list'] = $data;

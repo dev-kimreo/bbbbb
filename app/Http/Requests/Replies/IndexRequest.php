@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ModifyRepliesRequest extends FormRequest
+class IndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,7 +26,8 @@ class ModifyRepliesRequest extends FormRequest
     public function rules()
     {
         return [
-            'content' => 'required|string|min:10',
+            'page' => 'sometimes|integer|min:1',
+            'perPage' => 'sometimes|integer|between:1,50',
         ];
     }
 

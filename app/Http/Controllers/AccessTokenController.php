@@ -19,7 +19,7 @@ class AccessTokenController extends ATC {
     public function login(ServerRequestInterface $request, User $user)
     {
         $this->user = $user;
-        return $this->issueToken($request);        
+        return $this->issueToken($request);
     }
 
     /**
@@ -52,37 +52,16 @@ class AccessTokenController extends ATC {
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="The authorization grant type is not supported by the authorization server."
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Client authentication failed"
+     *      ),
+     *      @OA\Response(
      *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100021", ref="#/components/schemas/RequestResponse/properties/100021"),
-     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
-     *                              @OA\Property(property="110311", ref="#/components/schemas/RequestResponse/properties/110311"),
-     *                          ),
-     *                          @OA\Schema(
-     *                              @OA\Property(
-     *                                  property="100502",
-     *                                  type="object",
-     *                                  description="잘못된 client 정보입니다.",
-     *                                  @OA\Property(
-     *                                      property="message",
-     *                                      type="string",
-     *                                  ),
-     *                              ),
-     *                          ),
-     *                      }
-     *                  )
-     *              )
-     *          )
+     *          description="failed login"
      *      )
      *  )
      */
@@ -100,7 +79,7 @@ class AccessTokenController extends ATC {
             'client_secret' => 'required|string',
         ])->validate();
 
-        // Check Email 
+        // Check Email
         $username = $requestBody['username'];
         $password = $requestBody['password'];
         $member = $this->user->where('email', $username)->first();

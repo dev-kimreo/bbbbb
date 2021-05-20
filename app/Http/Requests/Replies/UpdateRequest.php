@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Admins\Boards;
+namespace App\Http\Requests\Replies;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class CreateBoardsRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,9 +26,7 @@ class CreateBoardsRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|between:2,32',
-            'type' => 'required|string|max:32|unique:App\Models\Board,type',
-//            'options' => 'required|string|min:8',
+            'content' => 'required|string|min:10',
         ];
     }
 

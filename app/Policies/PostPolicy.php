@@ -34,7 +34,7 @@ class PostPolicy
     public function create(User $user, Post $post, Board $board)
     {
         if ($board->options['board'] == 'manager') {
-            if ($user->checkAdmin()) {
+            if (isset($user->manager) && $user->isLoginToManagerService()) {
                 return true;
             } else {
                 return false;

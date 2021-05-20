@@ -16,7 +16,7 @@ class CreateRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return auth()->user()->grade != 0;
     }
 
     /**
@@ -29,11 +29,6 @@ class CreateRequest extends FormRequest
         return [
             'title' => 'required|string|between:6,100',
             'question' => 'required|string|min:10',
-//            'attachFiles.id' => [
-//                'sometimes',
-//                'array',
-//                Rule::exists('App\Models\AttachFile', 'id')->where('attachable_type', 'temp')
-//            ],
         ];
     }
 

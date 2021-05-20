@@ -14,9 +14,11 @@ use App\Models\SignedCode;
 use App\Events\Member\VerifyEmail;
 use App\Events\Member\VerifyEmailCheck;
 
-use App\Http\Requests\Members\StoreMembersRequest;
+use App\Http\Requests\Members\CreateRequest;
+use App\Http\Requests\Members\UpdateRequest;
+
+
 use App\Http\Requests\Members\CheckPwdMemberRequest;
-use App\Http\Requests\Members\ModifyMemberRequest;
 use App\Http\Requests\Members\ModifyMemberPwdRequest;
 use App\Http\Requests\Members\PasswordResetSendLinkRequest;
 use App\Http\Requests\Members\CheckChangePwdAuthRequest;
@@ -36,71 +38,6 @@ use App\Jobs\SendMail;
 use App\Libraries\CollectionLibrary;
 
 
-/**
- * @OA\Schema (
- *      schema="passwordPattern",
- *      @OA\Property(
- *          property="110101",
- *          type="object",
- *          description="password 는 특수문자, 알파벳, 숫자 3가지가 조합되어야 합니다.",
- *          @OA\Property(
- *              property="key",
- *              type="string",
- *              description="password",
- *              example="password",
- *          ),
- *          @OA\Property(
- *              property="message",
- *              type="string",
- *          ),
- *      ),
- *      @OA\Property(
- *          property="110102",
- *          type="object",
- *          description="password 는 연속 된 문자와 동일한 문자로 4 회 연속 사용할 수 없습니다.",
- *          @OA\Property(
- *              property="key",
- *              type="string",
- *              description="password",
- *              example="password",
- *          ),
- *          @OA\Property(
- *              property="message",
- *              type="string",
- *          ),
- *      ),
- *      @OA\Property(
- *          property="110103",
- *          type="object",
- *          description="password 는 공백문자를 포함할 수 없습니다.",
- *          @OA\Property(
- *              property="key",
- *              type="string",
- *              description="password",
- *              example="password",
- *          ),
- *          @OA\Property(
- *              property="message",
- *              type="string",
- *          ),
- *      ),
- *      @OA\Property(
- *          property="110114",
- *          type="object",
- *          description="password 는 email과 4자 이상 동일 할 수 없습니다.",
- *          @OA\Property(
- *              property="key",
- *              type="string",
- *              description="password",
- *              example="password",
- *          ),
- *          @OA\Property(
- *              property="message",
- *              type="string",
- *          ),
- *      ),
- *  )
- */
 class MemberController extends Controller
 {
     private $user, $signedCode;
@@ -118,10 +55,10 @@ class MemberController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/v1/member",
+     *      path="/v1/user",
      *      summary="회원가입",
      *      description="회원가입",
-     *      operationId="memberSignIn",
+     *      operationId="userSignIn",
      *      tags={"회원관련"},
      *      @OA\RequestBody(
      *          required=true,
@@ -135,43 +72,13 @@ class MemberController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="successfully registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="id", type="integer", example="14", description="회원번호"),
-     *              @OA\Property(property="name", type="string", example="홍길동", description="이름"),
-     *              @OA\Property(property="email", type="string", format="email", example="abcd@davinci.com", description="이메일"),
-     *              @OA\Property(property="grade", type="integer", example="0", description="회원 등급"),
-     *              @OA\Property(property="emailVerifiedAt", type="string", format="timezone", example="null", description="이메일 인증일자"),
-     *              @OA\Property(property="createdAt", type="string", format="timezone", example="2021-03-10T00:25:31+00:00", description="가입일자"),
-     *              @OA\Property(property="updatedAt", type="string", format="timezone",  example="2021-03-10T00:25:31+00:00", description="수정일자"),
-     *          )
+     *          response=201,
+     *          description="created",
+     *          @OA\JsonContent(ref="#/components/schemas/User")
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100002", ref="#/components/schemas/RequestResponse/properties/100002"),
-     *                              @OA\Property(property="100011", ref="#/components/schemas/RequestResponse/properties/100011"),
-     *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
-     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
-     *                              @OA\Property(property="100073", ref="#/components/schemas/RequestResponse/properties/100073"),
-     *                              @OA\Property(property="100101", ref="#/components/schemas/RequestResponse/properties/100101"),
-     *                          ),
-     *                          @OA\Schema(ref="#/components/schemas/passwordPattern")
-     *                      }
-     *                  ),
-     *              ),
-     *          )
+     *          description="failed"
      *      )
      *  )
      */
@@ -181,48 +88,38 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(StoreMembersRequest $request)
+    public function register(CreateRequest $request)
     {
-
         // 비밀번호 체크
         $checkPwdRes = $this->checkPasswordPattern($request->password, $request->email);
-        if ($checkPwdRes !== true) {
-            return response()->json($checkPwdRes, 422);
-        }
 
-        $member = $this->user::create(array_merge(
+        $this->user = $this->user::create(array_merge(
             $request->all(),
             ['password' => hash::make($request->password)]
         ));
+        $this->user->refresh();
 
-        VerifyEmail::dispatch($member);
+        VerifyEmail::dispatch($this->user);
 
-        return response()->json([
-            'message' => __('common.registered'),
-            'member' => CollectionLibrary::toCamelCase(collect($member))
-        ], 201);
+        return response()->json(CollectionLibrary::toCamelCase(collect($this->user)), 201);
     }
 
 
     /**
      * @OA\Get(
-     *      path="/v1/member",
+     *      path="/v1/user",
      *      summary="회원정보",
      *      description="회원정보",
-     *      operationId="memberInfo",
+     *      operationId="userInfo",
      *      tags={"회원관련"},
      *      @OA\Response(
      *          response=200,
-     *          description="successfully registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="id", type="integer", example="14", description="회원번호"),
-     *              @OA\Property(property="name", type="string", example="홍길동", description="이름"),
-     *              @OA\Property(property="email", type="string", format="email", example="abcd@davinci.com", description="이메일"),
-     *              @OA\Property(property="grade", type="integer", example="0", description="회원 등급"),
-     *              @OA\Property(property="emailVerifiedAt", type="string", format="timezone", example="null", description="이메일 인증일자"),
-     *              @OA\Property(property="createdAt", type="string", format="timezone", example="2021-03-10T00:25:31+00:00", description="가입일자"),
-     *              @OA\Property(property="updatedAt", type="string", format="timezone",  example="2021-03-10T00:25:31+00:00", description="수정일자"),
-     *          )
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/User")
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -244,14 +141,18 @@ class MemberController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/v1/member/auth",
+     *      path="/v1/user/auth",
      *      summary="로그아웃",
      *      description="회원 로그아웃",
-     *      operationId="memberLogout",
+     *      operationId="userLogout",
      *      tags={"회원관련"},
      *      @OA\Response(
-     *          response=200,
-     *          description="successfully logout"
+     *          response=204,
+     *          description="successfully"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -272,56 +173,27 @@ class MemberController extends Controller
 //        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
 //        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId(auth()->user()->token()->id);
 
-        return response()->json([
-            'message' => __('common.logout')
-        ], 200);
+        return response()->noContent();
     }
 
     /**
      * @OA\Post(
-     *      path="/v1/email/verificationResend",
+     *      path="/v1/user/email-verification",
      *      summary="이메일 인증 재발송",
      *      description="회원 이메일 인증 재발송",
-     *      operationId="memberVerifyEmailReSend",
+     *      operationId="userVerifyEmailReSend",
      *      tags={"회원관련"},
      *      @OA\Response(
-     *          response=200,
-     *          description="send verify email",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="send verify email"),
-     *          )
+     *          response=204,
+     *          description="successfully"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      @OA\Property(
-     *                          property="110411",
-     *                          type="object",
-     *                          description="짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.",
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="110402",
-     *                          type="object",
-     *                          description="이미 인증된 회원입니다.",
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                  )
-     *              ),
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -333,7 +205,7 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function verificationResend(Request $request)
+    public function resendVerificationEmail(Request $request)
     {
 
         // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
@@ -346,57 +218,27 @@ class MemberController extends Controller
             throw new QpickHttpException(422, 'email.already_verified');
         }
 
-        return response()->json([
-            'message' => __('common.verification_resend')
-        ], 200);
+        return response()->noContent();
 
     }
 
     /**
      * @OA\Get(
-     *      path="/v1/email/member.regist/{id}?expires={expires}&hash={hash}&signature={signature}",
+     *      path="/v1/user/email-verification/user.regist/{id}?expires={expires}&hash={hash}&signature={signature}",
      *      summary="이메일 인증",
      *      description="회원 이메일 인증",
-     *      operationId="memberVerifyEmail",
+     *      operationId="userVerifyEmail",
      *      tags={"회원관련"},
      *      @OA\Response(
      *          response=200,
-     *          description="send verify email",
+     *          description="successfully",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="send verify email"),
      *          )
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      @OA\Property(
-     *                          property="110401",
-     *                          type="object",
-     *                          description="잘못된 인증 방식입니다.",
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                      @OA\Property(
-     *                          property="110402",
-     *                          type="object",
-     *                          description="이미 인증된 회원입니다.",
-     *                          @OA\Property(
-     *                              property="message",
-     *                              type="string",
-     *                          ),
-     *                      ),
-     *                  )
-     *              ),
-     *          )
+     *          description="failed"
      *      ),
      *  )
      */
@@ -430,19 +272,16 @@ class MemberController extends Controller
             throw new QpickHttpException(422, 'email.incorrect');
         }
 
-        return response()->json([
-            'message' => __('common.verified'),
-            'member' => $member
-        ], 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($member)));
     }
 
 
     /**
      * @OA\Post(
-     *      path="/v1/member/password",
+     *      path="/v1/user/password",
      *      summary="비밀번호 검증",
      *      description="회원 비밀번호 검증",
-     *      operationId="memberPasswordVerify",
+     *      operationId="userPasswordVerify",
      *      tags={"회원관련"},
      *      @OA\RequestBody(
      *          required=true,
@@ -453,31 +292,16 @@ class MemberController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="올바른 정보입니다.",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="This is the correct information."),
-     *          )
+     *          response=204,
+     *          description="successfully"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="unauthenticated"
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="110311", ref="#/components/schemas/RequestResponse/properties/110311"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              ),
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -495,17 +319,15 @@ class MemberController extends Controller
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
-        return response()->json([
-            'message' => __('common.correct')
-        ], 200);
+        return response()->noContent();
     }
 
     /**
      * @OA\Patch(
-     *      path="/v1/member",
+     *      path="/v1/user",
      *      summary="회원정보 수정",
      *      description="회원 정보 수정",
-     *      operationId="memberInfoModify",
+     *      operationId="userInfoModify",
      *      tags={"회원관련"},
      *      @OA\RequestBody(
      *          required=true,
@@ -517,32 +339,16 @@ class MemberController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="변경되었습니다.",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="This is the correct information."),
-     *          )
+     *          response=201,
+     *          description="modified"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="unauthenticated"
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
-     *                              @OA\Property(property="110311", ref="#/components/schemas/RequestResponse/properties/110311"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              ),
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -555,9 +361,8 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function modify(ModifyMemberRequest $request)
+    public function modify(UpdateRequest $request)
     {
-
         if (!$this::funcCheckPassword($request->password)) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
@@ -566,18 +371,16 @@ class MemberController extends Controller
         $member->name = $request->name;
         $member->save();
 
-        return response()->json([
-            'message' => __('common.modified')
-        ], 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($member)), 201);
     }
 
 
     /**
      * @OA\Patch(
-     *      path="/v1/member/password",
+     *      path="/v1/user/password",
      *      summary="비밀번호 변경",
      *      description="회원 비밀번호 변경",
-     *      operationId="memberPwdModify",
+     *      operationId="userPwdModify",
      *      tags={"회원관련"},
      *      @OA\RequestBody(
      *          required=true,
@@ -590,33 +393,16 @@ class MemberController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="변경되었습니다.",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="This is the correct information."),
-     *          )
+     *          response=204,
+     *          description="modified"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="unauthenticated"
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="비밀 번호가 올바르지 않습니다.",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100011", ref="#/components/schemas/RequestResponse/properties/100011"),
-     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
-     *                          ),
-     *                          @OA\Schema(ref="#/components/schemas/passwordPattern"),
-     *                      }
-     *                  ),
-     *              ),
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -648,9 +434,7 @@ class MemberController extends Controller
         $member->password = hash::make($request->changePassword);
         $member->save();
 
-        return response()->json([
-            'message' => __('common.changed')
-        ], 200);
+        return response()->noContent();
     }
 
 
@@ -658,10 +442,10 @@ class MemberController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/v1/member/passwordResetSendLink",
+     *      path="/v1/user/password/reset-mail",
      *      summary="비밀번호 찾기",
      *      description="회원 비밀번호 찾기 - 변경을 위한 링크 발송",
-     *      operationId="memberPasswordResetSendLink",
+     *      operationId="userPasswordResetSendLink",
      *      tags={"비밀번호 찾기"},
      *      @OA\RequestBody(
      *          required=true,
@@ -672,32 +456,12 @@ class MemberController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="비밀번호 변경 링크가 메일로 발송되었습니다.",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string"),
-     *          )
+     *          response=204,
+     *          description="successfully"
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100021", ref="#/components/schemas/RequestResponse/properties/100021"),
-     *                              @OA\Property(property="100101", ref="#/components/schemas/RequestResponse/properties/100101"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              ),
-     *          )
+     *          description="failed"
      *      )
      *  )
      */
@@ -731,19 +495,17 @@ class MemberController extends Controller
         // 메일 발송
         SendMail::dispatch($data);
 
-        return response()->json([
-            'message' => __('common.verification_send')
-        ], 200);
+        return response()->noContent();
     }
 
 
 
     /**
-     * @OA\Post(
-     *      path="/v1/member/checkChangePwdAuth",
+     * @OA\Get(
+     *      path="/v1/user/password/reset-mail",
      *      summary="비밀번호 찾기 Token 인증",
      *      description="비밀번호 찾기 - 변경을 위한 링크의 값 유효성 체크",
-     *      operationId="memberPasswordResetLinkAuth",
+     *      operationId="userPasswordResetLinkAuth",
      *      tags={"비밀번호 찾기"},
      *      @OA\RequestBody(
      *          required=true,
@@ -755,52 +517,16 @@ class MemberController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="정상적인 인증방식입니다.",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string"),
-     *          )
+     *          response=204,
+     *          description="successfully"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found"
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100021", ref="#/components/schemas/RequestResponse/properties/100021"),
-     *                              @OA\Property(property="100101", ref="#/components/schemas/RequestResponse/properties/100101"),
-     *                          ),
-     *                          @OA\Schema(
-     *                              @OA\Property(
-     *                                  property="100005",
-     *                                  type="object",
-     *                                  description="일치하는 정보가 없습니다.",
-     *                                  @OA\Property(
-     *                                      property="message",
-     *                                      type="string",
-     *                                  ),
-     *                              ),
-     *                              @OA\Property(
-     *                                  property="100501",
-     *                                  type="object",
-     *                                  description="잘못된 인증방식이거나 token의 유효시간이 지났습니다.",
-     *                                  @OA\Property(
-     *                                      property="message",
-     *                                      type="string",
-     *                                  ),
-     *                              ),
-     *                          )
-     *                      }
-     *                  ),
-     *              ),
-     *          )
+     *          description="failed"
      *      )
      * )
      */
@@ -815,7 +541,7 @@ class MemberController extends Controller
         $res = DB::table('password_resets')->where('email', $request->email)->first();
         if (!$res) {
             // 일치하는 정보가 없습니다.
-            throw new QpickHttpException(422, 'common.not_found');
+            throw new QpickHttpException(404, 'common.not_found');
         }
 
         // 회원정보
@@ -826,18 +552,16 @@ class MemberController extends Controller
             throw new QpickHttpException(422, 'auth.incorrect_timeout');
         }
 
-        return response()->json([
-            'message' => __('common.verified')
-        ], 200);
+        return response()->noContent();
     }
 
 
     /**
      * @OA\Patch(
-     *      path="/v1/member/passwordReset",
+     *      path="/v1/user/password/reset-mail",
      *      summary="비밀번호 찾기 - 변경",
      *      description="비밀번호 찾기를 통한 변경 url을 통한 후 비밀번호 변경",
-     *      operationId="memberPasswordReset",
+     *      operationId="userPasswordReset",
      *      tags={"비밀번호 찾기"},
      *      @OA\RequestBody(
      *          required=true,
@@ -851,55 +575,16 @@ class MemberController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="변경되었습니다.",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string"),
-     *          )
+     *          response=204,
+     *          description="modified"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="not found"
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100011", ref="#/components/schemas/RequestResponse/properties/100011"),
-     *                              @OA\Property(property="100021", ref="#/components/schemas/RequestResponse/properties/100021"),
-     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
-     *                              @OA\Property(property="100101", ref="#/components/schemas/RequestResponse/properties/100101"),
-     *                          ),
-     *                          @OA\Schema(
-     *                              @OA\Property(
-     *                                  property="100005",
-     *                                  type="object",
-     *                                  description="일치하는 정보가 없습니다.",
-     *                                  @OA\Property(
-     *                                      property="message",
-     *                                      type="string",
-     *                                  ),
-     *                              ),
-     *                              @OA\Property(
-     *                                  property="100501",
-     *                                  type="object",
-     *                                  description="잘못된 인증방식이거나 token의 유효시간이 지났습니다.",
-     *                                  @OA\Property(
-     *                                      property="message",
-     *                                      type="string",
-     *                                  ),
-     *                              ),
-     *                          ),
-     *                          @OA\Schema(ref="#/components/schemas/passwordPattern")
-     *                      }
-     *                  ),
-     *              ),
-     *          )
+     *          description="failed"
      *      )
      * )
      */
@@ -913,7 +598,7 @@ class MemberController extends Controller
         // 비밀번호 재설정 Token 발행여부 체크
         $res = DB::table('password_resets')->where('email', $request->email)->first();
         if (!$res) {
-            throw new QpickHttpException(422, 'common.not_found');
+            throw new QpickHttpException(404, 'common.not_found');
         }
 
         // 회원정보
@@ -934,9 +619,7 @@ class MemberController extends Controller
         // 비밀번호 변경 Token 삭제
         DB::table('password_resets')->where('email', $request->email)->delete();
 
-        return response()->json([
-            'message' => __('common.changed')
-        ], 200);
+        return response()->noContent();
     }
 
 

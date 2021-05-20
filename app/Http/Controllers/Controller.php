@@ -14,21 +14,6 @@ use Illuminate\Routing\Controller as BaseController;
  * )
  *
  *
- */
-
-/**
- * @OA\Tag(
- *     name="Commons",
- *     description="공통 관련"
- * )
- *
- *
- * @OA\Tag(
- *     name="Members",
- *     description="회원 관련"
- * )
- *
- *
  *
  */
 
@@ -36,6 +21,14 @@ use Illuminate\Routing\Controller as BaseController;
 /**
  * @OA\SecurityScheme(
  *   securityScheme="davinci_auth",
+ *   type="http",
+ *   scheme="bearer"
+ * )
+ */
+
+/**
+ * @OA\SecurityScheme(
+ *   securityScheme="admin_auth",
  *   type="http",
  *   scheme="bearer"
  * )
@@ -59,9 +52,10 @@ use Illuminate\Routing\Controller as BaseController;
 
 /**
  *
- *  @OA\OpenApi(
+ *  OA\OpenApi(
  *      x={
  *          "tagGroups"= {
+ *              {"name"="에러", "tags"={"에러"}},
  *              {"name"="공통", "tags"={"Commons"}},
  *              {"name"="회원", "tags"={"회원관련", "비밀번호 찾기"}},
  *              {"name"="게시판", "tags"={"게시판", "게시판 글", "게시판 댓글"}},
@@ -71,6 +65,8 @@ use Illuminate\Routing\Controller as BaseController;
  *      }
  *  ),
  */
+
+
 
 class Controller extends BaseController
 {
