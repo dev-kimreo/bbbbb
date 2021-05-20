@@ -19,7 +19,7 @@ class CreateInquiriesTable extends Migration
             $table->foreignId('user_id')->constrained();
             $table->string('title', 100);
             $table->mediumText('question');
-            $table->string('status', 16)->default('wating');
+            $table->string('status', 16)->default('waiting');
             $table->timestamps();
             $table->softDeletes();
         });
