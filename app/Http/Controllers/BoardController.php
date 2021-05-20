@@ -5,15 +5,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Auth;
-use Closure;
 use Cache;
-use Exception;
 
 use App\Models\Board;
 use App\Models\BoardOption;
 
-use App\Http\Requests\Admins\Boards\CreateBoardsRequest;
-use App\Http\Requests\Admins\Boards\ModifyBoardsRequest;
+use App\Http\Requests\Boards\CreateRequest;
+use App\Http\Requests\Boards\UpdateRequest;
 
 use App\Exceptions\QpickHttpException;
 
@@ -36,54 +34,38 @@ class BoardController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/admin/board",
+     *      path="/v1/board",
      *      summary="게시판 생성",
      *      description="게시판 생성",
      *      operationId="adminBoardCreate",
-     *      tags={"-게시판"},
+     *      tags={"게시판"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              required={"name","type"},
+     *              required={"name"},
      *              @OA\Property(property="name", type="string", ref="#/components/schemas/Board/properties/name" ),
-     *              @OA\Property(property="type", type="string", ref="#/components/schemas/Board/properties/type" ),
      *              @OA\Property(property="hidden", type="string", ref="#/components/schemas/Board/properties/hidden" ),
      *              @OA\Property(property="options", type="object", format="json", description="옵션", ref="#/components/schemas/BoardOptionJson/properties/options"),
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="successfully Created",
+     *          response=201,
+     *          description="successfully",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="successfully Modified" ),
      *          )
      *      ),
      *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *      ),
+     *      @OA\Response(
      *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100002", ref="#/components/schemas/RequestResponse/properties/100002"),
-     *                              @OA\Property(property="100022", ref="#/components/schemas/RequestResponse/properties/100022"),
-     *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
-     *                              @OA\Property(property="100073", ref="#/components/schemas/RequestResponse/properties/100073"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
-     *          "davinci_auth":{}
+     *          "admin_auth":{}
      *      }}
      *  )
      */
@@ -91,7 +73,7 @@ class BoardController extends Controller
     /**
      * 게시판 생성
      */
-    public function create(CreateBoardsRequest $request)
+    public function create(CreateRequest $request)
     {
         // check Policy
         if (!auth()->user()->can('create', Board::class)) {
@@ -115,35 +97,43 @@ class BoardController extends Controller
             // 옵션 데이터에 선택할 수 없는 값이 들어간 경우의 오류처리
             $requestKey = 'options[' . $type . ']';
             $data = $this->boardService->getOptiontByType($type, $requestKey)->options;
-            if(!collect($data)->where('value', $val)->count())
-            {
-                throw new QpickHttpException(422, 'board.option.disable.wrong_value', $requestKey);
+
+            // 옵션 값 체크
+            switch ($type) {
+                case 'thema':
+                case 'attachLimit':
+                    break;
+                default:
+                    if(!collect($data)->where('value', $val)->count())
+                    {
+                        throw new QpickHttpException(422, 'board.option.disable.wrong_value', $requestKey);
+                    }
+                    break;
             }
         }
 
         // 쿼리
         $this->board->name = $request->name;
-        $this->board->type = $request->type;
         $this->board->options = $opts;
         $this->board->hidden = $request->hidden ?? 0;
         $this->board->save();
 
+        $this->board->refresh();
+
         // 게시판 목록 데이터 cache flush
         Cache::tags(['board.list'])->flush();
 
-        return response()->json([
-            'message' => __('common.created')
-        ], 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($this->board)), 201);
     }
 
 
     /**
      * @OA\Patch(
-     *      path="/admin/board/{id}",
+     *      path="/v1/board/{id}",
      *      summary="게시판 수정",
      *      description="게시판 수정",
      *      operationId="adminBoardModify",
-     *      tags={"-게시판"},
+     *      tags={"게시판"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
@@ -154,36 +144,22 @@ class BoardController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="successfully Modified",
+     *          response=201,
+     *          description="successfully",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="successfully Modified" ),
      *          )
      *      ),
      *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *      ),
+     *      @OA\Response(
      *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100003", ref="#/components/schemas/RequestResponse/properties/100003"),
-     *                              @OA\Property(property="100053", ref="#/components/schemas/RequestResponse/properties/100053"),
-     *                              @OA\Property(property="100081", ref="#/components/schemas/RequestResponse/properties/100081"),
-     *                              @OA\Property(property="100083", ref="#/components/schemas/RequestResponse/properties/100083"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed registered"
      *      ),
      *      security={{
-     *          "davinci_auth":{}
+     *          "admin_auth":{}
      *      }}
      *  )
      */
@@ -191,25 +167,20 @@ class BoardController extends Controller
     /**
      * 게시판 정보 수정
      */
-    public function modify(ModifyBoardsRequest $request)
+    public function modify(UpdateRequest $request)
     {
         // check Policy
         if (!auth()->user()->can('update', $this->board)) {
             throw new QpickHttpException(403, 'board.disable.not_permitted');
         }
 
-        $board = $this->board::where('id', $request->id);
-        $boardData = $board->first();
-        if (!$boardData) {
-            throw new QpickHttpException(404, 'common.incorrect');
+        $this->board = $this->board->find($request->id);
+        if (!$this->board) {
+            throw new QpickHttpException(404, 'common.not_found');
         }
 
         // 변경 할 사항
-        $uptArrs = [];
-
-        if (isset($request->name)) {
-            $uptArrs ['name'] = $request->name;
-        }
+        $this->board->name = $request->name ?? $this->board->name;
 
         if (isset($request->options) && is_array($request->options)) {
             /**
@@ -220,28 +191,32 @@ class BoardController extends Controller
             foreach ($optArrs as $type => $val) {
 
                 // 옵션 데이터
-                $data = $this->boardService->getOptiontByType($type)->toArray();
+                $requestKey = 'options[' . $type . ']';
+                $data = $this->boardService->getOptiontByType($type, $requestKey)->options;
 
                 // 옵션 값 체크
                 switch ($type) {
                     case 'thema':
+                    case 'attachLimit':
                         break;
                     default:
-                        $valArrs = array_column($data['options'], 'value');
-                        if (!in_array($val, $valArrs)) {
-                            throw new QpickHttpException(422, 'board.option.disable.wrong_value', 'options.' . $type . '.value');
+                        if(!collect($data)->where('value', $val)->count())
+                        {
+                            throw new QpickHttpException(422, 'board.option.disable.wrong_value', $requestKey);
                         }
                         break;
                 }
 
-                $uptArrs['options->' . $type] = $val;
+                $uptArrs['options'][$type] = $val;
                 unset($data);
             }
+
+            $this->board->options = array_merge($this->board->options, $uptArrs['options']);
         }
 
         // 변경사항이 있을 경우
-        if (count($uptArrs)) {
-            $this->board->update($uptArrs);
+        if ($this->board->isDirty()) {
+            $this->board->save();
 
             // 게시판 목록 데이터 cache flush
             Cache::tags(['board.list'])->flush();
@@ -250,9 +225,7 @@ class BoardController extends Controller
             Cache::tags(['board.' . $request->id])->flush();
         }
 
-        return response()->json([
-            'message' => __('common.modified')
-        ], 200);
+        return response()->json(CollectionLibrary::toCamelCase(collect($this->board)), 201);
     }
 
 
@@ -266,7 +239,7 @@ class BoardController extends Controller
      *      tags={"게시판"},
      *      @OA\Response(
      *          response=200,
-     *          description="successfully Modified",
+     *          description="successfully",
      *          @OA\JsonContent(
      *              type="array",
      *              @OA\Items(type="object", ref="#/components/schemas/BoardOptionJson"),
@@ -284,10 +257,7 @@ class BoardController extends Controller
         $ttl = config('cache.custom.expire.common');
 
         $data = Cache::tags($tags)->remember('common', $ttl, function () {
-            $brd = $this->board::select(['id', 'name', 'type', 'options'])->get();
-            $brd = $brd->toArray();
-
-            return $brd;
+            return $this->board::select(['id', 'name', 'options'])->get();
         });
 
         return response()->json(CollectionLibrary::toCamelCase(collect($data)), 200);
@@ -300,21 +270,21 @@ class BoardController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/admin/board/options",
+     *      path="/v1/board/option",
      *      summary="게시판 옵션 목록",
      *      description="게시판 옵션 목록",
      *      operationId="adminBoardOptionList",
-     *      tags={"-게시판"},
+     *      tags={"게시판"},
      *      @OA\Response(
      *          response=200,
-     *          description="successfully Modified",
+     *          description="successfully",
      *          @OA\JsonContent(
      *              type="array",
      *              @OA\Items(type="object", ref="#/components/schemas/BoardOption"),
      *          )
      *      ),
      *      security={{
-     *          "davinci_auth":{}
+     *          "admin_auth":{}
      *      }}
      *  )
      */
@@ -323,7 +293,7 @@ class BoardController extends Controller
      */
     public function getOptionList(Request $request)
     {
-        $data = $this->boardService->getOptionList()->toarray();
+        $data = $this->boardService->getOptionList();
 
         return response()->json(CollectionLibrary::toCamelCase(collect($data)));
     }
@@ -338,7 +308,7 @@ class BoardController extends Controller
      *      tags={"게시판"},
      *      @OA\Response(
      *          response=200,
-     *          description="successfully Modified",
+     *          description="successfully",
      *          @OA\JsonContent(
      *              type="array",
      *              @OA\Items(type="object", ref="#/components/schemas/BoardOption"),
@@ -346,22 +316,7 @@ class BoardController extends Controller
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="failed registered",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *  )
      */
