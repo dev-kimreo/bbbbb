@@ -13,12 +13,26 @@ class CreateManagersTable extends Migration
      */
     public function up()
     {
+        Schema::create('authorities', function (Blueprint $table) {
+            $table->collation = 'utf8mb4_general_ci';
+            $table->id();
+            $table->string('code', 16);
+            $table->string('title', 16);
+            $table->string('display_name', 16);
+            $table->string('memo', 128)->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->unique(['code']);
+        });
+
         Schema::create('managers', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->unsignedTinyInteger('grade');
+            $table->foreignId('authority_id')->constrained();
             $table->timestamps();
+            $table->softDeletes();
+            $table->unique(['user_id']);
         });
     }
 
@@ -30,5 +44,6 @@ class CreateManagersTable extends Migration
     public function down()
     {
         Schema::dropIfExists('managers');
+        Schema::dropIfExists('authorities');
     }
 }

@@ -11,6 +11,8 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\AttachController;
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\AuthorityController;
+use App\Http\Controllers\ManagerController;
 
 
 /*
@@ -127,6 +129,13 @@ Route::group([
         'prefix' => 'email'
     ], function ($router) {
     });
+
+
+    // 관리자 및 권한 관련
+    Route::resource('authority', AuthorityController::class);
+    Route::resource('manager', ManagerController::class, [
+        'only' => ['index', 'show', 'store', 'destroy']
+    ]);
 
 
     // 게시판 관련

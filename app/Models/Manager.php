@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class Manager extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The attributes that should be hidden for arrays.
@@ -18,22 +18,21 @@ class Manager extends Model
      * @var array
      */
     protected $hidden = [
+        'updated_at', 'deleted_at'
     ];
 
-    public function checkAdmin()
+    protected $with = [
+        'user', 'authority'
+    ];
+
+    public function user()
     {
-        return $this->grade != 100 ? false : true;
+        return $this->belongsTo(User::class);
     }
 
-    public function getCreatedAtAttribute($value)
+    public function authority()
     {
-        return Carbon::parse($value)->format('c');
+        return $this->belongsTo(Authority::class);
     }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->format('c');
-    }
-
 }
 
