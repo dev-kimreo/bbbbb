@@ -15,3 +15,4 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 /resources/lang/*/exceptions.php
+/app/Schemas/ErrorsResponse.php
