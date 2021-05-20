@@ -17,13 +17,11 @@ class BoardsSeeder extends Seeder
         $insArrs = [
             [
                 "name" => '공지사항',
-                "type" => 'notice',
-                "options" => '{"board":"manager","thema":"boardDefaultThema","thumbnail":"0","reply":"0","editor":"all","attach":"0"}'
+                "options" => '{"board":"manager","thema":"boardDefaultThema","thumbnail":"0","reply":"0","editor":"all","attach":"0","attachLimit":10}'
             ],
             [
                 "name" => '시작하기',
-                "type" => 'guide',
-                "options" => '{"board":"all","thema":"boardThumbnailThema","thumbnail":"1","reply":"0","editor":"all","attach":"0"}'
+                "options" => '{"board":"all","thema":"boardThumbnailThema","thumbnail":"1","reply":"0","editor":"all","attach":"0","attachLimit":10}'
             ],
         ];
         //
