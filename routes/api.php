@@ -157,6 +157,9 @@ Route::group([
             // 게시판 옵션 목록
             Route::get('/option', [BoardController::class, 'getOptionList']);
 
+            // 게시판 삭제
+            Route::delete('/{id}', [BoardController::class, 'destroy']);
+
         });
 
 
@@ -265,9 +268,6 @@ Route::group([
     });
 
 
-//        Route::post('/logout', [AuthController::class, 'logout']);
-
-
 });
 
 
@@ -292,21 +292,9 @@ Route::group([
     ], function () {
 
         Route::get('/reInitOption', [BoardController::class, 'reInitBoardOption']);
-//            // 파라미터 bind
-//            Route::bind('type', function ($type) {
-//                $data = Board::where('type', $type)->firstOrFail();
-//                return $data;
-//            });
-
-
 
     });
 
-
-//        Route::post('/login', [AuthController::class, 'login']);
-//        Route::post('/register', [AuthController::class, 'register']);
-//        Route::post('/logout', [AuthController::class, 'logout']);
-//        Route::get('/user-profile', [AuthController::class, 'userProfile']);
 
 });
 
@@ -314,8 +302,3 @@ Route::group([
 
 
 
-
-
-//Route::middleware('auth:api')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
