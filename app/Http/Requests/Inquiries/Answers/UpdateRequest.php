@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Inquiries;
+namespace App\Http\Requests\Inquiries\Answers;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 
-class ShowRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -16,7 +14,7 @@ class ShowRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::check();
+        return Auth::check() && Auth::user()->isLoginToManagerService();
     }
 
     /**
@@ -25,16 +23,6 @@ class ShowRequest extends FormRequest
      * @return array
      */
     public function rules()
-    {
-        return [
-        ];
-    }
-
-    /**
-     * @return array
-     * @description code {Number} - 20000 어쩌구저쩌구
-     */
-    public function messages()
     {
         return [
         ];

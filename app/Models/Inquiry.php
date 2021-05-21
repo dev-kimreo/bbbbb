@@ -25,8 +25,6 @@ class Inquiry extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public $timestamps = false;
-
     public $status = [
         'waiting',       // 접수
         'answering',    // 확인중
