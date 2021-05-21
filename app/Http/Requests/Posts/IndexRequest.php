@@ -26,7 +26,6 @@ class IndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'boardInfo' => 'sometimes|in:0,1',
             'page' => 'sometimes|integer|min:1',
             'perPage' => 'sometimes|integer|between:1,50',
         ];

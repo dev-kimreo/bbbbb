@@ -7,6 +7,7 @@ use App\Http\Controllers\AccessTokenController;
 
 
 use App\Http\Controllers\BoardController;
+use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\AttachController;
@@ -137,76 +138,49 @@ Route::group([
         'only' => ['index', 'show', 'store', 'destroy']
     ]);
 
-
     // 게시판 관련
     Route::group([
         'prefix' => 'board'
-    ], function () {
+    ], function(){
+        // 게시판 CRUD
+        Route::get('', [BoardController::class, 'index']);
+        Route::get('/{id}', [BoardController::class, 'show']);
 
+        // 게시글 CRUD
+        Route::get('/{boardId}/post', [PostController::class, 'index']);
+        Route::get('/{boardId}/post/{id}', [PostController::class, 'show']);
 
-        // 어드민 체크 필요
-        Route::group([
-            'middleware' => ['auth:api', 'admin'],
-        ], function () {
-            // 게시판 생성
-            Route::post('', [BoardController::class, 'create']);
-
-            // 게시판 수정
-            Route::patch('/{id}', [BoardController::class, 'modify']);
-
-            // 게시판 옵션 목록
-            Route::get('/option', [BoardController::class, 'getOptionList']);
-
-            // 게시판 삭제
-            Route::delete('/{id}', [BoardController::class, 'destroy']);
-
-        });
-
-
-
-        // 게시판 상세 정보
-        Route::get('/{id}', [BoardController::class, 'getBoardInfo']);
-
-        // 게시판 목록
-        Route::get('', [BoardController::class, 'getList']);
-
-
-        // 게시글 목록
-        Route::get('/{boardId}/post', [PostController::class, 'getList']);
-
-        // 게시글 상세 정보
-        Route::get('/{boardId}/post/{id}', [PostController::class, 'getInfo']);
-
-
-        // 댓글 목록
-        Route::get('/{boardId}/post/{postId}/reply', [ReplyController::class, 'getList']);
+        // 댓글 CRUD
+        Route::get('/{boardId}/post/{postId}/reply', [ReplyController::class, 'index']);
 
 
         // 인증 필요
         Route::group([
             'middleware' => 'auth:api',
         ], function () {
+            // 게시판 CRUD
+            Route::post('', [BoardController::class, 'store']);
+            Route::patch('/{id}', [BoardController::class, 'update']);
+            Route::delete('/{id}', [BoardController::class, 'destroy']);
 
-            // 게시글 작성
-            Route::post('/{boardId}/post', [PostController::class, 'create']);
+            // 게시글 CRUD
+            Route::post('/{boardId}/post', [PostController::class, 'store']);
+            Route::patch('/{boardId}/post/{id}', [PostController::class, 'update']);
+            Route::delete('/{boardId}/post/{id}', [PostController::class, 'destroy']);
 
-            // 게시글 수정
-            Route::patch('/{boardId}/post/{id}', [PostController::class, 'modify']);
-
-            // 게시글 삭제
-            Route::delete('/{boardId}/post/{id}', [PostController::class, 'delete']);
-
-
-            // 댓글 작성
-            Route::post('/{boardId}/post/{postId}/reply', [ReplyController::class, 'create']);
-
-            // 댓글 수정
-            Route::patch('/{boardId}/post/{postId}/reply/{id}', [ReplyController::class, 'modify']);
-
-            // 댓글 삭제
-            Route::delete('/{boardId}/post/{postId}/reply/{id}', [ReplyController::class, 'delete']);
+            // 댓글 CRUD
+            Route::post('/{boardId}/post/{postId}/reply', [ReplyController::class, 'store']);
+            Route::patch('/{boardId}/post/{postId}/reply/{id}', [ReplyController::class, 'update']);
+            Route::delete('/{boardId}/post/{postId}/reply/{id}', [ReplyController::class, 'destroy']);
         });
+
     });
+
+    // 게시판 옵션 관련
+    Route::resource('boardOption', OptionController::class, [
+        'only' => ['index']
+    ]);
+
 
     // 1:1 문의
     Route::group([

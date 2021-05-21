@@ -70,14 +70,19 @@ class Post extends Model
         return $this->belongsTo('App\Models\User', 'user_id', 'id')->select(['id', 'name']);
     }
 
-    public function replyCount()
+    public function reply()
     {
-        return $this->hasMany('App\Models\Reply', 'post_id', 'id')->selectRaw('count(id) as count');
+        return $this->hasMany('App\Models\Reply');
     }
 
     public function attachFiles()
     {
         return $this->morphMany('App\Models\AttachFile', 'attachable');
+    }
+
+    public function thumbnail()
+    {
+        return $this->attachFiles();
     }
 
     public function board()

@@ -70,7 +70,7 @@ class BoardService
         $ttl = config('cache.custom.expire.common');
 
         return Cache::tags($tags)->remember($key, $ttl, function () use ($boardId) {
-            if(!$data = $this->board->find($boardId)) {
+            if(!$data = $this->board->with('user')->find($boardId)) {
                 throw new QpickHttpException(404, 'common.not_found');
             }
 

@@ -8,9 +8,10 @@ use Illuminate\Http\Request;
 use Auth;
 use Cache;
 
+use App\Models\Post;
 use App\Models\Reply;
 
-use App\Http\Requests\Replies\CreateRequest;
+use App\Http\Requests\Replies\StoreRequest;
 use App\Http\Requests\Replies\UpdateRequest;
 use App\Http\Requests\Replies\DestroyRequest;
 use App\Http\Requests\Replies\IndexRequest;
@@ -19,9 +20,6 @@ use App\Exceptions\QpickHttpException;
 
 use App\Libraries\PaginationLibrary;
 
-use App\Services\BoardService;
-use App\Services\PostService;
-use App\Services\ReplyService;
 
 /**
  * Class PostController
@@ -29,12 +27,10 @@ use App\Services\ReplyService;
  */
 class ReplyController extends Controller
 {
-    public function __construct(Reply $reply, BoardService $boardService, PostService $postService, ReplyService $replyService)
+    public function __construct(Reply $reply, Post $post)
     {
         $this->reply = $reply;
-        $this->boardService = $boardService;
-        $this->postService = $postService;
-        $this->replyService = $replyService;
+        $this->post = $post;
     }
 
     /**
@@ -80,10 +76,14 @@ class ReplyController extends Controller
      *  )
      */
 
-    public function create(CreateRequest $request)
+    public function store(StoreRequest $request, $boardId, $postId)
     {
-        // 댓글 사용 여부 체크
-        $this->replyService->checkUse($request->boardId, $request->postId);
+        $this->post = $this->post::where('board_id', $boardId)->findOrFail($postId);
+
+        // 댓글 사용 유무 체크
+        if (!$this->post->board->options['reply']) {
+            throw new QpickHttpException(403, 'reply.disable.board_option');
+        }
 
         // 댓글 작성
         $this->reply->post_id = intval($request->postId);
@@ -92,9 +92,6 @@ class ReplyController extends Controller
         $this->reply->save();
 
         $this->reply->refresh();
-
-        // 캐시 초기화
-        Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
 
         return response()->json(CollectionLibrary::toCamelCase(collect($this->reply)), 201);
     }
@@ -143,23 +140,24 @@ class ReplyController extends Controller
      * @param UpdateRequest $request
      * @return mixed
      */
-    public function modify(UpdateRequest $request)
+    public function update(UpdateRequest $request, $boardId, $postId, $id)
     {
-        // 댓글 사용 여부
-        $this->replyService->checkUse($request->boardId, $request->postId);
+        $this->post = $this->post::where('board_id', $boardId)->findOrFail($postId);
 
-        $this->reply = $this->reply::find($request->id);
+        // 댓글 사용 유무 체크
+        if (!$this->post->board->options['reply']) {
+            throw new QpickHttpException(403, 'reply.disable.board_option');
+        }
+
+        $this->reply = $this->reply::findOrFail($id);
 
         // 댓글 수정 권한 체크
         if (!auth()->user()->can('update', $this->reply)) {
             throw new QpickHttpException(403, 'reply.disable.writer_only');
         }
 
-        $this->reply->content = $request->content;
+        $this->reply->content = $request->content ?? $this->reply->content;
         $this->reply->update();
-
-        // 캐시 초기화
-        Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
 
         return response()->json(CollectionLibrary::toCamelCase(collect($this->reply)), 201);
     }
@@ -193,9 +191,9 @@ class ReplyController extends Controller
      * @param DestroyRequest $request
      * @return mixed
      */
-    public function delete(DestroyRequest $request)
+    public function destroy(DestroyRequest $request, $boardId, $postId, $id)
     {
-        $this->reply = $this->reply::find($request->id);
+        $this->reply = $this->reply::findOrFail($id);
 
         // 삭제 권한 체크
         if (!auth()->user()->can('delete', $this->reply)) {
@@ -204,9 +202,6 @@ class ReplyController extends Controller
 
         // 댓글 소프트 삭제
         $this->reply->delete();
-
-        // 캐시 초기화
-        Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
 
         return response()->noContent();
     }
@@ -264,56 +259,33 @@ class ReplyController extends Controller
      * @param IndexRequest $request
      * @return mixed
      */
-    public function getList(IndexRequest $request)
+    public function index(IndexRequest $request, $boardId, $postId)
     {
-        // 댓글 사용 여부
-        $this->replyService->checkUse($request->boardId, $request->postId);
+        $this->post = $this->post::where('board_id', $boardId)->findOrFail($postId);
 
-        // 댓글 목록
-        $set = [
-            'boardId' => $request->boardId,
-            'postId' => $request->postId,
-            'page' => $request->page,
-            'view' => $request->perPage,
-            'select' => ['id', 'user_id', 'content', 'hidden', 'created_at', 'updated_at']
-        ];
-
-        // where 절 eloquent
-        $whereModel = $this->reply::where(['post_id' => $set['postId']]);
-
-
-        // pagination
-        $pagination = PaginationLibrary::set($set['page'], $whereModel->count(), $set['view']);
-
-        if ($set['page'] <= $pagination['totalPage']) {
-            // 데이터 cache
-            $hash = substr(md5(json_encode($set)), 0, 5);
-            $tags = separateTag('board.' . $set['boardId'] . '.post.' . $set['postId'] . '.reply');
-            $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function () use ($set, $pagination, $whereModel) {
-                $reply = $whereModel
-                    ->with('user:id,name')
-                    ->select($set['select']);
-
-                $reply = $reply
-                    ->skip($pagination['skip'])
-                    ->take($pagination['perPage'])
-                    ->orderBy('id', 'asc');
-
-                $reply = $reply->get();
-
-                // 데이터 가공
-                $reply->pluck('user')->each->setAppends([]);
-                foreach ($reply as $index) {
-                    // 유저 이름
-                    $index->userName = $index->user->toArray()['name'];
-                    unset($index->user);
-                }
-
-                return $reply;
-            });
+        // 댓글 사용 유무 체크
+        if (!$this->post->board->options['reply']) {
+            throw new QpickHttpException(403, 'reply.disable.board_option');
         }
 
-        $data = $data ?? array();
+        // where 절 eloquent
+        $this->reply = $this->reply::where('post_id', $postId);
+
+        // pagination
+        $pagination = PaginationLibrary::set($request->page, $this->reply->count(), $request->perPage);
+
+
+        if ($request->page <= $pagination['totalPage']) {
+            $this->reply = $this->reply->with('user:id,name');
+            $this->reply = $this->reply
+                ->skip($pagination['skip'])
+                ->take($pagination['perPage'])
+                ->orderBy('id', 'asc');
+
+            $this->reply = $this->reply->get();
+        }
+
+        $data = $this->reply ?? array();
 
         $result = ['header' => $pagination];
         $result['list'] = $data;

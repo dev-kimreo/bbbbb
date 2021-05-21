@@ -40,16 +40,10 @@ class BoardPolicy
      */
     public function create(User $user)
     {
-        if (isset($user->manager) && $user->isLoginToManagerService()) {
-            return true;
-        }
     }
 
     public function update(User $user)
     {
-        if (isset($user->manager) && $user->isLoginToManagerService()) {
-            return true;
-        }
     }
 
     public function delete(User $user)
