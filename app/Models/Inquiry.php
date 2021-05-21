@@ -18,7 +18,7 @@ use Carbon\Carbon;
  *      @OA\Property(property="question", type="string", example="1:1 문의 내용", description="1:1문의 내용" ),
  *      @OA\Property(property="status", type="string", example="waiting", description="처리상태<br/>waiting:접수<br/>answering:확인중<br/>answered:완료" ),
  *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자", readOnly="true"),
- *      @OA\Property(property="updatedDt", type="string", format="date-time", description="수정 일자", readOnly="true")
+ *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자", readOnly="true")
  *  )
  */
 class Inquiry extends Model

@@ -26,7 +26,8 @@ class CreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|between:2,32'
+            'name' => 'required|string|between:2,32',
+            'enable' => 'sometimes|boolean'
 //            'options' => 'required|string|min:8',
         ];
     }

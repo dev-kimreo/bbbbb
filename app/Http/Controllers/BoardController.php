@@ -32,6 +32,17 @@ class BoardController extends Controller
         $this->boardService = $boardService;
     }
 
+
+    /**
+     * @OA\Schema(
+     *     schema="boardInfo",
+     *     allOf={
+     *          @OA\Schema(ref="#/components/schemas/Board"),
+     *          @OA\Schema(ref="#/components/schemas/BoardOptionJson")
+     *     }
+     * )
+     */
+
     /**
      * @OA\Post(
      *      path="/v1/board",
@@ -45,16 +56,14 @@ class BoardController extends Controller
      *          @OA\JsonContent(
      *              required={"name"},
      *              @OA\Property(property="name", type="string", ref="#/components/schemas/Board/properties/name" ),
-     *              @OA\Property(property="hidden", type="string", ref="#/components/schemas/Board/properties/hidden" ),
+     *              @OA\Property(property="enable", type="string", ref="#/components/schemas/Board/properties/enable" ),
      *              @OA\Property(property="options", type="object", format="json", description="옵션", ref="#/components/schemas/BoardOptionJson/properties/options"),
      *          ),
      *      ),
      *      @OA\Response(
      *          response=201,
      *          description="successfully",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="successfully Modified" ),
-     *          )
+     *          @OA\JsonContent(ref="#/components/schemas/boardInfo")
      *      ),
      *      @OA\Response(
      *          response=401,
@@ -104,8 +113,7 @@ class BoardController extends Controller
                 case 'attachLimit':
                     break;
                 default:
-                    if(!collect($data)->where('value', $val)->count())
-                    {
+                    if (!collect($data)->where('value', $val)->count()) {
                         throw new QpickHttpException(422, 'board.option.disable.wrong_value', $requestKey);
                     }
                     break;
@@ -113,9 +121,14 @@ class BoardController extends Controller
         }
 
         // 쿼리
+        $this->board->user_id = Auth::user()->id;
         $this->board->name = $request->name;
         $this->board->options = $opts;
-        $this->board->hidden = $request->hidden ?? 0;
+
+        if (isset($request->enable)) {
+            $this->board->enable = $request->enable;
+        }
+
         $this->board->save();
 
         $this->board->refresh();
@@ -139,16 +152,14 @@ class BoardController extends Controller
      *          description="",
      *          @OA\JsonContent(
      *              @OA\Property(property="name", type="string", ref="#/components/schemas/Board/properties/name" ),
-     *              @OA\Property(property="hidden", type="string", ref="#/components/schemas/Board/properties/hidden" ),
+     *              @OA\Property(property="enable", type="string", ref="#/components/schemas/Board/properties/enable" ),
      *              @OA\Property(property="options", type="object", format="json", description="옵션", ref="#/components/schemas/BoardOptionJson/properties/options"),
      *          ),
      *      ),
      *      @OA\Response(
      *          response=201,
      *          description="successfully",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="successfully Modified" ),
-     *          )
+     *          @OA\JsonContent(ref="#/components/schemas/boardInfo")
      *      ),
      *      @OA\Response(
      *          response=401,
@@ -181,6 +192,7 @@ class BoardController extends Controller
 
         // 변경 할 사항
         $this->board->name = $request->name ?? $this->board->name;
+        $this->board->enable = $request->enable ?? $this->board->enable;
 
         if (isset($request->options) && is_array($request->options)) {
             /**
@@ -200,8 +212,7 @@ class BoardController extends Controller
                     case 'attachLimit':
                         break;
                     default:
-                        if(!collect($data)->where('value', $val)->count())
-                        {
+                        if (!collect($data)->where('value', $val)->count()) {
                             throw new QpickHttpException(422, 'board.option.disable.wrong_value', $requestKey);
                         }
                         break;
@@ -229,6 +240,53 @@ class BoardController extends Controller
     }
 
 
+    /**
+     * @OA\delete(
+     *      path="/v1/board/{id}",
+     *      summary="게시판 삭제",
+     *      description="게시판 삭제",
+     *      operationId="boardDelete",
+     *      tags={"게시판"},
+     *      @OA\Response(
+     *          response=204,
+     *          description="deleted"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="not found"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "admin_auth":{}
+     *      }}
+     *  )
+     */
+    public function destroy(Request $request, $id)
+    {
+        // Bacckoffice login
+        if (Auth::user()->isLoginToManagerService()) {
+            $this->board = $this->board::withCount('posts')
+                            ->findOrFail($id);
+
+            if ($this->board->posts_count > 0) {
+                throw new QpickHttpException(422, 'board.delete.disable.exists_post');
+            }
+
+            $this->board->delete();
+
+            return response()->noContent();
+        }
+
+
+    }
+
 
     /**
      * @OA\Get(
@@ -243,7 +301,7 @@ class BoardController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="header", type="object" ),
      *              @OA\Property(property="list", type="array",
-     *                  @OA\Items(type="object", ref="#/components/schemas/BoardOptionJson")
+     *                  @OA\Items(ref="#/components/schemas/boardInfo")
      *              )
      *          )
      *      )
@@ -254,17 +312,32 @@ class BoardController extends Controller
      */
     public function getList(Request $request)
     {
+        $res = [];
+        $res['header'] = [];
+        $res['list'] = [];
+
         // 게시판 목록 데이터
         $tags = separateTag('board.list');
         $ttl = config('cache.custom.expire.common');
 
-        $data = Cache::tags($tags)->remember('common', $ttl, function () {
-            return $this->board::select(['id', 'name', 'options'])->get();
-        });
+        // Bacckoffice login
+        if (Auth::user()->isLoginToManagerService()) {
+            $this->board = $this->board::with('user')
+                ->withCount('posts')
+                ->orderBy('sort', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+            $this->board->each(function (&$v) {
+                unset($v->user->id);
+            });
+        } else {
+            $this->board = Cache::tags($tags)->remember('common', $ttl, function () {
+                return $this->board::select(['id', 'name', 'options'])->get();
+            });
 
-        $res = [];
-        $res['header'] = [];
-        $res['list'] = $data;
+        }
+
+        $res['list'] = $this->board;
 
         return response()->json(CollectionLibrary::toCamelCase(collect($res)), 200);
     }
@@ -315,10 +388,7 @@ class BoardController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
-     *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(type="object", ref="#/components/schemas/BoardOption"),
-     *          )
+     *          @OA\JsonContent(ref="#/components/schemas/boardInfo")
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -333,7 +403,17 @@ class BoardController extends Controller
      */
     public function getBoardInfo(Request $request)
     {
-        $board = $this->boardService->getInfo($request->id);
+
+        // Bacckoffice login
+        if (Auth::user()->isLoginToManagerService()) {
+            $board = $this->board
+                ->with('user')
+                ->withCount('posts')
+                ->findOrFail($request->id);
+            unset($board->user->id);
+        } else {
+            $board = $this->boardService->getInfo($request->id);
+        }
         return response()->json(CollectionLibrary::toCamelCase(collect($board)));
     }
 

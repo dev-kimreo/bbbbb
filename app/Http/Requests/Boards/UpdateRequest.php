@@ -26,9 +26,9 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required_without_all:hidden,options|string|between:2,32',
-            'hidden' => 'required_without_all:name,options|in:0,1',
-            'options' => 'required_without_all:name,hidden|array',
+            'name' => 'required_without_all:enable,options|string|between:2,32',
+            'enable' => 'required_without_all:name,options|boolean',
+            'options' => 'required_without_all:name,enable|array',
         ];
     }
 

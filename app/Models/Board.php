@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
 
@@ -14,15 +15,19 @@ use Carbon\Carbon;
  *      @OA\Xml(name="게시판"),
  *      @OA\Property(property="id", type="string", example=1, description="게시판 고유 번호" ),
  *      @OA\Property(property="name", type="string", example="공지사항", description="게시판 명" ),
- *      @OA\Property(property="hidden", type="string", example="0", description="게시판 숨김여부<br/>0:노출, 1:숨김" ),
- *  )
+ *      @OA\Property(property="enable", type="string", example="0", description="게시판 사용여부<br/>0:미사용, 1:사용" ),
+ *      @OA\Property(property="userId", type="integer", example=1, description="게시판 생성 회원 고유번호" ),
+ *      @OA\Property(property="sort", type="integer", example=100, description="게시판 전시 순서" ),
+ *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자", readOnly="true"),
+ *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자", readOnly="true")
+ *  )  v
  *
  * Class Board
  *
  */
 class Board extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
 
     /**
@@ -41,14 +46,16 @@ class Board extends Model
      * @var array
      */
     protected $hidden = [
-        'created_at',
-        'updated_at',
     ];
 
     protected $casts = [
         'options' => 'array'
     ];
 
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User', 'user_id', 'id')->select(['id', 'name']);
+    }
 
     public function getCreatedAtAttribute($value){
         return Carbon::parse($value)->format('c');
