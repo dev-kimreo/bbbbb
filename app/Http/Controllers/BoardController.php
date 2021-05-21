@@ -1,17 +1,16 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+
 use Auth;
-use Cache;
 
 use App\Models\Board;
-use App\Models\BoardOption;
 
-use App\Http\Requests\Boards\CreateRequest;
+use App\Http\Requests\Boards\StoreRequest;
 use App\Http\Requests\Boards\UpdateRequest;
+use App\Http\Requests\Boards\DestroyRequest;
 
 use App\Exceptions\QpickHttpException;
 
@@ -22,16 +21,6 @@ use App\Services\BoardService;
 
 class BoardController extends Controller
 {
-    private $boardService;
-
-
-    public function __construct(Board $board, BoardOption $boardOption, BoardService $boardService)
-    {
-        $this->board = $board;
-        $this->boardOption = $boardOption;
-        $this->boardService = $boardService;
-    }
-
 
     /**
      * @OA\Schema(
@@ -42,6 +31,61 @@ class BoardController extends Controller
      *     }
      * )
      */
+
+
+    public function __construct(Board $board, BoardService $boardService)
+    {
+        $this->board = $board;
+        $this->boardService = $boardService;
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/v1/board",
+     *      summary="게시판 목록",
+     *      description="게시판 목록",
+     *      operationId="adminBoardList",
+     *      tags={"게시판"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="header", type="object" ),
+     *              @OA\Property(property="list", type="array",
+     *                  @OA\Items(ref="#/components/schemas/boardInfo")
+     *              )
+     *          )
+     *      )
+     *  )
+     */
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        // response init
+        $res = [];
+        $res['header'] = [];
+        $res['list'] = [];
+
+        // 게시판 목록
+        $board = $this->board::with('user:id,name')->orderBy('sort', 'asc')->orderBy('id', 'asc');
+
+        // Bacckoffice login
+        if (Auth::user()->isLoginToManagerService()) {
+            $board->withCount('posts');
+        } else {
+            $board->where('enable', 1);
+        }
+
+        $res['list'] = $board->get();
+
+        return CollectionLibrary::toCamelCase(collect($res));
+
+    }
+
 
     /**
      * @OA\Post(
@@ -78,17 +122,14 @@ class BoardController extends Controller
      *      }}
      *  )
      */
-
     /**
-     * 게시판 생성
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
-    public function create(CreateRequest $request)
+    public function store(StoreRequest $request)
     {
-        // check Policy
-        if (!auth()->user()->can('create', Board::class)) {
-            throw new QpickHttpException(403, 'board.disable.not_permitted');
-        }
-
         // 게시판 옵션 기본값 가져오기
         $opts = [];
         $this->boardService->getOptionList(['sel' => ['type', 'default']])->each(
@@ -130,15 +171,42 @@ class BoardController extends Controller
         }
 
         $this->board->save();
-
         $this->board->refresh();
-
-        // 게시판 목록 데이터 cache flush
-        Cache::tags(['board.list'])->flush();
 
         return response()->json(CollectionLibrary::toCamelCase(collect($this->board)), 201);
     }
 
+
+    /**
+     * @OA\Get(
+     *      path="/v1/board/{id}",
+     *      summary="게시판 상세 정보",
+     *      description="게시판 상세 정보",
+     *      operationId="adminBoardInfo",
+     *      tags={"게시판"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/boardInfo")
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *  )
+     */
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $this->board = $this->board->with('user')->findOrFail($id);
+
+        return CollectionLibrary::toCamelCase(collect($this->board));
+    }
 
     /**
      * @OA\Patch(
@@ -174,21 +242,16 @@ class BoardController extends Controller
      *      }}
      *  )
      */
-
     /**
-     * 게시판 정보 수정
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
      */
-    public function modify(UpdateRequest $request)
+    public function update(UpdateRequest $request, $id)
     {
-        // check Policy
-        if (!auth()->user()->can('update', $this->board)) {
-            throw new QpickHttpException(403, 'board.disable.not_permitted');
-        }
-
-        $this->board = $this->board->find($request->id);
-        if (!$this->board) {
-            throw new QpickHttpException(404, 'common.not_found');
-        }
+        $this->board = $this->board->findOrfail($id);
 
         // 변경 할 사항
         $this->board->name = $request->name ?? $this->board->name;
@@ -228,12 +291,6 @@ class BoardController extends Controller
         // 변경사항이 있을 경우
         if ($this->board->isDirty()) {
             $this->board->save();
-
-            // 게시판 목록 데이터 cache flush
-            Cache::tags(['board.list'])->flush();
-
-            // 변경된 게시판 cache forget
-            Cache::tags(['board.' . $request->id])->flush();
         }
 
         return response()->json(CollectionLibrary::toCamelCase(collect($this->board)), 201);
@@ -268,189 +325,24 @@ class BoardController extends Controller
      *      }}
      *  )
      */
-    public function destroy(Request $request, $id)
-    {
-        // Bacckoffice login
-        if (Auth::user()->isLoginToManagerService()) {
-            $this->board = $this->board::withCount('posts')
-                            ->findOrFail($id);
-
-            if ($this->board->posts_count > 0) {
-                throw new QpickHttpException(422, 'board.delete.disable.exists_post');
-            }
-
-            $this->board->delete();
-
-            return response()->noContent();
-        }
-
-
-    }
-
-
     /**
-     * @OA\Get(
-     *      path="/v1/board",
-     *      summary="게시판 목록",
-     *      description="게시판 목록",
-     *      operationId="adminBoardList",
-     *      tags={"게시판"},
-     *      @OA\Response(
-     *          response=200,
-     *          description="successfully",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="header", type="object" ),
-     *              @OA\Property(property="list", type="array",
-     *                  @OA\Items(ref="#/components/schemas/boardInfo")
-     *              )
-     *          )
-     *      )
-     *  )
-     */
-    /**
-     * 게시판 목록 정보
-     */
-    public function getList(Request $request)
-    {
-        $res = [];
-        $res['header'] = [];
-        $res['list'] = [];
-
-        // 게시판 목록 데이터
-        $tags = separateTag('board.list');
-        $ttl = config('cache.custom.expire.common');
-
-        // Bacckoffice login
-        if (Auth::user()->isLoginToManagerService()) {
-            $this->board = $this->board::with('user')
-                ->withCount('posts')
-                ->orderBy('sort', 'asc')
-                ->orderBy('id', 'asc')
-                ->get();
-            $this->board->each(function (&$v) {
-                unset($v->user->id);
-            });
-        } else {
-            $this->board = Cache::tags($tags)->remember('common', $ttl, function () {
-                return $this->board::select(['id', 'name', 'options'])->get();
-            });
-
-        }
-
-        $res['list'] = $this->board;
-
-        return response()->json(CollectionLibrary::toCamelCase(collect($res)), 200);
-    }
-
-    /**
+     * Remove the specified resource from storage.
      *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
      */
-
-
-    /**
-     * @OA\Get(
-     *      path="/v1/board/option",
-     *      summary="게시판 옵션 목록",
-     *      description="게시판 옵션 목록",
-     *      operationId="adminBoardOptionList",
-     *      tags={"게시판"},
-     *      @OA\Response(
-     *          response=200,
-     *          description="successfully",
-     *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(type="object", ref="#/components/schemas/BoardOption"),
-     *          )
-     *      ),
-     *      security={{
-     *          "admin_auth":{}
-     *      }}
-     *  )
-     */
-    /**
-     * 게시판 옵션 정보
-     */
-    public function getOptionList(Request $request)
+    public function destroy(DestroyRequest $request, $id)
     {
-        $data = $this->boardService->getOptionList();
+        $this->board = $this->board::withCount('posts')
+            ->findOrFail($id);
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($data)));
-    }
-
-
-    /**
-     * @OA\Get(
-     *      path="/v1/board/{id}",
-     *      summary="게시판 상세 정보",
-     *      description="게시판 상세 정보",
-     *      operationId="adminBoardInfo",
-     *      tags={"게시판"},
-     *      @OA\Response(
-     *          response=200,
-     *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/boardInfo")
-     *      ),
-     *      @OA\Response(
-     *          response=422,
-     *          description="failed"
-     *      ),
-     *  )
-     */
-    /**
-     * 게시판 상세 정보
-     * @param Request $request
-     * @return mixed
-     */
-    public function getBoardInfo(Request $request)
-    {
-
-        // Bacckoffice login
-        if (Auth::user()->isLoginToManagerService()) {
-            $board = $this->board
-                ->with('user')
-                ->withCount('posts')
-                ->findOrFail($request->id);
-            unset($board->user->id);
-        } else {
-            $board = $this->boardService->getInfo($request->id);
-        }
-        return response()->json(CollectionLibrary::toCamelCase(collect($board)));
-    }
-
-    public function reInitBoardOption(Request $request)
-    {
-        $this->funcReInitBoardOption();
-    }
-
-    static public function funcReInitBoardOption()
-    {
-
-        $board = Board::all();
-        $boardOpt = BoardOption::select(['type', 'default'])->get();
-        $boardOpt = $boardOpt->toArray();
-        $optArrs = [];
-        foreach ($boardOpt as $k => $arr) {
-            $optArrs[$arr['type']] = $arr['default'];
-        }
-        $typeArrs = array_keys($optArrs);
-
-        $board = $board->toArray();
-
-        foreach ($board as $k => &$arr) {
-            $keys = array_keys($arr['options']);
-
-            $diffArrs = array_diff($typeArrs, $keys);
-            if (count($diffArrs)) {
-                foreach ($diffArrs as $dv) {
-                    $arr['options'][$dv] = $optArrs[$dv];
-                }
-            }
-
-            Board::where('id', $arr['id'])->update(['options' => $arr['options']]);
+        if ($this->board->posts_count > 0) {
+            throw new QpickHttpException(422, 'board.delete.disable.exists_post');
         }
 
+        $this->board->delete();
 
+        return response()->noContent();
     }
-
 
 }
