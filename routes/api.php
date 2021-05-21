@@ -12,6 +12,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\AttachController;
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\InquiryAnswerController;
 use App\Http\Controllers\AuthorityController;
 use App\Http\Controllers\ManagerController;
 
@@ -204,6 +205,16 @@ Route::group([
         // 문의 삭제
         Route::delete('{inquiryId}', [InquiryController::class, 'destroy']);
 
+        // 답변 상세정보 및 작성
+        Route::resource('{inquiryId}/answer', InquiryAnswerController::class, [
+            'only' => ['show', 'store']
+        ]);
+        
+        // 답변 수정 (Customized Router)
+        Route::patch('{inquiryId}/answer', [InquiryAnswerController::class, 'update']);
+        
+        // 답변 삭제 (Customized Router)
+        Route::delete('{inquiryId}/answer', [InquiryAnswerController::class, 'destroy']);
     });
 
 
