@@ -139,6 +139,12 @@ class TranslationSeeder extends Seeder
             ],
             [
                 'exceptions',
+                'board.delete.disable.exists_post',
+                '등록된 게시글이 존재하여 삭제할 수 없습니다.',
+                '등록된 게시글이 존재하여 삭제할 수 없습니다.'
+            ],
+            [
+                'exceptions',
                 'post.disable.hidden',
                 '숨겨진 게시글입니다.',
                 'Can\'t read because post is hidden.'
