@@ -21,7 +21,7 @@ use Carbon\Carbon;
  *      @OA\Property(property="name", type="string", example="123asfd12ju4121.jpg", description="파일 이름" ),
  *      @OA\Property(property="orgName", type="string", example="홍길동.jpg", description="파일 원래 이름" ),
  *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자", readOnly="true"),
- *      @OA\Property(property="updatedDt", type="string", format="date-time", description="수정 일자", readOnly="true")
+ *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자", readOnly="true")
  *  )
  *
  *
