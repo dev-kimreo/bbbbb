@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Requests\Replies;
+namespace App\Http\Requests\Boards;
 
+use Auth;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class CreateRequest extends FormRequest
+class DestroyRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -15,7 +16,7 @@ class CreateRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return Auth::user()->checkUsableManagerService();
     }
 
     /**
@@ -26,7 +27,6 @@ class CreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'content' => 'required|string|min:10',
         ];
     }
 
