@@ -14,7 +14,7 @@ class DestroyRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::check() && Auth::user()->checkAdmin();
+        return Auth::check() && Auth::user()->isLoginToManagerService();
     }
 
     /**
