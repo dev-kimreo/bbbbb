@@ -56,7 +56,7 @@ class BoardOptionsSeeder extends Seeder
                 "default" => 'all',
                 "options" => json_encode([
                     ["value" => "all", "comment" => "모두 사용"],
-                    ["value" => "ck", "comment" => "CK에디터 사용"],
+                    ["value" => "tiny", "comment" => "tiny에디터 사용"],
                     ["value" => "markd", "comment" => "마크다운 사용"]
                 ])
             ],
@@ -74,6 +74,15 @@ class BoardOptionsSeeder extends Seeder
                 "type" => 'attachLimit',
                 "default" => '10',
                 "options" => json_encode([
+                ])
+            ],
+            [
+                "name" => '등록일 노출',
+                "type" => 'createdAt',
+                "default" => '1',
+                "options" => json_encode([
+                    ["value" => "0", "comment" => "사용 안함"],
+                    ["value" => "1", "comment" => "사용 함"]
                 ])
             ]
         ];
