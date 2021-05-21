@@ -4,7 +4,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Cache;
 use Carbon\Carbon;
 
@@ -29,12 +30,10 @@ use App\Services\AttachService;
  */
 class InquiryController extends Controller
 {
-    private Inquiry $inquiry;
     private AttachService $attachService;
 
     public function __construct(Inquiry $inquiry, AttachService $attachService)
     {
-        $this->inquiry = $inquiry;
         $this->attachService = $attachService;
     }
 
@@ -84,28 +83,18 @@ class InquiryController extends Controller
      *      }}
      *  )
      */
-    public function store(CreateRequest $request)
+    public function store(CreateRequest $request, Inquiry $inquiry)
     {
-        // Bacckoffice login
-        if (auth()->user()->isLoginToManagerService()) {
+        // 데이터 가공
+        $inquiry->timestamps = false;
+        $inquiry->user_id = Auth::id();
+        $inquiry->title = $request->title;
+        $inquiry->question = $request->question;
+        $inquiry->created_at = Carbon::now();
+        $inquiry->save();
+        $inquiry->refresh();
 
-        } else {
-            // check write Policy
-            if (!auth()->user()->can('create', [$this->inquiry])) {
-                throw new QpickHttpException(403, 'common.unauthorized');
-            }
-
-            // 데이터 가공
-            $this->inquiry->user_id = auth()->user()->id;
-            $this->inquiry->title = $request->title;
-            $this->inquiry->question = $request->question;
-            $this->inquiry->created_at = Carbon::now();
-            $this->inquiry->save();
-
-            $this->inquiry->refresh();
-
-            return response()->json(CollectionLibrary::toCamelCase(collect($this->inquiry)), 201);
-        }
+        return response()->json(CollectionLibrary::toCamelCase(collect($inquiry)), 201);
     }
 
 
@@ -151,57 +140,33 @@ class InquiryController extends Controller
      *      }}
      *  )
      */
-    public function index(IndexRequest $request)
+    public function index(IndexRequest $request): Collection
     {
-        //  목록
-        $set = [
-            'page' => $request->page,
-            'view' => $request->perPage
-        ];
+        // check viewAny Policy
+//        if (!auth()->user()->can('viewAny', [$this->inquiry])) {
+//            throw new QpickHttpException(403, 'common.unauthorized');
+//        }
 
-        // Bacckoffice login
-        if (auth()->user()->isLoginToManagerService()) {
+        // Set Model
+        $inquiry = Inquiry::with('user')->orderBy('id', 'desc');
 
-        } else {
-
-            // check viewAny Policy
-            if (!auth()->user()->can('viewAny', [$this->inquiry])) {
-                throw new QpickHttpException(403, 'common.unauthorized');
-            }
-
-            // where 절
-            $whereModel = $this->inquiry->where(['user_id' => auth()->user()->id]);
-
-            // pagination
-            $pagination = PaginationLibrary::set($set['page'], $whereModel->count(), $set['view']);
-
-            // 문의 정보
-            $inquiry =
-                $whereModel
-                    ->with('user')
-                    ->skip($pagination['skip'])
-                    ->take($pagination['perPage'])
-                    ->orderBy('id', 'desc');
-
-            $data = $inquiry->get();
-
-
-            // 데이터 가공
-            $data->each(function (&$v) use ($set) {
-                // 유저 이름
-                if ($v->user) {
-                    $v->userName = $v->user->toArray()['name'];
-                    unset($v->user);
-                }
-            });
+        if(!Auth::user()->isLoginToManagerService()) {
+            $inquiry->where(['user_id' => Auth::id()]);
         }
 
+        // Set Pagination Information
+        $pagination = PaginationLibrary::set($request->page, $inquiry->count(), $request->perPage);
+
+        // Get Data from DB
+        $data = $inquiry->skip($pagination['skip'])->take($pagination['perPage'])->get();
+
+        // Result
         $result = [
             'header' => $pagination ?? [],
             'list' => $data ?? []
         ];
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($result)), 200);
+        return CollectionLibrary::toCamelCase(collect($result));
     }
 
 
@@ -236,34 +201,28 @@ class InquiryController extends Controller
      *      }}
      *  )
      */
-    public function show($id, ShowRequest $request)
+    public function show(int $id, ShowRequest $request): Collection
     {
-        // Bacckoffice login
-        if (auth()->user()->isLoginToManagerService()) {
+        // Get Data from DB
+        $data = Inquiry::where('id', $id)
+            ->with('answer')
+            ->with('attachFiles', function ($q) {
+                return $q->select('id', 'url', 'attachable_id', 'attachable_type');
+            })->first();
 
-        } else {
-            // 문의 정보
-            $collect = $this->inquiry
-                ->with('answer')
-                ->with('attachFiles', function ($q) {
-                    return $q->select('id', 'url', 'attachable_id', 'attachable_type');
-                })
-                ->where([
-                    'id' => $id,
-                    'user_id' => auth()->user()->id
-                ])
-                ->first();
-            if (!$collect) {
-                throw new QpickHttpException(404, 'common.not_found');
-            }
-
-            // check view Policy
-            if (!auth()->user()->can('view', [$collect])) {
-                throw new QpickHttpException(403, 'common.unauthorized');
-            }
-
-            return response()->json(CollectionLibrary::toCamelCase(collect($collect)), 200);
+        // Check authority
+        if (!$data) {
+            throw new QpickHttpException(404, 'common.not_found');
         }
+
+        if (!Auth::user()->isLoginToManagerService()) {
+            if ($data->user_id != Auth::id()) {
+                throw new QpickHttpException(403, 'inquiry.disable.writer_only');
+            }
+        }
+
+        // Response
+        return CollectionLibrary::toCamelCase(collect($data));
     }
 
 
@@ -301,35 +260,27 @@ class InquiryController extends Controller
      *      }}
      *  )
      */
-    public function update($id, UpdateRequest $request)
+    public function update(int $id, UpdateRequest $request)
     {
-        // Bacckoffice login
-        if (auth()->user()->isLoginToManagerService()) {
+        // Get Data from DB
+        $inquiry = Inquiry::find($id);
 
-        } else {
-            // 문의 정보
-            $collect = $this->inquiry
-                ->where(['id' => $id, 'user_id' => auth()->user()->id])
-                ->first();
-            if (!$collect) {
-                throw new QpickHttpException(404, 'common.not_found');
-            }
-
-            if (!auth()->user()->can('update', [$collect])) {
-                throw new QpickHttpException(403, 'common.unauthorized');
-            }
-
-            $collect->title = $request->title ?? $collect->title;
-            $collect->question = $request->question ?? $collect->question;
-
-            // 수정
-            if ($collect->isDirty()) {
-                $collect->updated_at = Carbon::now();
-                $collect->save();
-            }
-
-            return response()->json(CollectionLibrary::toCamelCase(collect($collect)), 201);
+        // Check authority
+        if (!$inquiry) {
+            throw new QpickHttpException(404, 'common.not_found');
         }
+
+        if ($inquiry->user_id != Auth::id()) {
+            throw new QpickHttpException(403, 'inquiry.disable.writer_only');
+        }
+
+        // Save Data
+        $inquiry->title = $request->title ?? $inquiry->title;
+        $inquiry->question = $request->question ?? $inquiry->question;
+        $inquiry->save();
+
+        // Response
+        return response()->json(CollectionLibrary::toCamelCase(collect($inquiry)), 201);
     }
 
 
@@ -352,45 +303,31 @@ class InquiryController extends Controller
      *          response=404,
      *          description="not found"
      *      ),
-     *      @OA\Response(
-     *          response=422,
-     *          description="failed"
-     *      ),
      *      security={{
      *          "davinci_auth":{}
      *      }}
      *  )
      */
-    public function destroy($id, DestroyRequest $request)
+    public function destroy(int $id, DestroyRequest $request)
     {
-        // Bacckoffice login
-        if (auth()->user()->isLoginToManagerService()) {
+        // Get Data from DB
+        $inquiry = Inquiry::where('id', $id)->first();
 
-        } else {
-            // 문의 정보
-            $collect = $this->inquiry
-                ->where([
-                    'id' => $id,
-                    'user_id' => auth()->user()->id
-                ])
-                ->first();
-            if (!$collect) {
-                throw new QpickHttpException(404, 'common.not_found');
-            }
-
-            if (!auth()->user()->can('delete', [$collect])) {
-                throw new QpickHttpException(403, 'common.unauthorized');
-            }
-
-            // 첨부파일 삭제
-            $this->attachService->delete($collect->attachFiles->modelKeys());
-
-            // 문의 소프트 삭제
-            $collect->delete();
-
-            return response()->noContent();
+        // Check authority
+        if (!$inquiry) {
+            throw new QpickHttpException(404, 'common.not_found');
         }
+
+        if ($inquiry->user_id != Auth::id()) {
+            throw new QpickHttpException(403, 'inquiry.disable.writer_only');
+        }
+
+        // Delete
+        // TODO - try changing below code to $inquiry->attacheFiles()->delete();
+        $this->attachService->delete($inquiry->attachFiles->modelKeys());
+        $inquiry->delete();
+
+        // Response
+        return response()->noContent();
     }
-
-
 }

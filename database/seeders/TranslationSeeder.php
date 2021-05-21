@@ -169,6 +169,12 @@ class TranslationSeeder extends Seeder
             ],
             [
                 'exceptions',
+                'inquiry.disable.writer_only',
+                '내가 작성하지 않은 1:1 상담은 열람 또는 수정할 수 없습니다.',
+                'Can\'t read because you are not writer.'
+            ],
+            [
+                'exceptions',
                 'attach.disable.upload',
                 '업로드 기능을 사용할 수 없습니다.',
                 '업로드 기능을 사용할 수 없습니다.'

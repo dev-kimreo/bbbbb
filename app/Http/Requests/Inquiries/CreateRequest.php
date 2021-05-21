@@ -17,7 +17,7 @@ class CreateRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::check() && Auth::user()->isLoginToManagerService();
+        return Auth::check() && !Auth::user()->isLoginToManagerService();
     }
 
     /**
