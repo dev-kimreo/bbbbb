@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 
+use Auth;
 use Hash;
 use Exception;
 use App\Exceptions\QpickHttpException;
@@ -13,11 +14,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use Response;
 use Validator;
 use Laravel\Passport\Http\Controllers\AccessTokenController as ATC;
+use App\Libraries\CollectionLibrary;
 
 class AccessTokenController extends ATC
 {
 
-    public function login(ServerRequestInterface $request, User $user)
+    public function store(ServerRequestInterface $request, User $user)
     {
         $this->user = $user;
         return $this->issueToken($request);
@@ -103,4 +105,71 @@ class AccessTokenController extends ATC
 
         return parent::issueToken($request);
     }
+
+
+
+    /**
+     * @OA\Get(
+     *      path="/v1/user/auth",
+     *      summary="회원정보",
+     *      description="회원정보",
+     *      operationId="userInfo",
+     *      tags={"회원관련"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/User")
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
+     *  )
+     */
+    public function show() {
+        return CollectionLibrary::toCamelCase(collect(Auth::user()));
+    }
+
+
+
+    /**
+     * @OA\Delete(
+     *      path="/v1/user/auth",
+     *      summary="로그아웃",
+     *      description="회원 로그아웃",
+     *      operationId="userLogout",
+     *      tags={"회원관련"},
+     *      @OA\Response(
+     *          response=204,
+     *          description="successfully"
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
+     *  )
+     */
+    /**
+     * 로그아웃
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy()
+    {
+        // 엑세스 토큰 제거
+        Auth::user()->token()->revoke();
+
+        // refesh token revoke
+//        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
+//        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId(auth()->user()->token()->id);
+
+        return response()->noContent();
+    }
+
 }
