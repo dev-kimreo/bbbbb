@@ -14,7 +14,9 @@ use App\Models\SignedCode;
 use App\Events\Member\VerifyEmail;
 use App\Events\Member\VerifyEmailCheck;
 
-use App\Http\Requests\Members\CreateRequest;
+use App\Http\Requests\Members\IndexRequest;
+use App\Http\Requests\Members\ShowRequest;
+use App\Http\Requests\Members\StoreRequest;
 use App\Http\Requests\Members\UpdateRequest;
 
 
@@ -53,6 +55,17 @@ class MemberController extends Controller
         $this->signedCode = $signedCode;
     }
 
+    public function index(IndexRequest $request)
+    {
+
+    }
+
+
+    public function show(ShowRequest $request)
+    {
+
+    }
+
     /**
      * @OA\Post(
      *      path="/v1/user",
@@ -88,7 +101,7 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(CreateRequest $request)
+    public function store(StoreRequest $request)
     {
         // 비밀번호 체크
         $checkPwdRes = $this->checkPasswordPattern($request->password, $request->email);
@@ -106,20 +119,32 @@ class MemberController extends Controller
 
 
     /**
-     * @OA\Get(
+     * @OA\Patch(
      *      path="/v1/user",
-     *      summary="회원정보",
-     *      description="회원정보",
-     *      operationId="userInfo",
+     *      summary="회원정보 수정",
+     *      description="회원 정보 수정",
+     *      operationId="userInfoModify",
      *      tags={"회원관련"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={"name", "password"},
+     *              @OA\Property(property="name", type="string", example="홍길동", description="변경할 이름"),
+     *              @OA\Property(property="password", type="string", format="password", example="1234qwer", description="비밀번호"),
+     *          ),
+     *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/User")
+     *          response=201,
+     *          description="modified"
      *      ),
      *      @OA\Response(
      *          response=401,
-     *          description="Unauthenticated"
+     *          description="unauthenticated"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -128,53 +153,24 @@ class MemberController extends Controller
      */
 
     /**
-     * 회원 정보
+     * 회원 정보 수정
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function info()
+    public function update(UpdateRequest $request)
     {
-        // 회원정보
-        return response()->json(CollectionLibrary::toCamelCase(collect(auth()->user())));
+        if (!$this::funcCheckPassword($request->password)) {
+            throw new QpickHttpException(422, 'user.password.incorrect');
+        }
+
+        $member = auth()->user();
+        $member->name = $request->name;
+        $member->save();
+
+        return response()->json(CollectionLibrary::toCamelCase(collect($member)), 201);
     }
 
 
-    /**
-     * @OA\Delete(
-     *      path="/v1/user/auth",
-     *      summary="로그아웃",
-     *      description="회원 로그아웃",
-     *      operationId="userLogout",
-     *      tags={"회원관련"},
-     *      @OA\Response(
-     *          response=204,
-     *          description="successfully"
-     *      ),
-     *      @OA\Response(
-     *          response=401,
-     *          description="Unauthenticated"
-     *      ),
-     *      security={{
-     *          "davinci_auth":{}
-     *      }}
-     *  )
-     */
-    /**
-     * 로그아웃
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function logout()
-    {
-        // 엑세스 토큰 제거
-        auth()->user()->token()->revoke();
-
-        // refesh token revoke
-//        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
-//        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId(auth()->user()->token()->id);
-
-        return response()->noContent();
-    }
 
     /**
      * @OA\Post(
@@ -322,57 +318,6 @@ class MemberController extends Controller
         return response()->noContent();
     }
 
-    /**
-     * @OA\Patch(
-     *      path="/v1/user",
-     *      summary="회원정보 수정",
-     *      description="회원 정보 수정",
-     *      operationId="userInfoModify",
-     *      tags={"회원관련"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="",
-     *          @OA\JsonContent(
-     *              required={"name", "password"},
-     *              @OA\Property(property="name", type="string", example="홍길동", description="변경할 이름"),
-     *              @OA\Property(property="password", type="string", format="password", example="1234qwer", description="비밀번호"),
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=201,
-     *          description="modified"
-     *      ),
-     *      @OA\Response(
-     *          response=401,
-     *          description="unauthenticated"
-     *      ),
-     *      @OA\Response(
-     *          response=422,
-     *          description="failed"
-     *      ),
-     *      security={{
-     *          "davinci_auth":{}
-     *      }}
-     *  )
-     */
-
-    /**
-     * 회원 정보 수정
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function modify(UpdateRequest $request)
-    {
-        if (!$this::funcCheckPassword($request->password)) {
-            throw new QpickHttpException(422, 'user.password.incorrect');
-        }
-
-        $member = auth()->user();
-        $member->name = $request->name;
-        $member->save();
-
-        return response()->json(CollectionLibrary::toCamelCase(collect($member)), 201);
-    }
 
 
     /**

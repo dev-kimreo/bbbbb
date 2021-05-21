@@ -2,12 +2,12 @@
 
 namespace App\Http\Requests\Members;
 
+use Auth;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use App;
 
-class CreateRequest extends FormRequest
+class IndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -16,7 +16,7 @@ class CreateRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return Auth::user()->checkUsableManagerService();
     }
 
     /**
@@ -27,20 +27,7 @@ class CreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|between:2,100',
-            'email' => 'required|string|email|max:100|unique:App\Models\User,email',
-            'password' => 'required|string|min:8',
-            'passwordConfirmation' => 'required|string|same:password'
         ];
     }
 
-    /**
-     * @return array
-     * @description code {Number} - 20000 어쩌구저쩌구
-     */
-    public function messages()
-    {
-        return [
-        ];
-    }
 }

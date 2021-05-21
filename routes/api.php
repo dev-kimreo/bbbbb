@@ -44,24 +44,26 @@ Route::group([
         'prefix' => 'user'
     ], function () {
 
-        // 회원가입
-        Route::post('', [MemberController::class, 'register']);
+        // 회원 관련 CRUD
+        Route::post('', [MemberController::class, 'store']);
 
-        // 로그인
-        Route::post('/auth', [AccessTokenController::class, 'login']);
+        // 회원 세션 CRUD
+        Route::post('/auth', [AccessTokenController::class, 'store']);
+
 
         // 인증 필요
         Route::group([
             'middleware' => 'auth:api',
         ], function () {
-            // 회원정보
-            Route::get('', [MemberController::class, 'info']);
 
-            // 회원 정보 수정
-            Route::patch('', [MemberController::class, 'modify']);
+            // 회원 관련 CRUD
+            Route::get('', [MemberController::class, 'index']);
+            Route::get('/{id}', [MemberController::class, 'show']);
+            Route::patch('', [MemberController::class, 'update']);
 
-            // 로그아웃
-            Route::delete('/auth', [MemberController::class, 'logout']);
+            // 회원 세션 CRUD
+            Route::get('/auth', [AccessTokenController::class, 'show']);
+            Route::delete('/auth', [AccessTokenController::class, 'destroy']);
 
 
         });
@@ -71,6 +73,8 @@ Route::group([
         Route::group([
             'prefix' => 'email-verification'
         ], function () {
+            // 이메일 인증 route
+            Route::get('/{verifyKey}/{id}', [MemberController::class, 'verification'])->name('verification.verify');
 
             // 인증 필요
             Route::group([
@@ -79,9 +83,6 @@ Route::group([
                 // 이메일 인증 재발송
                 Route::post('', [MemberController::class, 'resendVerificationEmail']);
             });
-
-            // 이메일 인증 route
-            Route::get('/{verifyKey}/{id}', [MemberController::class, 'verification'])->name('verification.verify');
         });
 
 
@@ -98,11 +99,11 @@ Route::group([
             Route::group([
                 'prefix' => 'reset-mail'
             ], function () {
-                // 비밀번호 변경 링크 발송
-                Route::post('', [MemberController::class, 'passwordResetSendLink']);
-
                 // 비밀번호 변경 링크 유효성 체크
                 Route::get('', [MemberController::class, 'changePwdVerification']);
+
+                // 비밀번호 변경 링크 발송
+                Route::post('', [MemberController::class, 'passwordResetSendLink']);
 
                 // 비밀번호 변경 링크 발송 후 변경
                 Route::patch('', [MemberController::class, 'passwordReset']);
@@ -141,7 +142,7 @@ Route::group([
     // 게시판 관련
     Route::group([
         'prefix' => 'board'
-    ], function(){
+    ], function () {
         // 게시판 CRUD
         Route::get('', [BoardController::class, 'index']);
         Route::get('/{id}', [BoardController::class, 'show']);
