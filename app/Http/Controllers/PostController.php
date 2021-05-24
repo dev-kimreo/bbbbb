@@ -376,6 +376,7 @@ class PostController extends Controller
         $this->post = $this->post->where('board_id', $boardId)->with('user:id,name');
 
         // 첨부파일 (섬네일 제외)
+        $this->post = $this->post->with('attachFiles');
         $this->post = $this->post->with('thumbnail.attachFiles');
         $this->post = $this->post->findOrFail($id);
 
