@@ -11,7 +11,7 @@ use Artisan;
 
 use App\Models\AttachFile;
 
-use App\Http\Requests\Attaches\CreateRequest;
+use App\Http\Requests\Attaches\StoreRequest;
 use App\Http\Requests\Attaches\UpdateRequest;
 
 use App\Exceptions\QpickHttpException;
@@ -81,7 +81,7 @@ class AttachController extends Controller
      * @param Request $request
      * @return mixed
      */
-    public function create(CreateRequest $request)
+    public function store(StoreRequest $request)
     {
         $files = $request->file('files');
         $uploadFiles = [];
@@ -178,6 +178,7 @@ class AttachController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
+
         // type check
         $typeModel = Relation::getMorphedModel($request->type);
         if (!$typeModel) {
@@ -185,6 +186,10 @@ class AttachController extends Controller
         }
         $typeModel = '\\' . $typeModel;
         $typeCollect = $typeModel::find($request->typeId);
+
+        if ($request->has('thumbnail')) {
+            $typeCollect = $typeCollect->thumbnail()->firstOrCreate();
+        }
 
         if (!$typeCollect) {
             throw new QpickHttpException(422, 'common.not_found', 'typeId');
@@ -197,11 +202,7 @@ class AttachController extends Controller
         $this->attachService->checkUnderUploadLimit($typeCollect);
 
         // type Move
-        if ($request->has('thumbnail')) {
-            $this->attachService->move($typeCollect, [$id], ['type' => 'thumbnail']);
-        } else {
-            $this->attachService->move($typeCollect, [$id]);
-        }
+        $this->attachService->move($typeCollect, [$id]);
 
         // Attach Collection Refresh
         $attachCollect->refresh();

@@ -82,7 +82,7 @@ class Post extends Model
 
     public function thumbnail()
     {
-        return $this->attachFiles();
+        return $this->hasOne('App\Models\PostThumbnail');
     }
 
     public function board()
