@@ -290,9 +290,9 @@ class PostController extends Controller
         $res['list'] = [];
 
         // Bacckoffice login
-        if (Auth::check() && Auth::user()->isLoginToManagerService()) {
-
-        } else {
+//        if (Auth::check() && Auth::user()->isLoginToManagerService()) {
+//
+//        } else {
             // 게시글 목록
             $this->post = $this->post->where('board_id', $boardId);
 
@@ -301,9 +301,7 @@ class PostController extends Controller
 
             if ($request->page <= $pagination['totalPage']) {
                 $this->post = $this->post->with('user:id,name')->withCount('reply');
-                $this->post = $this->post->with(['thumbnail' => function ($query) {
-                    $query->select('id', 'url', 'attachable_id', 'attachable_type')->whereJsonContains('etc', ['type' => 'thumbnail']);
-                }]);
+                $this->post = $this->post->with('thumbnail.attachFiles');
 
                 $this->post = $this->post
                     ->groupBy('posts.id')
@@ -313,13 +311,22 @@ class PostController extends Controller
                     ->orderBy('id', 'desc');
 
                 $post = $this->post->get();
+
+                // 데이터 가공
+                $post->each(function(&$v) {
+                    $attachFiles = $v->thumbnail->attachFiles ?? null;
+                    unset($v->thumbnail);
+                    $v->thumbnail = $attachFiles;
+                });
+
+
             }
 
             $data = $post ?? [];
 
             $res['header'] = $pagination;
             $res['list'] = $data;
-        }
+//        }
 
         return CollectionLibrary::toCamelCase(collect($res));
     }
@@ -369,10 +376,13 @@ class PostController extends Controller
         $this->post = $this->post->where('board_id', $boardId)->with('user:id,name');
 
         // 첨부파일 (섬네일 제외)
-        $this->post = $this->post->with(['attachFiles' => function ($query) {
-            $query->select('id', 'url', 'attachable_id', 'attachable_type', 'etc')->whereJsonDoesntContain('etc', ['type' => 'thumbnail']);
-        }]);
+        $this->post = $this->post->with('thumbnail.attachFiles');
         $this->post = $this->post->findOrFail($id);
+
+        // 데이터 가공
+        $attachFiles = $this->post->thumbnail->attachFiles ?? null;
+        unset($this->post->thumbnail);
+        $this->post->thumbnail = $attachFiles;
 
         return CollectionLibrary::toCamelCase(collect($this->post));
     }

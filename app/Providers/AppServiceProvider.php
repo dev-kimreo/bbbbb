@@ -32,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
             'attach' => 'App\Models\AttachFile',
             'post' => 'App\Models\Post',
             'inquiry' => 'App\Models\Inquiry',
+            'post_thumbnail' => 'App\Models\PostThumbnail',
         ]);
     }
 }

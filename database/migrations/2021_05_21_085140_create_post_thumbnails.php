@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAttachFilesTable extends Migration
+class CreatePostThumbnails extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,10 @@ class CreateAttachFilesTable extends Migration
      */
     public function up()
     {
-        Schema::create('attach_files', function (Blueprint $table) {
+        Schema::create('post_thumbnails', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
-            $table->string('server', 32);
-            $table->morphs('attachable');
-            $table->foreignId('user_id')->constrained();
-            $table->string('url');
-            $table->string('path');
-            $table->string('name', 128);
-            $table->string('org_name', 128);
-            $table->json('etc')->nullable();
+            $table->foreignId('post_id')->constrained();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -36,6 +29,6 @@ class CreateAttachFilesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('attach_files');
+        Schema::dropIfExists('post_thumbnails');
     }
 }

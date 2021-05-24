@@ -27,8 +27,8 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required_without_all:content,thumbnail,delFiles|string|between:6,128',
-            'content' => 'required_without_all:title,thumbnail,delFiles|string|min:10'
+            'title' => 'required_without_all:content|string|between:6,128',
+            'content' => 'required_without_all:title|string|min:10'
         ];
     }
 

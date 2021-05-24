@@ -243,7 +243,7 @@ Route::group([
         'middleware' => 'auth:api'
     ], function () {
         // 임시 파일 첨부
-        Route::post('', [AttachController::class, 'create']);
+        Route::post('', [AttachController::class, 'store']);
 
         // 파일 삭제
         Route::delete('/{id}', [AttachController::class, 'delete']);
