@@ -57,14 +57,15 @@ Route::group([
             'middleware' => 'auth:api',
         ], function () {
 
+            // 회원 세션 CRUD
+            Route::get('/auth', [AccessTokenController::class, 'show']);
+            Route::delete('/auth', [AccessTokenController::class, 'destroy']);
+
+
             // 회원 관련 CRUD
             Route::get('', [MemberController::class, 'index']);
             Route::get('/{id}', [MemberController::class, 'show']);
             Route::patch('', [MemberController::class, 'update']);
-
-            // 회원 세션 CRUD
-            Route::get('/auth', [AccessTokenController::class, 'show']);
-            Route::delete('/auth', [AccessTokenController::class, 'destroy']);
 
 
         });
@@ -209,10 +210,10 @@ Route::group([
         Route::resource('{inquiryId}/answer', InquiryAnswerController::class, [
             'only' => ['show', 'store']
         ]);
-        
+
         // 답변 수정 (Customized Router)
         Route::patch('{inquiryId}/answer', [InquiryAnswerController::class, 'update']);
-        
+
         // 답변 삭제 (Customized Router)
         Route::delete('{inquiryId}/answer', [InquiryAnswerController::class, 'destroy']);
     });
