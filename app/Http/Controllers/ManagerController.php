@@ -2,14 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\CollectionLibrary;
 use App\Models\{Manager, User, Authority};
 use App\Http\Requests\Members\Managers\StoreManagerRequest;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Http\Response;
 
 class ManagerController extends Controller
 {
+    private $manager;
+
+    public function __construct(Manager $manager)
+    {
+        $this->manager = $manager;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -17,40 +24,40 @@ class ManagerController extends Controller
      */
     public function index(): Collection
     {
-        return Manager::all();
+        return CollectionLibrary::toCamelCase($this->manager::all());
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  StoreManagerRequest  $request
-     * @return Manager
+     * @return Collection
      */
-    public function store(StoreManagerRequest $request): Manager
+    public function store(StoreManagerRequest $request): Collection
     {
         // Additional Validation
         User::findOrFail($request->get('user_id'));
         Authority::findOrFail($request->get('authority_id'));
 
         // store
-        $manager = new Manager;
+        $manager = $this->manager;
         $manager->user_id = $request->get('user_id');
         $manager->authority_id = $request->get('authority_id');
         $manager->save();
 
         // response
-        return Manager::find($manager->id);
+        return CollectionLibrary::toCamelCase(collect($this->manager::find($manager->id)));
     }
 
     /**
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return Manager
+     * @return Collection
      */
-    public function show(int $id): Manager
+    public function show(int $id): Collection
     {
-        return Manager::findOrFail($id);
+        return CollectionLibrary::toCamelCase(collect($this->manager::findOrFail($id)));
     }
 
     /**
