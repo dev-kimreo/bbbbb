@@ -208,8 +208,11 @@ Route::group([
 
         // 답변 상세정보 및 작성
         Route::resource('{inquiryId}/answer', InquiryAnswerController::class, [
-            'only' => ['show', 'store']
+            'only' => ['store']
         ]);
+
+        // 답변 상세정보 (Customized Router)
+        Route::get('{inquiryId}/answer', [InquiryAnswerController::class, 'show']);
 
         // 답변 수정 (Customized Router)
         Route::patch('{inquiryId}/answer', [InquiryAnswerController::class, 'update']);
