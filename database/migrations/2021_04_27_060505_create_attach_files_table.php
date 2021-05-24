@@ -25,6 +25,7 @@ class CreateAttachFilesTable extends Migration
             $table->string('org_name', 128);
             $table->json('etc')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
