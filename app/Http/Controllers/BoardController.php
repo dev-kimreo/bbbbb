@@ -159,6 +159,8 @@ class BoardController extends Controller
                     }
                     break;
             }
+
+            $opts[$type] = $val;
         }
 
         // 쿼리
