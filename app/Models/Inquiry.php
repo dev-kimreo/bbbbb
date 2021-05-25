@@ -4,8 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 
 
 /**
@@ -54,30 +57,39 @@ class Inquiry extends Model
     protected $casts = [
     ];
 
-    // 파일 첨부 갯수 제한
-    public function getAttachFileLimit() {
-        return 10;
-    }
-
-    public function user(){
-        return $this->belongsTo('App\Models\User', 'user_id', 'id')->select(['id', 'name']);
-    }
-
-    public function answer()
+    public function user(): BelongsTo
     {
-        return $this->hasOne('App\Models\InquiryAnswer');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public function attachFiles()
+    public function assignee(): BelongsTo
     {
-        return $this->morphMany('App\Models\AttachFile', 'attachable');
+        return $this->belongsTo(User::class, 'assignee_id', 'id');
     }
 
-    public function getCreatedAtAttribute($value){
+    public function answer(): HasOne
+    {
+        return $this->hasOne(InquiryAnswer::class);
+    }
+
+    public function attachFiles(): MorphMany
+    {
+        return $this->morphMany(AttachFile::class, 'attachable');
+    }
+
+    public function getCreatedAtAttribute($value): string
+    {
         return Carbon::parse($value)->format('c');
     }
 
-    public function getUpdatedAtAttribute($value){
+    public function getUpdatedAtAttribute($value): ?string
+    {
         return $value ? Carbon::parse($value)->format('c') : $value;
+    }
+
+    // 파일 첨부 갯수 제한
+    public function getAttachFileLimit(): int
+    {
+        return 10;
     }
 }

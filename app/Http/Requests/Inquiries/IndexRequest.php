@@ -27,8 +27,19 @@ class IndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'page' => 'sometimes|integer|min:1',
-            'perPage' => 'sometimes|integer|between:1,50',
+            'page' => 'nullable|integer|min:1',
+            'perPage' => 'nullable|integer|between:1,50',
+            'id' => 'nullable|integer',
+            'status' => 'nullable|string',
+            'startDate' => 'nullable|date_format:Y-m-d',
+            'endDate' => 'nullable|date_format:Y-m-d',
+            'title' => 'nullable|string',
+            'user_id' => 'nullable|integer|exists:App\Models\Manager,user_id',
+            'user_email' => 'nullable|string',
+            'user_name' => 'nullable|string',
+            'assignee_id' => 'nullable|integer|exists:App\Models\Manager,user_id',
+            'assignee_name' => 'nullable|string',
+            'multiSearch' => 'nullable'
         ];
     }
 

@@ -136,10 +136,14 @@ Route::group([
 
 
     // 관리자 및 권한 관련
-    Route::resource('authority', AuthorityController::class);
-    Route::resource('manager', ManagerController::class, [
-        'only' => ['index', 'show', 'store', 'destroy']
-    ]);
+    Route::group([
+            'middleware' => 'auth:api',
+    ], function () {
+        Route::resource('authority', AuthorityController::class);
+        Route::resource('manager', ManagerController::class,[
+            'only' => ['index', 'show', 'store', 'destroy']
+        ]);
+    });
 
     // 게시판 관련
     Route::group([

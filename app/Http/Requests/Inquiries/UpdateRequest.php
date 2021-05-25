@@ -28,8 +28,9 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required_without_all:question|string|between:6,100',
-            'question' => 'required_without_all:title|string|min:10'
+            'title' => 'required_without_all:question,assignee_id|string|between:6,100',
+            'question' => 'required_without_all:title,assignee_id|string|min:10',
+            'assignee_id' => 'required_without_all:title,question|integer|exists:App\Models\Manager,user_id'
         ];
     }
 

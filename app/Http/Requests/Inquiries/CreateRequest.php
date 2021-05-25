@@ -30,6 +30,7 @@ class CreateRequest extends FormRequest
         return [
             'title' => 'required|string|between:6,100',
             'question' => 'required|string|min:10',
+            'assignee_id' => 'nullable|integer|exists:App\Models\Manager,user_id'
         ];
     }
 
