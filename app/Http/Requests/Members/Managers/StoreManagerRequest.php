@@ -25,7 +25,7 @@ class StoreManagerRequest extends FormRequest
     public function rules()
     {
         return [
-            'user_id' => 'required|integer|exists:users,id|unique:users,id',
+            'user_id' => 'required|integer|exists:users,id|unique:managers,user_id',
             'authority_id' => 'required|integer|exists:authorities,id,deleted_at,NULL'
         ];
     }

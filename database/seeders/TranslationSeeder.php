@@ -175,6 +175,12 @@ class TranslationSeeder extends Seeder
             ],
             [
                 'exceptions',
+                'inquiry.answer.disable.already_exists',
+                '이미 답변이 완료된 1:1 상담입니다.',
+                'Can\'t write answer because the inquiry already has an answer.'
+            ],
+            [
+                'exceptions',
                 'attach.disable.upload',
                 '업로드 기능을 사용할 수 없습니다.',
                 '업로드 기능을 사용할 수 없습니다.'
