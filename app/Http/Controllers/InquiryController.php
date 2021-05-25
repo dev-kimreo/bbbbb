@@ -27,10 +27,12 @@ use Illuminate\Support\Facades\DB;
  */
 class InquiryController extends Controller
 {
+    private Inquiry $inquiry;
     private AttachService $attachService;
 
     public function __construct(Inquiry $inquiry, AttachService $attachService)
     {
+        $this->inquiry = $inquiry;
         $this->attachService = $attachService;
     }
 
@@ -92,15 +94,18 @@ class InquiryController extends Controller
      *      }}
      *  )
      */
-    public function store(CreateRequest $request, Inquiry $inquiry)
+    public function store(CreateRequest $request)
     {
-        // 데이터 가공
+        // 초기화
+        $inquiry = $this->inquiry;
         $inquiry->timestamps = false;
-        $inquiry->user_id = Auth::id();
-        $inquiry->title = $request->title;
-        $inquiry->question = $request->question;
-        $inquiry->assignee_id = $request->assignee_id ?? $inquiry->assignee_id;
-        $inquiry->created_at = Carbon::now();
+
+        // 데이터 가공
+        $inquiry->setAttribute('user_id', Auth::id());
+        $inquiry->setAttribute('title', $request->input('title'));
+        $inquiry->setAttribute('question', $request->input('question'));
+        $inquiry->setAttribute('assignee_id', $request->input('assignee_id', null));
+        $inquiry->setAttribute('created_at', Carbon::now());
         $inquiry->save();
 
         $res = $inquiry->with('user', 'answer', 'assignee')->find($inquiry->id);
