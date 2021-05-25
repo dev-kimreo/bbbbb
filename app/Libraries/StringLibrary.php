@@ -9,10 +9,7 @@ class StringLibrary
     // Escape for like query on MariaDB
     public static function escapeSql(string $v): string
     {
-        $v = str_replace('%', '\\%', $v);
-        $v = str_replace('_', '\\_', $v);
-
-        return $v;
+        return addcslashes($v, '%_');
     }
 
     // 한국어 조사변화 from https://taegon.kim/archives/4776
