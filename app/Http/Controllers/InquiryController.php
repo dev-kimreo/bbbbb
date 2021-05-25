@@ -3,26 +3,23 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Cache;
-use Carbon\Carbon;
-
-use App\Models\Inquiry;
-
+use App\Exceptions\QpickHttpException;
 use App\Http\Requests\Inquiries\CreateRequest;
+use App\Http\Requests\Inquiries\DestroyRequest;
 use App\Http\Requests\Inquiries\IndexRequest;
 use App\Http\Requests\Inquiries\ShowRequest;
 use App\Http\Requests\Inquiries\UpdateRequest;
-use App\Http\Requests\Inquiries\DestroyRequest;
-
-use App\Exceptions\QpickHttpException;
-
-use App\Libraries\PaginationLibrary;
 use App\Libraries\CollectionLibrary;
-
+use App\Libraries\PaginationLibrary;
+use App\Libraries\StringLibrary;
+use App\Models\Inquiry;
+use App\Models\InquiryAnswer;
+use App\Models\User;
 use App\Services\AttachService;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class PostController
@@ -37,8 +34,6 @@ class InquiryController extends Controller
         $this->attachService = $attachService;
     }
 
-
-
     /**
      * @OA\Schema (
      *      schema="inquiryCreate",
@@ -47,7 +42,6 @@ class InquiryController extends Controller
      *      @OA\Property(property="question", type="string", example="1:1 문의 내용입니다.", description="1:! 문의 내용" )
      *  )
      */
-
 
     /**
      * @OA\Post(
@@ -147,11 +141,60 @@ class InquiryController extends Controller
 //            throw new QpickHttpException(403, 'common.unauthorized');
 //        }
 
-        // Set Model
-        $inquiry = Inquiry::with('user')->orderBy('id', 'desc');
+        // Set a query builder
+        $inquiry = DB::table('inquiries')
+            ->select('inquiries.*')
+            ->orderBy('inquiries.id', 'desc');
 
-        if(!Auth::user()->isLoginToManagerService()) {
-            $inquiry->where(['user_id' => Auth::id()]);
+        // Set search conditions
+        if (!Auth::user()->isLoginToManagerService()) {
+            $inquiry->where('inquiries.user_id', Auth::id());
+        }
+
+        if ($s = $request->get('id')) {
+            $inquiry->where('inquiries.id', $s);
+        }
+
+        if ($s = $request->get('status')) {
+            $inquiry->where('inquiries.status', $s);
+        }
+
+        if ($s = $request->get('startDate')) {
+            $inquiry->where('inquiries.created_at', '>=', $s);
+        }
+
+        if ($s = $request->get('endDate')) {
+            $inquiry->where('inquiries.created_at', '<=', $s . ' 23:59:59');
+        }
+
+        if($s = $request->get('multiSearch')) {
+            $inquiry->join('users', 'inquiries.user_id', '=', 'users.id');
+
+            $inquiry->where(function ($q) use ($s) {
+                $q->orWhere('inquiries.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+                $q->orWhere('users.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+                $q->orWhere('users.name', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+
+                if (is_numeric($s)) {
+                    $q->orWhere('inquiries.id', $s);
+                }
+            });
+        }
+
+        if ($s = $request->get('title')) {
+            $inquiry->where('inquiries.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+        }
+
+        if ($request->get('user_email') || $request->get('user_name')) {
+            $inquiry->join('users', 'inquiries.user_id', '=', 'users.id');
+
+            if ($s = $request->get('user_email')) {
+                $inquiry->where('users.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+            }
+
+            if ($s = $request->get('user_name')) {
+                $inquiry->where('users.name', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+            }
         }
 
         // Set Pagination Information
@@ -159,6 +202,14 @@ class InquiryController extends Controller
 
         // Get Data from DB
         $data = $inquiry->skip($pagination['skip'])->take($pagination['perPage'])->get();
+
+        // Getting data from related table
+        $data->each(function ($item) {
+            static $users = [];
+
+            $item->user = $users[$item->user_id] ?? ($users[$item->user_id] = User::find($item->user_id)->first());
+            $item->answer = InquiryAnswer::where('inquiry_id', $item->id)->first();
+        });
 
         // Result
         $result = [
