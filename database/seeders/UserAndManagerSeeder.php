@@ -58,11 +58,13 @@ class UserAndManagerSeeder extends Seeder
             [
                 [
                     'user_id' => '1',
-                    'authority_id' => '1'
+                    'authority_id' => '1',
+                    'created_at' => Carbon::now()
                 ],
                 [
                     'user_id' => '2',
-                    'authority_id' => '2'
+                    'authority_id' => '2',
+                    'created_at' => Carbon::now()
                 ]
             ]
         );
