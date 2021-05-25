@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Carbon\Carbon;
@@ -60,14 +62,24 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token'
     ];
 
-    public function checkAdmin()
+    public function checkAdmin(): bool
     {
         return $this->manager()->exists();
     }
 
-    public function manager()
+    public function manager(): HasOne
     {
         return $this->hasOne(Manager::class);
+    }
+
+    public function inquiry(): HasMany
+    {
+        return $this->hasMany(Inquiry::class, 'user_id', 'id');
+    }
+
+    public function assignedInquiry(): HasMany
+    {
+        return $this->hasMany(Inquiry::class, 'assignee_id', 'id');
     }
 
     public function isLoginToManagerService(): bool
@@ -85,12 +97,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $value ? Carbon::parse($value)->format('c') : $value;
     }
 
-    public function getCreatedAtAttribute($value)
+    public function getCreatedAtAttribute($value): string
     {
         return Carbon::parse($value)->format('c');
     }
 
-    public function getUpdatedAtAttribute($value)
+    public function getUpdatedAtAttribute($value): string
     {
         return Carbon::parse($value)->format('c');
     }

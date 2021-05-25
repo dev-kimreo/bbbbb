@@ -38,12 +38,11 @@ class InquiryController extends Controller
      * @OA\Schema (
      *      schema="inquiryCreate",
      *      required={"title", "question"},
-     *      @OA\Property(property="title", type="string", example="1:1 문의 제목입니다.", description="1:1 문의 제목" ),
-     *      @OA\Property(property="question", type="string", example="1:1 문의 내용입니다.", description="1:! 문의 내용" )
+     *      @OA\Property(property="title", type="string", example="1:1 문의 제목입니다.", description="1:1 문의 제목"),
+     *      @OA\Property(property="question", type="string", example="1:1 문의 내용입니다.", description="1:1 문의 내용"),
+     *      @OA\Property(property="assignee_id", type="integer", example="5", description="1:1 문의 처리담당자")
      *  )
-     */
-
-    /**
+     *
      * @OA\Post(
      *      path="/v1/inquiry",
      *      summary="1:1문의 작성",
@@ -61,7 +60,23 @@ class InquiryController extends Controller
      *          response=201,
      *          description="created",
      *          @OA\JsonContent(
-     *              ref="#/components/schemas/Inquiry"
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/Inquiry"),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="user", type="object", ref="#/components/schemas/User")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="answer", type="null")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="assignee", type="null")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="attachFiles", type="array",
+     *                          @OA\Items(ref="#/components/schemas/AttachFile")
+     *                      )
+     *                  )
+     *              }
      *          )
      *      ),
      *      @OA\Response(
@@ -84,11 +99,13 @@ class InquiryController extends Controller
         $inquiry->user_id = Auth::id();
         $inquiry->title = $request->title;
         $inquiry->question = $request->question;
+        $inquiry->assignee_id = $request->assignee_id ?? $inquiry->assignee_id;
         $inquiry->created_at = Carbon::now();
         $inquiry->save();
-        $inquiry->refresh();
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($inquiry)), 201);
+        $res = $inquiry->with('user', 'answer', 'assignee')->find($inquiry->id);
+
+        return response()->json(CollectionLibrary::toCamelCase(collect($res)), 201);
     }
 
 
@@ -97,6 +114,22 @@ class InquiryController extends Controller
      *      schema="inquiryList",
      *      @OA\Property(property="page", type="integer", example=1, default=1, description="페이지" ),
      *      @OA\Property(property="perPage", type="integer", example=15, description="한 페이지당 보여질 갯 수" )
+     * )
+     *
+     * @OA\Schema (
+     *      schema="inquiryListElement",
+     *      allOf={
+     *          @OA\Items(type="object", ref="#/components/schemas/Inquiry"),
+     *          @OA\Schema (
+     *              @OA\Property(property="user", type="object", readOnly="true", ref="#/components/schemas/User")
+     *          ),
+     *          @OA\Schema (
+     *              @OA\Property(property="answer", type="object", readOnly="true", ref="#/components/schemas/InquiryAnswer")
+     *          ),
+     *          @OA\Schema (
+     *              @OA\Property(property="assignee", type="object", readOnly="true", ref="#/components/schemas/User")
+     *          )
+     *      }
      * )
      *
      * @OA\Get(
@@ -116,12 +149,10 @@ class InquiryController extends Controller
      *          response=200,
      *          description="successfully",
      *          @OA\JsonContent(
-     *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination" ),
+     *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination"),
      *              @OA\Property(property="list", type="array",
-     *                  @OA\Items(type="object",
-     *                      ref="#/components/schemas/Inquiry"
-     *                  )
-     *              ),
+     *                  @OA\Items(type="object", ref="#/components/schemas/inquiryListElement")
+     *              )
      *          )
      *      ),
      *      @OA\Response(
@@ -168,12 +199,15 @@ class InquiryController extends Controller
         }
 
         if($s = $request->get('multiSearch')) {
-            $inquiry->join('users', 'inquiries.user_id', '=', 'users.id');
+            // 통합검색
+            $inquiry->join('users as users_ms', 'inquiries.user_id', '=', 'users_ms.id');
+            $inquiry->leftJoin('users as assignees_ms', 'inquiries.assignee_id', '=', 'assignees_ms.id');
 
             $inquiry->where(function ($q) use ($s) {
                 $q->orWhere('inquiries.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
                 $q->orWhere('users.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-                $q->orWhere('users.name', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+                $q->orWhere('users.name', $s);
+                $q->where('assignees.name', $s);
 
                 if (is_numeric($s)) {
                     $q->orWhere('inquiries.id', $s);
@@ -193,8 +227,13 @@ class InquiryController extends Controller
             }
 
             if ($s = $request->get('user_name')) {
-                $inquiry->where('users.name', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+                $inquiry->where('users.name', $s);
             }
+        }
+
+        if($s = $request->get('assignee_name')) {
+            $inquiry->join('users as assignees', 'inquiries.assignee_id', '=', 'assignees.id');
+            $inquiry->where($s, 'assignees.name');
         }
 
         // Set Pagination Information
@@ -209,6 +248,12 @@ class InquiryController extends Controller
 
             $item->user = $users[$item->user_id] ?? ($users[$item->user_id] = User::find($item->user_id)->first());
             $item->answer = InquiryAnswer::where('inquiry_id', $item->id)->first();
+
+            if (is_null($item->assignee_id)) {
+                $item->assignee = null;
+            } else {
+                $item->assignee = $users[$item->assignee_id] ?? ($users[$item->assignee_id] = User::find($item->assignee_id)->first());
+            }
         });
 
         // Result
@@ -233,12 +278,21 @@ class InquiryController extends Controller
      *          description="successfully",
      *          @OA\JsonContent(
      *              allOf={
-     *                   @OA\Schema(ref="#/components/schemas/Inquiry"),
-     *                   @OA\Schema(
+     *                  @OA\Schema(ref="#/components/schemas/Inquiry"),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="user", type="object", ref="#/components/schemas/User")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="answer", type="object", ref="#/components/schemas/InquiryAnswer")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="assignee", type="object", ref="#/components/schemas/User")
+     *                  ),
+     *                  @OA\Schema(
      *                      @OA\Property(property="attachFiles", type="array",
      *                          @OA\Items(ref="#/components/schemas/AttachFile")
      *                      )
-     *                   )
+     *                  )
      *              }
      *          )
      *      ),
@@ -256,7 +310,7 @@ class InquiryController extends Controller
     {
         // Get Data from DB
         $data = Inquiry::where('id', $id)
-            ->with('answer')
+            ->with('user', 'answer', 'assignee')
             ->with('attachFiles', function ($q) {
                 return $q->select('id', 'url', 'attachable_id', 'attachable_type');
             })->first();
@@ -278,6 +332,14 @@ class InquiryController extends Controller
 
 
     /**
+     * @OA\Schema (
+     *      schema="inquiryModify",
+     *      required={},
+     *      @OA\Property(property="title", type="string", example="1:1 문의 제목입니다.", description="1:1 문의 제목"),
+     *      @OA\Property(property="question", type="string", example="1:1 문의 내용입니다.", description="1:1 문의 내용"),
+     *      @OA\Property(property="assignee_id", type="integer", example="5", description="1:1 문의 처리담당자")
+     *  )
+     *
      * @OA\Patch(
      *      path="/v1/inquiry/{id}",
      *      summary="1:1문의 수정",
@@ -288,14 +350,30 @@ class InquiryController extends Controller
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              ref="#/components/schemas/inquiryCreate"
+     *              ref="#/components/schemas/inquiryModify"
      *          ),
      *      ),
      *      @OA\Response(
      *          response=201,
      *          description="modified",
      *          @OA\JsonContent(
-     *              ref="#/components/schemas/Inquiry"
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/Inquiry"),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="user", type="object", ref="#/components/schemas/User")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="answer", type="object", ref="#/components/schemas/InquiryAnswer")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="assignee", type="object", ref="#/components/schemas/User")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="attachFiles", type="array",
+     *                          @OA\Items(ref="#/components/schemas/AttachFile")
+     *                      )
+     *                  )
+     *              }
      *          )
      *      ),
      *      @OA\Response(
@@ -314,7 +392,7 @@ class InquiryController extends Controller
     public function update(int $id, UpdateRequest $request)
     {
         // Get Data from DB
-        $inquiry = Inquiry::find($id);
+        $inquiry = Inquiry::with('user', 'answer', 'assignee')->find($id);
 
         // Check authority
         if (!$inquiry) {
@@ -328,10 +406,11 @@ class InquiryController extends Controller
         // Save Data
         $inquiry->title = $request->title ?? $inquiry->title;
         $inquiry->question = $request->question ?? $inquiry->question;
+        $inquiry->assignee_id = $request->assignee_id ?? $inquiry->assignee_id;
         $inquiry->save();
 
         // Response
-        return response()->json(CollectionLibrary::toCamelCase(collect($inquiry)), 201);
+        return response()->json(CollectionLibrary::toCamelCase(collect($inquiry->refresh())), 201);
     }
 
 

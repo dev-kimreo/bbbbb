@@ -17,9 +17,20 @@ class CreateInquiriesTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_id')->constrained();
+            $table->foreignId('assignee_id')->nullable()->references('id')->on('users');
             $table->string('title', 100);
             $table->mediumText('question');
             $table->string('status', 16)->default('waiting');
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+        Schema::create('inquiry_answers', function (Blueprint $table) {
+            $table->collation = 'utf8mb4_general_ci';
+            $table->id();
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('inquiry_id')->constrained();
+            $table->mediumText('answer');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -32,6 +43,7 @@ class CreateInquiriesTable extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('inquiry_answers');
         Schema::dropIfExists('inquiries');
     }
 }
