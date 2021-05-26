@@ -34,11 +34,11 @@ class IndexRequest extends FormRequest
             'startDate' => 'nullable|date_format:Y-m-d',
             'endDate' => 'nullable|date_format:Y-m-d',
             'title' => 'nullable|string',
-            'user_id' => 'nullable|integer|exists:App\Models\Manager,user_id',
-            'user_email' => 'nullable|string',
-            'user_name' => 'nullable|string',
-            'assignee_id' => 'nullable|integer|exists:App\Models\Manager,user_id',
-            'assignee_name' => 'nullable|string',
+            'userId' => 'nullable|integer|exists:App\Models\Manager,user_id',
+            'userEmail' => 'nullable|string',
+            'userName' => 'nullable|string',
+            'assigneeId' => 'nullable|integer|exists:App\Models\Manager,user_id',
+            'assigneeName' => 'nullable|string',
             'multiSearch' => 'nullable'
         ];
     }

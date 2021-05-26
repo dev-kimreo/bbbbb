@@ -124,11 +124,11 @@ class InquiryController extends Controller
      *      @OA\Property(property="startDate", type="date(Y-m-d)", example=1, description="접수기간 검색 시작일"),
      *      @OA\Property(property="endDate", type="date(Y-m-d)", example=1, description="접수기간 검색 종료일"),
      *      @OA\Property(property="title", type="string", example=1, description="제목 검색어"),
-     *      @OA\Property(property="user_id", type="integer", example=1, description="작성한 사용자의 고유번호(PK)"),
-     *      @OA\Property(property="user_email", type="string", example=1, description="작성한 사용자의 이메일"),
-     *      @OA\Property(property="user_name", type="string", example=1, description="작성한 사용자의 이름"),
-     *      @OA\Property(property="assignee_id", type="integer", example=1, description="처리담당자의 고유번호(PK)"),
-     *      @OA\Property(property="assignee_name", type="string", example=1, description="처리담당자의 이름"),
+     *      @OA\Property(property="userId", type="integer", example=1, description="작성한 사용자의 고유번호(PK)"),
+     *      @OA\Property(property="userEmail", type="string", example=1, description="작성한 사용자의 이메일"),
+     *      @OA\Property(property="userName", type="string", example=1, description="작성한 사용자의 이름"),
+     *      @OA\Property(property="assigneeId", type="integer", example=1, description="처리담당자의 고유번호(PK)"),
+     *      @OA\Property(property="assigneeName", type="string", example=1, description="처리담당자의 이름"),
      *      @OA\Property(property="multiSearch", type="string|integer", example=1, description="통합검색을 위한 검색어")
      * )
      *
@@ -235,27 +235,27 @@ class InquiryController extends Controller
             $inquiry->where('inquiries.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
-        if ($s = $request->get('user_id')) {
+        if ($s = $request->get('userId')) {
             $inquiry->where($s, 'inquiries.user_id');
         }
 
-        if ($request->get('user_email') || $request->get('user_name')) {
+        if ($request->get('userEmail') || $request->get('userName')) {
             $inquiry->join('users', 'inquiries.user_id', '=', 'users.id');
 
-            if ($s = $request->get('user_email')) {
+            if ($s = $request->get('userEmail')) {
                 $inquiry->where('users.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
             }
 
-            if ($s = $request->get('user_name')) {
+            if ($s = $request->get('userName')) {
                 $inquiry->where('users.name', $s);
             }
         }
 
-        if ($s = $request->get('assignee_id')) {
+        if ($s = $request->get('assigneeId')) {
             $inquiry->where($s, 'inquiries.assignee_id');
         }
 
-        if ($s = $request->get('assignee_name')) {
+        if ($s = $request->get('assigneeName')) {
             $inquiry->join('users as assignees', 'inquiries.assignee_id', '=', 'assignees.id');
             $inquiry->where($s, 'assignees.name');
         }
@@ -270,13 +270,13 @@ class InquiryController extends Controller
         $data->each(function ($item) {
             static $users = [];
 
-            $item->user = $users[$item->user_id] ?? ($users[$item->user_id] = User::find($item->user_id)->first());
+            $item->user = $users[$item->user_id] ?? ($users[$item->user_id] = User::find($item->user_id));
             $item->answer = InquiryAnswer::where('inquiry_id', $item->id)->first();
 
             if (is_null($item->assignee_id)) {
                 $item->assignee = null;
             } else {
-                $item->assignee = $users[$item->assignee_id] ?? ($users[$item->assignee_id] = User::find($item->assignee_id)->first());
+                $item->assignee = $users[$item->assignee_id] ?? ($users[$item->assignee_id] = User::find($item->assignee_id));
             }
         });
 
