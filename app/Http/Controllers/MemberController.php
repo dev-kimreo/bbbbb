@@ -120,7 +120,7 @@ class MemberController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/v1/user",
+     *      path="/v1/user/{id}",
      *      summary="회원정보 수정",
      *      description="회원 정보 수정",
      *      operationId="userInfoModify",
@@ -157,13 +157,17 @@ class MemberController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdateRequest $request)
+    public function update(UpdateRequest $request, $id)
     {
+        if ($id != Auth::user()->id) {
+            throw new QpickHttpException(403, 'common.unauthorized');
+        }
+
         if (!$this::funcCheckPassword($request->password)) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
-        $member = auth()->user();
+        $member = Auth::user();
         $member->name = $request->name;
         $member->save();
 
