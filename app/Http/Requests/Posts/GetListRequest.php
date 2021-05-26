@@ -26,14 +26,15 @@ class GetListRequest extends FormRequest
     public function rules()
     {
         return [
-            'boardId' => 'sometimes|integer',
-            'email' => 'sometimes|string',
-            'name' => 'sometimes|string',
-            'postId' => 'sometimes|integer',
-            'title' => 'sometimes|string',
-            'sortBy' => 'sometimes|nullable|string',
-            'page' => 'sometimes|integer|min:1',
-            'perPage' => 'sometimes|integer|between:1,100',
+            'boardId' => 'nullable|integer',
+            'email' => 'nullable|string',
+            'name' => 'nullable|string',
+            'postId' => 'nullable|integer',
+            'title' => 'nullable|string',
+            'sortBy' => 'nullable|string',
+            'multiSearch' => 'nullable',
+            'page' => 'nullable|integer|min:1',
+            'perPage' => 'nullable|integer|between:1,100',
         ];
     }
 

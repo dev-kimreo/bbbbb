@@ -3,6 +3,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\StringLibrary;
+use App\Models\AttachFile;
+use App\Models\Reply;
+use App\Models\User;
+use App\Models\Post;
+use App\Models\Board;
+
 use Illuminate\Http\Request;
 use Auth;
 use Cache;
@@ -10,8 +17,6 @@ use Carbon\Carbon;
 use Str;
 use DB;
 
-use App\Models\Post;
-use App\Models\Board;
 
 use App\Http\Requests\Posts\StoreRequest;
 use App\Http\Requests\Posts\UpdateRequest;
@@ -412,7 +417,14 @@ class PostController extends Controller
      *      @OA\RequestBody(
      *          description="",
      *          @OA\JsonContent(
-     *              @OA\Property(property="sortBy", type="string", example="+sort,-id", description="정렬기준<br/>+:오름차순, -:내림차순" )
+     *              @OA\Property(property="page", type="integer", example=1, default=1, description="페이지"),
+     *              @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
+     *              @OA\Property(property="boardId", type="integer", example=1, description="선택한 게시판 고유번호" ),
+     *              @OA\Property(property="name", type="string", example="홍길동", description="등록자 검색 필드" ),
+     *              @OA\Property(property="postId", type="integer", example=7, description="게시글 번호 검색 필드" ),
+     *              @OA\Property(property="title", type="string", example="제목으로 검색합니다.", description="게시글 제목 검색 필드" ),
+     *              @OA\Property(property="multiSearch", type="string|integer", example="전체 검색합니다.", description="통합검색을 위한 검색어"),
+     *              @OA\Property(property="sortBy", type="string", example="+sort,-id", description="정렬기준<br/>+:오름차순, -:내림차순" ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -447,8 +459,7 @@ class PostController extends Controller
         $res = [];
 
         // Query Build
-        $postModel = DB::table('posts')->selectRaw('posts.*, boards.name as `boards.name`, boards.id as `boards.id`, users.id as `users.id`,
-        users.name as `users.name`, users.email as `users.email`, count(replies.id) as `repliesCount`, count(attach_files.id) as `attach_files_count`');
+        $postModel = DB::table('posts')->select('posts.*');
 
         // 회원정보
         $postModel->join('users', 'users.id', '=', 'posts.user_id');
@@ -456,46 +467,48 @@ class PostController extends Controller
         // 게시판 정보
         $postModel->join('boards', 'boards.id', '=', 'posts.board_id');
 
-        // 댓글 정보
-        $postModel->leftjoin('replies', 'replies.post_id', '=', 'posts.id');
-
-        // 첨부파일 정보
-        $postModel->leftjoin('attach_files', function ($join) {
-            $join->on('attach_files.attachable_id', '=', 'posts.id')->where('attach_files.attachable_type', 'post');
-        });
-
         /**
          * Where
          */
-        if ($request->get('boardId')) {
-            $postModel->where('posts.board_id', $request->get('boardId'));
+        if ($s = $request->get('boardId')) {
+            $postModel->where('posts.board_id', $s);
         }
 
-        if ($request->get('email')) {
-            $request->email = addcslashes($request->email, '%_');
-            $postModel->where('users.email', 'like', '%' . $request->email . '%');
+        if ($s = $request->get('email')) {
+            $postModel->where('users.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
-        if ($request->get('name')) {
-            $postModel->where('users.name', $request->get('name'));
+        if ($s = $request->get('name')) {
+            $postModel->where('users.name', $s);
         }
 
-        if ($request->get('postId')) {
-            $postModel->where('posts.id', $request->get('postId'));
+        if ($s = $request->get('postId')) {
+            $postModel->where('posts.id', $s);
         }
 
-        if ($request->get('title')) {
-            $request->title = addcslashes($request->title, '%_');
-            $postModel->where('posts.title', 'like', '%' . $request->title . '%');
+        if ($s = $request->get('title')) {
+            $postModel->where('posts.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+        }
+
+        // 통합 검색
+        if($s = $request->get('multiSearch')) {
+            $postModel->where(function ($q) use ($s) {
+                $q->orWhere('users.name', $s);
+
+                if (is_numeric($s)) {
+                    $q->orWhere('posts.id', $s);
+                }
+            });
         }
 
         // Sort By
-        if ($request->get('sortBy')) {
-            $sortCollect = CollectionLibrary::getBySort($request->get('sortBy'), ['id', 'sort']);
+        if ($s = $request->get('sortBy')) {
+            $sortCollect = CollectionLibrary::getBySort($s, ['id', 'sort']);
             $sortCollect->each(function ($item) use ($postModel) {
                 $postModel->orderBy($item['key'], $item['value']);
             });
         }
+
 
         // 게시글
         // pagination
@@ -506,24 +519,18 @@ class PostController extends Controller
             ->groupBy('posts.id');
 
         $postModel = $postModel->get();
+
         $postModel->each(function (&$item) {
-            foreach ($item as $k => &$v) {
+            static $users = [];
+            static $boards = [];
 
-                if ($v && ($k == 'created_at' || $k == 'updated_at' || $k == 'deleted_at')) {
-                    $v = Carbon::parse($v)->format('c');
-                }
+            $item->user = $users[$item->user_id] ?? ($users[$item->user_id] = User::find($item->user_id));
+            $item->board = $boards[$item->board_id] ?? ($boards[$item->board_id] = Board::find($item->board_id));
 
-                if (Str::contains($k, '.')) {
-                    $exp = explode('.', $k);
-                    if (!isset($item->{Str::singular($exp[0])})) {
-                        $item->{Str::singular($exp[0])} = collect();
-                    }
-
-                    $item->{Str::singular($exp[0])}->put($exp[1], $v);
-                    unset($item->$k);
-                }
-            }
+            $item->repliesCount = Reply::where('post_id', $item->id)->count();
+            $item->attachFilesCount = AttachFile::where(['attachable_type' => 'post', 'attachable_id' => $item->id])->count();
         });
+
 
         $res['header'] = $pagination;
         $res['list'] = $postModel;
