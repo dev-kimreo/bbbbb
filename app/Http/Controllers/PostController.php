@@ -402,7 +402,6 @@ class PostController extends Controller
     }
 
 
-
     /**
      * @OA\Get(
      *      path="/v1/post",
@@ -474,7 +473,7 @@ class PostController extends Controller
 
         if ($request->get('email')) {
             $request->email = addcslashes($request->email, '%_');
-            $postModel->where('users.email', 'like', '%'. $request->email . '%');
+            $postModel->where('users.email', 'like', '%' . $request->email . '%');
         }
 
         if ($request->get('name')) {
@@ -508,7 +507,12 @@ class PostController extends Controller
 
         $postModel = $postModel->get();
         $postModel->each(function (&$item) {
-            foreach ($item as $k => $v) {
+            foreach ($item as $k => &$v) {
+
+                if ($v && ($k == 'created_at' || $k == 'updated_at' || $k == 'deleted_at')) {
+                    $v = Carbon::parse($v)->format('c');
+                }
+
                 if (Str::contains($k, '.')) {
                     $exp = explode('.', $k);
                     if (!isset($item->{Str::singular($exp[0])})) {
