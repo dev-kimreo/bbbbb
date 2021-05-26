@@ -27,8 +27,8 @@ class BoardOptionsSeeder extends Seeder
             ],
             [
                 "name" => '게시판 테마',
-                "type" => 'thema',
-                "default" => 'boardDefaultThema',
+                "type" => 'theme',
+                "default" => 'boardDefaultTheme',
                 "options" => json_encode([
                 ])
             ],
@@ -56,8 +56,8 @@ class BoardOptionsSeeder extends Seeder
                 "default" => 'all',
                 "options" => json_encode([
                     ["value" => "all", "comment" => "모두 사용"],
-                    ["value" => "tiny", "comment" => "tiny에디터 사용"],
-                    ["value" => "markd", "comment" => "마크다운 사용"]
+                    ["value" => "tinyMCE", "comment" => "tiny에디터 사용"],
+                    ["value" => "markdown", "comment" => "마크다운 사용"]
                 ])
             ],
             [
