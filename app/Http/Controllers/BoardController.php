@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
 use Illuminate\Http\Request;
 
 use Auth;
+use DB;
+use Str;
 
 use App\Models\Board;
 
 use App\Http\Requests\Boards\StoreRequest;
 use App\Http\Requests\Boards\UpdateRequest;
 use App\Http\Requests\Boards\DestroyRequest;
+
+use App\Http\Requests\Boards\GetPostsCountRequest;
 
 use App\Exceptions\QpickHttpException;
 
@@ -33,9 +38,10 @@ class BoardController extends Controller
      */
 
 
-    public function __construct(Board $board, BoardService $boardService)
+    public function __construct(Board $board, Post $post, BoardService $boardService)
     {
         $this->board = $board;
+        $this->post = $post;
         $this->boardService = $boardService;
     }
 
@@ -46,6 +52,14 @@ class BoardController extends Controller
      *      description="게시판 목록",
      *      operationId="adminBoardList",
      *      tags={"게시판"},
+     *      @OA\RequestBody(
+     *          description="",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="page", type="integer", example=1, description="페이지" ),
+     *              @OA\Property(property="perPage", type="integer", example=15, description="한 페이지에 보여질 수" ),
+     *              @OA\Property(property="sortBy", type="string", example="+sort,-id", description="정렬기준<br/>+:오름차순, -:내림차순" )
+     *          ),
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
@@ -63,24 +77,35 @@ class BoardController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        //
+
         // response init
         $res = [];
         $res['header'] = [];
         $res['list'] = [];
 
         // 게시판 목록
-        $board = $this->board::with('user:id,name')->orderBy('sort', 'asc')->orderBy('id', 'asc');
+        $this->board = $this->board::with('user:id,name');
+
+
+        // Sort By
+        if ($request->get('sortBy')) {
+            $sortCollect = CollectionLibrary::getBySort($request->get('sortBy'), ['id', 'sort']);
+            $sortCollect->each(function ($item) {
+                $this->board->orderBy($item['key'], $item['value']);
+            });
+        }
 
         // Bacckoffice login
         if (Auth::user()->isLoginToManagerService()) {
-            $board->withCount('posts');
+            $this->board = $this->board->withCount('posts');
         } else {
-            $board->where('enable', 1);
+            $this->board->where('enable', 1);
         }
 
-        $res['list'] = $board->get();
+        $res['list'] = $this->board->get();
 
         return CollectionLibrary::toCamelCase(collect($res));
 
@@ -125,7 +150,7 @@ class BoardController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(StoreRequest $request)
@@ -150,7 +175,7 @@ class BoardController extends Controller
 
             // 옵션 값 체크
             switch ($type) {
-                case 'thema':
+                case 'theme':
                 case 'attachLimit':
                     break;
                 default:
@@ -200,7 +225,7 @@ class BoardController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -224,6 +249,7 @@ class BoardController extends Controller
      *              @OA\Property(property="name", type="string", ref="#/components/schemas/Board/properties/name" ),
      *              @OA\Property(property="enable", type="string", ref="#/components/schemas/Board/properties/enable" ),
      *              @OA\Property(property="options", type="object", format="json", description="옵션", ref="#/components/schemas/BoardOptionJson/properties/options"),
+     *              @OA\Property(property="sort", type="string", ref="#/components/schemas/Board/properties/sort" ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -247,8 +273,8 @@ class BoardController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateRequest $request, $id)
@@ -258,6 +284,7 @@ class BoardController extends Controller
         // 변경 할 사항
         $this->board->name = $request->name ?? $this->board->name;
         $this->board->enable = $request->enable ?? $this->board->enable;
+        $this->board->sort = $request->sort ?? $this->board->sort;
 
         if (isset($request->options) && is_array($request->options)) {
             /**
@@ -273,7 +300,7 @@ class BoardController extends Controller
 
                 // 옵션 값 체크
                 switch ($type) {
-                    case 'thema':
+                    case 'theme':
                     case 'attachLimit':
                         break;
                     default:
@@ -330,7 +357,7 @@ class BoardController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy(DestroyRequest $request, $id)
@@ -345,6 +372,91 @@ class BoardController extends Controller
         $this->board->delete();
 
         return response()->noContent();
+    }
+
+
+
+    /**
+     * @OA\Get(
+     *      path="/v1/board/posts-count",
+     *      summary="[B] 게시판 목록(게시글 수 포함)",
+     *      description="게시판 목록",
+     *      operationId="boardPostsCountList",
+     *      tags={"게시판"},
+     *      @OA\RequestBody(
+     *          description="",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="sortBy", type="string", example="+sort,-id", description="정렬기준<br/>+:오름차순, -:내림차순" )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="header", type="object" ),
+     *              @OA\Property(property="list", type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="id", type="integer", example=1, description="게시판 고유번호<br/>전체 탭은 해당 값이 NULL"),
+     *                      @OA\Property(property="name", type="string", example="공지사항", description="게시판 명"),
+     *                      @OA\Property(property="postsCount", type="integer", example=41, description="게시글 수")
+     *                  )
+     *              )
+     *          )
+     *      )
+     *  )
+     */
+    public function getPostsCount(GetPostsCountRequest $request)
+    {
+        // Sort By
+        if ($request->get('sortBy')) {
+            $sortCollect = CollectionLibrary::getBySort($request->get('sortBy'), ['id', 'sort']);
+            $sortCollect->each(function ($item) {
+                $this->board = $this->board->orderBy($item['key'], $item['value']);
+            });
+        }
+
+        // res
+        $collect = $this->board->select('id', 'name', 'sort')->get()->keyBy('id');
+        data_fill($collect, '*.posts_count', 0);
+
+        // 게시판의 글 수
+        $postModel = DB::table('posts')->selectRaw('posts.board_id, count(posts.id) as posts_count')->groupBy('board_id');
+        $postModel->join('users', 'posts.user_id', '=', 'users.id');
+
+        // Where
+        if ($request->get('email')) {
+            $request->email = addcslashes($request->email, '%_');
+            $postModel->where('users.email', 'like', '%' . $request->email . '%');
+        }
+
+        if ($request->get('name')) {
+            $postModel->where('users.name', $request->get('name'));
+        }
+
+        if ($request->get('postId')) {
+            $postModel->where('posts.id', $request->get('postId'));
+        }
+
+        if ($request->get('title')) {
+            $request->title = addcslashes($request->title, '%_');
+            $postModel->where('posts.title', 'like', '%' . $request->title . '%');
+        }
+
+        $postModel = $postModel->get();
+
+        // 데이터 가공
+        $postModel->each(function ($v) use (&$collect) {
+            $collect->get($v->board_id)->posts_count = $v->posts_count ?? 0;
+        });
+
+        // 전체 글 수
+        $collect->prepend(collect(['id' => null, 'name' => '전체', 'posts_count' => $collect->sum('posts_count')]));
+
+        $res = [];
+        $res['header'] = [];
+        $res['list'] = $collect;
+
+        return CollectionLibrary::toCamelCase(collect($res));
     }
 
 }

@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Boards;
+namespace App\Http\Requests\Posts;
 
-use Auth;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdateRequest extends FormRequest
+class GetListRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -16,7 +15,7 @@ class UpdateRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::user()->checkUsableManagerService();
+        return true;
     }
 
     /**
@@ -27,10 +26,14 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required_without_all:enable,options,sort|string|between:2,32',
-            'enable' => 'required_without_all:name,options,sort|boolean',
-            'options' => 'required_without_all:name,enable,sort|array',
-            'sort' => 'sometimes|integer|between:1,100',
+            'boardId' => 'sometimes|integer',
+            'email' => 'sometimes|string',
+            'name' => 'sometimes|string',
+            'postId' => 'sometimes|integer',
+            'title' => 'sometimes|string',
+            'sortBy' => 'sometimes|nullable|string',
+            'page' => 'sometimes|integer|min:1',
+            'perPage' => 'sometimes|integer|between:1,100',
         ];
     }
 

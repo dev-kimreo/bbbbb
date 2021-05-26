@@ -7,6 +7,7 @@ use App\Libraries\CollectionLibrary;
 use Illuminate\Http\Request;
 use Auth;
 use Cache;
+use Str;
 
 use App\Models\Post;
 use App\Models\Reply;
@@ -275,12 +276,19 @@ class ReplyController extends Controller
         $pagination = PaginationLibrary::set($request->page, $this->reply->count(), $request->perPage);
 
 
+        // Sort By
+        if ($request->get('sortBy')) {
+            $sortCollect = CollectionLibrary::getBySort($request->get('sortBy'), ['id']);
+            $sortCollect->each(function ($item) {
+                $this->reply->orderBy($item['key'], $item['value']);
+            });
+        }
+
         if ($request->page <= $pagination['totalPage']) {
             $this->reply = $this->reply->with('user:id,name');
             $this->reply = $this->reply
                 ->skip($pagination['skip'])
-                ->take($pagination['perPage'])
-                ->orderBy('id', 'asc');
+                ->take($pagination['perPage']);
 
             $this->reply = $this->reply->get();
         }
