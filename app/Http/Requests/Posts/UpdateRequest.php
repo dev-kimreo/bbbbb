@@ -27,8 +27,9 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required_without_all:content|string|between:6,128',
-            'content' => 'required_without_all:title|string|min:10'
+            'title' => 'required_without_all:content,sort|string|between:6,128',
+            'content' => 'required_without_all:title,sort|string|min:10',
+            'sort' => 'sometimes|integer|between:1,999'
         ];
     }
 
