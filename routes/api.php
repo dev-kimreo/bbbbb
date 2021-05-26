@@ -54,7 +54,7 @@ Route::group([
 
         // 인증 필요
         Route::group([
-            'middleware' => 'auth:api',
+            'middleware' => ['auth:api', 'admin'],
         ], function () {
 
             // 회원 세션 CRUD
@@ -151,7 +151,7 @@ Route::group([
     ], function () {
         // 게시판 CRUD
         Route::get('', [BoardController::class, 'index']);
-        Route::get('/{id}', [BoardController::class, 'show']);
+        Route::get('/{id}', [BoardController::class, 'show'])->where(['id' => '[0-9]+']);
 
         // 게시글 CRUD
         Route::get('/{boardId}/post', [PostController::class, 'index']);
@@ -165,12 +165,18 @@ Route::group([
         Route::group([
             'middleware' => 'auth:api',
         ], function () {
+            // 게시판의 게시글 수를 포함한 목록
+            Route::get('/posts-count', [BoardController::class, 'getPostsCount']);
+
+
             // 게시판 CRUD
             Route::post('', [BoardController::class, 'store']);
             Route::patch('/{id}', [BoardController::class, 'update']);
             Route::delete('/{id}', [BoardController::class, 'destroy']);
 
-            // 게시글 CRUD
+            /**
+             * 게시글 CRUD
+             */
             Route::post('/{boardId}/post', [PostController::class, 'store']);
             Route::patch('/{boardId}/post/{id}', [PostController::class, 'update']);
             Route::delete('/{boardId}/post/{id}', [PostController::class, 'destroy']);
@@ -231,14 +237,12 @@ Route::group([
         'prefix' => 'post'
     ], function () {
 
-        Route::get('/test', [PostController::class, 'test']);
-
-
+        // Backoffice
         // 인증 필요
         Route::group([
-            'middleware' => 'auth:api',
+            'middleware' => ['auth:api', 'admin'],
         ], function () {
-
+            Route::get('', [PostController::class, 'getList']);
         });
 
 
@@ -276,14 +280,22 @@ Route::group([
 
 // 관리자
 Route::group([
-    'prefix' => 'admin',
+    'prefix' => 'backoffice',
     'middleware' => ['auth:api', 'admin']
 ], function ($router) {
+
+    // 게시글 관련
+    Route::group([
+        'prefix' => 'post'
+    ], function(){
+    });
+
 
     // 게시판 관련
     Route::group([
         'prefix' => 'board'
     ], function () {
+        //
 
         Route::get('/reInitOption', [BoardController::class, 'reInitBoardOption']);
 
