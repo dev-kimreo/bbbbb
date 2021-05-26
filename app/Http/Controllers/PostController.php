@@ -8,6 +8,7 @@ use Auth;
 use Cache;
 use Carbon\Carbon;
 use Str;
+use DB;
 
 use App\Models\Post;
 use App\Models\Board;
@@ -16,6 +17,7 @@ use App\Http\Requests\Posts\StoreRequest;
 use App\Http\Requests\Posts\UpdateRequest;
 use App\Http\Requests\Posts\DestroyRequest;
 use App\Http\Requests\Posts\IndexRequest;
+use App\Http\Requests\Posts\GetListRequest;
 
 use App\Exceptions\QpickHttpException;
 
@@ -169,6 +171,7 @@ class PostController extends Controller
 
         $this->post->title = $request->title ?? $this->post->title;
         $this->post->content = $request->content ?? $this->post->content;
+        $this->post->sort = $request->sort ?? $this->post->sort;
 
         // 변경사항이 있을 경우
         if ($this->post->isDirty()) {
@@ -227,6 +230,10 @@ class PostController extends Controller
         // 소프트 삭제 진행
         $this->post->delete();
 
+        // 댓글 삭제
+        $this->post->replies()->delete();
+
+
         return response()->noContent();
     }
 
@@ -263,7 +270,7 @@ class PostController extends Controller
      *                      @OA\Property(property="thumbnail", type="object",
      *                          @OA\Property(property="url", example="http://local-api.qpicki.com/storage/post/048/000/000/caf4df2767fea15158143aaab145d94e.jpg", description="게시글 섬네일 이미지 url" ),
      *                      ),
-     *                      @OA\Property(property="replyCount", type="integer", example=20, description="게시글의 댓글 수" ),
+     *                      @OA\Property(property="repliesCount", type="integer", example=20, description="게시글의 댓글 수" ),
      *                      @OA\Property(property="user", type="object", description="작성자" ),
      *                      @OA\Property(property="boardId", type="integer", example=1, description="게시판 고유번호" ),
      *                      @OA\Property(property="userId", type="integer", example=1, description="작성자 회원 고유번호" ),
@@ -293,39 +300,45 @@ class PostController extends Controller
 //        if (Auth::check() && Auth::user()->isLoginToManagerService()) {
 //
 //        } else {
-            // 게시글 목록
-            $this->post = $this->post->where('board_id', $boardId);
+        // 게시글 목록
+        $this->post = $this->post->where('board_id', $boardId);
 
-            // pagination
-            $pagination = PaginationLibrary::set($request->page, $this->post->count(), $request->perPage);
+        // Sort By
+        if ($request->get('sortBy')) {
+            $sortCollect = CollectionLibrary::getBySort($request->get('sortBy'), ['id', 'sort']);
+            $sortCollect->each(function ($item) {
+                $this->post->orderBy($item['key'], $item['value']);
+            });
+        }
 
-            if ($request->page <= $pagination['totalPage']) {
-                $this->post = $this->post->with('user:id,name')->withCount('reply');
-                $this->post = $this->post->with('thumbnail.attachFiles');
+        // pagination
+        $pagination = PaginationLibrary::set($request->page, $this->post->count(), $request->perPage);
 
-                $this->post = $this->post
-                    ->groupBy('posts.id')
-                    ->skip($pagination['skip'])
-                    ->take($pagination['perPage'])
-                    ->orderBy('sort', 'asc')
-                    ->orderBy('id', 'desc');
+        if ($request->page <= $pagination['totalPage']) {
+            $this->post = $this->post->with('user:id,name')->withCount('replies');
+            $this->post = $this->post->with('thumbnail.attachFiles');
 
-                $post = $this->post->get();
+            $this->post = $this->post
+                ->groupBy('posts.id')
+                ->skip($pagination['skip'])
+                ->take($pagination['perPage']);
 
-                // 데이터 가공
-                $post->each(function(&$v) {
-                    $attachFiles = $v->thumbnail->attachFiles ?? null;
-                    unset($v->thumbnail);
-                    $v->thumbnail = $attachFiles;
-                });
+            $post = $this->post->get();
+
+            // 데이터 가공
+            $post->each(function (&$v) {
+                $attachFiles = $v->thumbnail->attachFiles ?? null;
+                unset($v->thumbnail);
+                $v->thumbnail = $attachFiles;
+            });
 
 
-            }
+        }
 
-            $data = $post ?? [];
+        $data = $post ?? [];
 
-            $res['header'] = $pagination;
-            $res['list'] = $data;
+        $res['header'] = $pagination;
+        $res['list'] = $data;
 //        }
 
         return CollectionLibrary::toCamelCase(collect($res));
@@ -386,6 +399,133 @@ class PostController extends Controller
         $this->post->thumbnail = $attachFiles;
 
         return CollectionLibrary::toCamelCase(collect($this->post));
+    }
+
+
+
+    /**
+     * @OA\Get(
+     *      path="/v1/post",
+     *      summary="[B] 게시글 목록",
+     *      description="[B] 게시판 목록",
+     *      operationId="postsList",
+     *      tags={"게시글"},
+     *      @OA\RequestBody(
+     *          description="",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="sortBy", type="string", example="+sort,-id", description="정렬기준<br/>+:오름차순, -:내림차순" )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination" ),
+     *              @OA\Property(property="list", type="array",
+     *                  @OA\Items(
+     *                      allOf = {
+     *                          @OA\Schema(ref="#/components/schemas/Post"),
+     *                          @OA\Schema(
+     *                              @OA\Property(property="repliesCount", type="integer", example=10, description="댓글 수" ),
+     *                              @OA\Property(property="attachFilesCount", type="integer", example=2, description="첨부 파일 수" )
+     *                          ),
+     *                          @OA\Schema(
+     *                              @OA\Property(property="board", ref="#/components/schemas/Board")
+     *                          ),
+     *                          @OA\Schema(
+     *                              @OA\Property(property="user", ref="#/components/schemas/User")
+     *                          )
+     *                      }
+     *                  )
+     *              )
+     *          )
+     *      )
+     *  )
+     */
+    public function getList(GetListRequest $request)
+    {
+        //
+        $res = [];
+
+        // Query Build
+        $postModel = DB::table('posts')->selectRaw('posts.*, boards.name as `boards.name`, boards.id as `boards.id`, users.id as `users.id`,
+        users.name as `users.name`, users.email as `users.email`, count(replies.id) as `repliesCount`, count(attach_files.id) as `attach_files_count`');
+
+        // 회원정보
+        $postModel->join('users', 'users.id', '=', 'posts.user_id');
+
+        // 게시판 정보
+        $postModel->join('boards', 'boards.id', '=', 'posts.board_id');
+
+        // 댓글 정보
+        $postModel->leftjoin('replies', 'replies.post_id', '=', 'posts.id');
+
+        // 첨부파일 정보
+        $postModel->leftjoin('attach_files', function ($join) {
+            $join->on('attach_files.attachable_id', '=', 'posts.id')->where('attach_files.attachable_type', 'post');
+        });
+
+        /**
+         * Where
+         */
+        if ($request->get('boardId')) {
+            $postModel->where('posts.board_id', $request->get('boardId'));
+        }
+
+        if ($request->get('email')) {
+            $request->email = addcslashes($request->email, '%_');
+            $postModel->where('users.email', 'like', '%'. $request->email . '%');
+        }
+
+        if ($request->get('name')) {
+            $postModel->where('users.name', $request->get('name'));
+        }
+
+        if ($request->get('postId')) {
+            $postModel->where('posts.id', $request->get('postId'));
+        }
+
+        if ($request->get('title')) {
+            $request->title = addcslashes($request->title, '%_');
+            $postModel->where('posts.title', 'like', '%' . $request->title . '%');
+        }
+
+        // Sort By
+        if ($request->get('sortBy')) {
+            $sortCollect = CollectionLibrary::getBySort($request->get('sortBy'), ['id', 'sort']);
+            $sortCollect->each(function ($item) use ($postModel) {
+                $postModel->orderBy($item['key'], $item['value']);
+            });
+        }
+
+        // 게시글
+        // pagination
+        $pagination = PaginationLibrary::set($request->page, $postModel->count(), $request->perPage);
+
+        $postModel->skip($pagination['skip'])
+            ->take($pagination['perPage'])
+            ->groupBy('posts.id');
+
+        $postModel = $postModel->get();
+        $postModel->each(function (&$item) {
+            foreach ($item as $k => $v) {
+                if (Str::contains($k, '.')) {
+                    $exp = explode('.', $k);
+                    if (!isset($item->{Str::singular($exp[0])})) {
+                        $item->{Str::singular($exp[0])} = collect();
+                    }
+
+                    $item->{Str::singular($exp[0])}->put($exp[1], $v);
+                    unset($item->$k);
+                }
+            }
+        });
+
+        $res['header'] = $pagination;
+        $res['list'] = $postModel;
+
+        return CollectionLibrary::toCamelCase(collect($res));
+
     }
 
 
