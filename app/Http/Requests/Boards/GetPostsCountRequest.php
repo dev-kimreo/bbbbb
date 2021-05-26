@@ -26,11 +26,12 @@ class GetPostsCountRequest extends FormRequest
     public function rules()
     {
         return [
-            'sortBy' => 'sometimes|nullable|string',
-            'email' => 'sometimes|string',
-            'name' => 'sometimes|string',
-            'postId' => 'sometimes|integer',
-            'title' => 'sometimes|string'
+            'sortBy' => 'nullable|string',
+            'email' => 'nullable|string',
+            'name' => 'nullable|string',
+            'postId' => 'nullable|integer',
+            'title' => 'nullable|string',
+            'multiSearch' => 'nullable'
         ];
     }
 

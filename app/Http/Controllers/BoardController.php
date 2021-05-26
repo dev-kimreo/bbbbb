@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\StringLibrary;
 use App\Models\Post;
 use Illuminate\Http\Request;
 
@@ -386,7 +387,11 @@ class BoardController extends Controller
      *      @OA\RequestBody(
      *          description="",
      *          @OA\JsonContent(
-     *              @OA\Property(property="sortBy", type="string", example="+sort,-id", description="정렬기준<br/>+:오름차순, -:내림차순" )
+     *              @OA\Property(property="name", type="string", example="홍길동", description="등록자 검색 필드" ),
+     *              @OA\Property(property="postId", type="integer", example=7, description="게시글 번호 검색 필드" ),
+     *              @OA\Property(property="title", type="string", example="제목으로 검색합니다.", description="게시글 제목 검색 필드" ),
+     *              @OA\Property(property="multiSearch", type="string|integer", example="전체 검색합니다.", description="통합검색을 위한 검색어"),
+     *              @OA\Property(property="sortBy", type="string", example="+sort,-id", description="정렬기준<br/>+:오름차순, -:내림차순" ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -424,22 +429,31 @@ class BoardController extends Controller
         $postModel->join('users', 'posts.user_id', '=', 'users.id');
 
         // Where
-        if ($request->get('email')) {
-            $request->email = addcslashes($request->email, '%_');
-            $postModel->where('users.email', 'like', '%' . $request->email . '%');
+        if ($s = $request->get('email')) {
+            $postModel->where('users.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
-        if ($request->get('name')) {
-            $postModel->where('users.name', $request->get('name'));
+        if ($s = $request->get('name')) {
+            $postModel->where('users.name', $s);
         }
 
-        if ($request->get('postId')) {
-            $postModel->where('posts.id', $request->get('postId'));
+        if ($s = $request->get('postId')) {
+            $postModel->where('posts.id', $s);
         }
 
-        if ($request->get('title')) {
-            $request->title = addcslashes($request->title, '%_');
-            $postModel->where('posts.title', 'like', '%' . $request->title . '%');
+        if ($s = $request->get('title')) {
+            $postModel->where('posts.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+        }
+
+        // 통합 검색
+        if($s = $request->get('multiSearch')) {
+            $postModel->where(function ($q) use ($s) {
+                $q->orWhere('users.name', $s);
+
+                if (is_numeric($s)) {
+                    $q->orWhere('posts.id', $s);
+                }
+            });
         }
 
         $postModel = $postModel->get();

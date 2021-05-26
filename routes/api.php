@@ -54,18 +54,24 @@ Route::group([
 
         // 인증 필요
         Route::group([
-            'middleware' => ['auth:api', 'admin'],
+            'middleware' => ['auth:api'],
         ], function () {
+            // 회원 관련 CRUD
+            Route::patch('/{id}', [MemberController::class, 'update']);
 
             // 회원 세션 CRUD
             Route::get('/auth', [AccessTokenController::class, 'show']);
             Route::delete('/auth', [AccessTokenController::class, 'destroy']);
 
 
-            // 회원 관련 CRUD
-            Route::get('', [MemberController::class, 'index']);
-            Route::get('/{id}', [MemberController::class, 'show']);
-            Route::patch('', [MemberController::class, 'update']);
+            Route::group([
+                'middleware' => ['admin'],
+            ], function(){
+                // 회원 관련 CRUD
+                Route::get('', [MemberController::class, 'index']);
+                Route::get('/{id}', [MemberController::class, 'show'])->where(['id' => '[0-9]+']);
+            });
+
 
 
         });
