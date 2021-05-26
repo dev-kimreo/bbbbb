@@ -100,7 +100,7 @@ class BoardController extends Controller
         }
 
         // Bacckoffice login
-        if (Auth::user()->isLoginToManagerService()) {
+        if (Auth::check() && Auth::user()->isLoginToManagerService()) {
             $this->board = $this->board->withCount('posts');
         } else {
             $this->board->where('enable', 1);
