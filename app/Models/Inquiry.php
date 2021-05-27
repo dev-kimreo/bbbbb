@@ -59,22 +59,26 @@ class Inquiry extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'user_id', 'id')
+            ->select(['id', 'name', 'email']);
     }
 
     public function assignee(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'assignee_id', 'id');
+        return $this->belongsTo(User::class, 'assignee_id', 'id')
+            ->select(['id', 'name', 'email']);
     }
 
     public function answer(): HasOne
     {
-        return $this->hasOne(InquiryAnswer::class);
+        return $this->hasOne(InquiryAnswer::class)
+            ->select(['id', 'user_id', 'inquiry_id', 'answer', 'created_at']);
     }
 
     public function attachFiles(): MorphMany
     {
-        return $this->morphMany(AttachFile::class, 'attachable');
+        return $this->morphMany(AttachFile::class, 'attachable')
+            ->select('id', 'url', 'attachable_id', 'attachable_type');
     }
 
     public function getCreatedAtAttribute($value): string

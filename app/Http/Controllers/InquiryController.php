@@ -339,12 +339,11 @@ class InquiryController extends Controller
      */
     public function show(int $id, ShowRequest $request): Collection
     {
+        // Set related models
+        $with = ['user', 'answer', 'assignee', 'attachFiles'];
+
         // Get Data from DB
-        $data = Inquiry::where('id', $id)
-            ->with('user', 'answer', 'assignee')
-            ->with('attachFiles', function ($q) {
-                return $q->select('id', 'url', 'attachable_id', 'attachable_type');
-            })->first();
+        $data = Inquiry::with($with)->find($id);
 
         // Check authority
         if (!$data) {
