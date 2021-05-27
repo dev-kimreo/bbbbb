@@ -266,25 +266,19 @@ class InquiryController extends Controller
         // Get Data from DB
         $data = $inquiry->skip($pagination['skip'])->take($pagination['perPage'])->get();
 
-        // Post Processing
+        // Post processing
         $data->each(function ($item) {
-            // Data Editing
-            unset($item->deleted_at);
-            $item->created_at = Carbon::parse($item->created_at)->toIso8601String();
+            // Edit data
+            $item->created_at = $item->created_at? Carbon::parse($item->created_at)->toIso8601String(): null;
             $item->updated_at = $item->updated_at? Carbon::parse($item->updated_at)->toIso8601String(): null;
+            unset($item->deleted_at);
 
             // Check if there is a related data
             $item->answered = InquiryAnswer::where('inquiry_id', $item->id)->exists();
 
             // Getting data from related table
-            static $users = [];
-            $item->user = $users[$item->user_id] ?? ($users[$item->user_id] = User::find($item->user_id));
-
-            if (is_null($item->assignee_id)) {
-                $item->assignee = null;
-            } else {
-                $item->assignee = $users[$item->assignee_id] ?? ($users[$item->assignee_id] = User::find($item->assignee_id));
-            }
+            $item->user = $this->getUser($item->user_id);
+            $item->assignee = is_null($item->assignee_id)? null: $this->getUser($item->assignee_id);
         });
 
         // Result
@@ -489,5 +483,14 @@ class InquiryController extends Controller
 
         // Response
         return response()->noContent();
+    }
+
+    /* Custom Methods */
+    protected function getUser(int $id)
+    {
+        static $users = [];
+
+        return $users[$id]
+            ?? ($id = User::select(['id', 'name', 'email'])->find($id));
     }
 }
