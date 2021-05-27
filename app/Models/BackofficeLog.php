@@ -12,6 +12,8 @@ class BackofficeLog extends Model
     use HasFactory;
 
     public $timestamps = false;
+    public $hidden = ['user_id', 'loggable_type', 'loggable_id'];
+    public $with = ['user'];
 
     public static function boot()
     {
@@ -24,7 +26,7 @@ class BackofficeLog extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->select(['id', 'name', 'email']);
     }
 
     public function loggable(): MorphTo
