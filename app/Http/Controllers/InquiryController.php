@@ -135,15 +135,23 @@ class InquiryController extends Controller
      * @OA\Schema (
      *      schema="inquiryListElement",
      *      allOf={
-     *          @OA\Items(type="object", ref="#/components/schemas/Inquiry"),,
      *          @OA\Schema (
+     *              @OA\Property(property="id", type="integer", example=1, description="고유 번호" ),
+     *              @OA\Property(property="title", type="string", example="1:1 문의 제목", description="1:1문의 제목" ),
+     *              @OA\Property(property="question", type="string", example="1:1 문의 내용", description="1:1문의 내용" ),
+     *              @OA\Property(property="status", type="string", example="waiting", description="처리상태<br/>waiting:접수<br/>answering:확인중<br/>answered:완료" ),
+     *              @OA\Property(property="createdAt", type="ISO 8601 date", example="2021-02-12T15:19:21+00:00", description="등록일자"),
+     *              @OA\Property(property="updatedAt", type="ISO 8601 date", example="2021-02-13T18:52:16+00:00", description="수정일자"),
      *              @OA\Property(property="answered", type="boolean", example="true", description="답변완료 여부")
      *          ),
      *          @OA\Schema (
-     *              @OA\Property(property="user", type="object", readOnly="true", ref="#/components/schemas/User")
-     *          )
+     *              @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply")
+     *          ),
      *          @OA\Schema (
-     *              @OA\Property(property="assignee", type="object", readOnly="true", ref="#/components/schemas/User")
+     *              @OA\Property(property="referrer", type="object", ref="#/components/schemas/UserSimply")
+     *          ),
+     *          @OA\Schema (
+     *              @OA\Property(property="assignee", type="object", ref="#/components/schemas/UserSimply")
      *          )
      *      }
      * )
@@ -278,7 +286,9 @@ class InquiryController extends Controller
 
             // Getting data from related table
             $item->user = $this->getUser($item->user_id);
+            $item->referrer = $this->getUser($item->ref_user_id);
             $item->assignee = is_null($item->assignee_id)? null: $this->getUser($item->assignee_id);
+            unset($item->deleted_at, $item->user_id, $item->ref_user_id, $item->assignee_id);
         });
 
         // Result
@@ -334,7 +344,7 @@ class InquiryController extends Controller
     public function show(int $id, ShowRequest $request): Collection
     {
         // Set related models
-        $with = ['user', 'answer', 'assignee', 'attachFiles'];
+        $with = ['user', 'referrer', 'assignee', 'answer', 'attachFiles'];
 
         // Get Data from DB
         $data = Inquiry::with($with)->find($id);
@@ -349,6 +359,9 @@ class InquiryController extends Controller
                 throw new QpickHttpException(403, 'inquiry.disable.writer_only');
             }
         }
+
+        // Post processing
+        $data->makeHidden(['user_id', 'ref_user_id', 'assignee_id']);
 
         // Response
         return CollectionLibrary::toCamelCase(collect($data));
@@ -486,11 +499,10 @@ class InquiryController extends Controller
     }
 
     /* Custom Methods */
-    protected function getUser(int $id)
+    protected function getUser($id)
     {
         static $users = [];
 
-        return $users[$id]
-            ?? ($id = User::select(['id', 'name', 'email'])->find($id));
+        return $users[$id] ?? ($users[$id] = User::select(['id', 'name', 'email'])->find($id));
     }
 }

@@ -59,7 +59,13 @@ class Inquiry extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'id')
+        return $this->belongsTo(User::class)
+            ->select(['id', 'name', 'email']);
+    }
+
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'ref_user_id', 'id')
             ->select(['id', 'name', 'email']);
     }
 
