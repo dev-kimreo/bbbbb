@@ -135,13 +135,13 @@ class InquiryController extends Controller
      * @OA\Schema (
      *      schema="inquiryListElement",
      *      allOf={
-     *          @OA\Items(type="object", ref="#/components/schemas/Inquiry"),
+     *          @OA\Items(type="object", ref="#/components/schemas/Inquiry"),,
+     *          @OA\Schema (
+     *              @OA\Property(property="answered", type="boolean", example="true", description="답변완료 여부")
+     *          ),
      *          @OA\Schema (
      *              @OA\Property(property="user", type="object", readOnly="true", ref="#/components/schemas/User")
-     *          ),
-     *          @OA\Schema (
-     *              @OA\Property(property="answer", type="object", readOnly="true", ref="#/components/schemas/InquiryAnswer")
-     *          ),
+     *          )
      *          @OA\Schema (
      *              @OA\Property(property="assignee", type="object", readOnly="true", ref="#/components/schemas/User")
      *          )
@@ -266,12 +266,19 @@ class InquiryController extends Controller
         // Get Data from DB
         $data = $inquiry->skip($pagination['skip'])->take($pagination['perPage'])->get();
 
-        // Getting data from related table
+        // Post Processing
         $data->each(function ($item) {
-            static $users = [];
+            // Data Editing
+            unset($item->deleted_at);
+            $item->created_at = Carbon::parse($item->created_at)->toIso8601String();
+            $item->updated_at = $item->updated_at? Carbon::parse($item->updated_at)->toIso8601String(): null;
 
+            // Check if there is a related data
+            $item->answered = InquiryAnswer::where('inquiry_id', $item->id)->exists();
+
+            // Getting data from related table
+            static $users = [];
             $item->user = $users[$item->user_id] ?? ($users[$item->user_id] = User::find($item->user_id));
-            $item->answer = InquiryAnswer::where('inquiry_id', $item->id)->first();
 
             if (is_null($item->assignee_id)) {
                 $item->assignee = null;
