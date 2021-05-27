@@ -12,8 +12,8 @@ use Illuminate\Support\Carbon;
  *
  * @OA\Schema(
  * @OA\Property(property="id", type="integer", readOnly="true", example="1"),
- * @OA\Property(property="user_id", type="integer", readOnly="true", description="사용자의 고유번호(PK)", example="1"),
- * @OA\Property(property="inquiry_id", type="integer", readOnly="true", description="1:1상담 문의 고유번호(PK)", example="1"),
+ * @OA\Property(property="userId", type="integer", readOnly="true", description="사용자의 고유번호(PK)", example="1"),
+ * @OA\Property(property="inquiryId", type="integer", readOnly="true", description="1:1상담 문의 고유번호(PK)", example="1"),
  * @OA\Property(property="answer", type="string", readOnly="true", description="답변내용", example="더 좋은 큐픽 서비스가 될 수 있도록 최선을 다하겠습니다."),
  * @OA\Property(
  *     property="createdAt", type="string", readOnly="true", format="date-time",

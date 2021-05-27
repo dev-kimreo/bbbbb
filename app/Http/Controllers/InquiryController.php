@@ -215,14 +215,16 @@ class InquiryController extends Controller
         }
 
         if ($s = $request->get('startDate')) {
+            $s = Carbon::parse($s);
             $inquiry->where('inquiries.created_at', '>=', $s);
         }
 
         if ($s = $request->get('endDate')) {
-            $inquiry->where('inquiries.created_at', '<=', $s . ' 23:59:59');
+            $s = Carbon::parse($s)->setTime(23, 59, 59);
+            $inquiry->where('inquiries.created_at', '<=', $s);
         }
 
-        if($s = $request->get('multiSearch')) {
+        if ($s = $request->get('multiSearch')) {
             // 통합검색
             $inquiry->join('users as users_ms', 'inquiries.user_id', '=', 'users_ms.id');
             $inquiry->leftJoin('users as assignees_ms', 'inquiries.assignee_id', '=', 'assignees_ms.id');
@@ -277,8 +279,8 @@ class InquiryController extends Controller
         // Post processing
         $data->each(function ($item) {
             // Edit data
-            $item->created_at = $item->created_at? Carbon::parse($item->created_at)->toIso8601String(): null;
-            $item->updated_at = $item->updated_at? Carbon::parse($item->updated_at)->toIso8601String(): null;
+            $item->created_at = $item->created_at ? Carbon::parse($item->created_at)->toIso8601String() : null;
+            $item->updated_at = $item->updated_at ? Carbon::parse($item->updated_at)->toIso8601String() : null;
             unset($item->deleted_at);
 
             // Check if there is a related data
@@ -287,7 +289,7 @@ class InquiryController extends Controller
             // Getting data from related table
             $item->user = $this->getUser($item->user_id);
             $item->referrer = $this->getUser($item->ref_user_id);
-            $item->assignee = is_null($item->assignee_id)? null: $this->getUser($item->assignee_id);
+            $item->assignee = is_null($item->assignee_id) ? null : $this->getUser($item->assignee_id);
             unset($item->deleted_at, $item->user_id, $item->ref_user_id, $item->assignee_id);
         });
 
@@ -315,13 +317,16 @@ class InquiryController extends Controller
      *              allOf={
      *                  @OA\Schema(ref="#/components/schemas/Inquiry"),
      *                  @OA\Schema(
-     *                      @OA\Property(property="user", type="object", ref="#/components/schemas/User")
+     *                      @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="referrer", type="object", ref="#/components/schemas/UserSimply")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="assignee", type="object", ref="#/components/schemas/UserSimply")
      *                  ),
      *                  @OA\Schema(
      *                      @OA\Property(property="answer", type="object", ref="#/components/schemas/InquiryAnswer")
-     *                  ),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="assignee", type="object", ref="#/components/schemas/User")
      *                  ),
      *                  @OA\Schema(
      *                      @OA\Property(property="attachFiles", type="array",
