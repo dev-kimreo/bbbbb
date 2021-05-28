@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -40,7 +41,7 @@ use Laravel\Passport\HasApiTokens;
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, DateFormatISO8601;
 
     // 회원 등급
     public $userGrade = [
@@ -67,6 +68,15 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token'
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
     ];
 
     public function checkAdmin(): bool
@@ -103,21 +113,5 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->manager && $this->isLoginToManagerService();
     }
-
-    public function getEmailVerifiedAtAttribute($value)
-    {
-        return $value ? Carbon::parse($value)->format('c') : $value;
-    }
-
-    public function getCreatedAtAttribute($value): string
-    {
-        return Carbon::parse($value)->format('c');
-    }
-
-    public function getUpdatedAtAttribute($value): string
-    {
-        return Carbon::parse($value)->format('c');
-    }
-
 }
 

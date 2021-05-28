@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,9 +32,7 @@ use Illuminate\Support\Carbon;
 
 class InquiryAnswer extends Model
 {
-    use HasFactory, SoftDeletes;
-
-    public $timestamps = false;
+    use HasFactory, SoftDeletes, DateFormatISO8601;
 
     /**
      * The attributes that are mass assignable.
@@ -66,15 +65,5 @@ class InquiryAnswer extends Model
     public function inquiry(): belongsTo
     {
         return $this->belongsTo(Inquiry::class);
-    }
-
-    public function getCreatedAtAttribute($value): string
-    {
-        return Carbon::parse($value)->format('c');
-    }
-
-    public function getUpdatedAtAttribute($value): ?string
-    {
-        return $value ? Carbon::parse($value)->format('c') : $value;
     }
 }

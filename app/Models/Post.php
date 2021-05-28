@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -28,7 +29,7 @@ use Carbon\Carbon;
  */
 class Post extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, DateFormatISO8601;
 
     /**
      * The attributes that are mass assignable.
@@ -71,16 +72,6 @@ class Post extends Model
     public function getByBoardId($id, $boardId)
     {
         return $this->id($id)->boardId($boardId);
-    }
-
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->format('c');
-    }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->format('c');
     }
 
     public function user()

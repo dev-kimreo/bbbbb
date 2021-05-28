@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,7 +11,7 @@ use Carbon\Carbon;
 
 class PostThumbnail extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, DateFormatISO8601;
 
     /**
      * The attributes that are mass assignable.
@@ -38,16 +39,6 @@ class PostThumbnail extends Model
     public function post()
     {
         return $this->belongsTo('App\Models\Post');
-    }
-
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->format('c');
-    }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->format('c');
     }
 
     // 파일 첨부 갯수 제한
