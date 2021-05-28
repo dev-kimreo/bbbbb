@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Auth;
 use Cache;
 use Str;
+use Gate;
 
 use App\Models\Post;
 use App\Models\Reply;
@@ -84,6 +85,11 @@ class ReplyController extends Controller
         // 댓글 사용 유무 체크
         if (!$this->post->board->options['reply']) {
             throw new QpickHttpException(403, 'reply.disable.board_option');
+        }
+
+        // check write post Policy
+        if (!auth()->user()->can('create', [$this->reply, $this->post, $this->post->board])) {
+            throw new QpickHttpException(403, 'common.unauthorized');
         }
 
         // 댓글 작성
@@ -267,6 +273,11 @@ class ReplyController extends Controller
         // 댓글 사용 유무 체크
         if (!$this->post->board->options['reply']) {
             throw new QpickHttpException(403, 'reply.disable.board_option');
+        }
+
+        // 리소스 접근 권한 체크
+        if (!Gate::allows('viewAny', [$this->reply, $this->post, $this->post->board])) {
+            throw new QpickHttpException(403, 'common.unauthorized');
         }
 
         // where 절 eloquent

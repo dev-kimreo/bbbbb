@@ -24,26 +24,40 @@ class BoardPolicy
     {
     }
 
-    public function viewAny(User $user)
+    public function viewAny(?User $user)
     {
-
+        if (isset($user->manager) && $user->isLoginToManagerService()) {
+            return true;
+        } else {
+            return true;
+        }
     }
 
-    public function view(User $user)
+    public function view(?User $user, Board $board)
     {
-
+        if (isset($user->manager) && $user->isLoginToManagerService()) {
+            return true;
+        } else {
+            return $board->enable ? true : false;
+        }
     }
 
     /**
      * @param User $user
      * @return bool
      */
-    public function create(User $user)
+    public function create(User $user, Board $board)
     {
+        if (isset($user->manager) && $user->isLoginToManagerService()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function update(User $user)
     {
+
     }
 
     public function delete(User $user)

@@ -16,6 +16,7 @@ use Cache;
 use Carbon\Carbon;
 use Str;
 use DB;
+use Gate;
 
 
 use App\Http\Requests\Posts\StoreRequest;
@@ -170,7 +171,7 @@ class PostController extends Controller
         $this->post = $this->post->where('board_id', $boardId)->findOrFail($id);
 
         // check update post Policy
-        if (!auth()->user()->can('update', $this->post)) {
+        if (!Auth::user()->can('update', $this->post)) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
@@ -225,7 +226,7 @@ class PostController extends Controller
         $this->post = $this->post->where('board_id', $boardId)->findOrfail($id);
 
         // check update post Policy
-        if (!auth()->user()->can('delete', $this->post)) {
+        if (!Auth::user()->can('delete', $this->post)) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
@@ -301,34 +302,42 @@ class PostController extends Controller
         $res['header'] = [];
         $res['list'] = [];
 
-        // Bacckoffice login
-//        if (Auth::check() && Auth::user()->isLoginToManagerService()) {
-//
-//        } else {
+        // 리소스 접근 권한 체크
+        if (!Gate::allows('viewAny', [$this->post, $this->board->find($boardId)])) {
+            throw new QpickHttpException(403, 'common.unauthorized');
+        }
+
         // 게시글 목록
-        $this->post = $this->post->where('board_id', $boardId);
+        $postModel = $this->post->where('board_id', $boardId);
+
+        // Bacckoffice login
+        if (Auth::check() && Auth::user()->isLoginToManagerService()) {
+
+        } else {
+            $postModel->where('hidden', 0);
+        }
 
         // Sort By
         if ($request->get('sortBy')) {
             $sortCollect = CollectionLibrary::getBySort($request->get('sortBy'), ['id', 'sort']);
-            $sortCollect->each(function ($item) {
-                $this->post->orderBy($item['key'], $item['value']);
+            $sortCollect->each(function ($item) use ($postModel) {
+                $postModel->orderBy($item['key'], $item['value']);
             });
         }
 
         // pagination
-        $pagination = PaginationLibrary::set($request->page, $this->post->count(), $request->perPage);
+        $pagination = PaginationLibrary::set($request->page, $postModel->count(), $request->perPage);
 
         if ($request->page <= $pagination['totalPage']) {
-            $this->post = $this->post->with('user:id,name')->withCount('replies');
-            $this->post = $this->post->with('thumbnail.attachFiles');
+            $postModel->with('user:id,name')->withCount('replies');
+            $postModel->with('thumbnail.attachFiles');
 
-            $this->post = $this->post
+            $postModel
                 ->groupBy('posts.id')
                 ->skip($pagination['skip'])
                 ->take($pagination['perPage']);
 
-            $post = $this->post->get();
+            $post = $postModel->get();
 
             // 데이터 가공
             $post->each(function (&$v) {
@@ -344,7 +353,6 @@ class PostController extends Controller
 
         $res['header'] = $pagination;
         $res['list'] = $data;
-//        }
 
         return CollectionLibrary::toCamelCase(collect($res));
     }
@@ -391,19 +399,24 @@ class PostController extends Controller
     public function show(Request $request, $boardId, $id)
     {
         // 게시글 정보
-        $this->post = $this->post->where('board_id', $boardId)->with('user:id,name');
+        $postModel = $this->post->where('board_id', $boardId)->with('user:id,name');
 
         // 첨부파일 (섬네일 제외)
-        $this->post = $this->post->with('attachFiles');
-        $this->post = $this->post->with('thumbnail.attachFiles');
-        $this->post = $this->post->findOrFail($id);
+        $postModel->with('attachFiles');
+        $postModel->with('thumbnail.attachFiles');
+        $postModel = $postModel->findOrFail($id);
+
+        // 리소스 접근 권한 체크
+        if (!Gate::allows('view', [$postModel, $postModel->board])) {
+            throw new QpickHttpException(403, 'common.unauthorized');
+        }
 
         // 데이터 가공
-        $attachFiles = $this->post->thumbnail->attachFiles ?? null;
-        unset($this->post->thumbnail);
-        $this->post->thumbnail = $attachFiles;
+        $attachFiles = $postModel->thumbnail->attachFiles ?? null;
+        unset($postModel->thumbnail);
+        $postModel->thumbnail = $attachFiles;
 
-        return CollectionLibrary::toCamelCase(collect($this->post));
+        return CollectionLibrary::toCamelCase(collect($postModel));
     }
 
 
@@ -491,7 +504,7 @@ class PostController extends Controller
         }
 
         // 통합 검색
-        if($s = $request->get('multiSearch')) {
+        if ($s = $request->get('multiSearch')) {
             $postModel->where(function ($q) use ($s) {
                 $q->orWhere('users.name', $s);
 
