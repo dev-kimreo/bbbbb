@@ -18,6 +18,7 @@ use App\Http\Requests\Boards\UpdateRequest;
 use App\Http\Requests\Boards\DestroyRequest;
 
 use App\Http\Requests\Boards\GetPostsCountRequest;
+use App\Http\Requests\Boards\UpdateBoardSortRequest;
 
 use App\Exceptions\QpickHttpException;
 
@@ -208,6 +209,10 @@ class BoardController extends Controller
         }
 
         $this->board->save();
+
+        $this->board->sort = $this->board->id;
+        $this->board->save();
+
         $this->board->refresh();
 
         return response()->json(CollectionLibrary::toCamelCase(collect($this->board)), 201);
@@ -264,7 +269,6 @@ class BoardController extends Controller
      *              @OA\Property(property="name", type="string", ref="#/components/schemas/Board/properties/name" ),
      *              @OA\Property(property="enable", type="string", ref="#/components/schemas/Board/properties/enable" ),
      *              @OA\Property(property="options", type="object", format="json", description="옵션", ref="#/components/schemas/BoardOptionJson/properties/options"),
-     *              @OA\Property(property="sort", type="string", ref="#/components/schemas/Board/properties/sort" ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -299,7 +303,6 @@ class BoardController extends Controller
         // 변경 할 사항
         $this->board->name = $request->name ?? $this->board->name;
         $this->board->enable = $request->enable ?? $this->board->enable;
-        $this->board->sort = $request->sort ?? $this->board->sort;
 
         if (isset($request->options) && is_array($request->options)) {
             /**
@@ -390,7 +393,6 @@ class BoardController extends Controller
     }
 
 
-
     /**
      * @OA\Get(
      *      path="/v1/board/posts-count",
@@ -460,7 +462,7 @@ class BoardController extends Controller
         }
 
         // 통합 검색
-        if($s = $request->get('multiSearch')) {
+        if ($s = $request->get('multiSearch')) {
             $postModel->where(function ($q) use ($s) {
                 $q->orWhere('users.name', $s);
 
@@ -485,6 +487,74 @@ class BoardController extends Controller
         $res['list'] = $collect;
 
         return CollectionLibrary::toCamelCase(collect($res));
+    }
+
+
+
+    /**
+     * @OA\Patch(
+     *      path="/v1/board/{id}/sort",
+     *      summary="[B] 게시판 전시 순서 변경",
+     *      description="게시판 전시 순서 변경",
+     *      operationId="updateBoardSort",
+     *      tags={"게시판"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={"target", "direction"},
+     *              @OA\Property(property="target", type="integer", example=6, description="타겟이 될 게시판의 고유 번호" ),
+     *              @OA\Property(property="direction", type="string", example="top", description="타켓 게시판보다 위, 아래 어느쪽에 위치할지 <br/>top:위, bottom:아래" ),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=204,
+     *          description="successfully",
+     *          @OA\JsonContent()
+     *      )
+     *  )
+     */
+    public function updateBoardSort(UpdateBoardSortRequest $request, $id)
+    {
+        // 타겟 게시판 고유 번호
+        $target = $request->get('target');
+        // 타겟 게시판의 어느 방향 위치 할지
+        $d = $request->get('direction');
+
+        $selectBoardModel = $this->board->findOrFail($id);
+        $targetBoardModel = $this->board->findOrFail($target);
+
+        $selectSort = $selectBoardModel->sort;
+        $targetSort = $targetBoardModel->sort;
+
+
+        if ($selectBoardModel->sort < $targetBoardModel->sort) {
+            $targetSort -= $d == 'bottom' ? 0 : 1;
+            $changeSort = -1;
+
+        } else {
+            $targetSort += $d == 'bottom' ? 1 : 0;
+            $changeSort = +1;
+        }
+
+        // 변경될 대상과 타겟의 대상이 다를 경우에만 처리
+        if ($selectSort != $targetSort) {
+            $sortArea = [$targetSort, $selectSort + (-1 * $changeSort)];
+            sort($sortArea);
+
+            $updateModel = $this->board->whereBetween('sort', $sortArea);
+
+            if ($changeSort > 0) {
+                $updateModel->increment('sort', abs($changeSort));
+            } else {
+                $updateModel->decrement('sort', abs($changeSort));
+            }
+
+            $selectBoardModel->sort = $targetSort;
+            $selectBoardModel->save();
+        }
+
+        return response()->noContent();
     }
 
 }
