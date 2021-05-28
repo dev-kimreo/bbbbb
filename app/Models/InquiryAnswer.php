@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 /**
  *
@@ -48,7 +47,7 @@ class InquiryAnswer extends Model
      * @var array
      */
     protected $hidden = [
-        'deleted_at'
+        'user_id', 'inquiry_id', 'deleted_at'
     ];
 
     protected $appends = [
