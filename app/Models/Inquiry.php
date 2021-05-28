@@ -58,26 +58,22 @@ class Inquiry extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class)
-            ->select(['id', 'name', 'email']);
+        return $this->belongsTo(User::class)->simplify();
     }
 
     public function referrer()
     {
-        return $this->belongsTo(User::class, 'referrer_id', 'id')
-            ->select(['id', 'name', 'email']);
+        return $this->belongsTo(User::class, 'referrer_id', 'id')->simplify();
     }
 
     public function assignee(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'assignee_id', 'id')
-            ->select(['id', 'name', 'email']);
+        return $this->belongsTo(User::class, 'assignee_id', 'id')->simplify();
     }
 
     public function answer(): HasOne
     {
-        return $this->hasOne(InquiryAnswer::class)
-            ->select(['id', 'user_id', 'inquiry_id', 'answer', 'created_at']);
+        return $this->hasOne(InquiryAnswer::class)->with('user')->simplify();
     }
 
     public function attachFiles(): MorphMany

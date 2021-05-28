@@ -113,5 +113,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->manager && $this->isLoginToManagerService();
     }
+
+    public function scopeSimplify($query)
+    {
+        return $query->select(['id', 'name', 'email']);
+    }
 }
 
