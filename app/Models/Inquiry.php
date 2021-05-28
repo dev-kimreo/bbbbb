@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,7 +25,7 @@ use Illuminate\Support\Carbon;
  */
 class Inquiry extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, DateFormatISO8601;
 
     public $status = [
         'waiting',       // 접수
@@ -83,16 +84,6 @@ class Inquiry extends Model
     {
         return $this->morphMany(AttachFile::class, 'attachable')
             ->select('id', 'url', 'attachable_id', 'attachable_type');
-    }
-
-    public function getCreatedAtAttribute($value): string
-    {
-        return Carbon::parse($value)->format('c');
-    }
-
-    public function getUpdatedAtAttribute($value): ?string
-    {
-        return $value ? Carbon::parse($value)->format('c') : $value;
     }
 
     // 파일 첨부 갯수 제한

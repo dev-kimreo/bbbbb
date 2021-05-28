@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
@@ -29,7 +30,7 @@ use Carbon\Carbon;
  */
 class BoardOption extends Model
 {
-    use HasFactory;
+    use HasFactory, DateFormatISO8601;
 
     /**
      * The attributes that are mass assignable.
@@ -66,15 +67,4 @@ class BoardOption extends Model
     {
         return self::where('type', $type);
     }
-
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->format('c');
-    }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->format('c');
-    }
-
 }

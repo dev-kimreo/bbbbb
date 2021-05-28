@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
 class SignedCode extends Model
 {
-    use HasFactory;
+    use HasFactory, DateFormatISO8601;
 
     protected $dates = [
         'created_at',
@@ -25,15 +26,5 @@ class SignedCode extends Model
         return self::nameId($id)
             ->where('hash', $hash)
             ->where('sign', $sign);
-    }
-
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->format('c');
-    }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->format('c');
     }
 }
