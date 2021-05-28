@@ -135,15 +135,23 @@ class InquiryController extends Controller
      * @OA\Schema (
      *      schema="inquiryListElement",
      *      allOf={
-     *          @OA\Items(type="object", ref="#/components/schemas/Inquiry"),
      *          @OA\Schema (
-     *              @OA\Property(property="user", type="object", readOnly="true", ref="#/components/schemas/User")
+     *              @OA\Property(property="id", type="integer", example=1, description="고유 번호" ),
+     *              @OA\Property(property="title", type="string", example="1:1 문의 제목", description="1:1문의 제목" ),
+     *              @OA\Property(property="question", type="string", example="1:1 문의 내용", description="1:1문의 내용" ),
+     *              @OA\Property(property="status", type="string", example="waiting", description="처리상태<br/>waiting:접수<br/>answering:확인중<br/>answered:완료" ),
+     *              @OA\Property(property="createdAt", type="ISO 8601 date", example="2021-02-12T15:19:21+00:00", description="등록일자"),
+     *              @OA\Property(property="updatedAt", type="ISO 8601 date", example="2021-02-13T18:52:16+00:00", description="수정일자"),
+     *              @OA\Property(property="answered", type="boolean", example="true", description="답변완료 여부")
      *          ),
      *          @OA\Schema (
-     *              @OA\Property(property="answer", type="object", readOnly="true", ref="#/components/schemas/InquiryAnswer")
+     *              @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply")
      *          ),
      *          @OA\Schema (
-     *              @OA\Property(property="assignee", type="object", readOnly="true", ref="#/components/schemas/User")
+     *              @OA\Property(property="referrer", type="object", ref="#/components/schemas/UserSimply")
+     *          ),
+     *          @OA\Schema (
+     *              @OA\Property(property="assignee", type="object", ref="#/components/schemas/UserSimply")
      *          )
      *      }
      * )
@@ -207,14 +215,16 @@ class InquiryController extends Controller
         }
 
         if ($s = $request->get('startDate')) {
+            $s = Carbon::parse($s);
             $inquiry->where('inquiries.created_at', '>=', $s);
         }
 
         if ($s = $request->get('endDate')) {
-            $inquiry->where('inquiries.created_at', '<=', $s . ' 23:59:59');
+            $s = Carbon::parse($s)->setTime(23, 59, 59);
+            $inquiry->where('inquiries.created_at', '<=', $s);
         }
 
-        if($s = $request->get('multiSearch')) {
+        if ($s = $request->get('multiSearch')) {
             // 통합검색
             $inquiry->join('users as users_ms', 'inquiries.user_id', '=', 'users_ms.id');
             $inquiry->leftJoin('users as assignees_ms', 'inquiries.assignee_id', '=', 'assignees_ms.id');
@@ -266,18 +276,21 @@ class InquiryController extends Controller
         // Get Data from DB
         $data = $inquiry->skip($pagination['skip'])->take($pagination['perPage'])->get();
 
-        // Getting data from related table
+        // Post processing
         $data->each(function ($item) {
-            static $users = [];
+            // Edit data
+            $item->created_at = $item->created_at ? Carbon::parse($item->created_at)->toIso8601String() : null;
+            $item->updated_at = $item->updated_at ? Carbon::parse($item->updated_at)->toIso8601String() : null;
+            unset($item->deleted_at);
 
-            $item->user = $users[$item->user_id] ?? ($users[$item->user_id] = User::find($item->user_id));
-            $item->answer = InquiryAnswer::where('inquiry_id', $item->id)->first();
+            // Check if there is a related data
+            $item->answered = InquiryAnswer::where('inquiry_id', $item->id)->exists();
 
-            if (is_null($item->assignee_id)) {
-                $item->assignee = null;
-            } else {
-                $item->assignee = $users[$item->assignee_id] ?? ($users[$item->assignee_id] = User::find($item->assignee_id));
-            }
+            // Getting data from related table
+            $item->user = $this->getUser($item->user_id);
+            $item->referrer = $this->getUser($item->referrer_id);
+            $item->assignee = is_null($item->assignee_id) ? null : $this->getUser($item->assignee_id);
+            unset($item->deleted_at, $item->user_id, $item->referrer_id, $item->assignee_id);
         });
 
         // Result
@@ -304,13 +317,16 @@ class InquiryController extends Controller
      *              allOf={
      *                  @OA\Schema(ref="#/components/schemas/Inquiry"),
      *                  @OA\Schema(
-     *                      @OA\Property(property="user", type="object", ref="#/components/schemas/User")
+     *                      @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="referrer", type="object", ref="#/components/schemas/UserSimply")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="assignee", type="object", ref="#/components/schemas/UserSimply")
      *                  ),
      *                  @OA\Schema(
      *                      @OA\Property(property="answer", type="object", ref="#/components/schemas/InquiryAnswer")
-     *                  ),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="assignee", type="object", ref="#/components/schemas/User")
      *                  ),
      *                  @OA\Schema(
      *                      @OA\Property(property="attachFiles", type="array",
@@ -332,12 +348,11 @@ class InquiryController extends Controller
      */
     public function show(int $id, ShowRequest $request): Collection
     {
+        // Set related models
+        $with = ['user', 'referrer', 'assignee', 'answer', 'attachFiles'];
+
         // Get Data from DB
-        $data = Inquiry::where('id', $id)
-            ->with('user', 'answer', 'assignee')
-            ->with('attachFiles', function ($q) {
-                return $q->select('id', 'url', 'attachable_id', 'attachable_type');
-            })->first();
+        $data = Inquiry::with($with)->find($id);
 
         // Check authority
         if (!$data) {
@@ -349,6 +364,9 @@ class InquiryController extends Controller
                 throw new QpickHttpException(403, 'inquiry.disable.writer_only');
             }
         }
+
+        // Post processing
+        $data->makeHidden(['user_id', 'referrer_id', 'assignee_id']);
 
         // Response
         return CollectionLibrary::toCamelCase(collect($data));
@@ -430,7 +448,8 @@ class InquiryController extends Controller
         // Save Data
         $inquiry->title = $request->title ?? $inquiry->title;
         $inquiry->question = $request->question ?? $inquiry->question;
-        $inquiry->assignee_id = $request->assignee_id ?? $inquiry->assignee_id;
+        $inquiry->assignee_id = $request->assigneeId ?? $inquiry->assignee_id;
+        $inquiry->referrer_id = $request->referrerId ?? $inquiry->referrer_id;
         $inquiry->save();
 
         // Response
@@ -483,5 +502,13 @@ class InquiryController extends Controller
 
         // Response
         return response()->noContent();
+    }
+
+    /* Custom Methods */
+    protected function getUser($id)
+    {
+        static $users = [];
+
+        return $users[$id] ?? ($users[$id] = User::select(['id', 'name', 'email'])->find($id));
     }
 }

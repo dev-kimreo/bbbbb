@@ -15,8 +15,6 @@ use Illuminate\Support\Carbon;
  *
  *  @OA\Schema(
  *      @OA\Property(property="id", type="integer", example=1, description="고유 번호" ),
- *      @OA\Property(property="userId", type="integer", example=1, description="작성자 고유번호" ),
- *      @OA\Property(property="userName", type="string", example="홍길동", description="작성자 이름" ),
  *      @OA\Property(property="title", type="string", example="1:1 문의 제목", description="1:1문의 제목" ),
  *      @OA\Property(property="question", type="string", example="1:1 문의 내용", description="1:1문의 내용" ),
  *      @OA\Property(property="status", type="string", example="waiting", description="처리상태<br/>waiting:접수<br/>answering:확인중<br/>answered:완료" ),
@@ -59,22 +57,32 @@ class Inquiry extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class)
+            ->select(['id', 'name', 'email']);
+    }
+
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'referrer_id', 'id')
+            ->select(['id', 'name', 'email']);
     }
 
     public function assignee(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'assignee_id', 'id');
+        return $this->belongsTo(User::class, 'assignee_id', 'id')
+            ->select(['id', 'name', 'email']);
     }
 
     public function answer(): HasOne
     {
-        return $this->hasOne(InquiryAnswer::class);
+        return $this->hasOne(InquiryAnswer::class)
+            ->select(['id', 'user_id', 'inquiry_id', 'answer', 'created_at']);
     }
 
     public function attachFiles(): MorphMany
     {
-        return $this->morphMany(AttachFile::class, 'attachable');
+        return $this->morphMany(AttachFile::class, 'attachable')
+            ->select('id', 'url', 'attachable_id', 'attachable_type');
     }
 
     public function getCreatedAtAttribute($value): string
