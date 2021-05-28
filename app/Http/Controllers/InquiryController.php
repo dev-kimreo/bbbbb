@@ -288,9 +288,9 @@ class InquiryController extends Controller
 
             // Getting data from related table
             $item->user = $this->getUser($item->user_id);
-            $item->referrer = $this->getUser($item->ref_user_id);
+            $item->referrer = $this->getUser($item->referrer_id);
             $item->assignee = is_null($item->assignee_id) ? null : $this->getUser($item->assignee_id);
-            unset($item->deleted_at, $item->user_id, $item->ref_user_id, $item->assignee_id);
+            unset($item->deleted_at, $item->user_id, $item->referrer_id, $item->assignee_id);
         });
 
         // Result
@@ -366,7 +366,7 @@ class InquiryController extends Controller
         }
 
         // Post processing
-        $data->makeHidden(['user_id', 'ref_user_id', 'assignee_id']);
+        $data->makeHidden(['user_id', 'referrer_id', 'assignee_id']);
 
         // Response
         return CollectionLibrary::toCamelCase(collect($data));
@@ -448,7 +448,8 @@ class InquiryController extends Controller
         // Save Data
         $inquiry->title = $request->title ?? $inquiry->title;
         $inquiry->question = $request->question ?? $inquiry->question;
-        $inquiry->assignee_id = $request->assignee_id ?? $inquiry->assignee_id;
+        $inquiry->assignee_id = $request->assigneeId ?? $inquiry->assignee_id;
+        $inquiry->referrer_id = $request->referrerId ?? $inquiry->referrer_id;
         $inquiry->save();
 
         // Response

@@ -17,7 +17,7 @@ class CreateInquiriesTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->foreignId('ref_user_id')->nullable()->references('id')->on('users');
+            $table->foreignId('referrer_id')->nullable()->references('id')->on('users');
             $table->foreignId('assignee_id')->nullable()->references('id')->on('users');
             $table->string('title', 100);
             $table->mediumText('question');

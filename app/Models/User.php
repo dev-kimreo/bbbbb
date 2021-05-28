@@ -86,7 +86,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function referredInquiry(): HasMany
     {
-        return $this->hasMany(Inquiry::class, 'ref_user_id', 'id');
+        return $this->hasMany(Inquiry::class, 'referrer_id', 'id');
     }
 
     public function assignedInquiry(): HasMany
