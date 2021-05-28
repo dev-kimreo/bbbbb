@@ -246,7 +246,7 @@ class InquiryController extends Controller
         }
 
         if ($s = $request->get('userId')) {
-            $inquiry->where($s, 'inquiries.user_id');
+            $inquiry->where('inquiries.user_id', $s);
         }
 
         if ($request->get('userEmail') || $request->get('userName')) {
@@ -262,12 +262,12 @@ class InquiryController extends Controller
         }
 
         if ($s = $request->get('assigneeId')) {
-            $inquiry->where($s, 'inquiries.assignee_id');
+            $inquiry->where('inquiries.assignee_id', $s);
         }
 
         if ($s = $request->get('assigneeName')) {
             $inquiry->join('users as assignees', 'inquiries.assignee_id', '=', 'assignees.id');
-            $inquiry->where($s, 'assignees.name');
+            $inquiry->where('assignees.name', $s);
         }
 
         // Set Pagination Information
