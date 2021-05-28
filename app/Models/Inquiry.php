@@ -47,7 +47,7 @@ class Inquiry extends Model
      * @var array
      */
     protected $hidden = [
-        'deleted_at'
+        'user_id', 'referrer_id', 'assignee_id', 'deleted_at'
     ];
 
     protected $appends = [

@@ -31,13 +31,13 @@ class IndexRequest extends FormRequest
             'perPage' => 'nullable|integer|between:1,50',
             'id' => 'nullable|integer',
             'status' => 'nullable|string',
-            'startDate' => 'nullable|date_format:Y-m-d\\TH:i:sP',
-            'endDate' => 'nullable|date_format:Y-m-d\\TH:i:sP',
+            'startDate' => 'nullable|date',
+            'endDate' => 'nullable|date',
             'title' => 'nullable|string',
-            'userId' => 'nullable|integer|exists:App\Models\Manager,user_id',
+            'userId' => 'nullable|integer|exists:App\Models\User,id',
             'userEmail' => 'nullable|string',
             'userName' => 'nullable|string',
-            'assigneeId' => 'nullable|integer|exists:App\Models\Manager,user_id',
+            'assigneeId' => 'nullable|integer|exists:App\Models\User,id|exists:App\Models\Manager,user_id',
             'assigneeName' => 'nullable|string',
             'multiSearch' => 'nullable'
         ];

@@ -16,6 +16,7 @@ use App\Models\Inquiry;
 use App\Models\InquiryAnswer;
 use App\Models\User;
 use App\Services\AttachService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -94,7 +95,7 @@ class InquiryController extends Controller
      *      }}
      *  )
      */
-    public function store(CreateRequest $request)
+    public function store(CreateRequest $request): JsonResponse
     {
         // 초기화
         $inquiry = $this->inquiry;
@@ -104,13 +105,13 @@ class InquiryController extends Controller
         $inquiry->setAttribute('user_id', Auth::id());
         $inquiry->setAttribute('title', $request->input('title'));
         $inquiry->setAttribute('question', $request->input('question'));
-        $inquiry->setAttribute('assignee_id', $request->input('assignee_id', null));
+        $inquiry->setAttribute('assignee_id', $request->input('assignee_id'));
         $inquiry->setAttribute('created_at', Carbon::now());
         $inquiry->save();
 
-        $res = $inquiry->with('user', 'answer', 'assignee')->find($inquiry->id);
-
-        return response()->json(CollectionLibrary::toCamelCase(collect($res)), 201);
+        // Response
+        $data = $this->getOne($inquiry->id);
+        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
     }
 
 
@@ -231,9 +232,9 @@ class InquiryController extends Controller
 
             $inquiry->where(function ($q) use ($s) {
                 $q->orWhere('inquiries.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-                $q->orWhere('users.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-                $q->orWhere('users.name', $s);
-                $q->where('assignees.name', $s);
+                $q->orWhere('users_ms.email', 'like', '"%' . StringLibrary::escapeSql($s) . '%');
+                $q->orWhere('users_ms.name', $s);
+                $q->orWhere('assignees_ms.name', $s);
 
                 if (is_numeric($s)) {
                     $q->orWhere('inquiries.id', $s);
@@ -348,25 +349,15 @@ class InquiryController extends Controller
      */
     public function show(int $id, ShowRequest $request): Collection
     {
-        // Set related models
-        $with = ['user', 'referrer', 'assignee', 'answer', 'attachFiles'];
-
         // Get Data from DB
-        $data = Inquiry::with($with)->find($id);
+        $data = $this->getOne($id);
 
         // Check authority
-        if (!$data) {
-            throw new QpickHttpException(404, 'common.not_found');
-        }
-
         if (!Auth::user()->isLoginToManagerService()) {
             if ($data->user_id != Auth::id()) {
                 throw new QpickHttpException(403, 'inquiry.disable.writer_only');
             }
         }
-
-        // Post processing
-        $data->makeHidden(['user_id', 'referrer_id', 'assignee_id']);
 
         // Response
         return CollectionLibrary::toCamelCase(collect($data));
@@ -434,13 +425,9 @@ class InquiryController extends Controller
     public function update(int $id, UpdateRequest $request)
     {
         // Get Data from DB
-        $inquiry = Inquiry::with('user', 'answer', 'assignee')->find($id);
+        $inquiry = Inquiry::findOrFail($id);
 
         // Check authority
-        if (!$inquiry) {
-            throw new QpickHttpException(404, 'common.not_found');
-        }
-
         if ($inquiry->user_id != Auth::id()) {
             throw new QpickHttpException(403, 'inquiry.disable.writer_only');
         }
@@ -453,7 +440,8 @@ class InquiryController extends Controller
         $inquiry->save();
 
         // Response
-        return response()->json(CollectionLibrary::toCamelCase(collect($inquiry->refresh())), 201);
+        $data = $this->getOne($id);
+        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
     }
 
 
@@ -510,5 +498,10 @@ class InquiryController extends Controller
         static $users = [];
 
         return $users[$id] ?? ($users[$id] = User::select(['id', 'name', 'email'])->find($id));
+    }
+
+    protected function getOne(int $id)
+    {
+        return Inquiry::with(['user', 'referrer', 'assignee', 'answer', 'attachFiles'])->findOrFail($id);
     }
 }
