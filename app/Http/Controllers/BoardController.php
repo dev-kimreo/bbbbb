@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Auth;
 use DB;
 use Str;
+use Gate;
 
 use App\Models\Board;
 
@@ -80,7 +81,10 @@ class BoardController extends Controller
      */
     public function index(Request $request)
     {
-        //
+        // 리소스 접근 권한 체크
+        if (!Gate::allows('viewAny', [$this->board])) {
+            throw new QpickHttpException(403, 'common.unauthorized');
+        }
 
         // response init
         $res = [];
@@ -88,25 +92,25 @@ class BoardController extends Controller
         $res['list'] = [];
 
         // 게시판 목록
-        $this->board = $this->board::with('user:id,name');
+        $boardModel = $this->board::with('user:id,name');
 
 
         // Sort By
         if ($request->get('sortBy')) {
             $sortCollect = CollectionLibrary::getBySort($request->get('sortBy'), ['id', 'sort']);
-            $sortCollect->each(function ($item) {
-                $this->board->orderBy($item['key'], $item['value']);
+            $sortCollect->each(function ($item) use ($boardModel) {
+                $boardModel->orderBy($item['key'], $item['value']);
             });
         }
 
         // Bacckoffice login
         if (Auth::check() && Auth::user()->isLoginToManagerService()) {
-            $this->board = $this->board->withCount('posts');
+            $boardModel->withCount('posts');
         } else {
-            $this->board->where('enable', 1);
+            $boardModel->where('enable', 1);
         }
 
-        $res['list'] = $this->board->get();
+        $res['list'] = $boardModel->get();
 
         return CollectionLibrary::toCamelCase(collect($res));
 
@@ -156,6 +160,11 @@ class BoardController extends Controller
      */
     public function store(StoreRequest $request)
     {
+        // 리소스 접근 권한 체크
+        if (!Auth::user()->can('create', $this->board)) {
+            throw new QpickHttpException(403, 'common.unauthorized');
+        }
+
         // 게시판 옵션 기본값 가져오기
         $opts = [];
         $this->boardService->getOptionList(['sel' => ['type', 'default']])->each(
@@ -231,9 +240,14 @@ class BoardController extends Controller
      */
     public function show($id)
     {
-        $this->board = $this->board->with('user')->findOrFail($id);
+        $boardModel = $this->board->with('user')->findOrFail($id);
 
-        return CollectionLibrary::toCamelCase(collect($this->board));
+        // 리소스 접근 권한 체크
+        if (!Gate::allows('view', [$boardModel])) {
+            throw new QpickHttpException(403, 'common.unauthorized');
+        }
+
+        return CollectionLibrary::toCamelCase(collect($boardModel));
     }
 
     /**
