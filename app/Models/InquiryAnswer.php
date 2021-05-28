@@ -59,11 +59,16 @@ class InquiryAnswer extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class)->select(['id', 'name']);
+        return $this->belongsTo(User::class)->simplify();
     }
 
     public function inquiry(): belongsTo
     {
         return $this->belongsTo(Inquiry::class);
+    }
+
+    public function scopeSimplify($query)
+    {
+        return $query->select(['id', 'user_id', 'inquiry_id', 'answer', 'created_at']);
     }
 }

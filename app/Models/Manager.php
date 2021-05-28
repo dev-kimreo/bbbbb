@@ -42,7 +42,7 @@ class Manager extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->simplify();
     }
 
     public function authority()
