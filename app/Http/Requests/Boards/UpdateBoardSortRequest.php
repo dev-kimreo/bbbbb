@@ -2,12 +2,11 @@
 
 namespace App\Http\Requests\Boards;
 
-use Auth;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdateRequest extends FormRequest
+class UpdateBoardSortRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,19 +26,9 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required_without_all:enable,options,sort|string|between:2,32',
-            'enable' => 'required_without_all:name,options,sort|boolean',
-            'options' => 'required_without_all:name,enable,sort|array',
+            'target' => 'required|integer',
+            'direction' => 'required|in:top,bottom'
         ];
     }
 
-    /**
-     * @return array
-     * @description code {Number} - 20000 어쩌구저쩌구
-     */
-    public function messages()
-    {
-        return [
-        ];
-    }
 }

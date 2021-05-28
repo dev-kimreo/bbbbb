@@ -174,6 +174,8 @@ Route::group([
             // 게시판의 게시글 수를 포함한 목록
             Route::get('/posts-count', [BoardController::class, 'getPostsCount']);
 
+            // 게시판의 전시순서 변경
+            Route::patch('/{id}/sort', [BoardController::class, 'updateBoardSort']);
 
             // 게시판 CRUD
             Route::post('', [BoardController::class, 'store']);
