@@ -3,20 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\QpickHttpException;
+use App\Http\Requests\Inquiries\Answers\DestroyRequest;
+use App\Http\Requests\Inquiries\Answers\ShowRequest;
+use App\Http\Requests\Inquiries\Answers\StoreRequest;
+use App\Http\Requests\Inquiries\Answers\UpdateRequest;
+use App\Libraries\CollectionLibrary;
 use App\Models\Inquiry;
 use App\Models\InquiryAnswer;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\Inquiries\Answers\StoreRequest;
-use App\Http\Requests\Inquiries\Answers\ShowRequest;
-use App\Http\Requests\Inquiries\Answers\UpdateRequest;
-use App\Http\Requests\Inquiries\Answers\DestroyRequest;
 
 
 class InquiryAnswerController extends Controller
 {
-    private $answer;
+    private InquiryAnswer $answer;
 
     public function __construct(InquiryAnswer $answer)
     {
@@ -58,10 +60,12 @@ class InquiryAnswerController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
-     * @return InquiryAnswer
+     * @param StoreRequest $request
+     * @param int $inquiryId
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
-    public function store(StoreRequest $request, int $inquiryId): InquiryAnswer
+    public function store(StoreRequest $request, int $inquiryId): JsonResponse
     {
         // check exists inquiry
         Inquiry::findOrFail($inquiryId);
@@ -78,7 +82,9 @@ class InquiryAnswerController extends Controller
         $answer->answer = $request->get('answer');
         $answer->save();
 
-        return InquiryAnswer::find($answer->id);
+        // response
+        $data = $this->getOne($answer->inquiry_id);
+        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
     }
 
     /**
@@ -124,12 +130,13 @@ class InquiryAnswerController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $inquiryId
-     * @return InquiryAnswer
+     * @param ShowRequest $request
+     * @param int $inquiryId
+     * @return Collection
      */
-    public function show(ShowRequest $request, int $inquiryId): InquiryAnswer
+    public function show(ShowRequest $request, int $inquiryId): Collection
     {
-        return $this->answer->where('inquiry_id', $inquiryId)->with('inquiry')->firstOrFail();
+        return CollectionLibrary::toCamelCase(collect($this->getOne($inquiryId)));
     }
 
     /**
@@ -173,10 +180,10 @@ class InquiryAnswerController extends Controller
      * !Warning! The router for this method is customized.
      *
      * @param UpdateRequest $request
-     * @param  int $inquiryId
-     * @return InquiryAnswer
+     * @param int $inquiryId
+     * @return JsonResponse
      */
-    public function update(UpdateRequest $request, int $inquiryId): InquiryAnswer
+    public function update(UpdateRequest $request, int $inquiryId): JsonResponse
     {
         // getting original data
         Inquiry::findOrFail($inquiryId);
@@ -187,7 +194,8 @@ class InquiryAnswerController extends Controller
         $answer->saveOrFail();
 
         // response
-        return InquiryAnswer::where('inquiry_id', $inquiryId)->first();
+        $data = $this->getOne($inquiryId);
+        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
     }
 
     /**
@@ -223,8 +231,8 @@ class InquiryAnswerController extends Controller
      * Remove the specified resource from storage.
      * !Warning! The router for this method is customized.
      *
-     * @param  DestroyRequest $request
-     * @param  int $inquiryId
+     * @param DestroyRequest $request
+     * @param int $inquiryId
      * @return Response
      */
     public function destroy(DestroyRequest $request, int $inquiryId): Response
@@ -233,5 +241,10 @@ class InquiryAnswerController extends Controller
         InquiryAnswer::findOrFail(@$answer->id)->destroy($answer->id);
 
         return response()->noContent();
+    }
+
+    protected function getOne(int $inquiryId)
+    {
+        return $this->answer->where('inquiry_id', $inquiryId)->with(['user', 'inquiry'])->firstOrFail();
     }
 }
