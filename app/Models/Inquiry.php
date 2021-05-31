@@ -82,6 +82,11 @@ class Inquiry extends Model
             ->select('id', 'url', 'attachable_id', 'attachable_type');
     }
 
+    public function backofficeLogs(): MorphMany
+    {
+        return $this->morphMany(BackofficeLog::class, 'loggable')->orderByDesc('id');
+    }
+
     // 파일 첨부 갯수 제한
     public function getAttachFileLimit(): int
     {

@@ -27,12 +27,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
         Relation::morphMap([
             'attach' => 'App\Models\AttachFile',
-            'post' => 'App\Models\Post',
+            'board' => 'App\Models\Board',
             'inquiry' => 'App\Models\Inquiry',
+            'post' => 'App\Models\Post',
             'post_thumbnail' => 'App\Models\PostThumbnail',
+            'user' => 'App\Models\User',
         ]);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
@@ -62,4 +63,9 @@ class Board extends Model
         return $this->hasMany('App\Models\Post');
     }
 
+    public function backofficeLogs(): MorphMany
+    {
+        return $this->morphMany(BackofficeLog::class, 'loggable')
+            ->orderByDesc('id');
+    }
 }
