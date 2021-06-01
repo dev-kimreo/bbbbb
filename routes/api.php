@@ -44,8 +44,9 @@ Route::group([
         // 회원 관련 CRUD
         Route::post('', [MemberController::class, 'store'])->withoutmiddleware('auth:api');
         Route::get('', [MemberController::class, 'index'])->middleware('admin');
-        Route::get('/{id}', [MemberController::class, 'show'])->middleware('admin')->where(['id' => '[0-9]+']);
+        Route::get('/{id}', [MemberController::class, 'show'])->where(['id' => '[0-9]+']);
         Route::patch('/{id}', [MemberController::class, 'update'])->where(['id' => '[0-9]+']);
+        Route::delete('/{id}', [MemberController::class, 'destroy'])->where(['id' => '[0-9]+']);
 
         // 회원 세션 CRUD
         Route::post('/auth', [AccessTokenController::class, 'store'])->withoutmiddleware('auth:api');
