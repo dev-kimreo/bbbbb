@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\PaginationLibrary;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Auth;
 
@@ -29,6 +31,8 @@ use App\Http\Requests\Members\PasswordResetRequest;
 use App\Exceptions\QpickHttpException;
 
 use Config;
+use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 use URL;
 use DB;
 use RedisManager;
@@ -55,15 +59,104 @@ class MemberController extends Controller
         $this->signedCode = $signedCode;
     }
 
-    public function index(IndexRequest $request)
-    {
+    /**
+     * @OA\Get(
+     *      path="/v1/user",
+     *      summary="회원정보 목록",
+     *      description="회원정보 다건 열람",
+     *      operationId="userList",
+     *      tags={"회원관련"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description=""
+     *      ),
 
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination" ),
+     *              @OA\Property(property="list", type="array",
+     *                  @OA\Items(type="object", ref="#/components/schemas/User")
+     *              ),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated (비로그인)"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden (관리자가 아닌 상태에서 정보조회를 시도하는 상황 등)"
+     *      )
+     *  )
+     *
+     * 회원정보 목록
+     *
+     * @param IndexRequest $request
+     * @return Collection
+     */
+    public function index(IndexRequest $request): Collection
+    {
+        // get
+        $user = $this->user;
+
+        // set pagination information
+        $pagination = PaginationLibrary::set($request->input('page'), $user->count(), $request->input('perPage'));
+
+        // get data
+        $data = $user->skip($pagination['skip'])->take($pagination['perPage'])->get();
+
+        // result
+        $result = [
+            'header' => $pagination ?? [],
+            'list' => $data ?? []
+        ];
+
+        return CollectionLibrary::toCamelCase(collect($result));
     }
 
 
-    public function show(ShowRequest $request)
+    /**
+     * @OA\Get(
+     *      path="/v1/user/{id}",
+     *      summary="회원정보 열람",
+     *      description="회원정보 1건 열람",
+     *      operationId="userInfo",
+     *      tags={"회원관련"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description=""
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/User")
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated (비로그인)"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden (특정 회원이 타회원의 정보조회를 시도하는 상황 등)"
+     *      )
+     *  )
+     *
+     * 회원정보 단건열람
+     *
+     * @param int $id
+     * @param ShowRequest $request
+     * @return JsonResponse
+     * @throws QpickHttpException
+     */
+    public function show(int $id, ShowRequest $request): JsonResponse
     {
+        if ($id != Auth::id() && !Auth::user()->checkUsableManagerService()) {
+            throw new QpickHttpException(403, 'common.unauthorized');
+        }
 
+        return response()->json(CollectionLibrary::toCamelCase(collect($this->user->findOrFail($id))), 201);
     }
 
     /**
@@ -174,7 +267,54 @@ class MemberController extends Controller
         return response()->json(CollectionLibrary::toCamelCase(collect($member)), 201);
     }
 
+    /**
+     * @OA\delete(
+     *      path="/v1/user/{id}",
+     *      summary="회원정보 삭제(탈퇴)",
+     *      description="회원탈퇴",
+     *      operationId="userDelete",
+     *      tags={"회원관련"},
+     *      @OA\Response(
+     *          response=204,
+     *          description="deleted"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="not found"
+     *      )
+     *  )
+     *
+     * 회원정보 삭제 (탈퇴)
+     *
+     * @param int $id
+     * @param Request $request
+     * @return Response
+     * @throws QpickHttpException
+     */
+    public function destroy(int $id, Request $request, AccessTokenController $tokenController): Response
+    {
+        // validation
+        if ($id != Auth::id()) {
+            throw new QpickHttpException(403, 'common.unauthorized');
+        }
 
+        if (!$this::funcCheckPassword($request->input('password'))) {
+            throw new QpickHttpException(422, 'user.password.incorrect');
+        }
+
+        // delete
+        $this->user->findOrFail($id)->delete();
+
+        // logout
+        $tokenController->destroy();
+
+        // response
+        return response()->noContent();
+    }
 
     /**
      * @OA\Post(
