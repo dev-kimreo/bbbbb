@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Libraries\PaginationLibrary;
+use App\Libraries\StringLibrary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 use Hash;
 
 use App\Models\User;
@@ -98,8 +99,57 @@ class MemberController extends Controller
      */
     public function index(IndexRequest $request): Collection
     {
-        // get
-        $user = $this->user;
+        // get model
+        $user = $this->user::with(['advAgree', 'solutions']);
+
+        // set search conditions
+        if ($s = $request->get('startCreatedDate')) {
+            $s = Carbon::parse($s);
+            $user->where('created_at', '>=', $s);
+        }
+
+        if ($s = $request->get('endCreatedDate')) {
+            $s = Carbon::parse($s);
+            $user->where('created_at', '<=', $s);
+        }
+
+        if ($s = $request->get('startRegisteredDate')) {
+            $s = Carbon::parse($s);
+            $user->where('registered_at', '>=', $s);
+        }
+
+        if ($s = $request->get('endRegisteredDate')) {
+            $s = Carbon::parse($s);
+            $user->where('registered_at', '<=', $s);
+        }
+
+        if (strlen($s = $request->get('grade'))) {
+            $user->where('grade', $s);
+        }
+
+        if ($s = $request->get('id')) {
+            $user->where('id', $s);
+        }
+
+        if ($s = $request->get('email')) {
+            $user->where('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+        }
+
+        if ($s = $request->get('name')) {
+            $user->where('name', $s);
+        }
+
+        if ($s = $request->get('multiSearch')) {
+            // 통합검색
+            $user->where(function ($q) use ($s) {
+                $q->orWhere('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+                $q->orWhere('name', $s);
+
+                if (is_numeric($s)) {
+                    $q->orWhere('id', $s);
+                }
+            });
+        }
 
         // set pagination information
         $pagination = PaginationLibrary::set($request->input('page'), $user->count(), $request->input('perPage'));
