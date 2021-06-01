@@ -156,7 +156,8 @@ class MemberController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($this->user->findOrFail($id))), 201);
+        $data = $this->user::with(['advAgree', 'solutions'])->findOrFail($id);
+        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
     }
 
     /**
@@ -203,11 +204,11 @@ class MemberController extends Controller
             $request->all(),
             ['password' => hash::make($request->password)]
         ));
-        $this->user->refresh();
+        
+        $member = $this->user->with(['advAgree', 'solutions'])->find($this->user->id);
+        VerifyEmail::dispatch($member);
 
-        VerifyEmail::dispatch($this->user);
-
-        return response()->json(CollectionLibrary::toCamelCase(collect($this->user)), 201);
+        return response()->json(CollectionLibrary::toCamelCase(collect($member)), 201);
     }
 
 
@@ -263,6 +264,8 @@ class MemberController extends Controller
         $member = Auth::user();
         $member->name = $request->name;
         $member->save();
+
+        $member = $member->with(['advAgree', 'solutions'])->find($member->id);
 
         return response()->json(CollectionLibrary::toCamelCase(collect($member)), 201);
     }

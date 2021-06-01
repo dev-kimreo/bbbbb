@@ -16,7 +16,7 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
-            $table->string('name', 100);
+            $table->string('name', 100)->index();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
@@ -27,11 +27,13 @@ class CreateUsersTable extends Migration
             $table->string('mall_url', 256);
             $table->char('language', 2)->default('ko');
             $table->string('memo_for_managers', 256);
-            $table->timestamp('registered_at')->nullable();
+            $table->timestamp('registered_at')->nullable()->index();
             $table->timestamp('inactivated_at')->nullable();
             $table->timestamp('last_authorized_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['created_at']);
         });
 
         Schema::create('user_linked_solutions', function (Blueprint $table) {
@@ -48,9 +50,8 @@ class CreateUsersTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->string('name', 16);
-            $table->string('apikey', 512)->nullable();
-            $table->timestamps();
+            $table->boolean('agree');
+            $table->timestamp('created_at')->index();
             $table->softDeletes();
         });
     }
