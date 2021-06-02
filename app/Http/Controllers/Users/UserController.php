@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Users;
 
 
 use App\Events\Member\VerifyEmail;
 use App\Events\Member\VerifyEmailCheck;
 use App\Exceptions\QpickHttpException;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Members\CheckChangePwdAuthRequest;
 use App\Http\Requests\Members\CheckPwdMemberRequest;
 use App\Http\Requests\Members\IndexRequest;
@@ -32,7 +33,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 
 
-class MemberController extends Controller
+class UserController extends Controller
 {
     protected User $user;
     protected SignedCode $signedCode;

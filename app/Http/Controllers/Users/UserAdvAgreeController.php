@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Users;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\AdvAgreeUpdateRequest;
 use App\Models\UserAdvAgree;
 

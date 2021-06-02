@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Users;
 
+use App\Http\Controllers\Controller;
 use App\Libraries\CollectionLibrary;
 use App\Models\UserLinkedSolution;
 use Illuminate\Http\JsonResponse;
