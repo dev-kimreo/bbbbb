@@ -12,8 +12,8 @@ use Carbon\Carbon;
  *
  * @OA\Schema(
  * @OA\Property(property="id", type="integer", readOnly="true", example="1"),
- * @OA\Property(property="user_id", type="integer", readOnly="true", description="사용자의 고유번호(PK)", example="1"),
- * @OA\Property(property="authority_id", type="integer", readOnly="true", description="관리자그룹의 고유번호(PK)", example="1"),
+ * @OA\Property(property="userId", type="integer", readOnly="true", description="사용자의 고유번호(PK)", example="1"),
+ * @OA\Property(property="authorityId", type="integer", readOnly="true", description="관리자그룹의 고유번호(PK)", example="1"),
  * @OA\Property(
  *     property="createdAt", type="string", readOnly="true", format="date-time",
  *     ref="#/components/schemas/Base/properties/created_at", example="2021-02-25 12:59:20"

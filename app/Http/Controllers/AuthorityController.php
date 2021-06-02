@@ -54,7 +54,7 @@ class AuthorityController extends Controller
         $data = Authority::all();
 
         return [
-            'header' => PaginationLibrary::set($request->page, $data->count(), $request->perPage),
+            'header' => PaginationLibrary::set($request->page, $data->count(), $request->per_page),
             'list' => CollectionLibrary::toCamelCase($data)
         ];
     }
@@ -73,7 +73,7 @@ class AuthorityController extends Controller
      *              required={"code", "title", "display_name"},
      *              @OA\Property(property="code", type="string", example="120", description="그룹번호" ),
      *              @OA\Property(property="title", type="string", example="시스템관리자", description="그룹명" ),
-     *              @OA\Property(property="display_name", type="string", example="운영자", description="닉네임" ),
+     *              @OA\Property(property="displayName", type="string", example="운영자", description="닉네임" ),
      *              @OA\Property(property="memo", type="string", example="큐픽 사이트 운영", description="설명" )
      *          )
      *      ),
@@ -107,7 +107,7 @@ class AuthorityController extends Controller
 
         return CollectionLibrary::toCamelCase(collect(Authority::find($authority->id)));
     }
-    
+
     /**
      * @OA\Get(
      *      path="/v1/authority/{id}",
@@ -133,7 +133,7 @@ class AuthorityController extends Controller
      *      )
      *  )
      */
-    
+
     /**
      * Display the specified resource.
      *
@@ -159,7 +159,7 @@ class AuthorityController extends Controller
      *              required={},
      *              @OA\Property(property="code", type="string", example="13", description="그룹번호" ),
      *              @OA\Property(property="title", type="string", example="시스템관리자", description="그룹명" ),
-     *              @OA\Property(property="display_name", type="string", example="운영자", description="닉네임" ),
+     *              @OA\Property(property="displayName", type="string", example="운영자", description="닉네임" ),
      *              @OA\Property(property="memo", type="string", example="큐픽 사이트 운영", description="설명" )
      *          )
      *      ),

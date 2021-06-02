@@ -29,7 +29,7 @@ class PasswordResetRequest extends FormRequest
             'email' => 'required|email|exists:App\Models\User,email',
             'token' => 'required',
             'password' => 'required|string|min:8',
-            'passwordConfirmation' => 'required|string|same:password'
+            'password_confirmation' => 'required|string|same:password'
         ];
     }
 

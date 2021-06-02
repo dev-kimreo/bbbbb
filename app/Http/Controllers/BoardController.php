@@ -97,8 +97,8 @@ class BoardController extends Controller
 
 
         // Sort By
-        if ($request->get('sortBy')) {
-            $sortCollect = CollectionLibrary::getBySort($request->get('sortBy'), ['id', 'sort']);
+        if ($request->get('sort_by')) {
+            $sortCollect = CollectionLibrary::getBySort($request->get('sort_by'), ['id', 'sort']);
             $sortCollect->each(function ($item) use ($boardModel) {
                 $boardModel->orderBy($item['key'], $item['value']);
             });
@@ -187,7 +187,7 @@ class BoardController extends Controller
             // 옵션 값 체크
             switch ($type) {
                 case 'theme':
-                case 'attachLimit':
+                case 'attach_limit':
                     break;
                 default:
                     if (!collect($data)->where('value', $val)->count()) {
@@ -319,7 +319,7 @@ class BoardController extends Controller
                 // 옵션 값 체크
                 switch ($type) {
                     case 'theme':
-                    case 'attachLimit':
+                    case 'attach_limit':
                         break;
                     default:
                         if (!collect($data)->where('value', $val)->count()) {
@@ -429,8 +429,8 @@ class BoardController extends Controller
     public function getPostsCount(GetPostsCountRequest $request)
     {
         // Sort By
-        if ($request->get('sortBy')) {
-            $sortCollect = CollectionLibrary::getBySort($request->get('sortBy'), ['id', 'sort']);
+        if ($s = $request->get('sort_by')) {
+            $sortCollect = CollectionLibrary::getBySort($s, ['id', 'sort']);
             $sortCollect->each(function ($item) {
                 $this->board = $this->board->orderBy($item['key'], $item['value']);
             });
@@ -453,7 +453,7 @@ class BoardController extends Controller
             $postModel->where('users.name', $s);
         }
 
-        if ($s = $request->get('postId')) {
+        if ($s = $request->get('post_id')) {
             $postModel->where('posts.id', $s);
         }
 
@@ -462,7 +462,7 @@ class BoardController extends Controller
         }
 
         // 통합 검색
-        if ($s = $request->get('multiSearch')) {
+        if ($s = $request->get('multi_search')) {
             $postModel->where(function ($q) use ($s) {
                 $q->orWhere('users.name', $s);
 

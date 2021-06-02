@@ -93,7 +93,7 @@ class ReplyController extends Controller
         }
 
         // 댓글 작성
-        $this->reply->post_id = intval($request->postId);
+        $this->reply->post_id = intval($postId);
         $this->reply->user_id = auth()->user()->id;
         $this->reply->content = $request->content;
         $this->reply->save();
@@ -284,12 +284,12 @@ class ReplyController extends Controller
         $this->reply = $this->reply::where('post_id', $postId);
 
         // pagination
-        $pagination = PaginationLibrary::set($request->page, $this->reply->count(), $request->perPage);
+        $pagination = PaginationLibrary::set($request->page, $this->reply->count(), $request->per_page);
 
 
         // Sort By
-        if ($request->get('sortBy')) {
-            $sortCollect = CollectionLibrary::getBySort($request->get('sortBy'), ['id']);
+        if ($s = $request->get('sort_by')) {
+            $sortCollect = CollectionLibrary::getBySort($s, ['id']);
             $sortCollect->each(function ($item) {
                 $this->reply->orderBy($item['key'], $item['value']);
             });

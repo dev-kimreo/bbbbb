@@ -30,7 +30,7 @@ class StoreRequest extends FormRequest
             'name' => 'required|string|between:2,100',
             'email' => 'required|string|email|max:100|unique:App\Models\User,email',
             'password' => 'required|string|min:8',
-            'passwordConfirmation' => 'required|string|same:password'
+            'password_confirmation' => 'required|string|same:password'
         ];
     }
 
