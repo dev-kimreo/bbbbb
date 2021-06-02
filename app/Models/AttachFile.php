@@ -39,6 +39,7 @@ class AttachFile extends Model
      * @var array
      */
     protected $fillable = [
+        'server', 'attachable_type', 'attachable_id', 'user_id', 'url', 'path', 'name', 'org_name' ,'etc'
     ];
 
     /**

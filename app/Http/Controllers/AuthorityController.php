@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
 use App\Models\Authority;
 use App\Http\Requests\Members\Authorities\StoreAuthorityRequest;
@@ -47,6 +46,7 @@ class AuthorityController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return array
      */
     public function index(Request $request): array
@@ -54,8 +54,8 @@ class AuthorityController extends Controller
         $data = Authority::all();
 
         return [
-            'header' => PaginationLibrary::set($request->page, $data->count(), $request->per_page),
-            'list' => CollectionLibrary::toCamelCase($data)
+            'header' => PaginationLibrary::set($request->input('page'), $data->count(), $request->input('per_page')),
+            'list' => $data
         ];
     }
 
@@ -99,13 +99,13 @@ class AuthorityController extends Controller
     {
         // store
         $authority = new Authority;
-        $authority->code = $request->get('code');
-        $authority->title = $request->get('title');
-        $authority->display_name = $request->get('display_name');
-        $authority->memo = $request->get('memo');
+        $authority->code = $request->input('code');
+        $authority->title = $request->input('title');
+        $authority->display_name = $request->input('display_name');
+        $authority->memo = $request->input('memo');
         $authority->save();
 
-        return CollectionLibrary::toCamelCase(collect(Authority::find($authority->id)));
+        return collect(Authority::find($authority->id));
     }
 
     /**
@@ -142,7 +142,7 @@ class AuthorityController extends Controller
      */
     public function show(int $id): Collection
     {
-        return CollectionLibrary::toCamelCase(collect(Authority::findOrFail($id)));
+        return collect(Authority::findOrFail($id));
     }
 
     /**
@@ -188,14 +188,14 @@ class AuthorityController extends Controller
         $authority = Authority::findOrFail($id);
 
         // update
-        $authority->code = $request->get('code') ?? $authority->code;
-        $authority->title = $request->get('title') ?? $authority->title;
-        $authority->display_name = $request->get('display_name') ?? $authority->display_name;
-        $authority->memo = $request->get('memo') ?? $authority->memo;
+        $authority->code = $request->input('code', $authority->code);
+        $authority->title = $request->input('title', $authority->title);
+        $authority->display_name = $request->input('display_name', $authority->display_name);
+        $authority->memo = $request->input('memo', $authority->memo);
         $authority->saveOrFail();
 
         // response
-        return CollectionLibrary::toCamelCase(collect(Authority::find($id)));
+        return collect(Authority::find($id));
     }
 
     /**

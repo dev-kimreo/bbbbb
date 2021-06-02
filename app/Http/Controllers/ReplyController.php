@@ -1,27 +1,20 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
-use App\Libraries\CollectionLibrary;
-use Illuminate\Http\Request;
-use Auth;
-use Cache;
-use Str;
-use Gate;
-
-use App\Models\Post;
-use App\Models\Reply;
-
-use App\Http\Requests\Replies\StoreRequest;
-use App\Http\Requests\Replies\UpdateRequest;
+use App\Exceptions\QpickHttpException;
 use App\Http\Requests\Replies\DestroyRequest;
 use App\Http\Requests\Replies\IndexRequest;
-
-use App\Exceptions\QpickHttpException;
-
+use App\Http\Requests\Replies\StoreRequest;
+use App\Http\Requests\Replies\UpdateRequest;
+use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
-
+use App\Models\Post;
+use App\Models\Reply;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Class PostController
@@ -29,6 +22,9 @@ use App\Libraries\PaginationLibrary;
  */
 class ReplyController extends Controller
 {
+    private Reply $reply;
+    private Post $post;
+
     public function __construct(Reply $reply, Post $post)
     {
         $this->reply = $reply;
@@ -76,9 +72,14 @@ class ReplyController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
+     * @param StoreRequest $request
+     * @param $boardId
+     * @param $postId
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
 
-    public function store(StoreRequest $request, $boardId, $postId)
+    public function store(StoreRequest $request, $boardId, $postId): JsonResponse
     {
         $this->post = $this->post::where('board_id', $boardId)->findOrFail($postId);
 
@@ -94,13 +95,13 @@ class ReplyController extends Controller
 
         // 댓글 작성
         $this->reply->post_id = intval($postId);
-        $this->reply->user_id = auth()->user()->id;
-        $this->reply->content = $request->content;
+        $this->reply->user_id = Auth::id();
+        $this->reply->content = $request->input('content');
         $this->reply->save();
 
         $this->reply->refresh();
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($this->reply)), 201);
+        return response()->json(collect($this->reply), 201);
     }
 
 
@@ -142,12 +143,15 @@ class ReplyController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
-     */
-    /**
      * @param UpdateRequest $request
-     * @return mixed
+     * @param $boardId
+     * @param $postId
+     * @param $id
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
-    public function update(UpdateRequest $request, $boardId, $postId, $id)
+
+    public function update(UpdateRequest $request, $boardId, $postId, $id): JsonResponse
     {
         $this->post = $this->post::where('board_id', $boardId)->findOrFail($postId);
 
@@ -163,10 +167,10 @@ class ReplyController extends Controller
             throw new QpickHttpException(403, 'reply.disable.writer_only');
         }
 
-        $this->reply->content = $request->content ?? $this->reply->content;
+        $this->reply->content = $request->input('content', $this->reply->content);
         $this->reply->update();
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($this->reply)), 201);
+        return response()->json(collect($this->reply), 201);
     }
 
 
@@ -193,17 +197,20 @@ class ReplyController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
-     */
-    /**
      * @param DestroyRequest $request
-     * @return mixed
+     * @param $boardId
+     * @param $postId
+     * @param $id
+     * @return Response
+     * @throws QpickHttpException
      */
-    public function destroy(DestroyRequest $request, $boardId, $postId, $id)
+
+    public function destroy(DestroyRequest $request, $boardId, $postId, $id): Response
     {
         $this->reply = $this->reply::findOrFail($id);
 
         // 삭제 권한 체크
-        if (!auth()->user()->can('delete', $this->reply)) {
+        if (!Auth::user()->can('delete', $this->reply)) {
             throw new QpickHttpException(403, 'reply.disable.writer_only');
         }
 
@@ -261,12 +268,14 @@ class ReplyController extends Controller
      *          description="failed"
      *      ),
      *  )
-     */
-    /**
      * @param IndexRequest $request
-     * @return mixed
+     * @param $boardId
+     * @param $postId
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
-    public function index(IndexRequest $request, $boardId, $postId)
+
+    public function index(IndexRequest $request, $boardId, $postId): JsonResponse
     {
         $this->post = $this->post::where('board_id', $boardId)->findOrFail($postId);
 
@@ -284,18 +293,18 @@ class ReplyController extends Controller
         $this->reply = $this->reply::where('post_id', $postId);
 
         // pagination
-        $pagination = PaginationLibrary::set($request->page, $this->reply->count(), $request->per_page);
+        $pagination = PaginationLibrary::set($request->input('page'), $this->reply->count(), $request->input('per_page'));
 
 
         // Sort By
-        if ($s = $request->get('sort_by')) {
+        if ($s = $request->input('sort_by')) {
             $sortCollect = CollectionLibrary::getBySort($s, ['id']);
             $sortCollect->each(function ($item) {
                 $this->reply->orderBy($item['key'], $item['value']);
             });
         }
 
-        if ($request->page <= $pagination['totalPage']) {
+        if ($request->input('page') <= $pagination['totalPage']) {
             $this->reply = $this->reply->with('user:id,name');
             $this->reply = $this->reply
                 ->skip($pagination['skip'])
@@ -309,6 +318,6 @@ class ReplyController extends Controller
         $result = ['header' => $pagination];
         $result['list'] = $data;
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($result)), 200);
+        return response()->json(collect($result));
     }
 }

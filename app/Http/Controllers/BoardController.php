@@ -2,33 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\StringLibrary;
-use App\Models\Post;
-use Illuminate\Http\Request;
-
-use Auth;
-use DB;
-use Str;
-use Gate;
-
-use App\Models\Board;
-
-use App\Http\Requests\Boards\StoreRequest;
-use App\Http\Requests\Boards\UpdateRequest;
-use App\Http\Requests\Boards\DestroyRequest;
-
-use App\Http\Requests\Boards\GetPostsCountRequest;
-use App\Http\Requests\Boards\UpdateBoardSortRequest;
-
 use App\Exceptions\QpickHttpException;
-
+use App\Http\Requests\Boards\DestroyRequest;
+use App\Http\Requests\Boards\GetPostsCountRequest;
+use App\Http\Requests\Boards\StoreRequest;
+use App\Http\Requests\Boards\UpdateBoardSortRequest;
+use App\Http\Requests\Boards\UpdateRequest;
 use App\Libraries\CollectionLibrary;
-
+use App\Libraries\StringLibrary;
+use App\Models\Board;
+use App\Models\Post;
 use App\Services\BoardService;
-
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class BoardController extends Controller
 {
+    private Board $board;
+    private Post $post;
+    private BoardService $boardService;
 
     /**
      * @OA\Schema(
@@ -38,6 +35,9 @@ class BoardController extends Controller
      *          @OA\Schema(ref="#/components/schemas/BoardOptionJson")
      *     }
      * )
+     * @param Board $board
+     * @param Post $post
+     * @param BoardService $boardService
      */
 
 
@@ -78,9 +78,11 @@ class BoardController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Collection
+     * @throws QpickHttpException
      */
-    public function index(Request $request)
+    public function index(Request $request): Collection
     {
         // 리소스 접근 권한 체크
         if (!Gate::allows('viewAny', [$this->board])) {
@@ -97,14 +99,14 @@ class BoardController extends Controller
 
 
         // Sort By
-        if ($request->get('sort_by')) {
-            $sortCollect = CollectionLibrary::getBySort($request->get('sort_by'), ['id', 'sort']);
+        if ($s = $request->input('sort_by')) {
+            $sortCollect = CollectionLibrary::getBySort($s, ['id', 'sort']);
             $sortCollect->each(function ($item) use ($boardModel) {
                 $boardModel->orderBy($item['key'], $item['value']);
             });
         }
 
-        // Bacckoffice login
+        // Backoffice login
         if (Auth::check() && Auth::user()->isLoginToManagerService()) {
             $boardModel->withCount('posts');
         } else {
@@ -113,8 +115,7 @@ class BoardController extends Controller
 
         $res['list'] = $boardModel->get();
 
-        return CollectionLibrary::toCamelCase(collect($res));
-
+        return collect($res);
     }
 
 
@@ -156,10 +157,11 @@ class BoardController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @param StoreRequest $request
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request): JsonResponse
     {
         // 리소스 접근 권한 체크
         if (!Auth::user()->can('create', $this->board)) {
@@ -175,14 +177,14 @@ class BoardController extends Controller
         );
 
         // 요청 파라미터로 입력받은 옵션 처리
-        foreach ($request->options ?? [] as $type => $val) {
+        foreach ($request->input('options') ?? [] as $type => $val) {
             if (!$val) {
                 continue;
             }
 
             // 옵션 데이터에 선택할 수 없는 값이 들어간 경우의 오류처리
             $requestKey = 'options[' . $type . ']';
-            $data = $this->boardService->getOptiontByType($type, $requestKey)->options;
+            $data = $this->boardService->getOptiontByType($type, $requestKey)->getAttribute('options');
 
             // 옵션 값 체크
             switch ($type) {
@@ -200,22 +202,22 @@ class BoardController extends Controller
         }
 
         // 쿼리
-        $this->board->user_id = Auth::user()->id;
-        $this->board->name = $request->name;
+        $this->board->user_id = Auth::id();
+        $this->board->name = $request->input('name');
         $this->board->options = $opts;
 
-        if (isset($request->enable)) {
-            $this->board->enable = $request->enable;
+        if ($s = $request->input('enable')) {
+            $this->board->enable = $s;
         }
 
         $this->board->save();
 
-        $this->board->sort = $this->board->id;
+        $this->board->sort = $this->board->getAttribute('id');
         $this->board->save();
 
         $this->board->refresh();
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($this->board)), 201);
+        return response()->json(collect($this->board), 201);
     }
 
 
@@ -241,9 +243,10 @@ class BoardController extends Controller
      * Display the specified resource.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return Collection
+     * @throws QpickHttpException
      */
-    public function show($id)
+    public function show(int $id): Collection
     {
         $boardModel = $this->board->with('user')->findOrFail($id);
 
@@ -252,7 +255,7 @@ class BoardController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        return CollectionLibrary::toCamelCase(collect($boardModel));
+        return collect($boardModel);
     }
 
     /**
@@ -292,25 +295,28 @@ class BoardController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param UpdateRequest $request
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
-    public function update(UpdateRequest $request, $id)
+    public function update(UpdateRequest $request, int $id): JsonResponse
     {
+        $uptArrays = [];
+
         $this->board = $this->board->findOrfail($id);
 
         // 변경 할 사항
-        $this->board->name = $request->name ?? $this->board->name;
-        $this->board->enable = $request->enable ?? $this->board->enable;
+        $this->board->name = $request->input('name', $this->board->name);
+        $this->board->enable = $request->input('enable', $this->board->enable);
 
-        if (isset($request->options) && is_array($request->options)) {
+        if ($request->input('options') && is_array($request->input('options'))) {
             /**
              * 옵션
              */
-            $optArrs = $request->options;
+            $optArrays = $request->input('options');
 
-            foreach ($optArrs as $type => $val) {
+            foreach ($optArrays as $type => $val) {
 
                 // 옵션 데이터
                 $requestKey = 'options[' . $type . ']';
@@ -328,11 +334,11 @@ class BoardController extends Controller
                         break;
                 }
 
-                $uptArrs['options'][$type] = $val;
+                $uptArrays['options'][$type] = $val;
                 unset($data);
             }
 
-            $this->board->options = array_merge($this->board->options, $uptArrs['options']);
+            $this->board->options = array_merge($this->board->options, $uptArrays['options']);
         }
 
         // 변경사항이 있을 경우
@@ -340,7 +346,7 @@ class BoardController extends Controller
             $this->board->save();
         }
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($this->board)), 201);
+        return response()->json(collect($this->board), 201);
     }
 
 
@@ -375,10 +381,12 @@ class BoardController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param DestroyRequest $request
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return Response
+     * @throws QpickHttpException
      */
-    public function destroy(DestroyRequest $request, $id)
+    public function destroy(DestroyRequest $request, int $id): Response
     {
         $this->board = $this->board::withCount('posts')
             ->findOrFail($id);
@@ -425,11 +433,14 @@ class BoardController extends Controller
      *          )
      *      )
      *  )
+     * @param GetPostsCountRequest $request
+     * @return Collection
+     * @throws QpickHttpException
      */
-    public function getPostsCount(GetPostsCountRequest $request)
+    public function getPostsCount(GetPostsCountRequest $request): Collection
     {
         // Sort By
-        if ($s = $request->get('sort_by')) {
+        if ($s = $request->input('sort_by')) {
             $sortCollect = CollectionLibrary::getBySort($s, ['id', 'sort']);
             $sortCollect->each(function ($item) {
                 $this->board = $this->board->orderBy($item['key'], $item['value']);
@@ -445,24 +456,24 @@ class BoardController extends Controller
         $postModel->join('users', 'posts.user_id', '=', 'users.id');
 
         // Where
-        if ($s = $request->get('email')) {
+        if ($s = $request->input('email')) {
             $postModel->where('users.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
-        if ($s = $request->get('name')) {
+        if ($s = $request->input('name')) {
             $postModel->where('users.name', $s);
         }
 
-        if ($s = $request->get('post_id')) {
+        if ($s = $request->input('post_id')) {
             $postModel->where('posts.id', $s);
         }
 
-        if ($s = $request->get('title')) {
+        if ($s = $request->input('title')) {
             $postModel->where('posts.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
         // 통합 검색
-        if ($s = $request->get('multi_search')) {
+        if ($s = $request->input('multi_search')) {
             $postModel->where(function ($q) use ($s) {
                 $q->orWhere('users.name', $s);
 
@@ -486,9 +497,8 @@ class BoardController extends Controller
         $res['header'] = [];
         $res['list'] = $collect;
 
-        return CollectionLibrary::toCamelCase(collect($res));
+        return collect($res);
     }
-
 
 
     /**
@@ -513,13 +523,16 @@ class BoardController extends Controller
      *          @OA\JsonContent()
      *      )
      *  )
+     * @param UpdateBoardSortRequest $request
+     * @param $id
+     * @return Response
      */
-    public function updateBoardSort(UpdateBoardSortRequest $request, $id)
+    public function updateBoardSort(UpdateBoardSortRequest $request, $id): Response
     {
         // 타겟 게시판 고유 번호
-        $target = $request->get('target');
+        $target = $request->input('target');
         // 타겟 게시판의 어느 방향 위치 할지
-        $d = $request->get('direction');
+        $d = $request->input('direction');
 
         $selectBoardModel = $this->board->findOrFail($id);
         $targetBoardModel = $this->board->findOrFail($target);
@@ -528,7 +541,7 @@ class BoardController extends Controller
         $targetSort = $targetBoardModel->sort;
 
 
-        if ($selectBoardModel->sort < $targetBoardModel->sort) {
+        if ($selectSort < $targetSort) {
             $targetSort -= $d == 'bottom' ? 0 : 1;
             $changeSort = -1;
 

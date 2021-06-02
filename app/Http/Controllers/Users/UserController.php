@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Users;
 
-
 use App\Events\Member\VerifyEmail;
 use App\Events\Member\VerifyEmailCheck;
 use App\Exceptions\QpickHttpException;
@@ -18,7 +17,6 @@ use App\Http\Requests\Members\ShowRequest;
 use App\Http\Requests\Members\StoreRequest;
 use App\Http\Requests\Members\UpdateRequest;
 use App\Jobs\SendMail;
-use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
 use App\Models\SignedCode;
@@ -35,7 +33,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 
-
 class UserController extends Controller
 {
     protected User $user;
@@ -44,7 +41,8 @@ class UserController extends Controller
     /**
      * Create a new AuthController instance.
      *
-     * @return void
+     * @param User $user
+     * @param SignedCode $signedCode
      */
     public function __construct(User $user, SignedCode $signedCode)
     {
@@ -95,43 +93,43 @@ class UserController extends Controller
         $user = $this->user::with(['advAgree', 'solutions']);
 
         // set search conditions
-        if ($s = $request->get('start_created_date')) {
+        if ($s = $request->input('start_created_date')) {
             $s = Carbon::parse($s);
             $user->where('created_at', '>=', $s);
         }
 
-        if ($s = $request->get('end_created_date')) {
+        if ($s = $request->input('end_created_date')) {
             $s = Carbon::parse($s);
             $user->where('created_at', '<=', $s);
         }
 
-        if ($s = $request->get('start_registered_date')) {
+        if ($s = $request->input('start_registered_date')) {
             $s = Carbon::parse($s);
             $user->where('registered_at', '>=', $s);
         }
 
-        if ($s = $request->get('end_registered_date')) {
+        if ($s = $request->input('end_registered_date')) {
             $s = Carbon::parse($s);
             $user->where('registered_at', '<=', $s);
         }
 
-        if (strlen($s = $request->get('grade'))) {
+        if (strlen($s = $request->input('grade'))) {
             $user->where('grade', $s);
         }
 
-        if ($s = $request->get('id')) {
+        if ($s = $request->input('id')) {
             $user->where('id', $s);
         }
 
-        if ($s = $request->get('email')) {
+        if ($s = $request->input('email')) {
             $user->where('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
-        if ($s = $request->get('name')) {
+        if ($s = $request->input('name')) {
             $user->where('name', $s);
         }
 
-        if ($s = $request->get('multi_search')) {
+        if ($s = $request->input('multi_search')) {
             // 통합검색
             $user->where(function ($q) use ($s) {
                 $q->orWhere('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
@@ -155,7 +153,7 @@ class UserController extends Controller
             'list' => $data ?? []
         ];
 
-        return CollectionLibrary::toCamelCase(collect($result));
+        return collect($result);
     }
 
 
@@ -199,7 +197,7 @@ class UserController extends Controller
         }
 
         $data = $this->getOne($id);
-        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 200);
+        return response()->json(collect($data));
     }
 
     /**
@@ -242,17 +240,17 @@ class UserController extends Controller
     public function store(StoreRequest $request): JsonResponse
     {
         // 비밀번호 체크
-        $this->chkCorrectPasswordPattern($request->password, $request->email);
+        $this->chkCorrectPasswordPattern($request->input('password'), $request->input('email'));
 
         $this->user = $this->user::create(array_merge(
             $request->all(),
-            ['password' => hash::make($request->password)]
+            ['password' => hash::make($request->input('password'))]
         ));
 
         $member = $this->getOne($this->user->id);
         VerifyEmail::dispatch($member);
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($member)), 201);
+        return response()->json(collect($member), 201);
     }
 
 
@@ -305,7 +303,7 @@ class UserController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        if (!$this::chkPasswordMatched($request->password)) {
+        if (!$this::chkPasswordMatched($request->input('password'))) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
@@ -314,7 +312,7 @@ class UserController extends Controller
 
         //response
         $data = $this->getOne($id);
-        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
+        return response()->json(collect($data), 201);
     }
 
     /**
@@ -401,12 +399,12 @@ class UserController extends Controller
     public function resendVerificationEmail(Request $request): Response
     {
         // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
-        if (!VerifyEmailCheck::dispatch(auth()->user())) {
+        if (!VerifyEmailCheck::dispatch(Auth::user())) {
             throw new QpickHttpException(422, 'email.too_many_send');
         }
 
         // // 이미 인증된 회원입니다.
-        if (!VerifyEmail::dispatch(auth()->user())) {
+        if (!VerifyEmail::dispatch(Auth::user())) {
             throw new QpickHttpException(422, 'email.already_verified');
         }
 
@@ -443,12 +441,12 @@ class UserController extends Controller
      */
     public function verification(Request $request): JsonResponse
     {
-        $signCode = SignedCode::getBySignCode($request->id, $request->hash, $request->signature)->select('id')->first();
+        $signCode = SignedCode::getBySignCode($request->input('id'), $request->input('hash'), $request->input('signature'))->select('id')->first();
 
         // 가상 서명키 유효성 체크
         if ($request->hasValidSignature() && $signCode && $signCode['id']) {
 
-            $member = $this->user::find($request->id);
+            $member = $this->user::find($request->input('id'));
 
             // 인증되지 않은 경우
             if (is_null($member->email_verified_at)) {
@@ -465,7 +463,7 @@ class UserController extends Controller
             throw new QpickHttpException(422, 'email.incorrect');
         }
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($member)));
+        return response()->json(collect($member));
     }
 
 
@@ -510,7 +508,7 @@ class UserController extends Controller
      */
     public function checkPassword(CheckPwdMemberRequest $request): Response
     {
-        if (!$this::chkPasswordMatched($request->password)) {
+        if (!$this::chkPasswordMatched($request->input('password'))) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
@@ -563,20 +561,20 @@ class UserController extends Controller
     public function modifyPassword(ModifyMemberPwdRequest $request): Response
     {
         // 현재 패스워드 체크
-        if (!$this::chkPasswordMatched($request->password)) {
+        if (!$this::chkPasswordMatched($request->input('password'))) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
         // 기존 비밀번호와 변경할 비밀번호가 같을 경우
-        if (hash::check($request->change_password, auth()->user()->password)) {
+        if (hash::check($request->input('change_password'), Auth::user()->password)) {
             throw new QpickHttpException(422, 'user.password.reuse');
         }
 
         // 비밀번호 체크
-        $this->chkCorrectPasswordPattern($request->change_password, auth()->user()->email);
+        $this->chkCorrectPasswordPattern($request->input('change_password'), Auth::user()->email);
 
-        $member = auth()->user();
-        $member->password = hash::make($request->change_password);
+        $member = Auth::user();
+        $member->setAttribute('password', hash::make($request->input('change_password')));
         $member->save();
 
         return response()->noContent();
@@ -617,10 +615,10 @@ class UserController extends Controller
     public function passwordResetSendLink(PasswordResetSendLinkRequest $request): Response
     {
         // 회원 정보
-        $member = $this->user::where('email', $request->email)->first();
+        $member = $this->user::where('email', $request->input('email'))->first();
 
         $verifyToken = Password::createToken($member);
-        $verifyUrl = config('services.qpick.domain') . config('services.qpick.verifyPasswordPath') . '?token=' . $verifyToken . "&email=" . $request->email;
+        $verifyUrl = config('services.qpick.domain') . config('services.qpick.verifyPasswordPath') . '?token=' . $verifyToken . "&email=" . $request->input('email');
 
         $member = $member->toArray();
 
@@ -684,17 +682,17 @@ class UserController extends Controller
     public function changePwdVerification(CheckChangePwdAuthRequest $request): Response
     {
         // 비밀번호 재설정 Token 발행여부 체크
-        $res = DB::table('password_resets')->where('email', $request->email)->first();
+        $res = DB::table('password_resets')->where('email', $request->input('email'))->first();
         if (!$res) {
             // 일치하는 정보가 없습니다.
             throw new QpickHttpException(404, 'common.not_found');
         }
 
         // 회원정보
-        $member = $this->user::where('email', $request->email)->first();
+        $member = $this->user::where('email', $request->input('email'))->first();
 
         // Token 유효성 체크
-        if (!Password::tokenExists($member, $request->token)) {
+        if (!Password::tokenExists($member, $request->input('token'))) {
             throw new QpickHttpException(422, 'auth.incorrect_timeout');
         }
 
@@ -744,28 +742,28 @@ class UserController extends Controller
     public function passwordReset(PasswordResetRequest $request): Response
     {
         // 비밀번호 재설정 Token 발행여부 체크
-        $res = DB::table('password_resets')->where('email', $request->email)->first();
+        $res = DB::table('password_resets')->where('email', $request->input('email'))->first();
         if (!$res) {
             throw new QpickHttpException(404, 'common.not_found');
         }
 
         // 회원정보
-        $member = $this->user::where('email', $request->email)->first();
+        $member = $this->user::where('email', $request->input('email'))->first();
 
         // Token 유효성 체크
-        if (!Password::tokenExists($member, $request->token)) {
+        if (!Password::tokenExists($member, $request->input('token'))) {
             throw new QpickHttpException(422, 'auth.incorrect_timeout');
         }
 
         // 비밀번호 체크
-        $this->chkCorrectPasswordPattern($request->password, $request->email);
+        $this->chkCorrectPasswordPattern($request->input('password'), $request->input('email'));
 
         // 비밀번호 변경
-        $member->password = hash::make($request->password);
+        $member->password = hash::make($request->input('password'));
         $member->save();
 
         // 비밀번호 변경 Token 삭제
-        DB::table('password_resets')->where('email', $request->email)->delete();
+        DB::table('password_resets')->where('email', $request->input('email'))->delete();
 
         return response()->noContent();
     }

@@ -15,7 +15,7 @@ class UserAdvAgreeController extends Controller
      * @param AdvAgreeUpdateRequest $req
      * @return UserAdvAgree
      */
-    public function update(int $user_id, AdvAgreeUpdateRequest $req): UserAdvAgree
+    public function update(AdvAgreeUpdateRequest $req, int $user_id): UserAdvAgree
     {
         // delete
         UserAdvAgree::where('user_id', $user_id)->delete();
