@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserAdvAgreeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MemberController;
@@ -52,6 +53,9 @@ Route::group([
         Route::post('/auth', [AccessTokenController::class, 'store'])->withoutmiddleware('auth:api');
         Route::get('/auth', [AccessTokenController::class, 'show']);
         Route::delete('/auth', [AccessTokenController::class, 'destroy']);
+
+        // 광고성정보 수신동의 여부 CD (동의 및 거부)
+        Route::patch('/{user_id}/advAgree', [UserAdvAgreeController::class, 'update']);
     });
 
     /**
