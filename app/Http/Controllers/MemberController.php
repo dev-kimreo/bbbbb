@@ -2,52 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\PaginationLibrary;
-use App\Libraries\StringLibrary;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-
-use Illuminate\Support\Carbon;
-use Hash;
-
-use App\Models\User;
-use App\Models\SignedCode;
 
 use App\Events\Member\VerifyEmail;
 use App\Events\Member\VerifyEmailCheck;
-
+use App\Exceptions\QpickHttpException;
+use App\Http\Requests\Members\CheckChangePwdAuthRequest;
+use App\Http\Requests\Members\CheckPwdMemberRequest;
 use App\Http\Requests\Members\IndexRequest;
+use App\Http\Requests\Members\ModifyMemberPwdRequest;
+use App\Http\Requests\Members\PasswordResetRequest;
+use App\Http\Requests\Members\PasswordResetSendLinkRequest;
 use App\Http\Requests\Members\ShowRequest;
 use App\Http\Requests\Members\StoreRequest;
 use App\Http\Requests\Members\UpdateRequest;
-
-
-use App\Http\Requests\Members\CheckPwdMemberRequest;
-use App\Http\Requests\Members\ModifyMemberPwdRequest;
-use App\Http\Requests\Members\PasswordResetSendLinkRequest;
-use App\Http\Requests\Members\CheckChangePwdAuthRequest;
-use App\Http\Requests\Members\PasswordResetRequest;
-
-use App\Exceptions\QpickHttpException;
-
-use Config;
-use Illuminate\Http\Response;
-use Illuminate\Support\Collection;
-use URL;
-use DB;
-use RedisManager;
-use Cache;
-use Password;
-
 use App\Jobs\SendMail;
-
 use App\Libraries\CollectionLibrary;
+use App\Libraries\PaginationLibrary;
+use App\Libraries\StringLibrary;
+use App\Models\SignedCode;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 
 class MemberController extends Controller
 {
-    private $user, $signedCode;
+    protected User $user;
+    protected SignedCode $signedCode;
 
     /**
      * Create a new AuthController instance.
@@ -206,8 +194,8 @@ class MemberController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        $data = $this->user::with(['advAgree', 'solutions'])->findOrFail($id);
-        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
+        $data = $this->getOne($id);
+        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 200);
     }
 
     /**
@@ -248,14 +236,14 @@ class MemberController extends Controller
     public function store(StoreRequest $request)
     {
         // 비밀번호 체크
-        $checkPwdRes = $this->checkPasswordPattern($request->password, $request->email);
+        $checkPwdRes = $this->chkCorrectPasswordPattern($request->password, $request->email);
 
         $this->user = $this->user::create(array_merge(
             $request->all(),
             ['password' => hash::make($request->password)]
         ));
         
-        $member = $this->user->with(['advAgree', 'solutions'])->find($this->user->id);
+        $member = $this->getOne($this->user->id);
         VerifyEmail::dispatch($member);
 
         return response()->json(CollectionLibrary::toCamelCase(collect($member)), 201);
@@ -307,7 +295,7 @@ class MemberController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        if (!$this::funcCheckPassword($request->password)) {
+        if (!$this::chkPasswordMatched($request->password)) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
@@ -315,7 +303,7 @@ class MemberController extends Controller
         $member->name = $request->name;
         $member->save();
 
-        $member = $member->with(['advAgree', 'solutions'])->find($member->id);
+        $member = $this->getOne($member->id);
 
         return response()->json(CollectionLibrary::toCamelCase(collect($member)), 201);
     }
@@ -355,7 +343,7 @@ class MemberController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        if (!$this::funcCheckPassword($request->input('password'))) {
+        if (!$this::chkPasswordMatched($request->input('password'))) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
@@ -508,7 +496,7 @@ class MemberController extends Controller
      */
     public function checkPassword(CheckPwdMemberRequest $request)
     {
-        if (!$this::funcCheckPassword($request->password)) {
+        if (!$this::chkPasswordMatched($request->password)) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
@@ -560,7 +548,7 @@ class MemberController extends Controller
     public function modifyPassword(ModifyMemberPwdRequest $request)
     {
         // 현재 패스워드 체크
-        if (!$this::funcCheckPassword($request->password)) {
+        if (!$this::chkPasswordMatched($request->password)) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
@@ -570,7 +558,7 @@ class MemberController extends Controller
         }
 
         // 비밀번호 체크
-        $this->checkPasswordPattern($request->changePassword, auth()->user()->email);
+        $this->chkCorrectPasswordPattern($request->changePassword, auth()->user()->email);
 
         $member = auth()->user();
         $member->password = hash::make($request->changePassword);
@@ -752,7 +740,7 @@ class MemberController extends Controller
         }
 
         // 비밀번호 체크
-        $this->checkPasswordPattern($request->password, $request->email);
+        $this->chkCorrectPasswordPattern($request->password, $request->email);
 
         // 비밀번호 변경
         $member->password = hash::make($request->password);
@@ -768,9 +756,12 @@ class MemberController extends Controller
     /**
      * 비밀번호 패턴 체크 함수
      *
-     * @return
+     * @param string $pwd
+     * @param string|null $email
+     * @return bool
+     * @throws QpickHttpException
      */
-    static function checkPasswordPattern(string $pwd, string $email = null)
+    static function chkCorrectPasswordPattern(string $pwd, string $email = null): bool
     {
         /**
          * 비밀번호 패턴 체크
@@ -797,15 +788,27 @@ class MemberController extends Controller
         return true;
     }
 
-    static function funcCheckPassword($pwd)
+    /**
+     * 비밀번호 일치여부 확인 함수
+     *
+     * @param $pwd
+     * @return bool
+     */
+    static function chkPasswordMatched($pwd): bool
     {
-        if (!hash::check($pwd, auth()->user()->password)) {
-            return false;
-        }
-
-        return true;
+        return hash::check($pwd, Auth::user()->password);
     }
 
+    protected function getOne(int $id)
+    {
+        $user = $this->user->with(['advAgree', 'solutions'])->findOrFail($id);
+
+        if (Auth::user()->isLoginToManagerService()) {
+            $user->makeVisible(['memo_for_managers']);
+        }
+
+        return $user;
+    }
 
     public function test(Request $request)
     {
