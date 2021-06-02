@@ -293,11 +293,15 @@ class UserController extends Controller
     /**
      * 회원 정보 수정
      *
+     * @param int $id
+     * @param UpdateRequest $request
      * @return JsonResponse
+     * @throws QpickHttpException
      */
-    public function update(UpdateRequest $request, $id)
+    public function update(int $id, UpdateRequest $request): JsonResponse
     {
-        if ($id != Auth::user()->id) {
+        // validate
+        if ($id != Auth::id()) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
@@ -305,13 +309,12 @@ class UserController extends Controller
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
-        $member = Auth::user();
-        $member->name = $request->name;
-        $member->save();
+        // update
+        User::find($id)->fill($request->toArray())->save();
 
-        $member = $this->getOne($member->id);
-
-        return response()->json(CollectionLibrary::toCamelCase(collect($member)), 201);
+        //response
+        $data = $this->getOne($id);
+        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
     }
 
     /**
