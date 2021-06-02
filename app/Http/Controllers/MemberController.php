@@ -2,52 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\PaginationLibrary;
-use App\Libraries\StringLibrary;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-
-use Illuminate\Support\Carbon;
-use Hash;
-
-use App\Models\User;
-use App\Models\SignedCode;
 
 use App\Events\Member\VerifyEmail;
 use App\Events\Member\VerifyEmailCheck;
-
+use App\Exceptions\QpickHttpException;
+use App\Http\Requests\Members\CheckChangePwdAuthRequest;
+use App\Http\Requests\Members\CheckPwdMemberRequest;
 use App\Http\Requests\Members\IndexRequest;
+use App\Http\Requests\Members\ModifyMemberPwdRequest;
+use App\Http\Requests\Members\PasswordResetRequest;
+use App\Http\Requests\Members\PasswordResetSendLinkRequest;
 use App\Http\Requests\Members\ShowRequest;
 use App\Http\Requests\Members\StoreRequest;
 use App\Http\Requests\Members\UpdateRequest;
-
-
-use App\Http\Requests\Members\CheckPwdMemberRequest;
-use App\Http\Requests\Members\ModifyMemberPwdRequest;
-use App\Http\Requests\Members\PasswordResetSendLinkRequest;
-use App\Http\Requests\Members\CheckChangePwdAuthRequest;
-use App\Http\Requests\Members\PasswordResetRequest;
-
-use App\Exceptions\QpickHttpException;
-
-use Config;
-use Illuminate\Http\Response;
-use Illuminate\Support\Collection;
-use URL;
-use DB;
-use RedisManager;
-use Cache;
-use Password;
-
 use App\Jobs\SendMail;
-
 use App\Libraries\CollectionLibrary;
+use App\Libraries\PaginationLibrary;
+use App\Libraries\StringLibrary;
+use App\Models\SignedCode;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 
 class MemberController extends Controller
 {
-    private $user, $signedCode;
+    protected User $user;
+    protected SignedCode $signedCode;
 
     /**
      * Create a new AuthController instance.
