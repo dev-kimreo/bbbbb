@@ -2,21 +2,14 @@
 
 namespace App\Http\Controllers\Boards;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
-use Auth;
-use Cache;
-
-use App\Exceptions\QpickHttpException;
-
 use App\Libraries\CollectionLibrary;
-
 use App\Services\BoardService;
-
+use Illuminate\Support\Collection;
 
 class OptionController extends Controller
 {
+    private BoardService $boardService;
 
     public function __construct(BoardService $boardService)
     {
@@ -46,7 +39,7 @@ class OptionController extends Controller
     /**
      * 게시판 옵션 정보
      */
-    public function index()
+    public function index(): Collection
     {
         // response init
         $res = [];

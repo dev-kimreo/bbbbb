@@ -3,26 +3,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Auth;
-use Cache;
-use Storage;
-use Artisan;
-
-use App\Models\AttachFile;
-
+use App\Exceptions\QpickHttpException;
 use App\Http\Requests\Attaches\StoreRequest;
 use App\Http\Requests\Attaches\UpdateRequest;
-
-use App\Exceptions\QpickHttpException;
-
-use App\Libraries\CollectionLibrary;
-
+use App\Models\AttachFile;
 use App\Services\AttachService;
-
-
 use Illuminate\Database\Eloquent\Relations\Relation;
-
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class AttachController
@@ -30,7 +21,8 @@ use Illuminate\Database\Eloquent\Relations\Relation;
  */
 class AttachController extends Controller
 {
-    private $attach, $attachService;
+    private AttachService $attachService;
+    private AttachFile $attach;
 
     public function __construct(AttachFile $attach, AttachService $attachService)
     {
@@ -78,7 +70,7 @@ class AttachController extends Controller
      *  )
      */
     /**
-     * @param Request $request
+     * @param StoreRequest $request
      * @return mixed
      */
     public function store(StoreRequest $request)
@@ -101,20 +93,23 @@ class AttachController extends Controller
             $path = pathInfo(str_replace(config('filesystems.disks.public.url') . '/', '', $url))['dirname'];
 
             // 저장
-            $this->attach->server = 'public';
-            $this->attach->attachable_type = $this->attachService->tempDir;
-            $this->attach->attachable_id = 0;
-            $this->attach->user_id = auth()->user() ? auth()->user()->id : 0;
-            $this->attach->url = $url;
-            $this->attach->path = $path;
-            $this->attach->name = $pathInfo['basename'];
-            $this->attach->org_name = $f['orgName'];
-            $this->attach->save();
+            $insertArr = [
+                'server' => 'public',
+                'attachable_type' => $this->attachService->tempDir,
+                'attachable_id' => 0,
+                'user_id' => Auth::user() ? Auth::id() : 0,
+                'url' => $url,
+                'path' => $path,
+                'name' => $pathInfo['basename'],
+                'org_name' => $f['orgName']
+            ];
+
+            $this->attach = $this->attach->create($insertArr);
         }
 
         $this->attach->refresh();
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($this->attach)), 201);
+        return response()->json(collect($this->attach), 201);
     }
 
 
@@ -165,8 +160,12 @@ class AttachController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
+     * @param $id
+     * @param UpdateRequest $request
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
-    public function update($id, UpdateRequest $request)
+    public function update(UpdateRequest $request, $id): JsonResponse
     {
         // Attach find
         $attachCollect = $this->attach->where(['id' => $id, 'attachable_type' => 'temp'])->first();
@@ -180,12 +179,12 @@ class AttachController extends Controller
 
 
         // type check
-        $typeModel = Relation::getMorphedModel($request->type);
+        $typeModel = Relation::getMorphedModel($request->input('type'));
         if (!$typeModel) {
             throw new QpickHttpException(422, 'common.not_found', 'type');
         }
         $typeModel = '\\' . $typeModel;
-        $typeCollect = $typeModel::find($request->type_id);
+        $typeCollect = $typeModel::find($request->input('type_id'));
 
         if ($request->has('thumbnail')) {
             $typeCollect = $typeCollect->thumbnail()->firstOrCreate();
@@ -240,11 +239,13 @@ class AttachController extends Controller
     /**
      * 단일 첨부파일 삭제
      * @param Request $request
-     * @return bool|null
+     * @param $id
+     * @return Response
+     * @throws QpickHttpException
      */
-    public function delete($id, Request $request)
+    public function delete(Request $request, $id): Response
     {
-        $this->attachService->delete([$request->id]);
+        $this->attachService->delete([$id]);
 
         return response()->noContent();
     }
@@ -252,7 +253,7 @@ class AttachController extends Controller
 
     public function test(Request $request)
     {
-////        // temp 파일 리얼 type쪽으로 이동
+////        // temp 파일 리얼 type 쪽으로 이동
 //        $this->move('board', 125, [
 //            "http://local-api.qpicki.com/storage/temp/dfd62b726f09810c958bf7df0e60df5e.jpg",
 //        ]);

@@ -2,24 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-
-use Auth;
-use Hash;
-use Exception;
 use App\Exceptions\QpickHttpException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use League\OAuth2\Server\Exception\OAuthServerException;
-use Psr\Http\Message\ServerRequestInterface;
-use Response;
-use Validator;
+use App\Models\User;
+use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Laravel\Passport\Http\Controllers\AccessTokenController as ATC;
-use App\Libraries\CollectionLibrary;
+use Psr\Http\Message\ServerRequestInterface;
 
 class AccessTokenController extends ATC
 {
+    private User $user;
 
-    public function store(ServerRequestInterface $request, User $user)
+    public function store(ServerRequestInterface $request, User $user): Response
     {
         $this->user = $user;
         return $this->issueToken($request);
@@ -67,15 +65,19 @@ class AccessTokenController extends ATC
      *          description="failed login"
      *      )
      *  )
+     * @param ServerRequestInterface $request
+     * @return Response
+     * @throws QpickHttpException
+     * @throws ValidationException
      */
-    public function issueToken(ServerRequestInterface $request)
+    public function issueToken(ServerRequestInterface $request): Response
     {
 
         // Getting the body of request
         $requestBody = $request->getParsedBody();
 
         // Validation
-        $validator = Validator::make($requestBody, [
+        Validator::make($requestBody, [
             'username' => 'required|email',
             'password' => 'required|string|min:8',
             'grant_type' => 'required',
@@ -129,8 +131,9 @@ class AccessTokenController extends ATC
      *      }}
      *  )
      */
-    public function show() {
-        return CollectionLibrary::toCamelCase(collect(Auth::user()));
+    public function show(): Collection
+    {
+        return collect(Auth::user());
     }
 
 
@@ -158,14 +161,14 @@ class AccessTokenController extends ATC
     /**
      * 로그아웃
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return Response
      */
-    public function destroy()
+    public function destroy(): Response
     {
         // 엑세스 토큰 제거
         Auth::user()->token()->revoke();
 
-        // refesh token revoke
+        // refresh token revoke
 //        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
 //        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId(auth()->user()->token()->id);
 

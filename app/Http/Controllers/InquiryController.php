@@ -9,7 +9,6 @@ use App\Http\Requests\Inquiries\DestroyRequest;
 use App\Http\Requests\Inquiries\IndexRequest;
 use App\Http\Requests\Inquiries\ShowRequest;
 use App\Http\Requests\Inquiries\UpdateRequest;
-use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
 use App\Models\Inquiry;
@@ -17,6 +16,7 @@ use App\Models\InquiryAnswer;
 use App\Models\User;
 use App\Services\AttachService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -94,6 +94,8 @@ class InquiryController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
+     * @param CreateRequest $request
+     * @return JsonResponse
      */
     public function store(CreateRequest $request): JsonResponse
     {
@@ -102,16 +104,16 @@ class InquiryController extends Controller
         $inquiry->timestamps = false;
 
         // 데이터 가공
-        $inquiry->setAttribute('user_id', Auth::id());
-        $inquiry->setAttribute('title', $request->input('title'));
-        $inquiry->setAttribute('question', $request->input('question'));
-        $inquiry->setAttribute('assignee_id', $request->input('assignee_id'));
-        $inquiry->setAttribute('created_at', Carbon::now());
+        $inquiry->user_id = Auth::id();
+        $inquiry->title = $request->input('title');
+        $inquiry->question = $request->input('question');
+        $inquiry->assignee_id = $request->input('assignee_id');
+        $inquiry->created_at = Carbon::now();
         $inquiry->save();
 
         // Response
         $data = $this->getOne($inquiry->id);
-        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
+        return response()->json(collect($data), 201);
     }
 
 
@@ -189,6 +191,8 @@ class InquiryController extends Controller
      *          "admin_auth":{}
      *      }}
      *  )
+     * @param IndexRequest $request
+     * @return Collection
      */
     public function index(IndexRequest $request): Collection
     {
@@ -208,25 +212,25 @@ class InquiryController extends Controller
             $inquiry->where('inquiries.user_id', Auth::id());
         }
 
-        if ($s = $request->get('id')) {
+        if ($s = $request->input('id')) {
             $inquiry->where('inquiries.id', $s);
         }
 
-        if ($s = $request->get('status')) {
+        if ($s = $request->input('status')) {
             $inquiry->where('inquiries.status', $s);
         }
 
-        if ($s = $request->get('start_date')) {
+        if ($s = $request->input('start_date')) {
             $s = Carbon::parse($s);
             $inquiry->where('inquiries.created_at', '>=', $s);
         }
 
-        if ($s = $request->get('end_date')) {
+        if ($s = $request->input('end_date')) {
             $s = Carbon::parse($s)->setTime(23, 59, 59);
             $inquiry->where('inquiries.created_at', '<=', $s);
         }
 
-        if ($s = $request->get('multi_search')) {
+        if ($s = $request->input('multi_search')) {
             // 통합검색
             $inquiry->join('users as users_ms', 'inquiries.user_id', '=', 'users_ms.id');
             $inquiry->leftJoin('users as assignees_ms', 'inquiries.assignee_id', '=', 'assignees_ms.id');
@@ -243,37 +247,37 @@ class InquiryController extends Controller
             });
         }
 
-        if ($s = $request->get('title')) {
+        if ($s = $request->input('title')) {
             $inquiry->where('inquiries.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
-        if ($s = $request->get('user_id')) {
+        if ($s = $request->input('user_id')) {
             $inquiry->where('inquiries.user_id', $s);
         }
 
-        if ($request->get('user_email') || $request->get('user_name')) {
+        if ($request->input('user_email') || $request->input('user_name')) {
             $inquiry->join('users', 'inquiries.user_id', '=', 'users.id');
 
-            if ($s = $request->get('user_email')) {
+            if ($s = $request->input('user_email')) {
                 $inquiry->where('users.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
             }
 
-            if ($s = $request->get('user_name')) {
+            if ($s = $request->input('user_name')) {
                 $inquiry->where('users.name', $s);
             }
         }
 
-        if ($s = $request->get('assignee_id')) {
+        if ($s = $request->input('assignee_id')) {
             $inquiry->where('inquiries.assignee_id', $s);
         }
 
-        if ($s = $request->get('assignee_name')) {
+        if ($s = $request->input('assignee_name')) {
             $inquiry->join('users as assignees', 'inquiries.assignee_id', '=', 'assignees.id');
             $inquiry->where('assignees.name', $s);
         }
 
         // Set Pagination Information
-        $pagination = PaginationLibrary::set($request->page, $inquiry->count(), $request->per_page);
+        $pagination = PaginationLibrary::set($request->input('page'), $inquiry->count(), $request->input('per_page'));
 
         // Get Data from DB
         $data = $inquiry->skip($pagination['skip'])->take($pagination['perPage'])->get();
@@ -301,7 +305,7 @@ class InquiryController extends Controller
             'list' => $data ?? []
         ];
 
-        return CollectionLibrary::toCamelCase(collect($result));
+        return collect($result);
     }
 
 
@@ -347,8 +351,12 @@ class InquiryController extends Controller
      *          "admin_auth":{}
      *      }}
      *  )
+     * @param int $id
+     * @param ShowRequest $request
+     * @return Collection
+     * @throws QpickHttpException
      */
-    public function show(int $id, ShowRequest $request): Collection
+    public function show(ShowRequest $request, int $id): Collection
     {
         // Get Data from DB
         $data = $this->getOne($id);
@@ -361,7 +369,7 @@ class InquiryController extends Controller
         }
 
         // Response
-        return CollectionLibrary::toCamelCase(collect($data));
+        return collect($data);
     }
 
 
@@ -422,8 +430,12 @@ class InquiryController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
+     * @param int $id
+     * @param UpdateRequest $request
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
-    public function update(int $id, UpdateRequest $request)
+    public function update(int $id, UpdateRequest $request): JsonResponse
     {
         // Get Data from DB
         $inquiry = Inquiry::findOrFail($id);
@@ -434,15 +446,15 @@ class InquiryController extends Controller
         }
 
         // Save Data
-        $inquiry->title = $request->title ?? $inquiry->title;
-        $inquiry->question = $request->question ?? $inquiry->question;
-        $inquiry->assignee_id = $request->assignee_id ?? $inquiry->assignee_id;
-        $inquiry->referrer_id = $request->referrer_id ?? $inquiry->referrer_id;
+        $inquiry->title = $request->input('title', $inquiry->title);
+        $inquiry->question = $request->input('question', $inquiry->question);
+        $inquiry->assignee_id = $request->input('assignee_id', $inquiry->assignee_id);
+        $inquiry->referrer_id = $request->input('referrer_id', $inquiry->referrer_id);
         $inquiry->save();
 
         // Response
         $data = $this->getOne($id);
-        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
+        return response()->json(collect($data), 201);
     }
 
 
@@ -469,8 +481,12 @@ class InquiryController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
+     * @param int $id
+     * @param DestroyRequest $request
+     * @return Response
+     * @throws QpickHttpException
      */
-    public function destroy(int $id, DestroyRequest $request)
+    public function destroy(DestroyRequest $request, int $id): Response
     {
         // Get Data from DB
         $inquiry = Inquiry::where('id', $id)->first();

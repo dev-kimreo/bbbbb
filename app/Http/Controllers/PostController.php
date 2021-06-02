@@ -3,34 +3,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\StringLibrary;
-use App\Models\AttachFile;
-use App\Models\Reply;
-use App\Models\User;
-use App\Models\Post;
-use App\Models\Board;
-
-use Illuminate\Http\Request;
-use Auth;
-use Cache;
-use Carbon\Carbon;
-use Str;
-use DB;
-use Gate;
-
-
+use App\Exceptions\QpickHttpException;
+use App\Http\Requests\Posts\DestroyRequest;
+use App\Http\Requests\Posts\GetListRequest;
+use App\Http\Requests\Posts\IndexRequest;
 use App\Http\Requests\Posts\StoreRequest;
 use App\Http\Requests\Posts\UpdateRequest;
-use App\Http\Requests\Posts\DestroyRequest;
-use App\Http\Requests\Posts\IndexRequest;
-use App\Http\Requests\Posts\GetListRequest;
-
-use App\Exceptions\QpickHttpException;
-
-use App\Libraries\PaginationLibrary;
 use App\Libraries\CollectionLibrary;
-
+use App\Libraries\PaginationLibrary;
+use App\Libraries\StringLibrary;
+use App\Models\AttachFile;
+use App\Models\Board;
+use App\Models\Post;
+use App\Models\Reply;
+use App\Models\User;
 use App\Services\AttachService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Class PostController
@@ -38,6 +31,10 @@ use App\Services\AttachService;
  */
 class PostController extends Controller
 {
+    private Post $post;
+    private Board $board;
+    private AttachService $attachService;
+
     public function __construct(Post $post, Board $board, AttachService $attachService)
     {
         $this->post = $post;
@@ -88,34 +85,33 @@ class PostController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
+     * @param StoreRequest $request
+     * @param $boardId
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
 
-    /**
-     * 게시글 작성
-     * @param StoreRequest $request
-     * @return mixed
-     */
-    public function store(StoreRequest $request, $boardId)
+    public function store(StoreRequest $request, $boardId): JsonResponse
     {
         // 게시판 정보
         $this->board = $this->board->findOrFail($boardId);
 
         // check write post Policy
-        if (!auth()->user()->can('create', [$this->post, $this->board])) {
+        if (!Auth::user()->can('create', [$this->post, $this->board])) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
         // 게시글 작성
         $this->post->board_id = $boardId;
-        $this->post->user_id = auth()->user()->id;
-        $this->post->title = $request->title;
-        $this->post->content = $request->content;
+        $this->post->user_id = Auth::id();
+        $this->post->title = $request->input('title');
+        $this->post->content = $request->input('content');
 
         $this->post->save();
 
         $this->post->refresh();
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($this->post)), 201);
+        return response()->json(collect($this->post), 201);
     }
 
 
@@ -160,13 +156,14 @@ class PostController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
+     * @param UpdateRequest $request
+     * @param $boardId
+     * @param $id
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
 
-    /**
-     * @param UpdateRequest $request
-     * @return mixed
-     */
-    public function update(UpdateRequest $request, $boardId, $id)
+    public function update(UpdateRequest $request, $boardId, $id): JsonResponse
     {
         $this->post = $this->post->where('board_id', $boardId)->findOrFail($id);
 
@@ -175,16 +172,12 @@ class PostController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        $this->post->title = $request->title ?? $this->post->title;
-        $this->post->content = $request->content ?? $this->post->content;
-        $this->post->sort = $request->sort ?? $this->post->sort;
+        $this->post->title = $request->input('title', $this->post->title);
+        $this->post->content = $request->input('content', $this->post->content);
+        $this->post->sort = $request->input('sort', $this->post->sor);
+        $this->post->save();
 
-        // 변경사항이 있을 경우
-        if ($this->post->isDirty()) {
-            $this->post->save();
-        }
-
-        return response()->json(CollectionLibrary::toCamelCase(collect($this->post)), 201);
+        return response()->json(collect($this->post), 201);
     }
 
 
@@ -215,13 +208,14 @@ class PostController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
+     * @param DestroyRequest $request
+     * @param $boardId
+     * @param $id
+     * @return Response
+     * @throws QpickHttpException
      */
 
-    /**
-     * @param DestroyRequest $request
-     * @return mixed
-     */
-    public function destroy(DestroyRequest $request, $boardId, $id)
+    public function destroy(DestroyRequest $request, $boardId, $id): Response
     {
         $this->post = $this->post->where('board_id', $boardId)->findOrfail($id);
 
@@ -291,12 +285,12 @@ class PostController extends Controller
      *          description="failed"
      *      ),
      *  )
-     */
-    /**
      * @param IndexRequest $request
-     * @return mixed
+     * @param $boardId
+     * @return Collection
+     * @throws QpickHttpException
      */
-    public function index(IndexRequest $request, $boardId)
+    public function index(IndexRequest $request, $boardId): Collection
     {
         $res = [];
         $res['header'] = [];
@@ -310,7 +304,7 @@ class PostController extends Controller
         // 게시글 목록
         $postModel = $this->post->where('board_id', $boardId);
 
-        // Bacckoffice login
+        // Backoffice login
         if (Auth::check() && Auth::user()->isLoginToManagerService()) {
 
         } else {
@@ -318,7 +312,7 @@ class PostController extends Controller
         }
 
         // Sort By
-        if ($s = $request->get('sort_by')) {
+        if ($s = $request->input('sort_by')) {
             $sortCollect = CollectionLibrary::getBySort($s, ['id', 'sort']);
             $sortCollect->each(function ($item) use ($postModel) {
                 $postModel->orderBy($item['key'], $item['value']);
@@ -354,9 +348,8 @@ class PostController extends Controller
         $res['header'] = $pagination;
         $res['list'] = $data;
 
-        return CollectionLibrary::toCamelCase(collect($res));
+        return collect($res);
     }
-
 
 
     /**
@@ -390,13 +383,13 @@ class PostController extends Controller
      *          description="failed"
      *      ),
      *  )
+     * @param $boardId
+     * @param $id
+     * @return Collection
+     * @throws QpickHttpException
      */
 
-    /**
-     * @param Request $request
-     * @return mixed
-     */
-    public function show(Request $request, $boardId, $id)
+    public function show($boardId, $id): Collection
     {
         // 게시글 정보
         $postModel = $this->post->where('board_id', $boardId)->with('user:id,name');
@@ -416,7 +409,7 @@ class PostController extends Controller
         unset($postModel->thumbnail);
         $postModel->thumbnail = $attachFiles;
 
-        return CollectionLibrary::toCamelCase(collect($postModel));
+        return collect($postModel);
     }
 
 
@@ -465,14 +458,17 @@ class PostController extends Controller
      *          )
      *      )
      *  )
+     * @param GetListRequest $request
+     * @return Collection
+     * @throws QpickHttpException
      */
-    public function getList(GetListRequest $request)
+    public function getList(GetListRequest $request): Collection
     {
         //
         $res = [];
 
         // Query Build
-        $postModel = DB::table('posts')->select('posts.*');
+        $postModel = DB::table('posts')->select('posts.*')->whereNull('deleted_at');
 
         // 회원정보
         $postModel->join('users', 'users.id', '=', 'posts.user_id');
@@ -483,28 +479,28 @@ class PostController extends Controller
         /**
          * Where
          */
-        if ($s = $request->get('board_id')) {
+        if ($s = $request->input('board_id')) {
             $postModel->where('posts.board_id', $s);
         }
 
-        if ($s = $request->get('email')) {
+        if ($s = $request->input('email')) {
             $postModel->where('users.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
-        if ($s = $request->get('name')) {
+        if ($s = $request->input('name')) {
             $postModel->where('users.name', $s);
         }
 
-        if ($s = $request->get('post_id')) {
+        if ($s = $request->input('post_id')) {
             $postModel->where('posts.id', $s);
         }
 
-        if ($s = $request->get('title')) {
+        if ($s = $request->input('title')) {
             $postModel->where('posts.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
         // 통합 검색
-        if ($s = $request->get('multi_search')) {
+        if ($s = $request->input('multi_search')) {
             $postModel->where(function ($q) use ($s) {
                 $q->orWhere('users.name', $s);
 
@@ -515,7 +511,7 @@ class PostController extends Controller
         }
 
         // Sort By
-        if ($s = $request->get('sort_by')) {
+        if ($s = $request->input('sort_by')) {
             $sortCollect = CollectionLibrary::getBySort($s, ['id', 'sort']);
             $sortCollect->each(function ($item) use ($postModel) {
                 $postModel->orderBy($item['key'], $item['value']);
@@ -525,7 +521,7 @@ class PostController extends Controller
 
         // 게시글
         // pagination
-        $pagination = PaginationLibrary::set($request->page, $postModel->count(), $request->per_page);
+        $pagination = PaginationLibrary::set($request->input('page'), $postModel->count(), $request->input('per_page'));
 
         $postModel->skip($pagination['skip'])
             ->take($pagination['perPage'])
@@ -548,7 +544,7 @@ class PostController extends Controller
         $res['header'] = $pagination;
         $res['list'] = $postModel;
 
-        return CollectionLibrary::toCamelCase(collect($res));
+        return collect($res);
 
     }
 

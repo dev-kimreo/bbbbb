@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Members\Managers\StoreManagerRequest;
-use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
 use App\Models\{Manager, User, Authority};
 use Illuminate\Http\Request;
@@ -13,7 +12,7 @@ use Illuminate\Support\Collection;
 
 class ManagerController extends Controller
 {
-    private $manager;
+    private Manager $manager;
 
     public function __construct(Manager $manager)
     {
@@ -53,6 +52,7 @@ class ManagerController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return array
      */
     public function index(Request $request): array
@@ -60,8 +60,8 @@ class ManagerController extends Controller
         $data = $this->manager::all();
 
         return [
-            'header' => PaginationLibrary::set($request->page, $data->count(), $request->per_page),
-            'list' => CollectionLibrary::toCamelCase($data)
+            'header' => PaginationLibrary::set($request->input('page'), $data->count(), $request->input('per_page')),
+            'list' => $data
         ];
     }
 
@@ -106,12 +106,12 @@ class ManagerController extends Controller
 
         // store
         $manager = $this->manager;
-        $manager->user_id = $request->get('user_id');
-        $manager->authority_id = $request->get('authority_id');
+        $manager->user_id = $request->input('user_id');
+        $manager->authority_id = $request->input('authority_id');
         $manager->save();
 
         // response
-        return CollectionLibrary::toCamelCase(collect($this->manager::find($manager->id)));
+        return collect($this->manager::find($manager->id));
     }
 
     /**
@@ -151,7 +151,7 @@ class ManagerController extends Controller
      */
     public function show(int $id): Collection
     {
-        return CollectionLibrary::toCamelCase(collect($this->manager::findOrFail($id)));
+        return collect($this->manager::findOrFail($id));
     }
 
     /**

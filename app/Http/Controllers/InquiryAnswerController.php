@@ -7,7 +7,6 @@ use App\Http\Requests\Inquiries\Answers\DestroyRequest;
 use App\Http\Requests\Inquiries\Answers\ShowRequest;
 use App\Http\Requests\Inquiries\Answers\StoreRequest;
 use App\Http\Requests\Inquiries\Answers\UpdateRequest;
-use App\Libraries\CollectionLibrary;
 use App\Models\Inquiry;
 use App\Models\InquiryAnswer;
 use Illuminate\Http\JsonResponse;
@@ -79,12 +78,12 @@ class InquiryAnswerController extends Controller
         $answer = $this->answer;
         $answer->user_id = Auth::id();
         $answer->inquiry_id = $inquiryId;
-        $answer->answer = $request->get('answer');
+        $answer->answer = $request->input('answer');
         $answer->save();
 
         // response
         $data = $this->getOne($answer->inquiry_id);
-        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
+        return response()->json(collect($data), 201);
     }
 
     /**
@@ -136,7 +135,7 @@ class InquiryAnswerController extends Controller
      */
     public function show(ShowRequest $request, int $inquiryId): Collection
     {
-        return CollectionLibrary::toCamelCase(collect($this->getOne($inquiryId)));
+        return collect($this->getOne($inquiryId));
     }
 
     /**
@@ -190,12 +189,12 @@ class InquiryAnswerController extends Controller
         $answer = $this->answer->where('inquiry_id', $inquiryId)->firstOrFail();
 
         // update
-        $answer->answer = $request->get('answer') ?? $answer->answer;
+        $answer->answer = $request->input('answer', $answer->answer);
         $answer->saveOrFail();
 
         // response
         $data = $this->getOne($inquiryId);
-        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
+        return response()->json(collect($data), 201);
     }
 
     /**
