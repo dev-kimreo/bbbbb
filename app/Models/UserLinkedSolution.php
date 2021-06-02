@@ -6,12 +6,14 @@ use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserLinkedSolution extends Model
 {
-    use HasFactory, DateFormatISO8601;
+    use HasFactory, SoftDeletes, DateFormatISO8601;
 
     protected $fillable = ['user_id', 'name', 'apikey'];
+    protected $hidden = ['deleted_at'];
 
     public function user(): BelongsToMany
     {
