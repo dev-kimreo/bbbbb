@@ -50,7 +50,6 @@ class UserAndManagerSeeder extends Seeder
                 ],
                 [
                     'user_id' => '2',
-                    'authority_id' => '2',
                     'created_at' => Carbon::now()
                 ]
             ]
