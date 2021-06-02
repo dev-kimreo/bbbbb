@@ -195,7 +195,7 @@ class MemberController extends Controller
         }
 
         $data = $this->getOne($id);
-        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
+        return response()->json(CollectionLibrary::toCamelCase(collect($data)), 200);
     }
 
     /**
