@@ -236,7 +236,7 @@ class MemberController extends Controller
     public function store(StoreRequest $request)
     {
         // 비밀번호 체크
-        $checkPwdRes = $this->checkPasswordPattern($request->password, $request->email);
+        $checkPwdRes = $this->chkCorrectPasswordPattern($request->password, $request->email);
 
         $this->user = $this->user::create(array_merge(
             $request->all(),
@@ -295,7 +295,7 @@ class MemberController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        if (!$this::funcCheckPassword($request->password)) {
+        if (!$this::chkPasswordMatched($request->password)) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
@@ -343,7 +343,7 @@ class MemberController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        if (!$this::funcCheckPassword($request->input('password'))) {
+        if (!$this::chkPasswordMatched($request->input('password'))) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
@@ -496,7 +496,7 @@ class MemberController extends Controller
      */
     public function checkPassword(CheckPwdMemberRequest $request)
     {
-        if (!$this::funcCheckPassword($request->password)) {
+        if (!$this::chkPasswordMatched($request->password)) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
@@ -548,7 +548,7 @@ class MemberController extends Controller
     public function modifyPassword(ModifyMemberPwdRequest $request)
     {
         // 현재 패스워드 체크
-        if (!$this::funcCheckPassword($request->password)) {
+        if (!$this::chkPasswordMatched($request->password)) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
@@ -558,7 +558,7 @@ class MemberController extends Controller
         }
 
         // 비밀번호 체크
-        $this->checkPasswordPattern($request->changePassword, auth()->user()->email);
+        $this->chkCorrectPasswordPattern($request->changePassword, auth()->user()->email);
 
         $member = auth()->user();
         $member->password = hash::make($request->changePassword);
@@ -740,7 +740,7 @@ class MemberController extends Controller
         }
 
         // 비밀번호 체크
-        $this->checkPasswordPattern($request->password, $request->email);
+        $this->chkCorrectPasswordPattern($request->password, $request->email);
 
         // 비밀번호 변경
         $member->password = hash::make($request->password);
@@ -756,9 +756,12 @@ class MemberController extends Controller
     /**
      * 비밀번호 패턴 체크 함수
      *
-     * @return
+     * @param string $pwd
+     * @param string|null $email
+     * @return bool
+     * @throws QpickHttpException
      */
-    static function checkPasswordPattern(string $pwd, string $email = null)
+    static function chkCorrectPasswordPattern(string $pwd, string $email = null): bool
     {
         /**
          * 비밀번호 패턴 체크
@@ -785,13 +788,15 @@ class MemberController extends Controller
         return true;
     }
 
-    static function funcCheckPassword($pwd)
+    /**
+     * 비밀번호 일치여부 확인 함수
+     *
+     * @param $pwd
+     * @return bool
+     */
+    static function chkPasswordMatched($pwd): bool
     {
-        if (!hash::check($pwd, auth()->user()->password)) {
-            return false;
-        }
-
-        return true;
+        return hash::check($pwd, Auth::user()->password);
     }
 
     protected function getOne(int $id)
