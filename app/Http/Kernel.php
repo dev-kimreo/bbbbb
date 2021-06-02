@@ -65,5 +65,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'admin' => \App\Http\Middleware\AdminAuthenticate::class,
         'language' => \App\Http\Middleware\LanguageSwitcher::class,
+        'requestToSnake' => \App\Http\Middleware\ConvertRequestToSnakeCase::class,
+        'responseToCamel' => \App\Http\Middleware\ConvertResponseToCamelCase::class,
     ];
 }
