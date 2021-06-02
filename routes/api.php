@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\UserAdvAgreeController;
+use App\Http\Controllers\UserLinkedSolutionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MemberController;
@@ -52,6 +54,14 @@ Route::group([
         Route::post('/auth', [AccessTokenController::class, 'store'])->withoutmiddleware('auth:api');
         Route::get('/auth', [AccessTokenController::class, 'show']);
         Route::delete('/auth', [AccessTokenController::class, 'destroy']);
+
+        // 회원 연동 솔루션 CD (추가 및 삭제)
+        Route::resource('/{user_id}/linkedSolution', UserLinkedSolutionController::class, [
+            'only' => ['store', 'destroy']
+        ]);
+
+        // 광고성정보 수신동의 여부 CD (동의 및 거부)
+        Route::patch('/{user_id}/advAgree', [UserAdvAgreeController::class, 'update']);
     });
 
     /**

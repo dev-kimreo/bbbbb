@@ -45,40 +45,31 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasFactory, Notifiable, HasApiTokens, SoftDeletes, DateFormatISO8601;
 
     // 회원 등급
-    public $userGrade = [
+    public array $userGrade = [
         0,  // 준회원
         1   // 정회원
     ];
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'name', 'email', 'password', 'mall_type', 'mall_url', 'language', 'memo_for_managers'
     ];
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password',
-        'remember_token'
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
+    protected $hidden = ['password', 'remember_token'];
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'registered_at' => 'datetime',
+        'inactivated_at' => 'datetime',
+        'last_authorized_at' => 'datetime',
     ];
+
+    public function advAgree(): HasOne
+    {
+        return $this->hasOne(UserAdvAgree::class);
+    }
+
+    public function solutions(): hasMany
+    {
+        return $this->hasMany(UserLinkedSolution::class);
+    }
 
     public function checkAdmin(): bool
     {

@@ -23,16 +23,35 @@ class UserAndManagerSeeder extends Seeder
                     'name' => '홍길동',
                     'email' => Str::random(10) . '@test.qpicki.com',
                     'password' => Hash::make('password'),
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
                 ],
                 [
                     'name' => '김삿갓',
                     'email' => Str::random(10) . '@test.qpicki.com',
                     'password' => Hash::make('password'),
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
                 ],
                 [
                     'name' => '신도림',
                     'email' => Str::random(10) . '@test.qpicki.com',
                     'password' => Hash::make('password'),
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]
+            ]
+        );
+        DB::table('user_advertising_agrees')->insert(
+            [
+                [
+                    'user_id' => '1',
+                    'created_at' => Carbon::now()
+                ],
+                [
+                    'user_id' => '2',
+                    'authority_id' => '2',
+                    'created_at' => Carbon::now()
                 ]
             ]
         );
