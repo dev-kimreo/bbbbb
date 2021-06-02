@@ -206,7 +206,7 @@ class MemberController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        $data = $this->user::with(['advAgree', 'solutions'])->findOrFail($id);
+        $data = $this->getOne($id);
         return response()->json(CollectionLibrary::toCamelCase(collect($data)), 201);
     }
 
@@ -255,7 +255,7 @@ class MemberController extends Controller
             ['password' => hash::make($request->password)]
         ));
         
-        $member = $this->user->with(['advAgree', 'solutions'])->find($this->user->id);
+        $member = $this->getOne($this->user->id);
         VerifyEmail::dispatch($member);
 
         return response()->json(CollectionLibrary::toCamelCase(collect($member)), 201);
@@ -315,7 +315,7 @@ class MemberController extends Controller
         $member->name = $request->name;
         $member->save();
 
-        $member = $member->with(['advAgree', 'solutions'])->find($member->id);
+        $member = $this->getOne($member->id);
 
         return response()->json(CollectionLibrary::toCamelCase(collect($member)), 201);
     }
@@ -806,6 +806,16 @@ class MemberController extends Controller
         return true;
     }
 
+    protected function getOne(int $id)
+    {
+        $user = $this->user->with(['advAgree', 'solutions'])->findOrFail($id);
+
+        if (Auth::user()->isLoginToManagerService()) {
+            $user->makeVisible(['memo_for_managers']);
+        }
+
+        return $user;
+    }
 
     public function test(Request $request)
     {
