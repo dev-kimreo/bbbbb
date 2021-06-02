@@ -1,22 +1,19 @@
 <?php
 
-use App\Http\Controllers\UserAdvAgreeController;
-use App\Http\Controllers\UserLinkedSolutionController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\MemberController;
 use App\Http\Controllers\AccessTokenController;
-
-
+use App\Http\Controllers\AttachController;
+use App\Http\Controllers\AuthorityController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\Boards\OptionController;
+use App\Http\Controllers\InquiryAnswerController;
+use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
-use App\Http\Controllers\AttachController;
-use App\Http\Controllers\InquiryController;
-use App\Http\Controllers\InquiryAnswerController;
-use App\Http\Controllers\AuthorityController;
-use App\Http\Controllers\ManagerController;
+use App\Http\Controllers\Users\ManagerController;
+use App\Http\Controllers\Users\UserAdvAgreeController;
+use App\Http\Controllers\Users\UserController;
+use App\Http\Controllers\Users\UserLinkedSolutionController;
+use Illuminate\Support\Facades\Route;
 
 
 /*
@@ -33,8 +30,6 @@ use App\Http\Controllers\ManagerController;
 Route::patch('/home', function () {
 })->name('home');
 
-Route::get('/aaa', [MemberController::class, 'test']);
-
 Route::group([
     'prefix' => 'v1',
     'middleware' => [
@@ -48,11 +43,11 @@ Route::group([
      */
     Route::group(['prefix' => 'user', 'middleware' => 'auth:api'], function () {
         // 회원 관련 CRUD
-        Route::post('', [MemberController::class, 'store'])->withoutmiddleware('auth:api');
-        Route::get('', [MemberController::class, 'index'])->middleware('admin');
-        Route::get('/{id}', [MemberController::class, 'show'])->where(['id' => '[0-9]+']);
-        Route::patch('/{id}', [MemberController::class, 'update'])->where(['id' => '[0-9]+']);
-        Route::delete('/{id}', [MemberController::class, 'destroy'])->where(['id' => '[0-9]+']);
+        Route::post('', [UserController::class, 'store'])->withoutmiddleware('auth:api');
+        Route::get('', [UserController::class, 'index'])->middleware('admin');
+        Route::get('/{id}', [UserController::class, 'show'])->where(['id' => '[0-9]+']);
+        Route::patch('/{id}', [UserController::class, 'update'])->where(['id' => '[0-9]+']);
+        Route::delete('/{id}', [UserController::class, 'destroy'])->where(['id' => '[0-9]+']);
 
         // 회원 세션 CRUD
         Route::post('/auth', [AccessTokenController::class, 'store'])->withoutmiddleware('auth:api');
@@ -73,8 +68,8 @@ Route::group([
      */
     Route::group(['prefix' => 'user/email-verification'], function () {
         // 이메일 인증링크 재발송 & 인증링크 클릭시 랜딩 페이지
-        Route::post('', [MemberController::class, 'resendVerificationEmail'])->middleware('auth:api');
-        Route::get('/{verifyKey}/{id}', [MemberController::class, 'verification'])->name('verification.verify');
+        Route::post('', [UserController::class, 'resendVerificationEmail'])->middleware('auth:api');
+        Route::get('/{verifyKey}/{id}', [UserController::class, 'verification'])->name('verification.verify');
     });
 
     /**
@@ -82,13 +77,13 @@ Route::group([
      */
     Route::group(['prefix' => 'user/password'], function () {
         // 비밀번호 변경 링크 발송 & 유효성 체크 & 발송 후 변경
-        Route::post('/reset-mail', [MemberController::class, 'passwordResetSendLink']);
-        Route::get('/reset-mail', [MemberController::class, 'changePwdVerification']);
-        Route::patch('/reset-mail', [MemberController::class, 'passwordReset']);
+        Route::post('/reset-mail', [UserController::class, 'passwordResetSendLink']);
+        Route::get('/reset-mail', [UserController::class, 'changePwdVerification']);
+        Route::patch('/reset-mail', [UserController::class, 'passwordReset']);
 
         // 비밀번호 검증 & 비밀번호 변경
-        Route::post('', [MemberController::class, 'checkPassword'])->middleware('auth:api');
-        Route::patch('', [MemberController::class, 'modifyPassword'])->middleware('auth:api');
+        Route::post('', [UserController::class, 'checkPassword'])->middleware('auth:api');
+        Route::patch('', [UserController::class, 'modifyPassword'])->middleware('auth:api');
     });
 
     /**

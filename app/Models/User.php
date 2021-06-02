@@ -50,7 +50,7 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $fillable = [
-        'name', 'email', 'password', 'mall_type', 'mall_url', 'language', 'memo_for_managers'
+        'name', 'email', 'mall_type', 'mall_name', 'mall_url', 'language', 'memo_for_managers'
     ];
     protected $hidden = ['password', 'remember_token', 'deleted_at', 'memo_for_managers'];
     protected $casts = [

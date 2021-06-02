@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Users;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Members\Managers\StoreManagerRequest;
 use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
-use Illuminate\Http\Request;
 use App\Models\{Manager, User, Authority};
-use App\Http\Requests\Members\Managers\StoreManagerRequest;
-use Illuminate\Support\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 
 class ManagerController extends Controller
 {
