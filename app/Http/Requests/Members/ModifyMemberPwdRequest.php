@@ -27,8 +27,8 @@ class ModifyMemberPwdRequest extends FormRequest
     {
         return [
             'password' => 'required',
-            'changePassword' => 'required|string|min:8',
-            'passwordConfirmation' => 'required|string|same:changePassword'
+            'change_password' => 'required|string|min:8',
+            'password_confirmation' => 'required|string|same:change_password'
         ];
     }
 

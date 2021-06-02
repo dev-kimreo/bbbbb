@@ -28,18 +28,18 @@ class IndexRequest extends FormRequest
     {
         return [
             'page' => 'nullable|integer|min:1',
-            'perPage' => 'nullable|integer|between:1,50',
+            'per_page' => 'nullable|integer|between:1,50',
             'id' => 'nullable|integer',
             'status' => 'nullable|string',
-            'startDate' => 'nullable|date',
-            'endDate' => 'nullable|date',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
             'title' => 'nullable|string',
-            'userId' => 'nullable|integer|exists:App\Models\User,id',
-            'userEmail' => 'nullable|string',
-            'userName' => 'nullable|string',
-            'assigneeId' => 'nullable|integer|exists:App\Models\User,id|exists:App\Models\Manager,user_id',
-            'assigneeName' => 'nullable|string',
-            'multiSearch' => 'nullable'
+            'user_id' => 'nullable|integer|exists:App\Models\User,id',
+            'user_email' => 'nullable|string',
+            'user_name' => 'nullable|string',
+            'assignee_id' => 'nullable|integer|exists:App\Models\User,id|exists:App\Models\Manager,user_id',
+            'assignee_name' => 'nullable|string',
+            'multi_search' => 'nullable'
         ];
     }
 

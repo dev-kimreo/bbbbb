@@ -91,22 +91,22 @@ class MemberController extends Controller
         $user = $this->user::with(['advAgree', 'solutions']);
 
         // set search conditions
-        if ($s = $request->get('startCreatedDate')) {
+        if ($s = $request->get('start_created_date')) {
             $s = Carbon::parse($s);
             $user->where('created_at', '>=', $s);
         }
 
-        if ($s = $request->get('endCreatedDate')) {
+        if ($s = $request->get('end_created_date')) {
             $s = Carbon::parse($s);
             $user->where('created_at', '<=', $s);
         }
 
-        if ($s = $request->get('startRegisteredDate')) {
+        if ($s = $request->get('start_registered_date')) {
             $s = Carbon::parse($s);
             $user->where('registered_at', '>=', $s);
         }
 
-        if ($s = $request->get('endRegisteredDate')) {
+        if ($s = $request->get('end_registered_date')) {
             $s = Carbon::parse($s);
             $user->where('registered_at', '<=', $s);
         }
@@ -127,7 +127,7 @@ class MemberController extends Controller
             $user->where('name', $s);
         }
 
-        if ($s = $request->get('multiSearch')) {
+        if ($s = $request->get('multi_search')) {
             // 통합검색
             $user->where(function ($q) use ($s) {
                 $q->orWhere('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
@@ -140,7 +140,7 @@ class MemberController extends Controller
         }
 
         // set pagination information
-        $pagination = PaginationLibrary::set($request->input('page'), $user->count(), $request->input('perPage'));
+        $pagination = PaginationLibrary::set($request->input('page'), $user->count(), $request->input('per_page'));
 
         // get data
         $data = $user->skip($pagination['skip'])->take($pagination['perPage'])->get();
@@ -242,7 +242,7 @@ class MemberController extends Controller
             $request->all(),
             ['password' => hash::make($request->password)]
         ));
-        
+
         $member = $this->getOne($this->user->id);
         VerifyEmail::dispatch($member);
 
@@ -553,15 +553,15 @@ class MemberController extends Controller
         }
 
         // 기존 비밀번호와 변경할 비밀번호가 같을 경우
-        if (hash::check($request->changePassword, auth()->user()->password)) {
+        if (hash::check($request->change_password, auth()->user()->password)) {
             throw new QpickHttpException(422, 'user.password.reuse');
         }
 
         // 비밀번호 체크
-        $this->chkCorrectPasswordPattern($request->changePassword, auth()->user()->email);
+        $this->chkCorrectPasswordPattern($request->change_password, auth()->user()->email);
 
         $member = auth()->user();
-        $member->password = hash::make($request->changePassword);
+        $member->password = hash::make($request->change_password);
         $member->save();
 
         return response()->noContent();

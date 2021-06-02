@@ -28,7 +28,7 @@ class UpdateRequest extends FormRequest
     {
         return [
             "type" => "required",
-            "typeId" => "required",
+            "type_id" => "required",
             "thumbnail" => "sometimes|in:1"
         ];
     }

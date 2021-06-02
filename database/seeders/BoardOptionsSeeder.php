@@ -71,14 +71,14 @@ class BoardOptionsSeeder extends Seeder
             ],
             [
                 "name" => '파일 첨부 갯수 제한',
-                "type" => 'attachLimit',
+                "type" => 'attach_limit',
                 "default" => '10',
                 "options" => json_encode([
                 ])
             ],
             [
                 "name" => '등록일 노출',
-                "type" => 'createdAt',
+                "type" => 'created_at',
                 "default" => '1',
                 "options" => json_encode([
                     ["value" => "0", "comment" => "사용 안함"],

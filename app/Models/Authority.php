@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @OA\Property(property="code", type="string", readOnly="true", description="그룹번호", example="13"),
  * @OA\Property(property="title", type="string", readOnly="true", description="그룹명", example="시스템관리자"),
  * @OA\Property(
- *     property="display_name", type="string", readOnly="true",
+ *     property="displayName", type="string", readOnly="true",
  *     description="닉네임(그룹명과 별개로 일반 사용자에게 표시할 이름)", example="운영자"
  * ),
  * @OA\Property(property="memo", type="string", maxLength=255, description="설명", example="큐픽 사이트 운영"),

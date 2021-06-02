@@ -27,7 +27,7 @@ class IndexRequest extends FormRequest
     {
         return [
             'page' => 'sometimes|integer|min:1',
-            'perPage' => 'sometimes|integer|between:1,50',
+            'per_page' => 'sometimes|integer|between:1,50',
         ];
     }
 

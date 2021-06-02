@@ -185,14 +185,14 @@ class AttachController extends Controller
             throw new QpickHttpException(422, 'common.not_found', 'type');
         }
         $typeModel = '\\' . $typeModel;
-        $typeCollect = $typeModel::find($request->typeId);
+        $typeCollect = $typeModel::find($request->type_id);
 
         if ($request->has('thumbnail')) {
             $typeCollect = $typeCollect->thumbnail()->firstOrCreate();
         }
 
         if (!$typeCollect) {
-            throw new QpickHttpException(422, 'common.not_found', 'typeId');
+            throw new QpickHttpException(422, 'common.not_found', 'type_id');
         }
 
         // check use upload file

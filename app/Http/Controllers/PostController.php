@@ -95,10 +95,10 @@ class PostController extends Controller
      * @param StoreRequest $request
      * @return mixed
      */
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request, $boardId)
     {
         // 게시판 정보
-        $this->board = $this->board->findOrFail($request->boardId);
+        $this->board = $this->board->findOrFail($boardId);
 
         // check write post Policy
         if (!auth()->user()->can('create', [$this->post, $this->board])) {
@@ -106,7 +106,7 @@ class PostController extends Controller
         }
 
         // 게시글 작성
-        $this->post->board_id = $request->boardId;
+        $this->post->board_id = $boardId;
         $this->post->user_id = auth()->user()->id;
         $this->post->title = $request->title;
         $this->post->content = $request->content;
@@ -318,15 +318,15 @@ class PostController extends Controller
         }
 
         // Sort By
-        if ($request->get('sortBy')) {
-            $sortCollect = CollectionLibrary::getBySort($request->get('sortBy'), ['id', 'sort']);
+        if ($s = $request->get('sort_by')) {
+            $sortCollect = CollectionLibrary::getBySort($s, ['id', 'sort']);
             $sortCollect->each(function ($item) use ($postModel) {
                 $postModel->orderBy($item['key'], $item['value']);
             });
         }
 
         // pagination
-        $pagination = PaginationLibrary::set($request->page, $postModel->count(), $request->perPage);
+        $pagination = PaginationLibrary::set($request->page, $postModel->count(), $request->per_page);
 
         if ($request->page <= $pagination['totalPage']) {
             $postModel->with('user:id,name')->withCount('replies');
@@ -483,7 +483,7 @@ class PostController extends Controller
         /**
          * Where
          */
-        if ($s = $request->get('boardId')) {
+        if ($s = $request->get('board_id')) {
             $postModel->where('posts.board_id', $s);
         }
 
@@ -495,7 +495,7 @@ class PostController extends Controller
             $postModel->where('users.name', $s);
         }
 
-        if ($s = $request->get('postId')) {
+        if ($s = $request->get('post_id')) {
             $postModel->where('posts.id', $s);
         }
 
@@ -504,7 +504,7 @@ class PostController extends Controller
         }
 
         // 통합 검색
-        if ($s = $request->get('multiSearch')) {
+        if ($s = $request->get('multi_search')) {
             $postModel->where(function ($q) use ($s) {
                 $q->orWhere('users.name', $s);
 
@@ -515,7 +515,7 @@ class PostController extends Controller
         }
 
         // Sort By
-        if ($s = $request->get('sortBy')) {
+        if ($s = $request->get('sort_by')) {
             $sortCollect = CollectionLibrary::getBySort($s, ['id', 'sort']);
             $sortCollect->each(function ($item) use ($postModel) {
                 $postModel->orderBy($item['key'], $item['value']);
@@ -525,7 +525,7 @@ class PostController extends Controller
 
         // 게시글
         // pagination
-        $pagination = PaginationLibrary::set($request->page, $postModel->count(), $request->perPage);
+        $pagination = PaginationLibrary::set($request->page, $postModel->count(), $request->per_page);
 
         $postModel->skip($pagination['skip'])
             ->take($pagination['perPage'])

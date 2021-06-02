@@ -59,7 +59,7 @@ class ManagerController extends Controller
         $data = $this->manager::all();
 
         return [
-            'header' => PaginationLibrary::set($request->page, $data->count(), $request->perPage),
+            'header' => PaginationLibrary::set($request->page, $data->count(), $request->per_page),
             'list' => CollectionLibrary::toCamelCase($data)
         ];
     }
@@ -75,9 +75,9 @@ class ManagerController extends Controller
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              required={"user_id", "authority_id"},
-     *              @OA\Property(property="user_id", type="integer", example="2", description="사용자의 고유번호(PK)"),
-     *              @OA\Property(property="authority_id", type="integer", example="5", description="관리자그룹의 고유번호(PK)")
+     *              required={"userId", "authorityId"},
+     *              @OA\Property(property="userId", type="integer", example="2", description="사용자의 고유번호(PK)"),
+     *              @OA\Property(property="authorityId", type="integer", example="5", description="관리자그룹의 고유번호(PK)")
      *          )
      *      ),
      *      @OA\Response(
@@ -181,7 +181,7 @@ class ManagerController extends Controller
      *      }}
      *  )
      */
-    
+
     /**
      * Remove the specified resource from storage.
      *

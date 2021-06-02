@@ -43,7 +43,7 @@ class InquiryController extends Controller
      *      required={"title", "question"},
      *      @OA\Property(property="title", type="string", example="1:1 문의 제목입니다.", description="1:1 문의 제목"),
      *      @OA\Property(property="question", type="string", example="1:1 문의 내용입니다.", description="1:1 문의 내용"),
-     *      @OA\Property(property="assignee_id", type="integer", example="5", description="1:1 문의 처리담당자")
+     *      @OA\Property(property="assigneeId", type="integer", example="5", description="1:1 문의 처리담당자")
      *  )
      *
      * @OA\Post(
@@ -200,6 +200,7 @@ class InquiryController extends Controller
         // Set a query builder
         $inquiry = DB::table('inquiries')
             ->select('inquiries.*')
+            ->whereNull('deleted_at')
             ->orderBy('inquiries.id', 'desc');
 
         // Set search conditions
@@ -215,17 +216,17 @@ class InquiryController extends Controller
             $inquiry->where('inquiries.status', $s);
         }
 
-        if ($s = $request->get('startDate')) {
+        if ($s = $request->get('start_date')) {
             $s = Carbon::parse($s);
             $inquiry->where('inquiries.created_at', '>=', $s);
         }
 
-        if ($s = $request->get('endDate')) {
+        if ($s = $request->get('end_date')) {
             $s = Carbon::parse($s)->setTime(23, 59, 59);
             $inquiry->where('inquiries.created_at', '<=', $s);
         }
 
-        if ($s = $request->get('multiSearch')) {
+        if ($s = $request->get('multi_search')) {
             // 통합검색
             $inquiry->join('users as users_ms', 'inquiries.user_id', '=', 'users_ms.id');
             $inquiry->leftJoin('users as assignees_ms', 'inquiries.assignee_id', '=', 'assignees_ms.id');
@@ -246,33 +247,33 @@ class InquiryController extends Controller
             $inquiry->where('inquiries.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
-        if ($s = $request->get('userId')) {
+        if ($s = $request->get('user_id')) {
             $inquiry->where('inquiries.user_id', $s);
         }
 
-        if ($request->get('userEmail') || $request->get('userName')) {
+        if ($request->get('user_email') || $request->get('user_name')) {
             $inquiry->join('users', 'inquiries.user_id', '=', 'users.id');
 
-            if ($s = $request->get('userEmail')) {
+            if ($s = $request->get('user_email')) {
                 $inquiry->where('users.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
             }
 
-            if ($s = $request->get('userName')) {
+            if ($s = $request->get('user_name')) {
                 $inquiry->where('users.name', $s);
             }
         }
 
-        if ($s = $request->get('assigneeId')) {
+        if ($s = $request->get('assignee_id')) {
             $inquiry->where('inquiries.assignee_id', $s);
         }
 
-        if ($s = $request->get('assigneeName')) {
+        if ($s = $request->get('assignee_name')) {
             $inquiry->join('users as assignees', 'inquiries.assignee_id', '=', 'assignees.id');
             $inquiry->where('assignees.name', $s);
         }
 
         // Set Pagination Information
-        $pagination = PaginationLibrary::set($request->page, $inquiry->count(), $request->perPage);
+        $pagination = PaginationLibrary::set($request->page, $inquiry->count(), $request->per_page);
 
         // Get Data from DB
         $data = $inquiry->skip($pagination['skip'])->take($pagination['perPage'])->get();
@@ -370,7 +371,7 @@ class InquiryController extends Controller
      *      required={},
      *      @OA\Property(property="title", type="string", example="1:1 문의 제목입니다.", description="1:1 문의 제목"),
      *      @OA\Property(property="question", type="string", example="1:1 문의 내용입니다.", description="1:1 문의 내용"),
-     *      @OA\Property(property="assignee_id", type="integer", example="5", description="1:1 문의 처리담당자")
+     *      @OA\Property(property="assigneeId", type="integer", example="5", description="1:1 문의 처리담당자")
      *  )
      *
      * @OA\Patch(
@@ -435,8 +436,8 @@ class InquiryController extends Controller
         // Save Data
         $inquiry->title = $request->title ?? $inquiry->title;
         $inquiry->question = $request->question ?? $inquiry->question;
-        $inquiry->assignee_id = $request->assigneeId ?? $inquiry->assignee_id;
-        $inquiry->referrer_id = $request->referrerId ?? $inquiry->referrer_id;
+        $inquiry->assignee_id = $request->assignee_id ?? $inquiry->assignee_id;
+        $inquiry->referrer_id = $request->referrer_id ?? $inquiry->referrer_id;
         $inquiry->save();
 
         // Response

@@ -37,7 +37,11 @@ Route::get('/aaa', [MemberController::class, 'test']);
 
 Route::group([
     'prefix' => 'v1',
-    'middleware' => 'language'
+    'middleware' => [
+        'language',
+        'requestToSnake',
+        'responseToCamel',
+    ]
 ], function () {
     /**
      * 회원 관련
@@ -108,6 +112,10 @@ Route::group([
         Route::patch('/{id}', [BoardController::class, 'update']);
         Route::delete('/{id}', [BoardController::class, 'destroy']);
 
+        // 게시판 옵션
+        Route::get('/option', [OptionController::class, 'index'])->middleware('admin');
+
+
         // 게시글 CRUD
         Route::post('/{boardId}/post', [PostController::class, 'store']);
         Route::get('/{boardId}/post', [PostController::class, 'index'])->withoutmiddleware('auth:api');
@@ -129,10 +137,6 @@ Route::group([
         Route::patch('/{id}/sort', [BoardController::class, 'updateBoardSort']);
     });
 
-    // 게시판 옵션 관련
-    Route::resource('boardOption', OptionController::class, [
-        'only' => ['index']
-    ]);
 
     /**
      * 1:1 문의
