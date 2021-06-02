@@ -30,8 +30,6 @@ use Illuminate\Support\Facades\Route;
 Route::patch('/home', function () {
 })->name('home');
 
-Route::get('/aaa', [UserController::class, 'test']);
-
 Route::group([
     'prefix' => 'v1',
     'middleware' => [

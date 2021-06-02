@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Users;
 use App\Events\Member\VerifyEmail;
 use App\Events\Member\VerifyEmailCheck;
 use App\Exceptions\QpickHttpException;
+use App\Http\Controllers\AccessTokenController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Members\CheckChangePwdAuthRequest;
 use App\Http\Requests\Members\CheckPwdMemberRequest;
@@ -22,6 +23,8 @@ use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
 use App\Models\SignedCode;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -232,12 +235,14 @@ class UserController extends Controller
     /**
      * 회원가입
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param StoreRequest $request
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request): JsonResponse
     {
         // 비밀번호 체크
-        $checkPwdRes = $this->chkCorrectPasswordPattern($request->password, $request->email);
+        $this->chkCorrectPasswordPattern($request->password, $request->email);
 
         $this->user = $this->user::create(array_merge(
             $request->all(),
@@ -288,7 +293,7 @@ class UserController extends Controller
     /**
      * 회원 정보 수정
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function update(UpdateRequest $request, $id)
     {
@@ -334,6 +339,7 @@ class UserController extends Controller
      *
      * @param int $id
      * @param Request $request
+     * @param AccessTokenController $tokenController
      * @return Response
      * @throws QpickHttpException
      */
@@ -385,11 +391,12 @@ class UserController extends Controller
     /**
      * 회원 인증 메일 재발송
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return Response
+     * @throws QpickHttpException
      */
-    public function resendVerificationEmail(Request $request)
+    public function resendVerificationEmail(Request $request): Response
     {
-
         // 짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.
         if (!VerifyEmailCheck::dispatch(auth()->user())) {
             throw new QpickHttpException(422, 'email.too_many_send');
@@ -427,11 +434,12 @@ class UserController extends Controller
     /**
      * 회원 메일 인증
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
-    public function verification(Request $request)
+    public function verification(Request $request): JsonResponse
     {
-        $exp = explode('/', $request->path());
         $signCode = SignedCode::getBySignCode($request->id, $request->hash, $request->signature)->select('id')->first();
 
         // 가상 서명키 유효성 체크
@@ -493,9 +501,11 @@ class UserController extends Controller
     /**
      * 비밀번호 검증
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param CheckPwdMemberRequest $request
+     * @return Response
+     * @throws QpickHttpException
      */
-    public function checkPassword(CheckPwdMemberRequest $request)
+    public function checkPassword(CheckPwdMemberRequest $request): Response
     {
         if (!$this::chkPasswordMatched($request->password)) {
             throw new QpickHttpException(422, 'user.password.incorrect');
@@ -503,7 +513,6 @@ class UserController extends Controller
 
         return response()->noContent();
     }
-
 
 
     /**
@@ -544,9 +553,11 @@ class UserController extends Controller
     /**
      * 회원 비밀번호 변경
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param ModifyMemberPwdRequest $request
+     * @return Response
+     * @throws QpickHttpException
      */
-    public function modifyPassword(ModifyMemberPwdRequest $request)
+    public function modifyPassword(ModifyMemberPwdRequest $request): Response
     {
         // 현재 패스워드 체크
         if (!$this::chkPasswordMatched($request->password)) {
@@ -567,8 +578,6 @@ class UserController extends Controller
 
         return response()->noContent();
     }
-
-
 
 
     /**
@@ -599,9 +608,10 @@ class UserController extends Controller
     /**
      * 회원 비밀번호 찾기 - 변경을 위한 메일 발송
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param PasswordResetSendLinkRequest $request
+     * @return Response
      */
-    public function passwordResetSendLink(PasswordResetSendLinkRequest $request)
+    public function passwordResetSendLink(PasswordResetSendLinkRequest $request): Response
     {
         // 회원 정보
         $member = $this->user::where('email', $request->email)->first();
@@ -611,6 +621,7 @@ class UserController extends Controller
 
         $member = $member->toArray();
 
+        // 메일 발송
         $data = array(
             'user' => $member,
             'mail' => [
@@ -623,12 +634,11 @@ class UserController extends Controller
             ]
         );
 
-        // 메일 발송
         SendMail::dispatch($data);
 
+        // response
         return response()->noContent();
     }
-
 
 
     /**
@@ -664,9 +674,11 @@ class UserController extends Controller
     /**
      * 회원 비밀번호 변경 링크 검증 체크 및 변경
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param CheckChangePwdAuthRequest $request
+     * @return Response
+     * @throws QpickHttpException
      */
-    public function changePwdVerification(CheckChangePwdAuthRequest $request)
+    public function changePwdVerification(CheckChangePwdAuthRequest $request): Response
     {
         // 비밀번호 재설정 Token 발행여부 체크
         $res = DB::table('password_resets')->where('email', $request->email)->first();
@@ -722,9 +734,11 @@ class UserController extends Controller
     /**
      * 회원 비밀번호 변경 링크 검증 체크 및 변경
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param PasswordResetRequest $request
+     * @return Response
+     * @throws QpickHttpException
      */
-    public function passwordReset(PasswordResetRequest $request)
+    public function passwordReset(PasswordResetRequest $request): Response
     {
         // 비밀번호 재설정 Token 발행여부 체크
         $res = DB::table('password_resets')->where('email', $request->email)->first();
@@ -800,6 +814,12 @@ class UserController extends Controller
         return hash::check($pwd, Auth::user()->password);
     }
 
+    /**
+     * 회원 1명 쿼리 함수
+     *
+     * @param int $id
+     * @return Builder|Builder[]|Collection|Model|null
+     */
     protected function getOne(int $id)
     {
         $user = $this->user->with(['advAgree', 'solutions'])->findOrFail($id);
@@ -810,25 +830,4 @@ class UserController extends Controller
 
         return $user;
     }
-
-    public function test(Request $request)
-    {
-        echo gethostname() . "\r\n";
-
-        $aaa = gethostname();
-
-        $bbb = 'asdasasd';
-
-        $c = rand(1, 100);
-
-        echo 'asdad';
-    }
-
-    public function testa()
-    {
-        echo gethostname();
-        print_r(Auth::user());
-    }
-
-
 }
