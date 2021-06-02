@@ -468,7 +468,7 @@ class PostController extends Controller
         $res = [];
 
         // Query Build
-        $postModel = DB::table('posts')->select('posts.*')->whereNull('deleted_at');
+        $postModel = DB::table('posts')->select('posts.*')->whereNull('posts.deleted_at');
 
         // 회원정보
         $postModel->join('users', 'users.id', '=', 'posts.user_id');
