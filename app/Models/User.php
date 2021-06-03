@@ -96,14 +96,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Inquiry::class, 'assignee_id', 'id');
     }
 
-    public function isLoginToManagerService(): bool
+    public function hasAccessRightsToBackoffice(): bool
     {
-        return $this->token()->client_id == 2 ? true : false;
-    }
-
-    public function checkUsableManagerService(): bool
-    {
-        return $this->manager && $this->isLoginToManagerService();
+        return $this->manager && $this->token()->client_id == 2;
     }
 
     public function scopeSimplify($query)

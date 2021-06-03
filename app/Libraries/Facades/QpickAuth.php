@@ -12,11 +12,6 @@ class QpickAuth extends Auth
      */
     public static function hasAccessRightsToBackoffice(): bool
     {
-        if (!self::check() || !self::user()) {
-            return false;
-        }
-
-        $user = self::user();
-        return $user->manager && $user->access()->client_id == 2;
+        return self::check() && self::user() && self::user()->hasAccessRightsToBackoffice();
     }
 }

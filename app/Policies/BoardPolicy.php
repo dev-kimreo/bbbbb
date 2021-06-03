@@ -26,7 +26,7 @@ class BoardPolicy
 
     public function viewAny(?User $user)
     {
-        if (isset($user->manager) && $user->isLoginToManagerService()) {
+        if ($user->hasAccessRightsToBackoffice()) {
             return true;
         } else {
             return true;
@@ -35,7 +35,7 @@ class BoardPolicy
 
     public function view(?User $user, Board $board)
     {
-        if (isset($user->manager) && $user->isLoginToManagerService()) {
+        if ($user->hasAccessRightsToBackoffice()) {
             return true;
         } else {
             return $board->enable ? true : false;
@@ -48,7 +48,7 @@ class BoardPolicy
      */
     public function create(User $user, Board $board)
     {
-        if (isset($user->manager) && $user->isLoginToManagerService()) {
+        if ($user->hasAccessRightsToBackoffice()) {
             return true;
         } else {
             return false;

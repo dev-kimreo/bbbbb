@@ -16,7 +16,7 @@ class IndexRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::user()->checkUsableManagerService();
+        return Auth::hasAccessRightsToBackoffice();
     }
 
     /**

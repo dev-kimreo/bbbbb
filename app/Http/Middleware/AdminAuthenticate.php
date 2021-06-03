@@ -20,7 +20,7 @@ class AdminAuthenticate
     public function handle(Request $request, Closure $next)
     {
         // 관리자 권한 확인
-        if ( !Auth()->user()->manager || !Auth()->user()->isLoginToManagerService() ) {
+        if (!Auth::hasAccessRightsToBackoffice()) {
             throw new AuthenticationException(
                 'Unauthenticated.'
             );

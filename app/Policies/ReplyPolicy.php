@@ -35,7 +35,7 @@ class ReplyPolicy
 
     public function create(User $user, Reply $reply, Post $post, Board $board)
     {
-        if (isset($user->manager) && $user->isLoginToManagerService()) {
+        if ($user->hasAccessRightsToBackoffice()) {
             return true;
         } else {
 //            // Post 의 볼 권한이 있는지 체크

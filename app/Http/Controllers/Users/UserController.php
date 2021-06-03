@@ -191,7 +191,7 @@ class UserController extends Controller
      */
     public function show(int $id, ShowRequest $request): JsonResponse
     {
-        if ($id != Auth::id() && !Auth::user()->checkUsableManagerService()) {
+        if ($id != Auth::id() && !Auth::hasAccessRightsToBackoffice()) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
@@ -870,7 +870,7 @@ class UserController extends Controller
     {
         $user = $this->user->with(['advAgree', 'solutions'])->findOrFail($id);
 
-        if (Auth::user()->isLoginToManagerService()) {
+        if (Auth::hasAccessRightsToBackoffice()) {
             $user->makeVisible(['memo_for_managers']);
         }
 

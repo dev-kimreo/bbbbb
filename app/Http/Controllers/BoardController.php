@@ -107,7 +107,7 @@ class BoardController extends Controller
         }
 
         // Backoffice login
-        if (Auth::check() && Auth::user()->isLoginToManagerService()) {
+        if (Auth::hasAccessRightsToBackoffice()) {
             $boardModel->withCount('posts');
         } else {
             $boardModel->where('enable', 1);
