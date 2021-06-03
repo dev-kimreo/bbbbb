@@ -37,6 +37,12 @@ class TranslationSeeder extends Seeder
             ],
             [
                 'exceptions',
+                'common.forbidden',
+                '요청 권한이 없습니다.',
+                'Forbidden.'
+            ],
+            [
+                'exceptions',
                 'common.pagination.out_of_bounds',
                 '표시할 수 있는 총 페이지 수를 넘어섰습니다.',
                 'The page is out of bounds.'

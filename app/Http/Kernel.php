@@ -63,6 +63,7 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'chkAccess' => \App\Http\Middleware\CheckAccessRights::class,
         'admin' => \App\Http\Middleware\AdminAuthenticate::class,
         'language' => \App\Http\Middleware\LanguageSwitcher::class,
         'requestToSnake' => \App\Http\Middleware\ConvertRequestToSnakeCase::class,
