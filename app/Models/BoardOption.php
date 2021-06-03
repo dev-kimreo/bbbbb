@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,7 +31,7 @@ use Carbon\Carbon;
  */
 class BoardOption extends Model
 {
-    use HasFactory, DateFormatISO8601;
+    use HasFactory, DateFormatISO8601, CheckUpdatedAt;
 
     /**
      * The attributes that are mass assignable.
