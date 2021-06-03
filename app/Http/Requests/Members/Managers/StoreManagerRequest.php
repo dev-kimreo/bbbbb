@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Members\Managers;
 
+use Auth;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class StoreManagerRequest extends FormRequest
 {

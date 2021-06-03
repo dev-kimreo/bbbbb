@@ -2,19 +2,12 @@
 
 namespace App\Listeners;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Config;
-use Carbon\Carbon;
-use function Illuminate\Events\queueable;
-
-use App\Models\SignedCode;
 use App\Jobs\SendMail;
-
-
+use App\Models\SignedCode;
+use Carbon\Carbon;
+use Config;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use URL;
 
 class MemberEventSubscriber
 {

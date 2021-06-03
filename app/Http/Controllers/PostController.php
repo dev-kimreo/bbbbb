@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use App\Exceptions\QpickHttpException;
@@ -18,12 +17,12 @@ use App\Models\Post;
 use App\Models\Reply;
 use App\Models\User;
 use App\Services\AttachService;
+use Auth;
+use DB;
+use Gate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * Class PostController

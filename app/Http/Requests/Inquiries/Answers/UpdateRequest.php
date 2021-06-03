@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Inquiries\Answers;
 
+use Auth;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class UpdateRequest extends FormRequest
 {

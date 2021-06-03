@@ -9,10 +9,10 @@ use App\Http\Requests\Inquiries\Answers\StoreRequest;
 use App\Http\Requests\Inquiries\Answers\UpdateRequest;
 use App\Models\Inquiry;
 use App\Models\InquiryAnswer;
+use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 
 
 class InquiryAnswerController extends Controller

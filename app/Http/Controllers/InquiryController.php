@@ -15,12 +15,12 @@ use App\Models\Inquiry;
 use App\Models\InquiryAnswer;
 use App\Models\User;
 use App\Services\AttachService;
+use Auth;
+use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Class PostController

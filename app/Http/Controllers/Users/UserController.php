@@ -21,6 +21,9 @@ use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
 use App\Models\SignedCode;
 use App\Models\User;
+use Auth;
+use DB;
+use Hash;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
@@ -28,10 +31,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
+use Password;
 
 class UserController extends Controller
 {

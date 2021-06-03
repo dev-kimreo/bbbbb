@@ -8,12 +8,12 @@ use App\Http\Requests\Attaches\StoreRequest;
 use App\Http\Requests\Attaches\UpdateRequest;
 use App\Models\AttachFile;
 use App\Services\AttachService;
+use Auth;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Storage;
 
 /**
  * Class AttachController
