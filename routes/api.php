@@ -44,10 +44,12 @@ Route::group([
     Route::group(['prefix' => 'user', 'middleware' => 'auth:api'], function () {
         // 회원 관련 CRUD
         Route::post('', [UserController::class, 'store'])->withoutmiddleware('auth:api');
-        Route::get('', [UserController::class, 'index'])->middleware('admin');
-        Route::get('/{id}', [UserController::class, 'show'])->where(['id' => '[0-9]+']);
-        Route::patch('/{id}', [UserController::class, 'update'])->where(['id' => '[0-9]+']);
-        Route::delete('/{id}', [UserController::class, 'destroy'])->where(['id' => '[0-9]+']);
+        Route::get('', [UserController::class, 'index'])->middleware('chkAccess:backoffice');
+        Route::group(['middleware' => 'chkAccess:owner,backoffice'], function () {
+            Route::get('/{user_id}', [UserController::class, 'show'])->where(['user_id' => '[0-9]+']);
+            Route::patch('/{user_id}', [UserController::class, 'update'])->where(['user_id' => '[0-9]+']);
+            Route::delete('/{user_id}', [UserController::class, 'destroy'])->where(['user_id' => '[0-9]+']);
+        });
 
         // 회원 세션 CRUD
         Route::post('/auth', [AccessTokenController::class, 'store'])->withoutmiddleware('auth:api');
@@ -57,14 +59,15 @@ Route::group([
         // 회원 연동 솔루션 CD (추가 및 삭제)
         Route::resource('/{user_id}/linkedSolution', UserLinkedSolutionController::class, [
             'only' => ['store', 'destroy']
-        ]);
+        ])->middleware('chkAccess:owner,backoffice');
 
         // 광고성정보 수신동의 여부 CD (동의 및 거부)
-        Route::patch('/{user_id}/advAgree', [UserAdvAgreeController::class, 'update']);
+        Route::patch('/{user_id}/advAgree', [UserAdvAgreeController::class, 'update'])
+            ->middleware('chkAccess:owner,backoffice');
 
-
-        Route::post('/{id}/auth', [UserController::class, 'personalClientLogin'])->middleware('admin');
-
+        // 관리자 Super Login
+        Route::post('/{user_id}/auth', [UserController::class, 'personalClientLogin'])
+            ->middleware('chkAccess:backoffice');
     });
 
     /**
@@ -93,7 +96,7 @@ Route::group([
     /**
      * 관리자 및 권한 관련
      */
-    Route::group(['middleware' => 'auth:api'], function () {
+    Route::group(['middleware' => 'chkAccess:backoffice'], function () {
         Route::resource('authority', AuthorityController::class);
         Route::resource('manager', ManagerController::class,[
             'only' => ['index', 'show', 'store', 'destroy']
@@ -103,30 +106,23 @@ Route::group([
     /**
      * 게시판 관련
      */
-    Route::group(['prefix' => 'board', 'middleware' => 'auth:api'], function () {
+    Route::group(['prefix' => 'board', 'middleware' => 'chkAccess:backoffice'], function () {
         // 게시판 CRUD
         Route::post('', [BoardController::class, 'store']);
-        Route::get('', [BoardController::class, 'index'])->withoutmiddleware('auth:api');
-        Route::get('/{id}', [BoardController::class, 'show'])->withoutmiddleware('auth:api')->where(['id' => '[0-9]+']);
+        Route::get('', [BoardController::class, 'index'])->withoutmiddleware('chkAccess:backoffice');
+        Route::get('/{id}', [BoardController::class, 'show'])->withoutmiddleware('chkAccess:backoffice')->where(['id' => '[0-9]+']);
         Route::patch('/{id}', [BoardController::class, 'update']);
         Route::delete('/{id}', [BoardController::class, 'destroy']);
 
         // 게시판 옵션
-        Route::get('/option', [OptionController::class, 'index'])->middleware('admin');
-
+        Route::get('/option', [OptionController::class, 'index']);
 
         // 게시글 CRUD
         Route::post('/{boardId}/post', [PostController::class, 'store']);
-        Route::get('/{boardId}/post', [PostController::class, 'index'])->withoutmiddleware('auth:api');
-        Route::get('/{boardId}/post/{id}', [PostController::class, 'show'])->withoutmiddleware('auth:api');
+        Route::get('/{boardId}/post', [PostController::class, 'index'])->withoutmiddleware('chkAccess:backoffice');
+        Route::get('/{boardId}/post/{id}', [PostController::class, 'show'])->withoutmiddleware('chkAccess:backoffice');
         Route::patch('/{boardId}/post/{id}', [PostController::class, 'update']);
         Route::delete('/{boardId}/post/{id}', [PostController::class, 'destroy']);
-
-        // 댓글 CRUD
-        Route::post('/{boardId}/post/{postId}/reply', [ReplyController::class, 'store']);
-        Route::get('/{boardId}/post/{postId}/reply', [ReplyController::class, 'index'])->withoutmiddleware('auth:api');
-        Route::patch('/{boardId}/post/{postId}/reply/{id}', [ReplyController::class, 'update']);
-        Route::delete('/{boardId}/post/{postId}/reply/{id}', [ReplyController::class, 'destroy']);
 
         // Unique API
         // 게시판의 게시글 수를 포함한 목록
@@ -136,99 +132,49 @@ Route::group([
         Route::patch('/{id}/sort', [BoardController::class, 'updateBoardSort']);
     });
 
+    // 게시판 글 목록 (Backoffice)
+    Route::group(['prefix' => 'post', 'middleware' => 'chkAccess:backoffice'], function () {
+        Route::get('', [PostController::class, 'getList']);
+    });
+
+    /**
+     * 게시판 덧글 관련
+     */
+    // 댓글 CRUD
+    Route::group(['prefix' => 'board', 'middleware' => 'chkAccess:regular'], function () {
+        Route::post('/{boardId}/post/{postId}/reply', [ReplyController::class, 'store']);
+        Route::get('/{boardId}/post/{postId}/reply', [ReplyController::class, 'index'])->withoutmiddleware('chkAccess:regular');
+        Route::patch('/{boardId}/post/{postId}/reply/{id}', [ReplyController::class, 'update']);
+        Route::delete('/{boardId}/post/{postId}/reply/{id}', [ReplyController::class, 'destroy']);
+    });
 
     /**
      * 1:1 문의
      */
-    Route::group(['prefix' => 'inquiry', 'middleware' => 'auth:api'], function () {
-        // 문의 CRUD
-        Route::post('', [InquiryController::class, 'store']);
-        Route::get('', [InquiryController::class, 'index']);
-        Route::get('/{inquiryId}', [InquiryController::class, 'show']);
-        Route::patch('{inquiryId}', [InquiryController::class, 'update']);
-        Route::delete('{inquiryId}', [InquiryController::class, 'destroy']);
-
-        // 답변 CRUD (Customized Router)
-        Route::post('{inquiryId}/answer', [InquiryAnswerController::class, 'store']);
-        Route::get('{inquiryId}/answer', [InquiryAnswerController::class, 'show']);
-        Route::patch('{inquiryId}/answer', [InquiryAnswerController::class, 'update']);
-        Route::delete('{inquiryId}/answer', [InquiryAnswerController::class, 'destroy']);
+    // 문의 CRUD
+    Route::group(['prefix' => 'inquiry'], function () {
+        Route::post('', [InquiryController::class, 'store'])->middleware('chkAccess:regular');
+        Route::get('', [InquiryController::class, 'index'])->middleware('chkAccess:regular,backoffice');
+        Route::get('{inquiryId}', [InquiryController::class, 'show'])->middleware('chkAccess:regular,backoffice');
+        Route::patch('{inquiryId}', [InquiryController::class, 'update'])->middleware('chkAccess:regular');
+        Route::delete('{inquiryId}', [InquiryController::class, 'destroy'])->middleware('chkAccess:regular');
     });
 
-
-    // 게시판 글
-    Route::group([
-        'prefix' => 'post'
-    ], function () {
-
-        // Backoffice
-        // 인증 필요
-        Route::group([
-            'middleware' => ['auth:api', 'admin'],
-        ], function () {
-            Route::get('', [PostController::class, 'getList']);
-        });
-
-
+    // 답변 CRUD (Customized Router)
+    Route::group(['prefix' => 'inquiry/{inquiryId}/answer', 'middleware' => 'chkAccess:backoffice'], function () {
+        Route::post('', [InquiryAnswerController::class, 'store']);
+        Route::get('', [InquiryAnswerController::class, 'show']);
+        Route::patch('', [InquiryAnswerController::class, 'update']);
+        Route::delete('', [InquiryAnswerController::class, 'destroy']);
     });
-
 
     // 첨부파일
     Route::group([
         'prefix' => 'attach',
-        'middleware' => 'auth:api'
+        'middleware' => 'chkAccess:associate,backoffice'
     ], function () {
-        // 임시 파일 첨부
-        Route::post('', [AttachController::class, 'store']);
-
-        // 파일 삭제
-        Route::delete('/{id}', [AttachController::class, 'delete']);
-
-        // 파일 이동
-        Route::patch('/{id}', [AttachController::class, 'update']);
-
+        Route::post('', [AttachController::class, 'store']);            // 임시 파일 첨부
+        Route::patch('/{id}', [AttachController::class, 'update']);     // 파일 이동
+        Route::delete('/{id}', [AttachController::class, 'delete']);    // 파일 삭제
     });
-
-
 });
-
-
-//    Route::group([
-//        'prefix' => 'v2'
-//    ], function ($router){
-//
-//        Route::get('/user-profile', [AuthController::class, 'userProfile']);
-//
-//    });
-
-
-// 관리자
-Route::group([
-    'prefix' => 'backoffice',
-    'middleware' => ['auth:api', 'admin']
-], function ($router) {
-
-    // 게시글 관련
-    Route::group([
-        'prefix' => 'post'
-    ], function(){
-    });
-
-
-    // 게시판 관련
-    Route::group([
-        'prefix' => 'board'
-    ], function () {
-        //
-
-        Route::get('/reInitOption', [BoardController::class, 'reInitBoardOption']);
-
-    });
-
-
-});
-
-
-
-
-

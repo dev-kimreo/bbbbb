@@ -2,12 +2,13 @@
 
 namespace App\Policies;
 
-use Gate;
 use App\Models\User;
 use App\Models\Board;
 use App\Models\Post;
 use App\Models\Reply;
+use Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Gate;
 
 class ReplyPolicy
 {
@@ -35,7 +36,7 @@ class ReplyPolicy
 
     public function create(User $user, Reply $reply, Post $post, Board $board)
     {
-        if (isset($user->manager) && $user->isLoginToManagerService()) {
+        if (Auth::hasAccessRightsToBackoffice()) {
             return true;
         } else {
 //            // Post 의 볼 권한이 있는지 체크

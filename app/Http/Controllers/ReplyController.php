@@ -11,10 +11,10 @@ use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
 use App\Models\Post;
 use App\Models\Reply;
+use Auth;
+use Gate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * Class PostController

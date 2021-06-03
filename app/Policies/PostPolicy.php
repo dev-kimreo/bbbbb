@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\Board;
 use App\Models\Post;
+use Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Gate;
 
@@ -42,7 +43,7 @@ class PostPolicy
 
     public function create(User $user, Post $post, Board $board)
     {
-        if (isset($user->manager) && $user->isLoginToManagerService()) {
+        if (Auth::hasAccessRightsToBackoffice()) {
             return true;
         } else {
 //            if ($board->options['board'] != 'manager') {
@@ -55,7 +56,7 @@ class PostPolicy
 
     public function update(User $user, Post $post)
     {
-        if (isset($user->manager) && $user->isLoginToManagerService()) {
+        if (Auth::hasAccessRightsToBackoffice()) {
             return $user->id === $post->user_id;
         } else {
             return false;
@@ -64,7 +65,7 @@ class PostPolicy
 
     public function delete(User $user, Post $post)
     {
-        if (isset($user->manager) && $user->isLoginToManagerService()) {
+        if (Auth::hasAccessRightsToBackoffice()) {
             return $user->id === $post->user_id;
         } else {
             return false;

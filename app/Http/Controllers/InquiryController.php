@@ -15,12 +15,12 @@ use App\Models\Inquiry;
 use App\Models\InquiryAnswer;
 use App\Models\User;
 use App\Services\AttachService;
+use Auth;
+use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Class PostController
@@ -208,7 +208,7 @@ class InquiryController extends Controller
             ->orderBy('inquiries.id', 'desc');
 
         // Set search conditions
-        if (!Auth::user()->isLoginToManagerService()) {
+        if (!Auth::hasAccessRightsToBackoffice()) {
             $inquiry->where('inquiries.user_id', Auth::id());
         }
 
@@ -362,7 +362,7 @@ class InquiryController extends Controller
         $data = $this->getOne($id);
 
         // Check authority
-        if (!Auth::user()->isLoginToManagerService()) {
+        if (!Auth::hasAccessRightsToBackoffice()) {
             if ($data->user_id != Auth::id()) {
                 throw new QpickHttpException(403, 'inquiry.disable.writer_only');
             }

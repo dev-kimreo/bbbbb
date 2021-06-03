@@ -2,10 +2,8 @@
 
 namespace App\Http\Requests\Inquiries;
 
+use Auth;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Support\Facades\Auth;
 
 class ShowRequest extends FormRequest
 {
@@ -16,7 +14,7 @@ class ShowRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::check();
+        return true;
     }
 
     /**

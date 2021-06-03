@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\QpickHttpException;
 use App\Models\User;
+use Auth;
+use Hash;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Laravel\Passport\Http\Controllers\AccessTokenController as ATC;
 use Psr\Http\Message\ServerRequestInterface;
+use Validator;
 
 class AccessTokenController extends ATC
 {

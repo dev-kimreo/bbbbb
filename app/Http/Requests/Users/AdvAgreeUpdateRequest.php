@@ -2,10 +2,8 @@
 
 namespace App\Http\Requests\Users;
 
+use Auth;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Support\Facades\Auth;
 
 class AdvAgreeUpdateRequest extends FormRequest
 {
@@ -14,7 +12,7 @@ class AdvAgreeUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::check() && (Auth::user()->isLoginToManagerService() || Auth::id() == $this->route('user_id'));
+        return true;
     }
 
     /**

@@ -3,12 +3,10 @@
 namespace App\Listeners;
 
 use App\Events\Backoffice\DataCreated;
-use App\Events\Backoffice\DataUpdated;
 use App\Events\Backoffice\DataDeleted;
+use App\Events\Backoffice\DataUpdated;
 use App\Models\BackofficeLog;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Auth;
+use Auth;
 
 class RemainBackofficeLog
 {

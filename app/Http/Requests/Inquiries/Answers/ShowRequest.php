@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Inquiries\Answers;
 
+use Auth;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class ShowRequest extends FormRequest
 {
@@ -14,7 +14,7 @@ class ShowRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::check() && Auth::user()->isLoginToManagerService();
+        return true;
     }
 
     /**

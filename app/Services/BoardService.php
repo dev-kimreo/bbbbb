@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
+use App\Exceptions\QpickHttpException;
 use App\Models\Board;
 use App\Models\BoardOption;
+use Cache;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
-use App\Exceptions\QpickHttpException;
 
 class BoardService
 {

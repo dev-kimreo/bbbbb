@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Inquiries\Answers;
 
+use Auth;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class DestroyRequest extends FormRequest
 {
@@ -14,7 +14,7 @@ class DestroyRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::check() && Auth::user()->isLoginToManagerService();
+        return true;
     }
 
     /**

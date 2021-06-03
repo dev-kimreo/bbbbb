@@ -2,11 +2,8 @@
 
 namespace App\Http\Requests\Inquiries;
 
+use Auth;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
 class UpdateRequest extends FormRequest
 {
@@ -17,7 +14,7 @@ class UpdateRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::check() && !Auth::user()->isLoginToManagerService();
+        return true;
     }
 
     /**
