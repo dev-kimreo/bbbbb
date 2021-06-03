@@ -61,7 +61,6 @@ class UserController extends Controller
      *          required=true,
      *          description=""
      *      ),
-
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
@@ -766,6 +765,52 @@ class UserController extends Controller
         DB::table('password_resets')->where('email', $request->input('email'))->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/v1/user/{id}/auth",
+     *      summary="특정 회원 로그인",
+     *      description="특정 회원 로그인",
+     *      operationId="personalMemberLogin",
+     *      tags={"회원관련"},
+     *      @OA\Response(
+     *          response=201,
+     *          description="",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="tokenType", type="string", example="Bearer"),
+     *              @OA\Property(property="expiresIn", type="integer", example=600),
+     *              @OA\Property(property="accessToken", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZGY5YTI3OGE4YzRiZGM3YmM1NmQwZGFhNjQxYzNjYmRjYjEzM2ZkZGFkMWMxNzQ1YWU3ZDZiODM2NTI4ZDUwM2U0NjMyYWJhYjA2NWIxMTAiLCJpYXQiOiIxNjE2NTczODA0LjI2MTU2MyIsIm5iZiI6IjE2MTY1NzM4MDQuMjYxNTY3IiwiZXhwIjoiMTY0ODEwOTgwNC4yNDMxOTYiLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.WqgNN-8mX6hHehrkN77rGzzsDZOy-USzfyzqnuVnJLTSpTNlVK3FM0OpzGUnYOFwP2rCOoibAOcJX7xue2QeYtwu6QFWAPZIeJAi780ECPTdxcbTzAcWC9ckCQ0ryVKDk0cex2WAOvI3pOPFiKWvciAnqdKY7yvjcjFIxbvyZ5i-d0KoKZa6ucRjGU3msyky1pWwje1sYnkUE77kk8480TbnLPoHVe7PjRKwfsdUBVrYJPmdxJd-mh-OLL9c1UNHTqIPsn1PSpD-SdAxOfNwYrc8g-D1KBtsXv_GhO3L1L0lL7-jp_Ocmk_uFY8Z4Z89-7ZCNCrqHx4W1K2keNB8P8o7qI89BPWLBxDSYXJ8Pm0y6ajN_gvQRHPD9OzVPlpc212YwgWnt9ErbGeGK2cC1cyAZOikC84ye2jHGXs3dbozUrkBSkjWl8O-kU65uk3M7kiaB6BpIhE1sCbLOC55uCJSQInsInKQNUAvxlZNHSLeWwxaUP-kt-owYW9ResWNs10ofPkSIC31DFpx77eo98SeX4g5s69dDCVr1wvo_9lg1D8QOUvALNAR_ghN-O6ChvSWmxTvfVsiXIRaj413rLtSu1HgTSuBM0b-3DsjZrDEbHDYGnKNany0x-I3NXjUelKQwGb6JEixGmcnO5Yj7x5dCzCYVSd_EfeuHDxfhnk"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Client authentication failed"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed login"
+     *      ),
+     *      security={{
+     *          "admin_auth":{}
+     *      }}
+     *  )
+     * @param Request $request
+     * @param $id
+     * @return Collection
+     */
+    # TODO 백오피스에서 특정 회원 로그인 기능시 Log 남기도록 해야함. 최종원 과장의 피드백 이후 추가 작업 필요
+    public function personalClientLogin(Request $request, $id): Collection
+    {
+        $this->user = $this->user->find($id);
+        $token = $this->user->createToken('personal Login');
+
+        $res = [];
+        $res['token_type'] = 'Bearer';
+        $res['expire_in'] = config('auth.personal_client.expire') * 60;
+        $res['access_token'] = $token->accessToken;
+
+        return collect($res);
     }
 
 
