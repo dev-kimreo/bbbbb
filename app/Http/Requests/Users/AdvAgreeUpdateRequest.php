@@ -12,7 +12,7 @@ class AdvAgreeUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::check() && (Auth::hasAccessRightsToBackoffice() || Auth::id() == $this->route('user_id'));
+        return true;
     }
 
     /**

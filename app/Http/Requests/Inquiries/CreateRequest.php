@@ -14,7 +14,7 @@ class CreateRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::hasAccessRightsToBackoffice();
+        return true;
     }
 
     /**

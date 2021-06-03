@@ -16,7 +16,7 @@ class DestroyRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::hasAccessRightsToBackoffice();
+        return true;
     }
 
     /**

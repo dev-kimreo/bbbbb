@@ -14,7 +14,7 @@ class StoreManagerRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::check() && Auth::user()->checkAdmin();
+        return true;
     }
 
     /**
