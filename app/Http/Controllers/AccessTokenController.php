@@ -25,7 +25,7 @@ class AccessTokenController extends ATC
 
     /**
      * @OA\Post(
-     *      path="/v1/member/auth",
+     *      path="/v1/user/auth",
      *      summary="로그인",
      *      description="회원 로그인",
      *      operationId="memberLogin",
