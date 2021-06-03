@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Board;
+use Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BoardPolicy
@@ -26,7 +27,7 @@ class BoardPolicy
 
     public function viewAny(?User $user)
     {
-        if ($user->hasAccessRightsToBackoffice()) {
+        if (Auth::hasAccessRightsToBackoffice()) {
             return true;
         } else {
             return true;
@@ -35,7 +36,7 @@ class BoardPolicy
 
     public function view(?User $user, Board $board)
     {
-        if ($user->hasAccessRightsToBackoffice()) {
+        if (Auth::hasAccessRightsToBackoffice()) {
             return true;
         } else {
             return $board->enable ? true : false;
@@ -48,7 +49,7 @@ class BoardPolicy
      */
     public function create(User $user, Board $board)
     {
-        if ($user->hasAccessRightsToBackoffice()) {
+        if (Auth::hasAccessRightsToBackoffice()) {
             return true;
         } else {
             return false;
