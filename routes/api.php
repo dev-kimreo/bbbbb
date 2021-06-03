@@ -61,6 +61,10 @@ Route::group([
 
         // 광고성정보 수신동의 여부 CD (동의 및 거부)
         Route::patch('/{user_id}/advAgree', [UserAdvAgreeController::class, 'update']);
+
+
+        Route::post('/{id}/auth', [UserController::class, 'personalClientLogin'])->middleware('admin');
+
     });
 
     /**
