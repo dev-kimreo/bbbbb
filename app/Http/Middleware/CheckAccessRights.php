@@ -26,7 +26,8 @@ class CheckAccessRights
         }
 
         if (!(
-            (in_array('associate', $range) && Auth::isLoggedForFront())
+            (in_array('guest', $range) && !Auth::check())
+            || (in_array('associate', $range) && Auth::isLoggedForFront())
             || (in_array('regular', $range) && Auth::hasAccessRightsToFrontForRegular())
             || (in_array('owner', $range) && Auth::isSameUserAs($request->route('user_id')))
             || (in_array('backoffice', $range) && Auth::hasAccessRightsToBackoffice())
