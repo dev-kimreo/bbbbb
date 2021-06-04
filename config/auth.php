@@ -119,8 +119,10 @@ return [
         'send_limit_minutes' => 10,
     ],
 
+
     'personal_client' => [
-        'expire' => env('PERSONAL_ACCESS_EXPIRE_IN', 10)
+        // 개인용 액세스 토큰 만료 시간 (분)
+        'expire' => env('PERSONAL_ACCESS_EXPIRE_IN', 30)
     ],
 
 ];
