@@ -297,12 +297,7 @@ class UserController extends Controller
      */
     public function update(int $id, UpdateRequest $request): JsonResponse
     {
-        // validate
-        if ($id != Auth::id()) {
-            throw new QpickHttpException(403, 'common.unauthorized');
-        }
-
-        if (!$this::chkPasswordMatched($request->input('password'))) {
+        if (!Auth::hasAccessRightsToBackoffice() && !$this::chkPasswordMatched($request->input('password'))) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
@@ -346,11 +341,7 @@ class UserController extends Controller
     public function destroy(int $id, Request $request, AccessTokenController $tokenController): Response
     {
         // validation
-        if ($id != Auth::id()) {
-            throw new QpickHttpException(403, 'common.unauthorized');
-        }
-
-        if (!$this::chkPasswordMatched($request->input('password'))) {
+        if (!Auth::hasAccessRightsToBackoffice() && !$this::chkPasswordMatched($request->input('password'))) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 

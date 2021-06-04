@@ -4,6 +4,7 @@ namespace Tests\Feature\Traits;
 
 use App\Models\Manager;
 use App\Models\User;
+use Hash;
 use Laravel\Passport\Passport;
 use Laravel\Passport\Client;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -11,19 +12,30 @@ use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 trait QpickTestBase
 {
     protected string $accessToken = '';
+    protected string $userPassword = 'password#30';
 
-    protected function actingAsQpickUser()
+    protected function actingAsQpickUser(string $role): User
     {
-        $user = User::factory()->create();
-        Passport::actingAs($user);
+        $user = User::factory()->create([
+            'password' => Hash::make($this->userPassword)
+        ]);
 
-        return $user;
-    }
+        switch ($role) {
+            case 'associate':
+                $user->grade = 0;
+                Passport::actingAs($user);
+                break;
 
-    protected function actingAsQpickManager()
-    {
-        $user = User::find(Manager::first()->user_id);
-        $this->getPassportToken($user);
+            case 'regular':
+                $user->grade = 1;
+                Passport::actingAs($user);
+                break;
+
+            case 'backoffice':
+                $user = User::find(Manager::first()->user_id);
+                $this->getPassportToken($user);
+                break;
+        }
 
         return $user;
     }
@@ -51,8 +63,6 @@ trait QpickTestBase
         if($this->accessToken) {
             $header['Authorization'] = 'Bearer ' . $this->accessToken;
         }
-
-        echo $this->accessToken . ' ' . date('H:i:s') . "\n";
 
         switch($method) {
             case 'get': $response = $this->getJson($url, $header); break;

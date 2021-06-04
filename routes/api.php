@@ -44,8 +44,11 @@ Route::group([
      */
     Route::group(['prefix' => 'user', 'middleware' => 'auth:api'], function () {
         // 회원 관련 CRUD
-        Route::post('', [UserController::class, 'store'])->withoutmiddleware('auth:api');
-        Route::get('', [UserController::class, 'index'])->middleware('chkAccess:backoffice');
+        Route::post('', [UserController::class, 'store'])
+            ->withoutmiddleware('auth:api')
+            ->middleware('chkAccess:guest');
+        Route::get('', [UserController::class, 'index'])
+            ->middleware('chkAccess:backoffice');
         Route::group(['middleware' => 'chkAccess:owner,backoffice'], function () {
             Route::get('/{user_id}', [UserController::class, 'show'])->where(['user_id' => '[0-9]+']);
             Route::patch('/{user_id}', [UserController::class, 'update'])->where(['user_id' => '[0-9]+']);
@@ -53,7 +56,8 @@ Route::group([
         });
 
         // 회원 세션 CRUD
-        Route::post('/auth', [AccessTokenController::class, 'store'])->withoutmiddleware('auth:api');
+        Route::post('/auth', [AccessTokenController::class, 'store'])
+            ->withoutmiddleware('auth:api');
         Route::get('/auth', [AccessTokenController::class, 'show']);
         Route::delete('/auth', [AccessTokenController::class, 'destroy']);
 
