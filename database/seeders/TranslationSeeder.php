@@ -197,6 +197,12 @@ class TranslationSeeder extends Seeder
                 '업로드 제한 갯수를 초과 하였습니다.',
                 '업로드 제한 갯수를 초과 하였습니다.'
             ],
+            [
+                'exceptions',
+                'menu.delete.disable.exists_children',
+                '하위 메뉴가 존재하여 삭제할 수 없습니다.',
+                '하위 메뉴가 존재하여 삭제할 수 없습니다.'
+            ],
         ];
 
         // Truncate tables

@@ -146,7 +146,7 @@ class AuthorityController extends Controller
     }
 
     /**
-     * @OA\Put (
+     * @OA\Patch (
      *      path="/v1/authority/{id}",
      *      summary="관리자그룹 수정",
      *      description="기존에 등록된 관리자그룹을 수정합니다",
