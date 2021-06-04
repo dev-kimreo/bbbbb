@@ -103,7 +103,7 @@ class UserTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function testUseDeleteOtherByRegular()
+    public function testUserDeleteOtherByRegular()
     {
         $user = $this->actingAsQpickUser('regular');
         $other = $this->getExistsData($user->id);
