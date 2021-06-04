@@ -7,6 +7,7 @@ use App\Http\Controllers\BoardController;
 use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\InquiryAnswerController;
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\Users\ManagerController;
@@ -177,4 +178,14 @@ Route::group([
         Route::patch('/{id}', [AttachController::class, 'update']);     // 파일 이동
         Route::delete('/{id}', [AttachController::class, 'delete']);    // 파일 삭제
     });
+
+
+    /**
+     * 메뉴 CRUE
+     */
+    Route::resource('menu', MenuController::class);
+
+
+
+
 });
