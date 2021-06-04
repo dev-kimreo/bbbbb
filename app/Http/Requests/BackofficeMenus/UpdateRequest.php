@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Menus;
+namespace App\Http\Requests\BackofficeMenus;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App;
 
-class IndexRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,6 +25,8 @@ class IndexRequest extends FormRequest
     public function rules()
     {
         return [
+            'name' => 'required_without_all:parent,sort|string|between:2,32',
+            'sort' => 'required_without_all:name,parent|integer',
         ];
     }
 }

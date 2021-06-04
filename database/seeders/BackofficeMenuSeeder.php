@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-class MenuSeeder extends Seeder
+class BackofficeMenuSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,7 +18,7 @@ class MenuSeeder extends Seeder
     public function run()
     {
         //
-        DB::table('menus')->insert(
+        DB::table('backoffice_menus')->insert(
             [
                 [
                     'name' => '대시보드',

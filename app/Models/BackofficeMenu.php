@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * )
  *
  */
-class Menu extends Model
+class BackofficeMenu extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
@@ -43,12 +43,12 @@ class Menu extends Model
 
     public function children(): HasMany
     {
-        return $this->hasMany('App\Models\Menu', 'parent', 'id');
+        return $this->hasMany('App\Models\BackofficeMenu', 'parent', 'id');
     }
 
     public function parentMenu(): HasOne
     {
-        return $this->hasOne('App\Models\Menu', 'id', 'parent');
+        return $this->hasOne('App\Models\BackofficeMenu', 'id', 'parent');
     }
 }
 
