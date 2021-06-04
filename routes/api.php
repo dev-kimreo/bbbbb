@@ -181,10 +181,11 @@ Route::group([
 
 
     /**
-     * 메뉴 CRUE
+     * 메뉴 CRUD
      */
-    Route::resource('menu', MenuController::class);
-
+    Route::group(['middleware' => 'chkAccess:backoffice'], function () {
+        Route::resource('menu', MenuController::class);
+    });
 
 
 
