@@ -7,7 +7,7 @@ use App\Http\Controllers\BoardController;
 use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\InquiryAnswerController;
 use App\Http\Controllers\InquiryController;
-use App\Http\Controllers\MenuController;
+use App\Http\Controllers\BackofficeMenuController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\Users\ManagerController;
@@ -58,12 +58,12 @@ Route::group([
         Route::delete('/auth', [AccessTokenController::class, 'destroy']);
 
         // 회원 연동 솔루션 CD (추가 및 삭제)
-        Route::resource('/{user_id}/linkedSolution', UserLinkedSolutionController::class, [
+        Route::resource('/{user_id}/linked-solution', UserLinkedSolutionController::class, [
             'only' => ['store', 'destroy']
         ])->middleware('chkAccess:owner,backoffice');
 
         // 광고성정보 수신동의 여부 CD (동의 및 거부)
-        Route::patch('/{user_id}/advAgree', [UserAdvAgreeController::class, 'update'])
+        Route::patch('/{user_id}/adv-agree', [UserAdvAgreeController::class, 'update'])
             ->middleware('chkAccess:owner,backoffice');
 
         // 관리자 Super Login
@@ -184,7 +184,7 @@ Route::group([
      * 메뉴 CRUD
      */
     Route::group(['middleware' => 'chkAccess:backoffice'], function () {
-        Route::resource('menu', MenuController::class);
+        Route::resource('backoffice-menu', BackofficeMenuController::class);
     });
 
 

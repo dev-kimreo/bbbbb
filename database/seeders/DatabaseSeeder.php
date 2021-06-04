@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             BoardOptionsSeeder::class,
             OauthClientsSeeder::class,
             TranslationSeeder::class,
-            MenuSeeder::class,
+            BackofficeMenuSeeder::class,
         ]);
 
         // \App\Models\User::factory(10)->create();

@@ -3,19 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\QpickHttpException;
-use App\Http\Requests\Menus\StoreRequest;
-use App\Http\Requests\Menus\UpdateRequest;
-use App\Http\Requests\Menus\IndexRequest;
-use App\Models\Menu;
+use App\Http\Requests\BackofficeMenus\StoreRequest;
+use App\Http\Requests\BackofficeMenus\UpdateRequest;
+use App\Http\Requests\BackofficeMenus\IndexRequest;
+use App\Models\BackofficeMenu;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 
-class MenuController extends Controller
+class BackofficeMenuController extends Controller
 {
-    private Menu $menu;
+    private BackofficeMenu $menu;
 
-    public function __construct(Menu $menu)
+    public function __construct(BackofficeMenu $menu)
     {
         $this->menu = $menu;
     }
@@ -33,15 +33,15 @@ class MenuController extends Controller
      *          description="",
      *          @OA\JsonContent(
      *              required={"name"},
-     *              @OA\Property(property="name", ref="#/components/schemas/Menu/properties/name"),
-     *              @OA\Property(property="parent", ref="#/components/schemas/Menu/properties/parent"),
-     *              @OA\Property(property="sort", ref="#/components/schemas/Menu/properties/sort")
+     *              @OA\Property(property="name", ref="#/components/schemas/BackofficeMenu/properties/name"),
+     *              @OA\Property(property="parent", ref="#/components/schemas/BackofficeMenu/properties/parent"),
+     *              @OA\Property(property="sort", ref="#/components/schemas/BackofficeMenu/properties/sort")
      *          )
      *      ),
      *      @OA\Response(
      *          response=201,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/Menu")
+     *          @OA\JsonContent(ref="#/components/schemas/BackofficeMenu")
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -49,9 +49,9 @@ class MenuController extends Controller
      *      )
      *  )
      * @param StoreRequest $req
-     * @return Menu
+     * @return BackofficeMenu
      */
-    public function store(StoreRequest $req): Menu
+    public function store(StoreRequest $req): BackofficeMenu
     {
         $mergeArrays = [];
 
@@ -87,14 +87,14 @@ class MenuController extends Controller
      *      @OA\RequestBody(
      *          description="",
      *          @OA\JsonContent(
-     *              @OA\Property(property="name", ref="#/components/schemas/Menu/properties/name"),
-     *              @OA\Property(property="sort", ref="#/components/schemas/Menu/properties/sort")
+     *              @OA\Property(property="name", ref="#/components/schemas/BackofficeMenu/properties/name"),
+     *              @OA\Property(property="sort", ref="#/components/schemas/BackofficeMenu/properties/sort")
      *          )
      *      ),
      *      @OA\Response(
      *          response=201,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/Menu")
+     *          @OA\JsonContent(ref="#/components/schemas/BackofficeMenu")
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -103,9 +103,9 @@ class MenuController extends Controller
      *  )
      * @param UpdateRequest $req
      * @param $menu_id
-     * @return Menu
+     * @return BackofficeMenu
      */
-    public function update(UpdateRequest $req, $menu_id): Menu
+    public function update(UpdateRequest $req, $menu_id): BackofficeMenu
     {
         $this->menu = $this->menu->findOrFail($menu_id);
         $this->menu->fill($req->all());
@@ -125,7 +125,7 @@ class MenuController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/Menu")
+     *          @OA\JsonContent(ref="#/components/schemas/BackofficeMenu")
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -134,9 +134,9 @@ class MenuController extends Controller
      *  )
      * @param Request $req
      * @param $menu_id
-     * @return Menu
+     * @return BackofficeMenu
      */
-    public function show(Request $req, $menu_id): Menu
+    public function show(Request $req, $menu_id): BackofficeMenu
     {
         $this->menu = $this->menu->findOrFail($menu_id);
 
@@ -155,7 +155,7 @@ class MenuController extends Controller
      *          description="successfully",
      *          @OA\JsonContent(
      *              type="array",
-     *              @OA\Items(ref="#/components/schemas/Menu")
+     *              @OA\Items(ref="#/components/schemas/BackofficeMenu")
      *          )
      *      ),
      *      @OA\Response(
