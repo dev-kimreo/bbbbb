@@ -429,28 +429,33 @@ class UserController extends Controller
      */
     public function verification(Request $request): JsonResponse
     {
-        $signCode = SignedCode::getBySignCode($request->input('id'), $request->input('hash'), $request->input('signature'))->select('id')->first();
+        $id = $request->route('user_id');
+        $signCode = SignedCode::getBySignCode($id, $request->input('hash'), $request->input('signature'))->select('id')->first();
 
         // 가상 서명키 유효성 체크
-        if ($request->hasValidSignature() && $signCode && $signCode['id']) {
-
-            $member = $this->user::find($request->input('id'));
-
-            // 인증되지 않은 경우
-            if (is_null($member->email_verified_at)) {
-                $member->email_verified_at = carbon::now();
-                $member->save();
-            } else {
-                // 이미 인증된 회원입니다.
-                throw new QpickHttpException(422, 'email.already_verified');
-            }
-
-            // 가상 서명키 제거
-            $signCode->delete();
-        } else {
-            throw new QpickHttpException(422, 'email.incorrect');
+        if (!$request->hasValidSignature()) {
+            throw new QpickHttpException(422, 'email.failed_validation_signature');
+        }
+        else if(!$signCode || !$signCode['id']) {
+            throw new QpickHttpException(422, 'email.not_found_sign_code');
         }
 
+        // find user
+        $member = $this->user::find($id);
+
+        // 인증되지 않은 경우
+        if (is_null($member->email_verified_at)) {
+            $member->email_verified_at = carbon::now();
+            $member->save();
+        } else {
+            // 이미 인증된 회원입니다.
+            throw new QpickHttpException(422, 'email.already_verified');
+        }
+
+        // 가상 서명키 제거
+        $signCode->delete();
+
+        // response
         return response()->json(collect($member));
     }
 
