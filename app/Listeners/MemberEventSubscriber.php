@@ -25,7 +25,7 @@ class MemberEventSubscriber
                 Carbon::now()->addMinutes(Config::get('auth.verification.expire')),
                 [
                     'verifyKey' => $this->verifyKey,
-                    'id' => $event->user->id,
+                    'user_id' => $event->user->id,
                     'hash' => sha1($event->user->email)
                 ]
             );
