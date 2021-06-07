@@ -227,9 +227,7 @@ class UserController extends Controller
      *          description="failed"
      *      )
      *  )
-     */
-
-    /**
+     *
      * 회원가입
      *
      * @param StoreRequest $request

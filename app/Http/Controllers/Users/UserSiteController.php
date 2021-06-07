@@ -18,6 +18,16 @@ class UserSiteController extends Controller
      *      description="새로운 사이트 정보 추가",
      *      operationId="userSiteCreate",
      *      tags={"회원관련"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="type", type="string", maxLength=16, description="쇼핑몰 분류", example="남성의류"),
+     *              @OA\Property(property="name", type="string", maxLength=32, description="사이트명", example="J맨즈 컬렉션"),
+     *              @OA\Property(property="url", type="string", maxLength=256, description="사이트 URL", example="https://jmans.co.kr"),
+     *              @OA\Property(property="solution", type="string", maxLength=16, description="연동된 솔루션명", example="마이소호"),
+     *              @OA\Property(property="apikey", type="string", maxLength=512, description="연동된 솔루션의 API Key", example="apikey31f7sdg6bsd73")
+     *          ),
+     *      ),
      *      @OA\Response(
      *          response=201,
      *          description="successfully",
@@ -55,6 +65,16 @@ class UserSiteController extends Controller
      *      description="새로운 사이트 정보 수정",
      *      operationId="userSiteUpdate",
      *      tags={"회원관련"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="type", type="string", maxLength=16, description="쇼핑몰 분류", example="남성의류"),
+     *              @OA\Property(property="name", type="string", maxLength=32, description="사이트명", example="J맨즈 컬렉션"),
+     *              @OA\Property(property="url", type="string", maxLength=256, description="사이트 URL", example="https://jmans.co.kr"),
+     *              @OA\Property(property="solution", type="string", maxLength=16, description="연동된 솔루션명", example="마이소호"),
+     *              @OA\Property(property="apikey", type="string", maxLength=512, description="연동된 솔루션의 API Key", example="apikey31f7sdg6bsd73")
+     *          ),
+     *      ),
      *      @OA\Response(
      *          response=201,
      *          description="successfully",
