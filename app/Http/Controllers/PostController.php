@@ -322,7 +322,7 @@ class PostController extends Controller
         $pagination = PaginationLibrary::set($request->page, $postModel->count(), $request->per_page);
 
         if ($request->page <= $pagination['totalPage']) {
-            $postModel->with('user:id,name')->withCount('replies');
+            $postModel->with('user')->withCount('replies');
             $postModel->with('thumbnail.attachFiles');
 
             $postModel
@@ -391,7 +391,7 @@ class PostController extends Controller
     public function show($boardId, $id): Collection
     {
         // 게시글 정보
-        $postModel = $this->post->where('board_id', $boardId)->with('user:id,name');
+        $postModel = $this->post->where('board_id', $boardId)->with('user');
 
         // 첨부파일 (섬네일 제외)
         $postModel->with('attachFiles');
