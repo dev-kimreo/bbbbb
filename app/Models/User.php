@@ -15,23 +15,35 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
 /**
- *
  * @OA\Schema(
+ *   schema="User",
  *   required={"password"},
  *   @OA\Property(property="id", type="integer", readOnly="true", example="1"),
+ *   @OA\Property(property="name", type="string", maxLength=255, example="홍길동"),
  *   @OA\Property(property="email", type="string", readOnly="true", format="email", description="회원 email", example="user@qpicki.com"),
  *   @OA\Property(
  *       property="emailVerifiedAt", type="string", readOnly="true", format="date-time",
  *       description="회원 이메일 인증 일자", default=null, example="2019-02-25 12:59:20"
  *   ),
- *   @OA\Property(property="name", type="string", maxLength=255, example="홍길동"),
  *   @OA\Property(property="grade", type="integer", default=1, description="0:준회원, 1:정회원", example=1),
+ *   @OA\Property(property="lanugage", type="string", default="ko", description="선택한 언어코드", example="ko"),
+ *   @OA\Property(
+ *       property="registerdAt", type="string", readOnly="true", format="date-time",
+ *       description="정회원 등록일", default=null, example="2019-02-25 12:59:20"
+ *   ),
+ *   @OA\Property(
+ *       property="inactivatedAt", type="string", readOnly="true", format="date-time",
+ *       description="(휴면계정인 경우) 휴면일", default=null, example="2019-02-25 12:59:20"
+ *   ),
+ *   @OA\Property(
+ *       property="lastAuthorizedAt", type="string", readOnly="true", format="date-time",
+ *       description="최종로그인 일시", default=null, example="2019-02-25 12:59:20"
+ *   ),
  *   @OA\Property(property="createdAt", ref="#/components/schemas/Base/properties/created_at"),
  *   @OA\Property(property="updatedAt", ref="#/components/schemas/Base/properties/updated_at"),
+ *   @OA\Property(property="advAgree", ref="#/components/schemas/UserAdvAgree"),
+ *   @OA\Property(property="sites", type="array", @OA\Items(ref="#/components/schemas/UserSite"))
  * )
- *
- * Class User
- *
  *
  * @OA\Schema (
  *   schema="UserSimply",
@@ -39,6 +51,9 @@ use Laravel\Passport\HasApiTokens;
  *   @OA\Property(property="name", type="string", maxLength=255, example="홍길동"),
  *   @OA\Property(property="email", type="string", readOnly="true", format="email", description="회원 email", example="user@qpicki.com"),
  * )
+ *
+ * Class User
+ * @package App\Models
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -51,7 +66,7 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $fillable = [
-        'name', 'email', 'mall_type', 'mall_name', 'mall_url', 'language', 'memo_for_managers'
+        'name', 'email', 'language', 'memo_for_managers'
     ];
     protected $hidden = ['password', 'remember_token', 'deleted_at', 'memo_for_managers'];
     protected $casts = [
@@ -66,9 +81,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(UserAdvAgree::class);
     }
 
-    public function solutions(): hasMany
+    public function sites(): hasMany
     {
-        return $this->hasMany(UserLinkedSolution::class);
+        return $this->hasMany(UserSite::class);
     }
 
     public function checkAdmin(): bool

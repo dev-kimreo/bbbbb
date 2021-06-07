@@ -14,7 +14,7 @@ use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\Users\ManagerController;
 use App\Http\Controllers\Users\UserAdvAgreeController;
 use App\Http\Controllers\Users\UserController;
-use App\Http\Controllers\Users\UserLinkedSolutionController;
+use App\Http\Controllers\Users\UserSiteController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -63,8 +63,8 @@ Route::group([
         Route::delete('/auth', [AccessTokenController::class, 'destroy']);
 
         // 회원 연동 솔루션 CD (추가 및 삭제)
-        Route::resource('/{user_id}/linked-solution', UserLinkedSolutionController::class, [
-            'only' => ['store', 'destroy']
+        Route::resource('/{user_id}/site', UserSiteController::class, [
+            'only' => ['store', 'update', 'destroy']
         ])->middleware('chkAccess:owner,backoffice');
 
         // 광고성정보 수신동의 여부 CD (동의 및 거부)

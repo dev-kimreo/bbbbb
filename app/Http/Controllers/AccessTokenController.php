@@ -113,9 +113,9 @@ class AccessTokenController extends ATC
     /**
      * @OA\Get(
      *      path="/v1/user/auth",
-     *      summary="회원정보",
-     *      description="회원정보",
-     *      operationId="userInfo",
+     *      summary="로그인된 회원정보",
+     *      description="로그인된 회원정보 열람",
+     *      operationId="userAuthInfo",
      *      tags={"회원관련"},
      *      @OA\Response(
      *          response=200,

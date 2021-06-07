@@ -8,6 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @OA\Schema (
+ *   schema="UserAdvAgree",
+ *   @OA\Property(property="agree", type="boolean", example="true"),
+ *   @OA\Property(property="createdAt", ref="#/components/schemas/Base/properties/created_at"),
+ * )
+ *
+ * Class UserAdvAgree
+ * @package App\Models
+ */
 class UserAdvAgree extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601;
