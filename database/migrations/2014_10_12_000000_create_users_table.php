@@ -22,9 +22,6 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->unsignedTinyInteger('grade')->default('0');
-            $table->string('mall_type', 16);
-            $table->string('mall_name', 32);
-            $table->string('mall_url', 256);
             $table->char('language', 2)->default('ko');
             $table->string('memo_for_managers', 256);
             $table->timestamp('registered_at')->nullable()->index();
@@ -36,11 +33,14 @@ class CreateUsersTable extends Migration
             $table->index(['created_at']);
         });
 
-        Schema::create('user_linked_solutions', function (Blueprint $table) {
+        Schema::create('user_sites', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->string('name', 16);
+            $table->string('type', 16);
+            $table->string('name', 32);
+            $table->string('url', 256);
+            $table->string('solution', 16);
             $table->string('apikey', 512)->nullable();
             $table->timestamps();
             $table->softDeletes();

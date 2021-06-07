@@ -51,7 +51,7 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $fillable = [
-        'name', 'email', 'mall_type', 'mall_name', 'mall_url', 'language', 'memo_for_managers'
+        'name', 'email', 'language', 'memo_for_managers'
     ];
     protected $hidden = ['password', 'remember_token', 'deleted_at', 'memo_for_managers'];
     protected $casts = [
@@ -66,9 +66,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(UserAdvAgree::class);
     }
 
-    public function solutions(): hasMany
+    public function sites(): hasMany
     {
-        return $this->hasMany(UserLinkedSolution::class);
+        return $this->hasMany(UserSite::class);
     }
 
     public function checkAdmin(): bool

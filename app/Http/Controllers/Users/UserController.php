@@ -89,7 +89,7 @@ class UserController extends Controller
     public function index(IndexRequest $request): Collection
     {
         // get model
-        $user = $this->user::with(['advAgree', 'solutions']);
+        $user = $this->user::with(['advAgree', 'sites']);
 
         // set search conditions
         if ($s = $request->input('start_created_date')) {
@@ -859,7 +859,7 @@ class UserController extends Controller
      */
     protected function getOne(int $id)
     {
-        $user = $this->user->with(['advAgree', 'solutions'])->findOrFail($id);
+        $user = $this->user->with(['advAgree', 'sites'])->findOrFail($id);
 
         if (Auth::hasAccessRightsToBackoffice()) {
             $user->makeVisible(['memo_for_managers']);

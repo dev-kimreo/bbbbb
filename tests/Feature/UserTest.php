@@ -25,9 +25,6 @@ class UserTest extends TestCase
             'email',
             'emailVerifiedAt',
             'grade',
-            'mallType',
-            'mallName',
-            'mallUrl',
             'language',
             'registeredAt',
             'inactivatedAt',
@@ -35,7 +32,7 @@ class UserTest extends TestCase
             'createdAt',
             'updatedAt',
             'advAgree',
-            'solutions'
+            'sites'
         ];
     }
 
