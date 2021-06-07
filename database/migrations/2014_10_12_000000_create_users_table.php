@@ -37,10 +37,10 @@ class CreateUsersTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->string('type', 16);
-            $table->string('name', 32);
-            $table->string('url', 256);
-            $table->string('solution', 16);
+            $table->string('type', 16)->nullable();
+            $table->string('name', 32)->nullable();
+            $table->string('url', 256)->nullable();
+            $table->string('solution', 16)->nullable();
             $table->string('apikey', 512)->nullable();
             $table->timestamps();
             $table->softDeletes();
