@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccessTokenController;
 use App\Http\Controllers\AttachController;
 use App\Http\Controllers\AuthorityController;
+use App\Http\Controllers\BackofficePermissionController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\InquiryAnswerController;
@@ -109,6 +110,22 @@ Route::group([
     });
 
     /**
+     * 메뉴 CRUD
+     */
+    Route::group(['middleware' => 'chkAccess:backoffice'], function () {
+        Route::resource('backoffice-menu', BackofficeMenuController::class);
+    });
+
+    /**
+     * 메뉴 권한 CRUD
+     */
+    Route::group(['middleware' => 'chkAccess:backoffice'], function () {
+        Route::resource('backoffice-permission', BackofficePermissionController::class, [
+            'only' => ['index', 'show', 'store', 'destroy']
+        ]);
+    });
+
+    /**
      * 게시판 관련
      */
     Route::group(['prefix' => 'board', 'middleware' => 'chkAccess:backoffice'], function () {
@@ -183,13 +200,6 @@ Route::group([
         Route::delete('/{id}', [AttachController::class, 'delete']);    // 파일 삭제
     });
 
-
-    /**
-     * 메뉴 CRUD
-     */
-    Route::group(['middleware' => 'chkAccess:backoffice'], function () {
-        Route::resource('backoffice-menu', BackofficeMenuController::class);
-    });
 
 
 
