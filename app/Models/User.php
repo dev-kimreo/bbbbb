@@ -66,7 +66,7 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $fillable = [
-        'name', 'email', 'language', 'memo_for_managers'
+        'name', 'email', 'language', 'password', 'memo_for_managers'
     ];
     protected $hidden = ['password', 'remember_token', 'deleted_at', 'memo_for_managers'];
     protected $casts = [
