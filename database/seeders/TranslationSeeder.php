@@ -203,6 +203,12 @@ class TranslationSeeder extends Seeder
                 '하위 메뉴가 존재하여 삭제할 수 없습니다.',
                 '하위 메뉴가 존재하여 삭제할 수 없습니다.'
             ],
+            [
+                'exceptions',
+                'menu.permission.only.last',
+                '마지막 메뉴만이 권한을 가질 수 있습니다.',
+                '마지막 메뉴만이 권한을 가질 수 있습니다.'
+            ],
         ];
 
         // Truncate tables

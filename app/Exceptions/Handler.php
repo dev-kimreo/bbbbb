@@ -9,6 +9,7 @@ use Illuminate\Validation\ValidationException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Throwable;
 use Error;
+use Str;
 use ErrorException;
 
 class Handler extends ExceptionHandler
@@ -48,8 +49,8 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Throwable  $e
+     * @param \Illuminate\Http\Request $request
+     * @param \Throwable $e
      * @return \Symfony\Component\HttpFoundation\Response
      *
      * @throws \Throwable
@@ -71,7 +72,7 @@ class Handler extends ExceptionHandler
         }
 
         // Grab the HTTP status code and message from the Exception
-        if($this->isHttpException($e) && method_exists($e, 'getStatusCode')) {
+        if ($this->isHttpException($e) && method_exists($e, 'getStatusCode')) {
             $statusCode = $e->getStatusCode();
             $response['errors'][] = [
                 'code' => 'system.http.' . $statusCode,
@@ -80,7 +81,7 @@ class Handler extends ExceptionHandler
         } elseif ($e instanceof QpickHttpException) {
             $statusCode = $e->getStatusCode();
             $response['errors'] = $e->getErrors();
-        } elseif($e instanceof ErrorException || $e instanceof Error) {
+        } elseif ($e instanceof ErrorException || $e instanceof Error) {
             $statusCode = 500;
             $response['errors'][] = [
                 'code' => 'system.internalError',
@@ -90,10 +91,10 @@ class Handler extends ExceptionHandler
             $statusCode = 422;
             $rules = $e->validator->failed();
 
-            foreach($e->errors() as $field => $v) {
+            foreach ($e->errors() as $field => $v) {
                 $rule = array_keys($rules[$field]);
 
-                foreach($v as $k => $message) {
+                foreach ($v as $k => $message) {
                     $response['errors'][] = [
                         'code' => 'validation.' . lcfirst($rule[$k]),
                         'target' => $field,
@@ -101,24 +102,35 @@ class Handler extends ExceptionHandler
                     ];
                 }
             }
-        } else if($e instanceof RouteNotFoundException) {
+        } else if ($e instanceof RouteNotFoundException) {
             $statusCode = 404;
             $response['errors'][] = [
                 'code' => 'system.http.' . $statusCode,
                 'msg' => $e->getMessage()
             ];
         } elseif ($e instanceof QueryException) {
-            $statusCode = 500;
-            $response['errors'][] = [
-                'code' => 'system.databaseError',
-                'msg' => $e->getMessage()
-            ];
+
+            // duplicate
+            if (Str::contains($e->getMessage(), 'Duplicate entry')) {
+                $statusCode = 409;
+                $response['errors'][] = [
+                    'code' => 'system.databaseError',
+                    'msg' => 'Duplicate Entry resource'
+                ];
+            } else {
+                $statusCode = 500;
+                $response['errors'][] = [
+                    'code' => 'system.databaseError',
+                    'msg' => $e->getMessage()
+                ];
+            }
+
         } else {
             $o = parent::render($request, $e);
             $statusCode = $o->getStatusCode();
             $response['errors'][] = [
                 'code' => 'system.http.' . $statusCode,
-                'msg' => method_exists($e, 'getMessage')? $e->getMessage(): $o->original['message']
+                'msg' => method_exists($e, 'getMessage') ? $e->getMessage() : $o->original['message']
             ];
         }
 
