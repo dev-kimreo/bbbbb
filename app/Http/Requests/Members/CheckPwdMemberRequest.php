@@ -37,14 +37,6 @@ class CheckPwdMemberRequest extends FormRequest
     public function messages()
     {
         return [
-            'password.required' => getErrorCode(100001, 'password'),
         ];
     }
-//
-    protected function failedValidation(Validator $validator) {
-        $resErr = getValidationErrToArr($validator->errors());
-        throw new HttpResponseException(response()->json($resErr, 422));
-    }
-
-
 }

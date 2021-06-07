@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Sofa\Eloquence\Eloquence;
@@ -13,7 +14,7 @@ use Str;
 
 class Test extends Model
 {
-    use HasFactory, Eloquence, Mappable;
+    use HasFactory, Eloquence, Mappable, DateFormatISO8601;
 
 
     /**
@@ -76,13 +77,4 @@ class Test extends Model
     {
         return parent::setAttribute(Str::snake($key), $value);
     }
-
-    public function getCreatedAtAttribute($value){
-        return Carbon::parse($value)->format('c');
-    }
-
-    public function getUpdatedAtAttribute($value){
-        return Carbon::parse($value)->format('c');
-    }
-
 }

@@ -14,14 +14,27 @@ class OauthClientsSeeder extends Seeder
      */
     public function run()
     {
+        $insArrs = [
+            [
+                "name" => 'qpicki_front',
+                "secret" => 'W6dubFlWMNIy85Wdv1b4jx21NW43m5VC2yHB8Oy0',
+                "provider" => 'users',
+                "redirect" => 'http://localhost',
+                "personal_access_client" => 0,
+                "password_client" => 1
+            ],
+            [
+                "name" => 'qpicki_crm',
+                "secret" => '4QsJFRc8UaN63F5fvkxgvNXTnYg6ripWKEOHFiUU',
+                "provider" => 'users',
+                "redirect" => 'http://localhost',
+                "personal_access_client" => 0,
+                "password_client" => 1
+            ]
+        ];
         //
-        DB::table('oauth_clients')->insert([
-            'name' => 'qpicki_front',
-            'secret' => 'W6dubFlWMNIy85Wdv1b4jx21NW43m5VC2yHB8Oy0',
-            'provider' => 'users',
-            'redirect' => 'http://localhost',
-            'personal_access_client' => 0,
-            'password_client' => 1
-        ]);
+        foreach ($insArrs as $v) {
+            DB::table('oauth_clients')->insert($v);
+        }
     }
 }

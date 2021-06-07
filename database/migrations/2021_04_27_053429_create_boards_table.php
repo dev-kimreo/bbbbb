@@ -16,12 +16,13 @@ class CreateBoardsTable extends Migration
         Schema::create('boards', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
+            $table->foreignId('user_id')->constrained();
             $table->string('name', 32);
-            $table->string('type', 32);
             $table->json('options');
-            $table->tinyInteger('hidden')->nullable()->default('0');
+            $table->unsignedTinyInteger('sort')->default(100);
+            $table->boolean('enable')->default('0');
             $table->timestamps();
-            $table->index('type');
+            $table->softDeletes();
         });
     }
 

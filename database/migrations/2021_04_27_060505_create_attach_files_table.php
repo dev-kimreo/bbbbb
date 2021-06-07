@@ -17,15 +17,15 @@ class CreateAttachFilesTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->string('server', 32);
-            $table->string('type', 32);
-            $table->unsignedBigInteger('type_id');
-            $table->unsignedBigInteger('user_id');
+            $table->morphs('attachable');
+            $table->foreignId('user_id')->constrained();
             $table->string('url');
             $table->string('path');
             $table->string('name', 128);
             $table->string('org_name', 128);
             $table->json('etc')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

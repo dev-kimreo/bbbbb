@@ -2,25 +2,18 @@
 
 namespace App\Listeners;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Config;
-use Carbon\Carbon;
-use function Illuminate\Events\queueable;
-
-use App\Models\SignedCodes;
 use App\Jobs\SendMail;
-
-
+use App\Models\SignedCode;
+use Carbon\Carbon;
+use Config;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use URL;
 
 class MemberEventSubscriber
 {
 
     public $subName = 'verification.verify';
-    public $verifyKey = 'member.regist';
+    public $verifyKey = 'user.regist';
 
     public function handleMemberVerifyEmail($event) {
 
@@ -73,8 +66,7 @@ class MemberEventSubscriber
     // 메일 발송 갯수 제한 체크
     public function handleMemberVerifyEmailCheck($event) {
 
-        $signCount = SignedCodes::where('name',  $this->verifyKey)
-                                ->where('name_id', $event->user->id)
+        $signCount = SignedCode::where('user_id', $event->user->id)
                                 ->where('created_at', '>', carbon::now()->subMinutes(Config::get('auth.verification.send_limit_minutes')))->get()->count();
 
         if ($signCount >= Config::get('auth.verification.send_limit_count')) {

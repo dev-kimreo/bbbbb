@@ -2,6 +2,14 @@
 
 namespace App\Providers;
 
+use App\Events\Backoffice\DataCreated;
+use App\Events\Backoffice\DataDeleted;
+use App\Events\Backoffice\DataUpdated;
+use App\Listeners\RemainBackofficeLog;
+use App\Models\Board;
+use App\Models\InquiryAnswer;
+use App\Observers\BoardObserver;
+use App\Observers\InquiryAnswerObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -19,6 +27,15 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        DataCreated::class => [
+            RemainBackofficeLog::class
+        ],
+        DataUpdated::class => [
+            RemainBackofficeLog::class
+        ],
+        DataDeleted::class => [
+            RemainBackofficeLog::class
+        ]
     ];
 
     /**
@@ -28,7 +45,8 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Board::observe(BoardObserver::class);
+        InquiryAnswer::observe(InquiryAnswerObserver::class);
     }
 
     protected $subscribe = [

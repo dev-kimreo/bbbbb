@@ -38,17 +38,6 @@ class CheckChangePwdAuthRequest extends FormRequest
     public function messages()
     {
         return [
-            'email.required' => getErrorCode(100001, 'email'),
-            'email.email' => getErrorCode(100101, 'email'),
-            'email.exists' => getErrorCode(100021, 'email'),
-            'token.required' => getErrorCode(100001, 'token'),
         ];
     }
-//
-    protected function failedValidation(Validator $validator) {
-        $resErr = getValidationErrToArr($validator->errors());
-        throw new HttpResponseException(response()->json($resErr, 422));
-    }
-
-
 }

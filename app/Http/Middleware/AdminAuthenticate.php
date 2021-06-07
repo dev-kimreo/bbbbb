@@ -20,7 +20,7 @@ class AdminAuthenticate
     public function handle(Request $request, Closure $next)
     {
         // 관리자 권한 확인
-        if ( Auth()->user()->grade != 100 ) {
+        if (!Auth::hasAccessRightsToBackoffice()) {
             throw new AuthenticationException(
                 'Unauthenticated.'
             );

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Traits\CheckUpdatedAt;
+use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
@@ -14,7 +16,6 @@ use Carbon\Carbon;
  *      @OA\Property(property="id", type="string", example=1, description="게시판 옵션 고유 번호" ),
  *      @OA\Property(property="name", type="string", example="글 작성", description="게시판 옵션 명" ),
  *      @OA\Property(property="type", type="string", example="board", description="게시판 옵션 타입" ),
- *      @OA\Property(property="dataType", type="string", example="radio", description="게시판 옵션 데이터 타입" ),
  *      @OA\Property(property="default", type="string", example="all", description="게시판 옵션 기본값" ),
  *      @OA\Property(property="options", type="array", collectionFormat="multi", example={{"value":"all","comment":"모두 작성 가능"},{"value":"manager","comment":"운영진만 작성 가능"},{"value":"member","comment":"회원만 작성가능"}},
  *          @OA\Items(
@@ -30,7 +31,7 @@ use Carbon\Carbon;
  */
 class BoardOption extends Model
 {
-    use HasFactory;
+    use HasFactory, DateFormatISO8601, CheckUpdatedAt;
 
     /**
      * The attributes that are mass assignable.
@@ -67,15 +68,4 @@ class BoardOption extends Model
     {
         return self::where('type', $type);
     }
-
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->format('c');
-    }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->format('c');
-    }
-
 }

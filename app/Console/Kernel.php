@@ -30,6 +30,8 @@ class Kernel extends ConsoleKernel
         // Telescope 데이터 제거
         $schedule->command('telescope:prune')->daily();
 
+        // 다국어 리소스 캐시
+        $schedule->command('build:translations')->everyFiveMinutes();
     }
 
     /**

@@ -1,25 +1,20 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
+use App\Exceptions\QpickHttpException;
+use App\Http\Requests\Replies\DestroyRequest;
+use App\Http\Requests\Replies\IndexRequest;
+use App\Http\Requests\Replies\StoreRequest;
+use App\Http\Requests\Replies\UpdateRequest;
 use App\Libraries\CollectionLibrary;
-use Illuminate\Http\Request;
-use Auth;
-use Cache;
-
-
-use App\Http\Controllers\BoardController as BoardController;
-use App\Http\Controllers\PostController as PostController;
-
-use App\Models\Reply;
-
-use App\Http\Requests\Replies\CreateRepliesRequest;
-use App\Http\Requests\Replies\ModifyRepliesRequest;
-use App\Http\Requests\Replies\DeleteRepliesRequest;
-use App\Http\Requests\Replies\GetListRepliesRequest;
-
 use App\Libraries\PaginationLibrary;
+use App\Models\Post;
+use App\Models\Reply;
+use Auth;
+use Gate;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 /**
  * Class PostController
@@ -27,10 +22,17 @@ use App\Libraries\PaginationLibrary;
  */
 class ReplyController extends Controller
 {
-    public $attachType = 'reply';
+    private Reply $reply;
+    private Post $post;
+
+    public function __construct(Reply $reply, Post $post)
+    {
+        $this->reply = $reply;
+        $this->post = $post;
+    }
 
     /**
-     *  @OA\Schema (
+     * @OA\Schema (
      *      schema="replyCreate",
      *      required={"content"},
      *      @OA\Property(property="content", type="string", example="댓글 내용입니다.", description="댓글 내용" )
@@ -52,69 +54,59 @@ class ReplyController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="생성되었습니다.",
+     *          response=201,
+     *          description="created",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="생성되었습니다." ),
      *          )
      *      ),
      *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
      *          response=422,
-     *          description="실패",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
-     *                              @OA\Property(property="100022", ref="#/components/schemas/RequestResponse/properties/100022"),
-     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
-     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
-     *                              @OA\Property(property="200005", ref="#/components/schemas/RequestResponse/properties/200005"),
-     *                              @OA\Property(property="250001", ref="#/components/schemas/RequestResponse/properties/250001"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
      *      }}
      *  )
+     * @param StoreRequest $request
+     * @param $boardId
+     * @param $postId
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
 
-    public function create(CreateRepliesRequest $request) {
+    public function store(StoreRequest $request, $boardId, $postId): JsonResponse
+    {
+        $this->post = $this->post::where('board_id', $boardId)->findOrFail($postId);
 
-        // 데이터 체크
-        $checkRes = $this->funcCheckUseReply($request->boardId, $request->postId);
-        if ( $checkRes !== true ) {
-            return response()->json($checkRes, 422);
+        // 댓글 사용 유무 체크
+        if (!$this->post->board->options['reply']) {
+            throw new QpickHttpException(403, 'reply.disable.board_option');
+        }
+
+        // check write post Policy
+        if (!auth()->user()->can('create', [$this->reply, $this->post, $this->post->board])) {
+            throw new QpickHttpException(403, 'common.unauthorized');
         }
 
         // 댓글 작성
-        $reply = new Reply;
-        $reply->post_id = $request->postId;
-        $reply->user_id = auth()->user()->id;
-        $reply->content = $request->content;
-        $reply->save();
+        $this->reply->post_id = intval($postId);
+        $this->reply->user_id = Auth::id();
+        $this->reply->content = $request->input('content');
+        $this->reply->save();
 
-        // 캐시 초기화
-        Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
+        $this->reply->refresh();
 
-        return response()->json([
-            'message' => __('common.created')
-        ], 200);
+        return response()->json(collect($this->reply), 201);
     }
 
 
     /**
-     *  @OA\Schema (
+     * @OA\Schema (
      *      schema="replyModify",
      *      required={"content"},
      *      @OA\Property(property="content", type="string", example="댓글 내용입니다.", description="댓글 내용" )
@@ -136,69 +128,49 @@ class ReplyController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
-     *          description="수정되었습니다.",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="수정되었습니다." ),
-     *          )
+     *          response=201,
+     *          description="modified."
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="실패",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
-     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
-     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
-     *                              @OA\Property(property="101001", ref="#/components/schemas/RequestResponse/properties/101001"),
-     *                              @OA\Property(property="200005", ref="#/components/schemas/RequestResponse/properties/200005"),
-     *                              @OA\Property(property="210003", ref="#/components/schemas/RequestResponse/properties/210003"),
-     *                              @OA\Property(property="250001", ref="#/components/schemas/RequestResponse/properties/250001"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
      *      }}
      *  )
+     * @param UpdateRequest $request
+     * @param $boardId
+     * @param $postId
+     * @param $id
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
-    /**
-     * @param ModifyRepliesRequest $request
-     * @return mixed
-     */
-    public function modify(ModifyRepliesRequest $request) {
 
-        // 데이터 체크
-        $checkRes = $this->funcCheckUseReply($request->boardId, $request->postId);
-        if ( $checkRes !== true ) {
-            return response()->json($checkRes, 422);
+    public function update(UpdateRequest $request, $boardId, $postId, $id): JsonResponse
+    {
+        $this->post = $this->post::where('board_id', $boardId)->findOrFail($postId);
+
+        // 댓글 사용 유무 체크
+        if (!$this->post->board->options['reply']) {
+            throw new QpickHttpException(403, 'reply.disable.board_option');
         }
 
-        $reply = Reply::find($request->id)->where('user_id', auth()->user()->id)->first();
-        if ( is_null($reply) ) {
-            return response()->json(getResponseError(101001), 422);
+        $this->reply = $this->reply::findOrFail($id);
+
+        // 댓글 수정 권한 체크
+        if (!auth()->user()->can('update', $this->reply)) {
+            throw new QpickHttpException(403, 'reply.disable.writer_only');
         }
 
-        $reply->content = $request->content;
-        $reply->update();
+        $this->reply->content = $request->input('content', $this->reply->content);
+        $this->reply->update();
 
-        // 캐시 초기화
-        Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
-
-        return response()->json([
-            'message' => __('common.modified')
-        ], 200);
+        return response()->json(collect($this->reply), 201);
     }
 
 
@@ -210,62 +182,42 @@ class ReplyController extends Controller
      *      operationId="replyDelete",
      *      tags={"게시판 댓글"},
      *      @OA\Response(
-     *          response=200,
-     *          description="삭제되었습니다.",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="삭제되었습니다." ),
-     *          )
+     *          response=204,
+     *          description="deleted."
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="실패",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
-     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
-     *                              @OA\Property(property="101001", ref="#/components/schemas/RequestResponse/properties/101001"),
-     *                              @OA\Property(property="200005", ref="#/components/schemas/RequestResponse/properties/200005"),
-     *                              @OA\Property(property="210003", ref="#/components/schemas/RequestResponse/properties/210003"),
-     *                              @OA\Property(property="250001", ref="#/components/schemas/RequestResponse/properties/250001"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *      security={{
      *          "davinci_auth":{}
      *      }}
      *  )
+     * @param DestroyRequest $request
+     * @param $boardId
+     * @param $postId
+     * @param $id
+     * @return Response
+     * @throws QpickHttpException
      */
-    /**
-     * @param DeleteRepliesRequest $request
-     * @return mixed
-     */
-    public function delete(DeleteRepliesRequest $request) {
 
-        $reply = Reply::where(['id' => $request->id, 'user_id' => auth()->user()->id])->first();
-        if ( is_null($reply) ) {
-            return response()->json(getResponseError(101001), 422);
+    public function destroy(DestroyRequest $request, $boardId, $postId, $id): Response
+    {
+        $this->reply = $this->reply::findOrFail($id);
+
+        // 삭제 권한 체크
+        if (!Auth::user()->can('delete', $this->reply)) {
+            throw new QpickHttpException(403, 'reply.disable.writer_only');
         }
 
         // 댓글 소프트 삭제
-        $reply->delete();
+        $this->reply->delete();
 
-        // 캐시 초기화
-        Cache::tags(['board.' . $request->boardId . '.post.' . $request->postId . '.reply'])->flush();
-
-        return response()->json([
-            'message' => __('common.deleted')
-        ], 200);
+        return response()->noContent();
     }
 
 
@@ -291,7 +243,7 @@ class ReplyController extends Controller
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="success",
+     *          description="successfully",
      *          @OA\JsonContent(
      *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination" ),
      *              @OA\Property(property="list", type="array",
@@ -308,148 +260,64 @@ class ReplyController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
      *          response=422,
-     *          description="failed get lists",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="errors",
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="statusCode",
-     *                      type="object",
-     *                      allOf={
-     *                          @OA\Schema(
-     *                              @OA\Property(property="100001", ref="#/components/schemas/RequestResponse/properties/100001"),
-     *                              @OA\Property(property="100005", ref="#/components/schemas/RequestResponse/properties/100005"),
-     *                              @OA\Property(property="100022", ref="#/components/schemas/RequestResponse/properties/100022"),
-     *                              @OA\Property(property="100041", ref="#/components/schemas/RequestResponse/properties/100041"),
-     *                              @OA\Property(property="100051", ref="#/components/schemas/RequestResponse/properties/100051"),
-     *                              @OA\Property(property="100063", ref="#/components/schemas/RequestResponse/properties/100063"),
-     *                              @OA\Property(property="101001", ref="#/components/schemas/RequestResponse/properties/101001"),
-     *                              @OA\Property(property="200005", ref="#/components/schemas/RequestResponse/properties/200005"),
-     *                              @OA\Property(property="250001", ref="#/components/schemas/RequestResponse/properties/250001"),
-     *                          ),
-     *                      }
-     *                  ),
-     *              )
-     *          )
+     *          description="failed"
      *      ),
      *  )
+     * @param IndexRequest $request
+     * @param $boardId
+     * @param $postId
+     * @return JsonResponse
+     * @throws QpickHttpException
      */
-    /**
-     * @param GetListRepliesRequest $request
-     * @return mixed
-     */
-    public function getList(GetListRepliesRequest $request) {
-        // 데이터 체크
-        $checkRes = $this->funcCheckUseReply($request->boardId, $request->postId);
-        if ( $checkRes !== true ) {
-            return response()->json($checkRes, 422);
+
+    public function index(IndexRequest $request, $boardId, $postId): JsonResponse
+    {
+        $this->post = $this->post::where('board_id', $boardId)->findOrFail($postId);
+
+        // 댓글 사용 유무 체크
+        if (!$this->post->board->options['reply']) {
+            throw new QpickHttpException(403, 'reply.disable.board_option');
         }
 
-        // 댓글 목록
-        $set = [
-            'boardId' => $request->boardId,
-            'postId' => $request->postId,
-            'page' => $request->page,
-            'view' => $request->perPage,
-            'select' => ['id', 'user_id', 'content', 'hidden', 'created_at', 'updated_at']
-        ];
+        // 리소스 접근 권한 체크
+        if (!Gate::allows('viewAny', [$this->reply, $this->post, $this->post->board])) {
+            throw new QpickHttpException(403, 'common.unauthorized');
+        }
 
         // where 절 eloquent
-        $whereModel = Reply::where(['post_id' => $set['postId']]);
-
+        $this->reply = $this->reply::where('post_id', $postId);
 
         // pagination
-        $pagination = PaginationLibrary::set($set['page'], $whereModel->count(), $set['view']);
-        if ( !$pagination ) {
-            return response()->json(getResponseError(101001), 422);
-        }
+        $pagination = PaginationLibrary::set($request->input('page'), $this->reply->count(), $request->input('per_page'));
 
-        if ( $set['page'] <= $pagination['totalPage'] ) {
-            // 데이터 cache
-            $hash = substr(md5(json_encode($set)), 0, 5);
-            $tags = separateTag('board.' . $set['boardId'] . '.post.' . $set['postId'] . '.reply');
-            $data = Cache::tags($tags)->remember($hash, config('cache.custom.expire.common'), function() use ($set, $pagination, $whereModel) {
-                $reply = $whereModel
-                    ->with('user:id,name')
-                    ->select($set['select']);
 
-                $reply = $reply
-                    ->skip($pagination['skip'])
-                    ->take($pagination['perPage'])
-                    ->orderBy('id', 'asc');
-
-                $reply = $reply->get();
-
-                // 데이터 가공
-                $reply->pluck('user')->each->setAppends([]);
-                foreach ($reply as $index) {
-                    // 유저 이름
-                    $index->userName = $index->user->toArray()['name'];
-                    unset($index->user);
-                }
-
-                return $reply;
+        // Sort By
+        if ($s = $request->input('sort_by')) {
+            $sortCollect = CollectionLibrary::getBySort($s, ['id']);
+            $sortCollect->each(function ($item) {
+                $this->reply->orderBy($item['key'], $item['value']);
             });
         }
 
+        if ($request->input('page') <= $pagination['totalPage']) {
+            $this->reply = $this->reply->with('user:id,name');
+            $this->reply = $this->reply
+                ->skip($pagination['skip'])
+                ->take($pagination['perPage']);
 
-        $data = isset($data) ? $data->toArray() : array();
+            $this->reply = $this->reply->get();
+        }
+
+        $data = $this->reply ?? array();
 
         $result = ['header' => $pagination];
         $result['list'] = $data;
 
-        return response()->json(CollectionLibrary::toCamelCase(collect($result)), 200);
+        return response()->json(collect($result));
     }
-
-
-    public function funcCheckUseReply($boardId, $postId) {
-
-        // 필수 파라미터 확인
-        if ( !isset($boardId) ) {
-            return getResponseError(100001, 'boardId');
-        }
-
-        if ( !isset($postId) ) {
-            return getResponseError(100001, 'postId');
-        }
-
-        // 게시글 번호 확인
-        if ( ! intval($boardId) ) {
-            return getResponseError(100041, 'boardId');
-        }
-
-        if ( ! intval($postId) ) {
-            return getResponseError(100041, 'postId');
-        }
-
-        // 게시글 댓글 작성 가능여부 체크
-        $post = new PostController;
-        $post = $post->funcGetInfo($postId, $boardId);
-        if ( isset($post['errors']) ) {
-            return $post;
-        }
-        $postInfo = $post->toArray();
-
-        $board = new BoardController;
-        $board = $board->funcGetBoard($boardId);
-        if ( !$board ) {
-            return getResponseError(100005, 'boardId');
-        }
-
-        $boardInfo = $board->toArray();
-        if ( !$boardInfo['options']['reply'] ) {
-            return getResponseError(250001);
-        }
-
-        // 게시글 숨김 여부
-        if ( $postInfo['hidden'] ) {
-            return getResponseError(200005);
-        }
-
-        return true;
-    }
-
-
 }

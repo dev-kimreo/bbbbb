@@ -27,8 +27,8 @@ class ModifyMemberPwdRequest extends FormRequest
     {
         return [
             'password' => 'required',
-            'changePassword' => 'required|string|min:8',
-            'passwordConfirmation' => 'required|string|same:changePassword'
+            'change_password' => 'required|string|min:8',
+            'password_confirmation' => 'required|string|same:change_password'
         ];
     }
 
@@ -39,18 +39,6 @@ class ModifyMemberPwdRequest extends FormRequest
     public function messages()
     {
         return [
-            'password.required' => getErrorCode(100001, 'password'),
-            'changePassword.required' => getErrorCode(100001, 'changePassword'),
-            'changePassword.min' => getErrorCode(100063, 'changePassword'),
-            'passwordConfirmation.required' => getErrorCode(100001, 'passwordConfirmation'),
-            'passwordConfirmation.same' => getErrorCode(100011, 'passwordConfirmation', 'changePassword'),
         ];
     }
-//
-    protected function failedValidation(Validator $validator) {
-        $resErr = getValidationErrToArr($validator->errors());
-        throw new HttpResponseException(response()->json($resErr, 422));
-    }
-
-
 }

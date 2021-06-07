@@ -93,7 +93,7 @@ return [
     |
     */
 
-    'fallback_locale' => 'en',
+    'fallback_locale' => 'ko',
 
     /*
     |--------------------------------------------------------------------------
@@ -177,6 +177,11 @@ return [
         App\Providers\TelescopeServiceProvider::class,
 
         /*
+         * Qpick's Custom Service Providers...
+         */
+        App\Providers\Sha512HashingServiceProvider::class,
+
+        /*
          * Laravel Framework Service Providers...
          */
         L5Swagger\L5SwaggerServiceProvider::class,
@@ -199,7 +204,7 @@ return [
         'App' => Illuminate\Support\Facades\App::class,
         'Arr' => Illuminate\Support\Arr::class,
         'Artisan' => Illuminate\Support\Facades\Artisan::class,
-        'Auth' => Illuminate\Support\Facades\Auth::class,
+        'Auth' => App\Libraries\Facades\QpickAuth::class,
         'Blade' => Illuminate\Support\Facades\Blade::class,
         'Broadcast' => Illuminate\Support\Facades\Broadcast::class,
         'Bus' => Illuminate\Support\Facades\Bus::class,
