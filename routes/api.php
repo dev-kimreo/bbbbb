@@ -64,7 +64,7 @@ Route::group([
 
         // 회원 연동 솔루션 CD (추가 및 삭제)
         Route::resource('/{user_id}/site', UserSiteController::class, [
-            'only' => ['store', 'destroy']
+            'only' => ['store', 'update', 'destroy']
         ])->middleware('chkAccess:owner,backoffice');
 
         // 광고성정보 수신동의 여부 CD (동의 및 거부)
