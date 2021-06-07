@@ -123,7 +123,19 @@ class TranslationSeeder extends Seeder
                 'exceptions',
                 'email.verification_resend',
                 '인증메일을 재발송 하였습니다.',
-                '인증메일을 재발송 하였습니다.'
+                'A verification mail has been sent again.'
+            ],
+            [
+                'exceptions',
+                'email.failed_validation_signature',
+                '메일 인증키가 유효하지 않습니다.',
+                'Wring validation key.'
+            ],
+            [
+                'exceptions',
+                'not_found_sign_code',
+                '발급된 적이 없거나 만료된 메일인증키입니다.',
+                'The validation key is not found.'
             ],
             [
                 'exceptions',
