@@ -13,11 +13,11 @@ use URL;
 class MemberEventSubscriber
 {
 
-    public $subName = 'verification.verify';
-    public $verifyKey = 'user.regist';
+    public string $subName = 'verification.verify';
+    public string $verifyKey = 'user.regist';
 
-    public function handleMemberVerifyEmail($event) {
-
+    public function handleMemberVerifyEmail($event): bool
+    {
         // 이메일 인증되지 않은 회원일 경우
         if ($event->user instanceof MustVerifyEmail && !$event->user->hasVerifiedEmail() ) {
             // 고유 url 생성
@@ -65,10 +65,12 @@ class MemberEventSubscriber
     }
 
     // 메일 발송 갯수 제한 체크
-    public function handleMemberVerifyEmailCheck($event) {
-
+    public function handleMemberVerifyEmailCheck($event): bool
+    {
         $signCount = SignedCode::where('user_id', $event->user->id)
-                                ->where('created_at', '>', carbon::now()->subMinutes(Config::get('auth.verification.send_limit_minutes')))->get()->count();
+            ->where('created_at', '>', carbon::now()->subMinutes(Config::get('auth.verification.send_limit_minutes')))
+            ->get()
+            ->count();
 
         if ($signCount >= Config::get('auth.verification.send_limit_count')) {
             return false;
