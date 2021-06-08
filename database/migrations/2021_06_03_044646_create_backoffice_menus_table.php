@@ -23,6 +23,15 @@ class CreateBackofficeMenusTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+
+        Schema::create('backoffice_permissions', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('authority_id')->constrained();
+            $table->foreignId('backoffice_menu_id')->constrained();
+            $table->timestamps();
+            $table->softDeletes();
+        });
     }
 
     /**
@@ -32,6 +41,7 @@ class CreateBackofficeMenusTable extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('backoffice_permissions');
         Schema::dropIfExists('backoffice_menus');
     }
 }
