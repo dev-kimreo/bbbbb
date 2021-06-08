@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Member\Login as LoginEvent;
 use App\Exceptions\QpickHttpException;
 use App\Models\User;
 use Auth;
 use Hash;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
@@ -15,11 +17,13 @@ use Validator;
 
 class AccessTokenController extends ATC
 {
-    private User $user;
+    protected User $user;
+    protected Request $req;
 
-    public function store(ServerRequestInterface $request, User $user): Response
+    public function store(Request $req, ServerRequestInterface $request, User $user): Response
     {
         $this->user = $user;
+        $this->req = $req;
         return $this->issueToken($request);
     }
 
@@ -72,7 +76,6 @@ class AccessTokenController extends ATC
      */
     public function issueToken(ServerRequestInterface $request): Response
     {
-
         // Getting the body of request
         $requestBody = $request->getParsedBody();
 
@@ -104,6 +107,8 @@ class AccessTokenController extends ATC
         if (!hash::check($password, $user->password)) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
+
+        LoginEvent::dispatch($this->req, $user->getAttribute('id'), $requestBody['client_id']);
 
         return parent::issueToken($request);
     }
