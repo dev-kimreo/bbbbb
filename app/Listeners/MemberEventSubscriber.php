@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Jobs\SendMail;
 use App\Models\SignedCode;
+use App\Models\UserLoginLog;
 use Carbon\Carbon;
 use Config;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -76,6 +77,19 @@ class MemberEventSubscriber
         return true;
     }
 
+    // 로그인 로그
+    public function handleUserLogin($event): bool
+    {
+        UserLoginLog::create([
+            'user_id' => $event->user_id,
+            'manager_id' => $event->manager_id,
+            'client_id' => $event->client_id,
+            'ip' => $event->ip
+        ]);
+
+        return true;
+    }
+
     /**
      * Register the listeners for the subscriber.
      *
@@ -92,6 +106,9 @@ class MemberEventSubscriber
             [MemberEventSubscriber::class, 'handleMemberVerifyEmailCheck']
         );
 
-
+        $events->listen(
+            'App\Events\Member\Login',
+            [MemberEventSubscriber::class, 'handleUserLogin']
+        );
     }
 }
