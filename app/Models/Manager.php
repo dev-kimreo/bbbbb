@@ -28,6 +28,10 @@ class Manager extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    protected $fillable = [
+        'user_id', 'authority_id'
+    ];
+
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -50,5 +54,6 @@ class Manager extends Model
     {
         return $this->belongsTo(Authority::class);
     }
+    
 }
 

@@ -221,6 +221,12 @@ class TranslationSeeder extends Seeder
                 '마지막 메뉴만이 권한을 가질 수 있습니다.',
                 '마지막 메뉴만이 권한을 가질 수 있습니다.'
             ],
+            [
+                'exceptions',
+                'authority.delete.disable.exists_manager',
+                '현재 사용중인 관리자가 존재하여 삭제할 수 없습니다.',
+                '현재 사용중인 관리자가 존재하여 삭제할 수 없습니다.'
+            ],
         ];
 
         // Truncate tables
