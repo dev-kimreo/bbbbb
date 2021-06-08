@@ -46,7 +46,9 @@ class PostController extends Controller
      *      schema="postCreate",
      *      required={"title", "content"},
      *      @OA\Property(property="title", type="string", example="게시글 입니다.", description="게시글 제목" ),
-     *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" )
+     *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" ),
+     *      @OA\Property(property="sort", type="integer", example=999, description="게시글 전시순서" ),
+     *      @OA\Property(property="hidden", type="integer", example=1, description="게시글 전시여부 (0:전시, 1:미전시)" ),
      *  )
      */
 
@@ -105,6 +107,8 @@ class PostController extends Controller
         $this->post->user_id = Auth::id();
         $this->post->title = $request->input('title');
         $this->post->content = $request->input('content');
+        $this->post->sort = $request->input('sort', 999);
+        $this->post->hidden = $request->input('hidden', 1);
 
         $this->post->save();
 
@@ -117,8 +121,11 @@ class PostController extends Controller
     /**
      * @OA\Schema (
      *      schema="postModify",
+     *      @OA\Property(property="boardId", type="integer", example=3, description="변경할 게시판 고유 번호" ),
      *      @OA\Property(property="title", type="string", example="게시글 입니다.", description="게시글 제목" ),
-     *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" )
+     *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" ),
+     *      @OA\Property(property="sort", type="integer", example=999, description="게시글 전시순서" ),
+     *      @OA\Property(property="hidden", type="integer", example=1, description="게시글 전시여부 (0:전시, 1:미전시)" ),
      *  )
      */
 
@@ -171,9 +178,11 @@ class PostController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
+        $this->post->board_id = $request->input('board_id', $this->post->board_id);
         $this->post->title = $request->input('title', $this->post->title);
         $this->post->content = $request->input('content', $this->post->content);
-        $this->post->sort = $request->input('sort', $this->post->sor);
+        $this->post->sort = $request->input('sort', $this->post->sort);
+        $this->post->hidden = $request->input('hidden', $this->post->hidden);
         $this->post->save();
 
         return response()->json(collect($this->post), 201);

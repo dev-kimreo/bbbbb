@@ -28,7 +28,9 @@ class StoreRequest extends FormRequest
     {
         return [
             'title' => 'required|string|between:6,128',
-            'content' => 'required|string|min:10'
+            'content' => 'required|string|min:10',
+            'sort' => 'sometimes|integer|between:1,999',
+            'hidden' => 'sometimes|boolean',
         ];
     }
 
