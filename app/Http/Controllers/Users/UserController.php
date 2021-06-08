@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Users;
 
+use App\Events\Member\Login as LoginEvent;
 use App\Events\Member\VerifyEmail;
 use App\Events\Member\VerifyEmailCheck;
 use App\Exceptions\QpickHttpException;
@@ -793,7 +794,6 @@ class UserController extends Controller
      * @param $id
      * @return Collection
      */
-    # TODO 백오피스에서 특정 회원 로그인 기능시 Log 남기도록 해야함. 최종원 과장의 피드백 이후 추가 작업 필요
     public function personalClientLogin(Request $request, $id): Collection
     {
         $this->user = $this->user->find($id);
@@ -803,6 +803,8 @@ class UserController extends Controller
         $res['token_type'] = 'Bearer';
         $res['expire_in'] = config('auth.personal_client.expire') * 60;
         $res['access_token'] = $token->accessToken;
+
+        LoginEvent::dispatch($request, $id, 1, Auth::id());
 
         return collect($res);
     }

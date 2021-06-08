@@ -54,6 +54,25 @@ class CreateUsersTable extends Migration
             $table->timestamp('created_at')->index();
             $table->softDeletes();
         });
+
+        Schema::create('user_login_logs', function (Blueprint $table) {
+            $table->collation = 'utf8mb4_general_ci';
+            $table->bigInteger('id');
+            $table->foreignId('user_id'); // 로그성 테이블의 유연성을 위해 제약조건 미설정
+            $table->foreignId('manager_id'); // 로그성 테이블의 유연성을 위해 제약조건 미설정
+            $table->foreignId('client_id');
+            $table->char('ip', 15);
+            $table->timestamp('created_at')->index();
+            $table->primary(['id', 'created_at']);
+        });
+
+        DB::statement("ALTER TABLE `user_login_logs` MODIFY COLUMN `id` BIGINT(20) UNSIGNED NOT NULL auto_increment");
+
+        DB::statement("
+            ALTER TABLE `user_login_logs` PARTITION BY RANGE (UNIX_TIMESTAMP(created_at)) (
+                PARTITION p2021 VALUES LESS THAN (UNIX_TIMESTAMP('2021-12-31 23:59:59')) ENGINE = InnoDB
+            )
+        ");
     }
 
     /**
@@ -63,7 +82,8 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_linked_solutions');
+        Schema::dropIfExists('user_login_logs');
+        Schema::dropIfExists('user_sites');
         Schema::dropIfExists('user_advertising_agrees');
         Schema::dropIfExists('users');
     }
