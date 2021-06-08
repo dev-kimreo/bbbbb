@@ -27,9 +27,11 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required_without_all:content,sort|string|between:6,128',
-            'content' => 'required_without_all:title,sort|string|min:10',
-            'sort' => 'sometimes|integer|between:1,999'
+            'board_id' => 'required_without_all:title,content,sort,hidden|integer|exists:App\Models\Board,id',
+            'title' => 'required_without_all:board_id,content,sort,hidden|string|between:6,128',
+            'content' => 'required_without_all:board_id,title,sort,hidden|string|min:10',
+            'sort' => 'required_without_all:board_id,title,content,hidden|integer|between:1,999',
+            'hidden' => 'required_without_all:board_id,title,content,sort|boolean',
         ];
     }
 
