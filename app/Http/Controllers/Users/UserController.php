@@ -20,6 +20,7 @@ use App\Http\Requests\Members\UpdateRequest;
 use App\Jobs\SendMail;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
+use App\Models\Authority;
 use App\Models\SignedCode;
 use App\Models\User;
 use Auth;
@@ -60,7 +61,19 @@ class UserController extends Controller
      *      tags={"회원관련"},
      *      @OA\RequestBody(
      *          required=true,
-     *          description=""
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={},
+     *              @OA\Property(property="startCreatedDate", type="date(Y-m-d)", example="2021-01-01", description="가입일 검색 시작일"),
+     *              @OA\Property(property="endCreatedDate", type="date(Y-m-d)", example="2021-03-01", description="가입일 검색 종료일"),
+     *              @OA\Property(property="startRegisteredDate", type="date(Y-m-d)", example="2021-03-01", description="전환일 검색 시작일"),
+     *              @OA\Property(property="endRegisteredDate", type="date(Y-m-d)", example="2021-05-01", description="전환일 검색 종료일"),
+     *              @OA\Property(property="grade", type="integer", example=1, description="회원 등급"),
+     *              @OA\Property(property="id", type="integer", example=1, description="회원 번호"),
+     *              @OA\Property(property="email", type="string", example="abcd@qpicki.com", description="ID(메일)"),
+     *              @OA\Property(property="name", type="string", example="홍길동", description="이름"),
+     *              @OA\Property(property="multiSearch", type="string", example="홍길동", description="전체 검색"),
+     *          ),
      *      ),
      *      @OA\Response(
      *          response=200,
@@ -68,7 +81,16 @@ class UserController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination" ),
      *              @OA\Property(property="list", type="array",
-     *                  @OA\Items(type="object", ref="#/components/schemas/User")
+     *                  @OA\Items(type="object",
+     *                      allOf={
+     *                          @OA\Schema(ref="#/components/schemas/User"),
+     *                          @OA\Schema(
+     *                              @OA\Property(property="authority", type="array",
+     *                                  @OA\Items(type="object", ref="#/components/schemas/Authority")
+     *                              )
+     *                          ),
+     *                      }
+     *                  )
      *              ),
      *          )
      *      ),
@@ -90,7 +112,7 @@ class UserController extends Controller
     public function index(IndexRequest $request): Collection
     {
         // get model
-        $user = $this->user::with(['advAgree', 'sites']);
+        $user = $this->user::with(['advAgree', 'sites', 'authority']);
 
         // set search conditions
         if ($s = $request->input('start_created_date')) {

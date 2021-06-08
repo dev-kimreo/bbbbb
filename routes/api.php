@@ -103,10 +103,18 @@ Route::group([
      * 관리자 및 권한 관련
      */
     Route::group(['middleware' => 'chkAccess:backoffice'], function () {
-        Route::resource('authority', AuthorityController::class);
-        Route::resource('manager', ManagerController::class,[
-            'only' => ['index', 'show', 'store', 'destroy']
-        ]);
+        Route::group(['prefix' => 'authority'], function(){
+            Route::post('', [AuthorityController::class, 'store']);
+            Route::get('', [AuthorityController::class, 'index']);
+            Route::get('/{id}', [AuthorityController::class, 'show'])->where(['id' => '[0-9]+']);
+            Route::patch('/{id}', [AuthorityController::class, 'update'])->where(['id' => '[0-9]+']);
+            Route::delete('/{id}', [AuthorityController::class, 'destroy']);
+
+            Route::get('/{id}/menu-permission', [AuthorityController::class, 'getMenuListWithPermission']);
+        });
+
+
+        Route::resource('manager', ManagerController::class);
     });
 
     /**

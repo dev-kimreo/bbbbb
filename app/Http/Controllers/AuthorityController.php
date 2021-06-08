@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\QpickHttpException;
 use App\Libraries\PaginationLibrary;
 use App\Models\Authority;
 use App\Http\Requests\Members\Authorities\StoreAuthorityRequest;
 use App\Http\Requests\Members\Authorities\UpdateAuthorityRequest;
+use App\Models\BackofficeMenu;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -32,7 +34,14 @@ class AuthorityController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination" ),
      *              @OA\Property(property="list", type="array",
-     *                  @OA\Items(ref="#/components/schemas/Authority")
+     *                  @OA\Items(
+     *                      allOf={
+     *                          @OA\Schema(ref="#/components/schemas/Authority"),
+     *                          @OA\Schema(
+     *                              @OA\Property(property="managersCount", type="integer", example=3, description="그룹 인원" )
+     *                          )
+     *                      }
+     *                  )
      *              )
      *          )
      *      ),
@@ -51,7 +60,8 @@ class AuthorityController extends Controller
      */
     public function index(Request $request): array
     {
-        $data = Authority::all();
+        $data = Authority::withCount('managers')->get();
+
 
         return [
             'header' => PaginationLibrary::set($request->input('page'), $data->count(), $request->input('per_page')),
@@ -92,7 +102,7 @@ class AuthorityController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  Request|StoreAuthorityRequest  $request
+     * @param Request|StoreAuthorityRequest $request
      * @return Collection
      */
     public function store(StoreAuthorityRequest $request): Collection
@@ -137,7 +147,7 @@ class AuthorityController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return Collection
      */
     public function show(int $id): Collection
@@ -178,8 +188,8 @@ class AuthorityController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  Request|UpdateAuthorityRequest  $request
-     * @param  int  $id
+     * @param Request|UpdateAuthorityRequest $request
+     * @param int $id
      * @return Collection
      */
     public function update(UpdateAuthorityRequest $request, int $id): Collection
@@ -226,12 +236,74 @@ class AuthorityController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return Response
+     * @throws QpickHttpException
      */
     public function destroy(int $id): Response
     {
+        $authority = Authority::withCount('managers')->findOrFail($id);
+
+        if ($authority->managers_count > 0) {
+            throw new QpickHttpException(422, 'authority.delete.disable.exists_manager');
+        }
+
         Authority::destroy($id);
         return response()->noContent();
     }
+
+
+
+    /**
+     * @OA\Get (
+     *      path="/v1/authority/{id}/menu-permission",
+     *      summary="관리자그룹 메뉴권한목록",
+     *      description="관리자 그룹의 메뉴 권한 목록",
+     *      operationId="indexAuthorityMenuPermission",
+     *      tags={"관리자"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(type="array",
+     *              @OA\Items(
+     *                  allOf={
+     *                      @OA\Schema(ref="#/components/schemas/BackofficeMenu"),
+     *                      @OA\Schema(
+     *                          @OA\Property(property="permission", type="object", ref="#/components/schemas/BackofficePermission")
+     *                      )
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      )
+     *  )
+     */
+
+    public function getMenuListWithPermission(Request $req, $authority_id)
+    {
+        $authCollect = Authority::findOrFail($authority_id);
+        $usablePermissions = $authCollect->permissions->keyBy('backoffice_menu_id');
+
+        $menuModel = BackofficeMenu::where(['depth' => 1]);
+        $menuModel->with('children.children');
+        $menuModel = $menuModel->get();
+
+        array_walk_recursive($menuModel, [$this, 'addPermissionAtMenu'], $usablePermissions);
+
+        return $menuModel;
+    }
+
+
+    public function addPermissionAtMenu($item, $key, $permissions)
+    {
+        if(!$item->last && count($item->children)){
+            array_walk_recursive($item->children, [$this, 'addPermissionAtMenu'], $permissions);
+        }
+
+        $item->permission = $permissions->get($item->id);
+    }
+
 }

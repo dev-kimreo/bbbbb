@@ -11,7 +11,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  *
  * @OA\Schema(
- *      @OA\Property(property="id", type="integer", example=1, description="메뉴 고유번호"),
+ *      @OA\Property(property="id", type="integer", example=1, description="메뉴 권한 고유번호"),
+ *      @OA\Property(property="authorityId", type="integer", example=1, description="권한 그룹 고유번호"),
+ *      @OA\Property(property="backofficeMenuId", type="integer", example=1, description="메뉴 고유번호"),
  *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자"),
  *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자"),
  *      @OA\Property(property="deletedAt", type="string", format="date-time", description="삭제 일자")

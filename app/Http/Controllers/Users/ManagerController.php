@@ -4,7 +4,12 @@ namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Members\Managers\StoreManagerRequest;
+use App\Http\Requests\Members\Managers\UpdateRequest;
+use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
+use App\Libraries\StringLibrary;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use App\Models\{Manager, User, Authority};
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -30,7 +35,15 @@ class ManagerController extends Controller
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              required={}
+     *              required={},
+     *              @OA\Property(property="authorityId", type="integer", example=2, description="관리자 그룹"),
+     *              @OA\Property(property="id", type="integer", example=1, description="회원 번호"),
+     *              @OA\Property(property="email", type="string", example="abcd@qpicki.com", description="ID(메일)"),
+     *              @OA\Property(property="name", type="string", example="홍길동", description="이름"),
+     *              @OA\Property(property="multiSearch", type="string", example="홍길동", description="전체 검색"),
+     *              @OA\Property(property="page", type="integer", example=1, description="페이지" ),
+     *              @OA\Property(property="perPage", type="integer", example=15, description="한 페이지에 보여질 수" ),
+     *              @OA\Property(property="sortBy", type="string", example="+user.id", description="정렬기준<br/>+:오름차순, -:내림차순" )
      *          ),
      *      ),
      *      @OA\Response(
@@ -54,13 +67,65 @@ class ManagerController extends Controller
      *
      * @param Request $request
      * @return array
+     * @throws \App\Exceptions\QpickHttpException
      */
     public function index(Request $request): array
     {
-        $data = $this->manager::all();
+        $manager = DB::table('managers as manager')
+            ->select('manager.*')
+            ->whereNull('manager.deleted_at');
+
+        $manager->join('users AS user', 'manager.user_id', 'user.id');
+
+        if ($s = $request->input('authority_id')) {
+            $manager->where('authority_id', $s);
+        }
+
+        if ($s = $request->input('name')) {
+            $manager->where('user.name', $s);
+        }
+
+        if ($s = $request->input('id')) {
+            $manager->where('user.id', $s);
+        }
+
+        if ($s = $request->input('email')) {
+            $manager->where('user.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+        }
+
+        // 통합 검색
+        if ($s = $request->input('multi_search')) {
+            $manager->where(function ($q) use ($s) {
+                $q->orWhere('user.name', $s);
+                $q->orWhere('user.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+
+                if (is_numeric($s)) {
+                    $q->orWhere('user.id', $s);
+                }
+            });
+        }
+
+        // Sort By
+        if ($s = $request->input('sort_by')) {
+            $sortCollect = CollectionLibrary::getBySort($s, ['user.id']);
+            $sortCollect->each(function ($item) use ($manager) {
+                $manager->orderBy($item['key'], $item['value']);
+            });
+        }
+
+        // Set Pagination Information
+        $pagination = PaginationLibrary::set($request->input('page'), $manager->count(), $request->input('per_page'));
+
+        // Get Data from DB
+        $data = $manager->skip($pagination['skip'])->take($pagination['perPage'])->get();
+
+        $data->each(function (&$item) {
+            $item->user = $this->getUser($item->user_id);
+            $item->authority = $this->getAuthority($item->authority_id);
+        });
 
         return [
-            'header' => PaginationLibrary::set($request->input('page'), $data->count(), $request->input('per_page')),
+            'header' => $pagination,
             'list' => $data
         ];
     }
@@ -82,7 +147,7 @@ class ManagerController extends Controller
      *          )
      *      ),
      *      @OA\Response(
-     *          response=200,
+     *          response=201,
      *          description="successfully",
      *          @OA\JsonContent(ref="#/components/schemas/Manager")
      *      ),
@@ -95,23 +160,23 @@ class ManagerController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  StoreManagerRequest  $request
-     * @return Collection
+     * @param StoreManagerRequest $request
+     * @return JsonResponse
      */
-    public function store(StoreManagerRequest $request): Collection
+    public function store(StoreManagerRequest $request): JsonResponse
     {
         // Additional Validation
         User::findOrFail($request->get('user_id'));
         Authority::findOrFail($request->get('authority_id'));
 
         // store
-        $manager = $this->manager;
-        $manager->user_id = $request->input('user_id');
-        $manager->authority_id = $request->input('authority_id');
-        $manager->save();
+        $manager = $this->manager::firstOrCreate(
+            ['user_id' => $request->input('user_id')],
+            ['authority_id' => $request->input('authority_id')]
+        );
 
         // response
-        return collect($this->manager::find($manager->id));
+        return response()->json($this->manager::find($manager->id), 201);
     }
 
     /**
@@ -146,12 +211,59 @@ class ManagerController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return Collection
      */
     public function show(int $id): Collection
     {
         return collect($this->manager::findOrFail($id));
+    }
+
+
+    /**
+     * @OA\Patch(
+     *      path="/v1/manager/{id}",
+     *      summary="관리자 수정",
+     *      description="1명의 관리자에 대한 상세정보를 수정합니다",
+     *      operationId="updateManagerInfo",
+     *      tags={"관리자"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={"authorityId"},
+     *              @OA\Property(property="authorityId", type="integer", example="5", description="관리자그룹의 고유번호(PK)")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/Manager")
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="unauthenticated"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="not found"
+     *      )
+     *  )
+     * @param UpdateRequest $req
+     * @param $id
+     * @return JsonResponse
+     */
+    public function update(UpdateRequest $req, $id): JsonResponse
+    {
+        $this->manager = $this->manager::findOrFail($id);
+        $this->manager->delete();
+
+        $managerArray = $this->manager->toArray();
+        unset($managerArray['id'], $managerArray['deleted_at']);
+
+        $manager = $this->manager->create(array_merge($managerArray, $req->all()));
+
+        return response()->json($this->manager->findOrFail($manager->id), 201);
     }
 
     /**
@@ -186,12 +298,28 @@ class ManagerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return Response
      */
     public function destroy(int $id): Response
     {
         Manager::destroy($id);
         return response()->noContent();
+    }
+
+
+    /* Custom Methods */
+    protected function getUser($id)
+    {
+        static $users = [];
+
+        return $users[$id] ?? ($users[$id] = User::select(['id', 'name', 'email'])->find($id));
+    }
+
+    protected function getAuthority($id)
+    {
+        static $authorities = [];
+
+        return $authorities[$id] ?? ($authorities[$id] = Authority::find($id));
     }
 }
