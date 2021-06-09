@@ -212,12 +212,14 @@ class BoardController extends Controller
 
         $this->board->save();
 
-        $this->board->sort = $this->board->getAttribute('id');
-        $this->board->save();
+        // save the sort priority value (same as primary key)
+        $this->board::withoutEvents(function () {
+            $this->board->sort = $this->board->getAttribute('id');
+            $this->board->save();
+        });
 
-        $this->board->refresh();
-
-        return response()->json(collect($this->board), 201);
+        // response
+        return response()->json(collect($this->getOne($this->board->id)), 201);
     }
 
 
@@ -248,14 +250,16 @@ class BoardController extends Controller
      */
     public function show(int $id): Collection
     {
-        $boardModel = $this->board->with('user')->findOrFail($id);
+        // get data
+        $board = $this->getOne($id);
 
         // 리소스 접근 권한 체크
-        if (!Gate::allows('view', [$boardModel])) {
+        if (!Gate::allows('view', [$board])) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        return collect($boardModel);
+        // response
+        return collect($board);
     }
 
     /**
@@ -346,7 +350,7 @@ class BoardController extends Controller
             $this->board->save();
         }
 
-        return response()->json(collect($this->board), 201);
+        return response()->json(collect($this->getOne($this->board->id)), 201);
     }
 
 
@@ -570,4 +574,16 @@ class BoardController extends Controller
         return response()->noContent();
     }
 
+    protected function getOne(int $board_id)
+    {
+        // set relations
+        $with = ['user'];
+
+        if (Auth::hasAccessRightsToBackoffice()) {
+            $with[] = 'backofficeLogs';
+        }
+
+        // result
+        return $this->board->with($with)->findOrFail($board_id);
+    }
 }
