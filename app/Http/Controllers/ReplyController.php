@@ -290,30 +290,29 @@ class ReplyController extends Controller
         }
 
         // where 절 eloquent
-        $this->reply = $this->reply::where('post_id', $postId);
+        $reply = $this->reply::where('post_id', $postId);
 
         // pagination
-        $pagination = PaginationLibrary::set($request->input('page'), $this->reply->count(), $request->input('per_page'));
+        $pagination = PaginationLibrary::set($request->input('page'), $reply->count(), $request->input('per_page'));
 
 
         // Sort By
         if ($s = $request->input('sort_by')) {
             $sortCollect = CollectionLibrary::getBySort($s, ['id']);
-            $sortCollect->each(function ($item) {
-                $this->reply->orderBy($item['key'], $item['value']);
+            $sortCollect->each(function ($item) use ($reply) {
+                $reply->orderBy($item['key'], $item['value']);
             });
         }
 
         if ($request->input('page') <= $pagination['totalPage']) {
-            $this->reply = $this->reply->with('user:id,name');
-            $this->reply = $this->reply
-                ->skip($pagination['skip'])
+            $reply->with('user:id,name');
+            $reply->skip($pagination['skip'])
                 ->take($pagination['perPage']);
 
-            $this->reply = $this->reply->get();
+            $reply = $reply->get();
         }
 
-        $data = $this->reply ?? array();
+        $data = $reply ?? array();
 
         $result = ['header' => $pagination];
         $result['list'] = $data;

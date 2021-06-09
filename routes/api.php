@@ -163,9 +163,9 @@ Route::group([
      * 게시판 덧글 관련
      */
     // 댓글 CRUD
-    Route::group(['prefix' => 'board', 'middleware' => 'chkAccess:regular'], function () {
+    Route::group(['prefix' => 'board', 'middleware' => 'chkAccess:backoffice'], function () {
         Route::post('/{boardId}/post/{postId}/reply', [ReplyController::class, 'store']);
-        Route::get('/{boardId}/post/{postId}/reply', [ReplyController::class, 'index'])->withoutmiddleware('chkAccess:regular');
+        Route::get('/{boardId}/post/{postId}/reply', [ReplyController::class, 'index'])->withoutmiddleware('chkAccess:backoffice');
         Route::patch('/{boardId}/post/{postId}/reply/{id}', [ReplyController::class, 'update']);
         Route::delete('/{boardId}/post/{postId}/reply/{id}', [ReplyController::class, 'destroy']);
     });
