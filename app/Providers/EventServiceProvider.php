@@ -8,8 +8,10 @@ use App\Events\Backoffice\DataUpdated;
 use App\Listeners\RemainBackofficeLog;
 use App\Models\Board;
 use App\Models\InquiryAnswer;
+use App\Models\Post;
 use App\Observers\BoardObserver;
 use App\Observers\InquiryAnswerObserver;
+use App\Observers\PostObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -46,6 +48,7 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         Board::observe(BoardObserver::class);
+        Post::observe(PostObserver::class);
         InquiryAnswer::observe(InquiryAnswerObserver::class);
     }
 
