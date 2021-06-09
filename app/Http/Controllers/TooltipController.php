@@ -100,23 +100,23 @@ class TooltipController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         // update the tooltip
-        $tooltip = Tooltip::findOrFail($id);
+        $tooltip = Tooltip::with('translation')->findOrFail($id);
         $tooltip->update($request->all());
 
         // update the translation
-        $translation = $tooltip->translation()->first();
-        $translation->update([
-            'explanation' => $request->input('title', $tooltip->title)
-        ]);
+        $tooltip->translation()->each(function ($o) use ($request, $tooltip) {
+            $o->update([
+                'explanation' => $request->input('title', $tooltip->title)
+            ]);
 
-        // update the translation content
-        if (is_array($content = $request->input('content'))) {
-            foreach ($content as $lang => $value) {
-                $translation->translationContents()->where('lang', $lang)->update([
-                   'value' => $value
-                ]);
+            if (is_array($content = $request->input('content'))) {
+                $o->translationContents()->each(function ($o) use ($content) {
+                    if ($content[$o->lang]) {
+                        $o->update(['value' => $content[$o->lang]]);
+                    }
+                });
             }
-        }
+        });
 
         // response
         $data = $this->getOne($id);
@@ -137,6 +137,14 @@ class TooltipController extends Controller
 
     protected function getOne($id): Collection
     {
-        return collect(Tooltip::with('translation')->findOrFail($id));
+        // set relations
+        $with = ['translation', 'translation.translationContents'];
+
+        if (Auth::hasAccessRightsToBackoffice()) {
+            $with[] = 'backofficeLogs';
+        }
+
+        // return
+        return collect(Tooltip::with($with)->findOrFail($id));
     }
 }
