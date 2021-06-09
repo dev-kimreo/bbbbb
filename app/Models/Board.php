@@ -75,8 +75,7 @@ class Board extends Model
      *
      * @var array
      */
-    protected $hidden = [
-    ];
+    protected $hidden = ['deleted_at'];
 
     protected $casts = [
         'options' => 'array'
@@ -84,12 +83,12 @@ class Board extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo(User::class)->simplify();
     }
 
     public function posts()
     {
-        return $this->hasMany('App\Models\Post');
+        return $this->hasMany(Post::class);
     }
 
     public function backofficeLogs(): MorphMany
