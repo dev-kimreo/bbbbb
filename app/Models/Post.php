@@ -6,6 +6,7 @@ use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
@@ -50,8 +51,7 @@ class Post extends Model
      *
      * @var array
      */
-    protected $hidden = [
-    ];
+    protected $hidden = ['deleted_at'];
 
     protected $appends = [
     ];
@@ -100,6 +100,12 @@ class Post extends Model
         return $this->belongsTo('App\Models\Board', 'board_id', 'id');
     }
 
+    public function backofficeLogs(): MorphMany
+    {
+        return $this->morphMany(BackofficeLog::class, 'loggable')
+            ->orderByDesc('id');
+    }
+
     public function getAttachFileLimit(): int
     {
         return intval($this->board->options['attach_limit']);
@@ -109,6 +115,4 @@ class Post extends Model
     {
         return intval($this->board->options['attach']) ? true : false;
     }
-
-
 }

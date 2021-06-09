@@ -46,7 +46,9 @@ class PostController extends Controller
      *      schema="postCreate",
      *      required={"title", "content"},
      *      @OA\Property(property="title", type="string", example="게시글 입니다.", description="게시글 제목" ),
-     *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" )
+     *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" ),
+     *      @OA\Property(property="sort", type="integer", example=999, description="게시글 전시순서" ),
+     *      @OA\Property(property="hidden", type="integer", example=1, description="게시글 전시여부 (0:전시, 1:미전시)" ),
      *  )
      */
 
@@ -105,20 +107,23 @@ class PostController extends Controller
         $this->post->user_id = Auth::id();
         $this->post->title = $request->input('title');
         $this->post->content = $request->input('content');
-
+        $this->post->sort = $request->input('sort', 999);
+        $this->post->hidden = $request->input('hidden', 1);
         $this->post->save();
 
-        $this->post->refresh();
-
-        return response()->json(collect($this->post), 201);
+        // response
+        return response()->json(collect($this->getOne($this->post->id)), 201);
     }
 
 
     /**
      * @OA\Schema (
      *      schema="postModify",
+     *      @OA\Property(property="boardId", type="integer", example=3, description="변경할 게시판 고유 번호" ),
      *      @OA\Property(property="title", type="string", example="게시글 입니다.", description="게시글 제목" ),
-     *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" )
+     *      @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" ),
+     *      @OA\Property(property="sort", type="integer", example=999, description="게시글 전시순서" ),
+     *      @OA\Property(property="hidden", type="integer", example=1, description="게시글 전시여부 (0:전시, 1:미전시)" ),
      *  )
      */
 
@@ -164,6 +169,7 @@ class PostController extends Controller
 
     public function update(UpdateRequest $request, $boardId, $id): JsonResponse
     {
+        // find
         $this->post = $this->post->where('board_id', $boardId)->findOrFail($id);
 
         // check update post Policy
@@ -171,12 +177,16 @@ class PostController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
+        // query
+        $this->post->board_id = $request->input('board_id', $this->post->board_id);
         $this->post->title = $request->input('title', $this->post->title);
         $this->post->content = $request->input('content', $this->post->content);
-        $this->post->sort = $request->input('sort', $this->post->sor);
+        $this->post->sort = $request->input('sort', $this->post->sort);
+        $this->post->hidden = $request->input('hidden', $this->post->hidden);
         $this->post->save();
 
-        return response()->json(collect($this->post), 201);
+        // response
+        return response()->json(collect($this->getOne($this->post->id)), 201);
     }
 
 
@@ -388,27 +398,9 @@ class PostController extends Controller
      * @throws QpickHttpException
      */
 
-    public function show($boardId, $id): Collection
+    public function show(int $board_id, int $post_id): Collection
     {
-        // 게시글 정보
-        $postModel = $this->post->where('board_id', $boardId)->with('user');
-
-        // 첨부파일 (섬네일 제외)
-        $postModel->with('attachFiles');
-        $postModel->with('thumbnail.attachFiles');
-        $postModel = $postModel->findOrFail($id);
-
-        // 리소스 접근 권한 체크
-        if (!Gate::allows('view', [$postModel, $postModel->board])) {
-            throw new QpickHttpException(403, 'common.unauthorized');
-        }
-
-        // 데이터 가공
-        $attachFiles = $postModel->thumbnail->attachFiles ?? null;
-        unset($postModel->thumbnail);
-        $postModel->thumbnail = $attachFiles;
-
-        return collect($postModel);
+        return collect($this->getOne($post_id));
     }
 
 
@@ -539,13 +531,28 @@ class PostController extends Controller
             $item->attachFilesCount = AttachFile::where(['attachable_type' => 'post', 'attachable_id' => $item->id])->count();
         });
 
-
         $res['header'] = $pagination;
         $res['list'] = $postModel;
 
         return collect($res);
-
     }
 
+    protected function getOne(int $post_id)
+    {
+        // set relations
+        $with = ['user', 'attachFiles', 'thumbnail.attachFiles', 'board'];
 
+        if (Auth::hasAccessRightsToBackoffice()) {
+            $with[] = 'backofficeLogs';
+        }
+
+        // query
+        $data = Post::with($with)->findOrFail($post_id);
+
+        // 데이터 가공
+        $data->thumbnail = $data->thumbnail->attachFiles ?? null;
+
+        // return
+        return $data;
+    }
 }
