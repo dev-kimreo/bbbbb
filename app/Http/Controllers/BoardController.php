@@ -28,13 +28,6 @@ class BoardController extends Controller
     private BoardService $boardService;
 
     /**
-     * @OA\Schema(
-     *     schema="boardInfo",
-     *     allOf={
-     *          @OA\Schema(ref="#/components/schemas/Board"),
-     *          @OA\Schema(ref="#/components/schemas/BoardOptionJson")
-     *     }
-     * )
      * @param Board $board
      * @param Post $post
      * @param BoardService $boardService
@@ -67,9 +60,9 @@ class BoardController extends Controller
      *          response=200,
      *          description="successfully",
      *          @OA\JsonContent(
-     *              @OA\Property(property="header", type="object" ),
+     *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination" ),
      *              @OA\Property(property="list", type="array",
-     *                  @OA\Items(ref="#/components/schemas/boardInfo")
+     *                  @OA\Items(ref="#/components/schemas/boardOnList")
      *              )
      *          )
      *      )
@@ -139,7 +132,7 @@ class BoardController extends Controller
      *      @OA\Response(
      *          response=201,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/boardInfo")
+     *          @OA\JsonContent(ref="#/components/schemas/Board")
      *      ),
      *      @OA\Response(
      *          response=401,
@@ -233,7 +226,7 @@ class BoardController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/boardInfo")
+     *          @OA\JsonContent(ref="#/components/schemas/Board")
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -281,7 +274,7 @@ class BoardController extends Controller
      *      @OA\Response(
      *          response=201,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/boardInfo")
+     *          @OA\JsonContent(ref="#/components/schemas/Board")
      *      ),
      *      @OA\Response(
      *          response=401,
@@ -431,6 +424,7 @@ class BoardController extends Controller
      *                  @OA\Items(
      *                      @OA\Property(property="id", type="integer", example=1, description="게시판 고유번호<br/>전체 탭은 해당 값이 NULL"),
      *                      @OA\Property(property="name", type="string", example="공지사항", description="게시판 명"),
+     *                      @OA\Property(property="sort", type="integer", example=100, description="게시판 전시 순서" ),
      *                      @OA\Property(property="postsCount", type="integer", example=41, description="게시글 수")
      *                  )
      *              )
