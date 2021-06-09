@@ -133,7 +133,7 @@ class TranslationSeeder extends Seeder
             ],
             [
                 'exceptions',
-                'not_found_sign_code',
+                'email.not_found_sign_code',
                 '발급된 적이 없거나 만료된 메일인증키입니다.',
                 'The validation key is not found.'
             ],
@@ -230,16 +230,16 @@ class TranslationSeeder extends Seeder
         ];
 
         // Truncate tables
-        if(app()->environment() == 'local') {
+        if (app()->environment() == 'local') {
             Schema::disableForeignKeyConstraints();
             Translation::truncate();
             TranslationContent::truncate();
         }
 
         // Insert data
-        foreach($words as $v) {
+        foreach ($words as $v) {
             $word = new Translation;
-            $word->type = $v[0];
+            $word->linkable_type = $v[0];
             $word->code = $v[1];
             $word->explanation = $v[2];
             $word->save();
