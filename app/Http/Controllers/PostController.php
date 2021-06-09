@@ -71,7 +71,7 @@ class PostController extends Controller
      *          response=201,
      *          description="created",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="생성되었습니다." ),
+     *              @OA\Property(ref="#/components/schemas/Post"),
      *          )
      *      ),
      *      @OA\Response(
@@ -109,12 +109,10 @@ class PostController extends Controller
         $this->post->content = $request->input('content');
         $this->post->sort = $request->input('sort', 999);
         $this->post->hidden = $request->input('hidden', 1);
-
         $this->post->save();
 
-        $this->post->refresh();
-
-        return response()->json(collect($this->post), 201);
+        // response
+        return response()->json(collect($this->getOne($this->post->id)), 201);
     }
 
 
@@ -147,7 +145,7 @@ class PostController extends Controller
      *          response=201,
      *          description="modified",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="수정되었습니다." ),
+     *              @OA\Property(ref="#/components/schemas/Post"),
      *          )
      *      ),
      *      @OA\Response(
@@ -171,6 +169,7 @@ class PostController extends Controller
 
     public function update(UpdateRequest $request, $boardId, $id): JsonResponse
     {
+        // find
         $this->post = $this->post->where('board_id', $boardId)->findOrFail($id);
 
         // check update post Policy
@@ -178,6 +177,7 @@ class PostController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
+        // query
         $this->post->board_id = $request->input('board_id', $this->post->board_id);
         $this->post->title = $request->input('title', $this->post->title);
         $this->post->content = $request->input('content', $this->post->content);
@@ -185,7 +185,8 @@ class PostController extends Controller
         $this->post->hidden = $request->input('hidden', $this->post->hidden);
         $this->post->save();
 
-        return response()->json(collect($this->post), 201);
+        // response
+        return response()->json(collect($this->getOne($this->post->id)), 201);
     }
 
 
@@ -371,19 +372,7 @@ class PostController extends Controller
      *          response=200,
      *          description="successfully",
      *          @OA\JsonContent(
-     *              @OA\Property(property="id", type="integer", example=1, description="게시글 고유번호" ),
-     *              @OA\Property(property="title", type="string", example="게시글 제목입니다.", description="게시글 제목" ),
-     *              @OA\Property(property="content", type="string", example="게시글 내용입니다.", description="게시글 내용" ),
-     *              @OA\Property(property="hidden", type="integer", example=0, default=0, description="게시글 숨김 여부<br/>0:노출<br/>1:숨김" ),
-     *              @OA\Property(property="thumbnail", type="object", description="게시글 섬네일 이미지 정보",
-     *                  @OA\Property(property="id", type="integer", example=4, description="이미지 고유 번호" ),
-     *                  @OA\Property(property="url", type="string", example="http://local-api.qpicki.com/storage/post/048/000/000/caf4df2767fea15158143aaab145d94e.jpg", description="이미지 url" ),
-     *              ),
-     *              @OA\Property(property="userName", type="string", example="홍길동", description="작성자" ),
-     *              @OA\Property(property="boardId", type="integer", example=1, description="게시판 고유번호" ),
-     *              @OA\Property(property="userId", type="integer", example=1, description="작성자 회원 고유번호" ),
-     *              @OA\Property(property="createdAt", type="datetime", example="2021-04-08T07:04:52+00:00", description="게시글 작성일자" ),
-     *              @OA\Property(property="updatedAt", type="datetime", example="2021-04-08T07:57:55+00:00", description="게시글 수정일자" ),
+     *              @OA\Property(ref="#/components/schemas/Post"),
      *          )
      *      ),
      *      @OA\Response(
@@ -391,33 +380,15 @@ class PostController extends Controller
      *          description="failed"
      *      ),
      *  )
-     * @param $boardId
-     * @param $id
+     *
+     * @param int $board_id
+     * @param int $post_id
      * @return Collection
-     * @throws QpickHttpException
      */
 
-    public function show($boardId, $id): Collection
+    public function show(int $board_id, int $post_id): Collection
     {
-        // 게시글 정보
-        $postModel = $this->post->where('board_id', $boardId)->with('user');
-
-        // 첨부파일 (섬네일 제외)
-        $postModel->with('attachFiles');
-        $postModel->with('thumbnail.attachFiles');
-        $postModel = $postModel->findOrFail($id);
-
-        // 리소스 접근 권한 체크
-        if (!Gate::allows('view', [$postModel, $postModel->board])) {
-            throw new QpickHttpException(403, 'common.unauthorized');
-        }
-
-        // 데이터 가공
-        $attachFiles = $postModel->thumbnail->attachFiles ?? null;
-        unset($postModel->thumbnail);
-        $postModel->thumbnail = $attachFiles;
-
-        return collect($postModel);
+        return collect($this->getOne($post_id));
     }
 
 
@@ -553,8 +524,24 @@ class PostController extends Controller
         $res['list'] = $postModel;
 
         return collect($res);
-
     }
 
+    protected function getOne(int $post_id)
+    {
+        // set relations
+        $with = ['user', 'attachFiles', 'thumbnail.attachFiles', 'board'];
 
+        if (Auth::hasAccessRightsToBackoffice()) {
+            $with[] = 'backofficeLogs';
+        }
+
+        // query
+        $data = Post::with($with)->findOrFail($post_id);
+
+        // 데이터 가공
+        $data->thumbnail = $data->thumbnail->attachFiles ?? null;
+
+        // return
+        return $data;
+    }
 }
