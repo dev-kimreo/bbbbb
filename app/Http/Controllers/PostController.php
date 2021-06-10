@@ -539,7 +539,9 @@ class PostController extends Controller
         $data = Post::with($with)->findOrFail($post_id);
 
         // 데이터 가공
-        $data->thumbnail = $data->thumbnail->attachFiles ?? null;
+        $thumbnail = $data->thumbnail->attachFiles ?? null;
+        unset($data->thumbnail);
+        $data->thumbnail = $thumbnail;
 
         // return
         return $data;
