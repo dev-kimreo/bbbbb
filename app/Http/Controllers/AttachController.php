@@ -186,7 +186,7 @@ class AttachController extends Controller
         $typeModel = '\\' . $typeModel;
         $typeCollect = $typeModel::find($request->input('type_id'));
 
-        if ($request->has('thumbnail')) {
+        if ($request->has('thumbnail') && $request->input('thumbnail')) {
             $typeCollect = $typeCollect->thumbnail()->firstOrCreate();
         }
 
