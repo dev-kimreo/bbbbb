@@ -146,7 +146,9 @@ class InquiryController extends Controller
      *              @OA\Property(property="status", type="string", example="waiting", description="처리상태<br/>waiting:접수<br/>answering:확인중<br/>answered:완료" ),
      *              @OA\Property(property="createdAt", type="ISO 8601 date", example="2021-02-12T15:19:21+00:00", description="등록일자"),
      *              @OA\Property(property="updatedAt", type="ISO 8601 date", example="2021-02-13T18:52:16+00:00", description="수정일자"),
-     *              @OA\Property(property="answered", type="boolean", example="true", description="답변완료 여부")
+     *              @OA\Property(property="answered", type="boolean", example="true", description="답변완료 여부"),
+     *              @OA\Property(property="answeredAt", type="boolean", example="2021-02-13T18:52:16+00:00", description="답변완료일 (답변이 없는 경우 null)"),
+     *              @OA\Property(property="attached", type="boolean", example="false", description="첨부파일 존재여부")
      *          ),
      *          @OA\Schema (
      *              @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply")
