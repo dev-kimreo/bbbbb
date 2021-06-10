@@ -11,6 +11,7 @@ use App\Http\Requests\Inquiries\ShowRequest;
 use App\Http\Requests\Inquiries\UpdateRequest;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
+use App\Models\AttachFile;
 use App\Models\Inquiry;
 use App\Models\InquiryAnswer;
 use App\Models\User;
@@ -290,7 +291,12 @@ class InquiryController extends Controller
             unset($item->deleted_at);
 
             // Check if there is a related data
-            $item->answered = InquiryAnswer::where('inquiry_id', $item->id)->exists();
+            $answer = InquiryAnswer::where('inquiry_id', $item->id);
+            $item->answered = $answer->exists();
+            $item->answered_at = ($item->answered)? $answer->first()->created_at: null;
+
+            // Getting attach
+            $item->attached = Inquiry::find($item->id)->attachFiles()->exists();
 
             // Getting data from related table
             $item->user = $this->getUser($item->user_id);
