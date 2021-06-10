@@ -11,6 +11,7 @@ use App\Http\Requests\Inquiries\ShowRequest;
 use App\Http\Requests\Inquiries\UpdateRequest;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
+use App\Models\AttachFile;
 use App\Models\Inquiry;
 use App\Models\InquiryAnswer;
 use App\Models\User;
@@ -145,7 +146,9 @@ class InquiryController extends Controller
      *              @OA\Property(property="status", type="string", example="waiting", description="처리상태<br/>waiting:접수<br/>answering:확인중<br/>answered:완료" ),
      *              @OA\Property(property="createdAt", type="ISO 8601 date", example="2021-02-12T15:19:21+00:00", description="등록일자"),
      *              @OA\Property(property="updatedAt", type="ISO 8601 date", example="2021-02-13T18:52:16+00:00", description="수정일자"),
-     *              @OA\Property(property="answered", type="boolean", example="true", description="답변완료 여부")
+     *              @OA\Property(property="answered", type="boolean", example="true", description="답변완료 여부"),
+     *              @OA\Property(property="answeredAt", type="boolean", example="2021-02-13T18:52:16+00:00", description="답변완료일 (답변이 없는 경우 null)"),
+     *              @OA\Property(property="attached", type="boolean", example="false", description="첨부파일 존재여부")
      *          ),
      *          @OA\Schema (
      *              @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply")
@@ -290,7 +293,12 @@ class InquiryController extends Controller
             unset($item->deleted_at);
 
             // Check if there is a related data
-            $item->answered = InquiryAnswer::where('inquiry_id', $item->id)->exists();
+            $answer = InquiryAnswer::where('inquiry_id', $item->id);
+            $item->answered = $answer->exists();
+            $item->answered_at = ($item->answered)? $answer->first()->created_at: null;
+
+            // Getting attach
+            $item->attached = Inquiry::find($item->id)->attachFiles()->exists();
 
             // Getting data from related table
             $item->user = $this->getUser($item->user_id);
