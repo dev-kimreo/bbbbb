@@ -12,6 +12,37 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ *  @OA\Schema(
+ *     schema="Tooltip",
+ *     @OA\Property(property="id", type="integer", example=23, description="툴팁 고유번호"),
+ *     @OA\Property(property="userId", type="integer", example=1, description="작성한 관리자의 회원 고유번호"),
+ *     @OA\Property(property="type", type="string", example="헬프센터", description="전시구분"),
+ *     @OA\Property(property="title", type="string", example="1부터 100 사이의 숫자로 입력", description="툴팁 제목"),
+ *     @OA\Property(property="visible", type="boolean", example="1", description="노출 또는 숨김 여부<br/>true:노출<br/>false:숨김"),
+ *     @OA\Property(property="createdAt", type="datetime", example="2021-04-08T07:04:52+00:00", description="게시글 작성일자" ),
+ *     @OA\Property(property="updatedAt", type="datetime", example="2021-04-08T07:57:55+00:00", description="게시글 수정일자" ),
+ *     @OA\Property(property="contents", type="object", ref="#/components/schemas/TranslationContentsSimply"),
+ *     @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply"),
+ *     @OA\Property(property="backofficeLogs", type="array", @OA\Items(ref="#/components/schemas/BackofficeLog")),
+ *  )
+ *
+ *  @OA\Schema(
+ *     schema="TooltipForList",
+ *     @OA\Property(property="id", type="integer", example=1, description="툴팁 고유번호"),
+ *     @OA\Property(property="userId", type="integer", example=1, description="작성한 관리자의 회원 고유번호"),
+ *     @OA\Property(property="type", type="string", example="헬프센터", description="전시구분"),
+ *     @OA\Property(property="title", type="string", example="1부터 100 사이의 숫자로 입력", description="툴팁 제목"),
+ *     @OA\Property(property="visible", type="boolean", example="1", description="노출 또는 숨김 여부<br/>true:노출<br/>false:숨김"),
+ *     @OA\Property(property="createdAt", type="datetime", example="2021-04-08T07:04:52+00:00", description="게시글 작성일자" ),
+ *     @OA\Property(property="updatedAt", type="datetime", example="2021-04-08T07:57:55+00:00", description="게시글 수정일자" ),
+ *     @OA\Property(property="lang", type="array", @OA\Items(example="en"), description="콘텐츠가 등록된 언어 목록" ),
+ *     @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply"),
+ *  )
+ *
+ * Class Tooltip
+ * @package App\Models
+ */
 class Tooltip extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;

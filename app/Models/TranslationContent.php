@@ -9,6 +9,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ *  @OA\Schema(
+ *      schema="TranslationContentsSimply",
+ *      @OA\Property(property="ko", type="string", example="한국어로 작성한 콘텐츠입니다", description="한국어 콘텐츠" ),
+ *      @OA\Property(property="en", type="string", example="These contents were written in English.", description="영어 콘텐츠" ),
+ *      @OA\Property(property="ISO 639-1 2자리 코드", type="string", example="Key에 표시된 언어코드로 작성된 콘텐츠", description="Key에 표시된 언어코드로 작성된 콘텐츠" ),
+ *  )
+ * 
+ * Class TranslationContent
+ * @package App\Models
+ */
 class TranslationContent extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
