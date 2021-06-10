@@ -16,7 +16,7 @@ class Translation extends Model
 
     protected $fillable = ['linkable_type', 'linkable_id', 'code', 'explanation'];
     protected $with = ['translationContents'];
-    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
+    protected $hidden = ['linkable_type', 'linkable_id', 'code', 'explanation', 'created_at', 'updated_at', 'deleted_at'];
 
     public static function boot()
     {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Libraries\PaginationLibrary;
 use App\Models\Tooltip;
+use App\Models\TranslationContent;
 use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class TooltipController extends Controller
     public function index(Request $request): Collection
     {
         // get model
-        $tooltip = Tooltip::with([]);
+        $tooltip = Tooltip::with(['user']);
 
         // set pagination information
         $pagination = PaginationLibrary::set($request->input('page'), $tooltip->count(), $request->input('per_page'));
@@ -30,7 +31,10 @@ class TooltipController extends Controller
         $data = $tooltip
             ->skip($pagination['skip'])
             ->take($pagination['perPage'])
-            ->get();
+            ->get()
+            ->each(function (&$v) {
+                $v->lang = $v->contents()->get()->pluck('lang');
+            });
 
         // result
         $result = [
@@ -104,6 +108,27 @@ class TooltipController extends Controller
         $tooltip->update($request->all());
 
         // update the translation
+        $translation = $tooltip->translation()->first();
+        $translation->update([
+            'explanation' => $request->input('title', $tooltip->title)
+        ]);
+
+        if (is_array($content = $request->input('content'))) {
+            $translation->translationContents()->each(function ($o) use (&$content) {
+                if ($content[$o->lang]) {
+                    $o->update(['value' => $content[$o->lang]]);
+                    unset($content[$o->lang]);
+                }
+            });
+
+            foreach($content as $lang => $value) {
+                $translation->translationContents()->create([
+                    'lang' => $lang,
+                    'value' => $value
+                ]);
+            };
+        }
+        /*
         $tooltip->translation()->each(function ($o) use ($request, $tooltip) {
             $o->update([
                 'explanation' => $request->input('title', $tooltip->title)
@@ -117,6 +142,7 @@ class TooltipController extends Controller
                 });
             }
         });
+        */
 
         // response
         $data = $this->getOne($id);
@@ -138,13 +164,25 @@ class TooltipController extends Controller
     protected function getOne($id): Collection
     {
         // set relations
-        $with = ['translation', 'translation.translationContents'];
+        $with = [];
 
         if (Auth::hasAccessRightsToBackoffice()) {
+            $with[] = 'user';
             $with[] = 'backofficeLogs';
         }
 
+        // get data
+        $data = Tooltip::with($with)->findOrFail($id);
+
+        // post processing
+        $contents = [];
+        $data->contents->each(function ($o) use (&$contents) {
+            $contents[$o->lang] = $o->value;
+        });
+        unset($data->contents);
+        $data->setAttribute('contents', $contents);
+
         // return
-        return collect(Tooltip::with($with)->findOrFail($id));
+        return collect($data);
     }
 }
