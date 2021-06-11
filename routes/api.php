@@ -186,8 +186,11 @@ Route::group([
         Route::post('', [InquiryController::class, 'store'])->middleware('chkAccess:regular');
         Route::get('', [InquiryController::class, 'index'])->middleware('chkAccess:regular,backoffice');
         Route::get('{inquiryId}', [InquiryController::class, 'show'])->middleware('chkAccess:regular,backoffice');
-        Route::patch('{inquiryId}', [InquiryController::class, 'update'])->middleware('chkAccess:regular,backoffice');
+        Route::patch('{inquiryId}', [InquiryController::class, 'update'])->middleware('chkAccess:regular');
         Route::delete('{inquiryId}', [InquiryController::class, 'destroy'])->middleware('chkAccess:regular');
+
+        // 담당자 지정
+        Route::patch('{inquiryId}/assignee/{assignee_id}', [InquiryController::class, 'assignee'])->middleware('chkAccess:backoffice');
     });
 
     // 답변 CRUD (Customized Router)

@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\QpickHttpException;
+use App\Http\Requests\Inquiries\AssignRequest;
 use App\Http\Requests\Inquiries\CreateRequest;
 use App\Http\Requests\Inquiries\DestroyRequest;
 use App\Http\Requests\Inquiries\IndexRequest;
@@ -385,9 +386,6 @@ class InquiryController extends Controller
      * @OA\Schema (
      *      schema="inquiryModify",
      *      required={},
-     *      @OA\Property(property="title", type="string", example="1:1 문의 제목입니다.", description="1:1 문의 제목"),
-     *      @OA\Property(property="question", type="string", example="1:1 문의 내용입니다.", description="1:1 문의 내용"),
-     *      @OA\Property(property="assigneeId", type="integer", example="5", description="1:1 문의 처리담당자")
      *  )
      *
      * @OA\Patch(
@@ -400,7 +398,9 @@ class InquiryController extends Controller
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              ref="#/components/schemas/inquiryModify"
+     *              @OA\Property(property="title", type="string", example="1:1 문의 제목입니다.", description="1:1 문의 제목"),
+     *              @OA\Property(property="question", type="string", example="1:1 문의 내용입니다.", description="1:1 문의 내용"),
+     *              @OA\Property(property="referrerId", type="integer", example="5", description="문의계정의 사용자 고유번호")
      *          ),
      *      ),
      *      @OA\Response(
@@ -427,6 +427,10 @@ class InquiryController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated (비로그인)"
+     *      ),
+     *      @OA\Response(
      *          response=403,
      *          description="forbidden"
      *      ),
@@ -438,6 +442,7 @@ class InquiryController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
+     *
      * @param int $id
      * @param UpdateRequest $request
      * @return JsonResponse
@@ -456,7 +461,6 @@ class InquiryController extends Controller
         // Save Data
         $inquiry->title = $request->input('title', $inquiry->title);
         $inquiry->question = $request->input('question', $inquiry->question);
-        $inquiry->assignee_id = $request->input('assignee_id', $inquiry->assignee_id);
         $inquiry->referrer_id = $request->input('referrer_id', $inquiry->referrer_id);
         $inquiry->save();
 
@@ -478,6 +482,10 @@ class InquiryController extends Controller
      *          description="deleted"
      *      ),
      *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated (비로그인)"
+     *      ),
+     *      @OA\Response(
      *          response=403,
      *          description="forbidden"
      *      ),
@@ -497,13 +505,9 @@ class InquiryController extends Controller
     public function destroy(DestroyRequest $request, int $id): Response
     {
         // Get Data from DB
-        $inquiry = Inquiry::where('id', $id)->first();
+        $inquiry = Inquiry::findOrFail($id);
 
         // Check authority
-        if (!$inquiry) {
-            throw new QpickHttpException(404, 'common.not_found');
-        }
-
         if ($inquiry->user_id != Auth::id()) {
             throw new QpickHttpException(403, 'inquiry.disable.writer_only');
         }
@@ -515,6 +519,92 @@ class InquiryController extends Controller
 
         // Response
         return response()->noContent();
+    }
+
+    /**
+     * @OA\Patch(
+     *      path="/v1/inquiry/{inquiry_id}/assignee/{assignee_id}",
+     *      summary="1:1문의 접수 (처리담당자 변경)",
+     *      description="1:1문의 접수 (처리담당자 변경)",
+     *      operationId="inquiryAssign",
+     *      tags={"1:1문의"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="modified",
+     *          @OA\JsonContent(
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/Inquiry"),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="user", type="object", ref="#/components/schemas/User")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="answer", type="object", ref="#/components/schemas/InquiryAnswer")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="assignee", type="object", ref="#/components/schemas/User")
+     *                  ),
+     *                  @OA\Schema(
+     *                      @OA\Property(property="attachFiles", type="array",
+     *                          @OA\Items(ref="#/components/schemas/AttachFile")
+     *                      )
+     *                  )
+     *              }
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated (비로그인)"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found (답변할 1:1 문의가 존재하지 않음)"
+     *      ),
+     *      @OA\Response(
+     *          response=409,
+     *          description="Conflict (이미 답변이 완료되어 접수 및 담당자 변경이 불가능함)"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Failed"
+     *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
+     *  )
+     *
+     * @param AssignRequest $request
+     * @param int $inquiry_id
+     * @param int $assignee_id
+     * @return JsonResponse
+     * @throws QpickHttpException
+     */
+    public function assignee(AssignRequest $request, int $inquiry_id, int $assignee_id): JsonResponse
+    {
+        // Get Data from DB
+        $inquiry = Inquiry::findOrFail($inquiry_id);
+
+        // Check authority
+        if ($inquiry->answer) {
+            throw new QpickHttpException(409, 'inquiry.answer.disable.already_exists');
+        }
+
+        // Save Data
+        $inquiry->assignee_id = $assignee_id;
+        $inquiry->save();
+
+        // Response
+        $data = $this->getOne($inquiry_id);
+        return response()->json(collect($data), 201);
     }
 
     /* Custom Methods */

@@ -24,22 +24,12 @@ class UpdateRequest extends FormRequest
      */
     public function rules()
     {
-        if (Auth::hasAccessRightsToBackoffice()) {
-            return [
-                'title' => 'prohibited',
-                'question' => 'prohibited',
-                'assignee_id' => 'required|integer|exists:App\Models\Manager,user_id',
-                'referrer_id' => 'prohibited'
-            ];
-        }
-        else {
-            return [
-                'title' => 'required_without_all:question,assignee_id,referrer_id|string|between:6,100',
-                'question' => 'required_without_all:title,assignee_id,referrer_id|string|min:10',
-                'assignee_id' => 'prohibited',
-                'referrer_id' => 'required_without_all:title,question,assignee_id|integer|exists:App\Models\Manager,user_id'
-            ];
-        }
+        return [
+            'title' => 'required_without_all:question,referrer_id|string|between:6,100',
+            'question' => 'required_without_all:title,referrer_id|string|min:10',
+            'assignee_id' => 'prohibited',
+            'referrer_id' => 'required_without_all:title,question|integer|exists:App\Models\User,user_id'
+        ];
     }
 
     /**
