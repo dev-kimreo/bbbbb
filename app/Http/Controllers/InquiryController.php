@@ -86,14 +86,12 @@ class InquiryController extends Controller
     {
         // 초기화
         $inquiry = $this->inquiry;
-        $inquiry->timestamps = false;
 
         // 데이터 가공
         $inquiry->user_id = Auth::id();
         $inquiry->title = $request->input('title');
         $inquiry->question = $request->input('question');
         $inquiry->assignee_id = $request->input('assignee_id');
-        $inquiry->created_at = Carbon::now();
         $inquiry->save();
 
         // Response
