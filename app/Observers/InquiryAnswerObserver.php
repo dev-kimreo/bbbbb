@@ -6,6 +6,7 @@ use App\Events\Backoffice\DataCreated;
 use App\Events\Backoffice\DataDeleted;
 use App\Events\Backoffice\DataUpdated;
 use App\Models\InquiryAnswer;
+use Illuminate\Support\Carbon;
 
 class InquiryAnswerObserver
 {
@@ -18,6 +19,9 @@ class InquiryAnswerObserver
     public function created(InquiryAnswer $answer)
     {
         DataCreated::dispatch($answer->inquiry()->getRelated(), $answer->getAttribute('inquiry_id'), '답변등록');
+
+        $answer->inquiry->updated_at = Carbon::now();
+        $answer->inquiry->save();
     }
 
     /**
@@ -29,6 +33,9 @@ class InquiryAnswerObserver
     public function updated(InquiryAnswer $answer)
     {
         DataUpdated::dispatch($answer->inquiry()->getRelated(), $answer->getAttribute('inquiry_id'), '답변수정');
+
+        $answer->inquiry->updated_at = Carbon::now();
+        $answer->inquiry->save();
     }
 
     /**
@@ -40,6 +47,9 @@ class InquiryAnswerObserver
     public function deleted(InquiryAnswer $answer)
     {
         DataDeleted::dispatch($answer->inquiry()->getRelated(), $answer->getAttribute('inquiry_id'), '답변삭제');
+
+        $answer->inquiry->updated_at = Carbon::now();
+        $answer->inquiry->save();
     }
 
     /**
