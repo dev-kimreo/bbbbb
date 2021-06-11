@@ -4,10 +4,10 @@ namespace App\Models;
 
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -90,11 +90,6 @@ class Tooltip extends Model
         return $this->morphOne(Translation::class, 'linkable');
     }
 
-    public function contents(): HasMany
-    {
-        return $this->translation()->first()->hasMany(TranslationContent::class);
-    }
-
     public function backofficeLogs(): MorphMany
     {
         return $this->morphMany(BackofficeLog::class, 'loggable')
@@ -110,6 +105,22 @@ class Tooltip extends Model
     public function setCodeAttribute($v)
     {
         $this->attributes['type'] = self::$prefixes[strstr($v, '_', true)];
-        $this->attributes['id'] = substr(strrchr($v, "/"), 1);
+        $this->attributes['id'] = substr(strrchr($v, "_"), 1);
+    }
+
+    public function scopeWhereCodeIs($q, $v)
+    {
+        return $q
+            ->where('type', self::$prefixes[strstr($v, '_', true)] ?? '')
+            ->where('id', intval(substr(strrchr($v, "_"), 1)));
+    }
+
+    public function scopeWhereHasLanguage($q, $v)
+    {
+        return $q->whereHas('translation', function(Builder $q) use ($v) {
+            $q->whereHas('translationContents', function (Builder $q) use ($v) {
+                $q->where('lang', $v);
+            });
+        });
     }
 }

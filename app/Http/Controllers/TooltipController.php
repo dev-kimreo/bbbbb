@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Tooltips\CreateRequest;
+use App\Http\Requests\Tooltips\IndexRequest;
+use App\Http\Requests\Tooltips\UpdateRequest;
 use App\Libraries\PaginationLibrary;
+use App\Libraries\StringLibrary;
 use App\Models\Tooltip;
-use App\Models\TranslationContent;
 use Auth;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -26,6 +30,12 @@ class TooltipController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="page", type="integer", example=1, default=1, description="페이지"),
      *              @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
+     *              @OA\Property(property="hasLang[]", type="string", example="en", description="언어구분 (다중입력 가능)"),
+     *              @OA\Property(property="visible", type="boolean", example="true", description="전시여부"),
+     *              @OA\Property(property="type", type="string", example="헬프센터", description="전시구분 (한글이름으로 입력)"),
+     *              @OA\Property(property="title", type="string", example="도움말 작성버튼", description="제목"),
+     *              @OA\Property(property="code", type="string", example="HP_0012", description="전시코드"),
+     *              @OA\Property(property="userName", type="string", example="홍길동", description="등록자 이름"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -53,10 +63,52 @@ class TooltipController extends Controller
      * @param Request $request
      * @return Collection
      */
-    public function index(Request $request): Collection
+    public function index(IndexRequest $request): Collection
     {
+        // set relations
+        $with = ['translation', 'translation.translationContents'];
+
+        if (Auth::hasAccessRightsToBackoffice()) {
+            $with[] = 'user';
+        }
+
         // get model
-        $tooltip = Tooltip::with(['user']);
+        $tooltip = Tooltip::with($with);
+
+        // set search conditions
+        if (is_array($s = $request->input('has_lang'))) {
+            // search by contents' language
+            foreach ($s as $v) {
+                $tooltip->whereHasLanguage($v);
+            }
+        }
+
+        if (strlen($s = $request->input('visible')) > 0) {
+            // search by visibility
+            $tooltip->where('visible', ($s && $s != 'false'));
+        }
+
+        if ($s = $request->input('type')) {
+            // search by display type
+            $tooltip->where('type', $s);
+        }
+
+        if ($s = $request->input('title')) {
+            // search by title
+            $tooltip->where('title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+        }
+
+        if ($s = $request->input('code')) {
+            // search by title
+            $tooltip->whereCodeIs($s);
+        }
+
+        if ($s = $request->input('user_name')) {
+            // search by writer name
+            $tooltip->whereHas('user', function (Builder $q) use ($s) {
+                $q->where('name', $s);
+            });
+        }
 
         // set pagination information
         $pagination = PaginationLibrary::set($request->input('page'), $tooltip->count(), $request->input('per_page'));
@@ -65,9 +117,11 @@ class TooltipController extends Controller
         $data = $tooltip
             ->skip($pagination['skip'])
             ->take($pagination['perPage'])
+            ->orderByDesc('id')
             ->get()
             ->each(function (&$v) {
-                $v->lang = $v->contents()->get()->pluck('lang');
+                $v->lang = $v->translation->translationContents->pluck('lang');
+                unset($v->translation);
             });
 
         // result
@@ -109,11 +163,11 @@ class TooltipController extends Controller
      *      ),
      *      @OA\Response(
      *          response=401,
-     *          description="Client authentication failed"
+     *          description="Unauthenticated (비로그인)"
      *      ),
      *      @OA\Response(
      *          response=403,
-     *          description="forbidden"
+     *          description="Forbidden (백오피스 로그인시에만 가능)"
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -123,13 +177,13 @@ class TooltipController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
-     * 
+     *
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param CreateRequest $request
      * @return JsonResponse
      */
-    public function store(Request $request): JsonResponse
+    public function store(CreateRequest $request): JsonResponse
     {
         // create a tooltip
         $tooltip = Tooltip::create(
@@ -186,8 +240,8 @@ class TooltipController extends Controller
      *          description="Client authentication failed"
      *      ),
      *      @OA\Response(
-     *          response=403,
-     *          description="forbidden"
+     *          response=404,
+     *          description="Not found (열람할 툴팁이 존재하지 않음)"
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -238,11 +292,15 @@ class TooltipController extends Controller
      *      ),
      *      @OA\Response(
      *          response=401,
-     *          description="Client authentication failed"
+     *          description="Unauthenticated (비로그인)"
      *      ),
      *      @OA\Response(
      *          response=403,
-     *          description="forbidden"
+     *          description="Forbidden (백오피스 로그인시에만 가능)"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found (수정할 툴팁이 존재하지 않음)"
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -255,25 +313,30 @@ class TooltipController extends Controller
      *
      * Update the specified resource in storage.
      *
-     * @param Request $request
+     * @param UpdateRequest $request
      * @param int $id
      * @return JsonResponse
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateRequest $request, int $id): JsonResponse
     {
         // update the tooltip
         $tooltip = Tooltip::with('translation')->findOrFail($id);
         $tooltip->update($request->all());
 
         // update the translation
-        $translation = $tooltip->translation()->first();
-        $translation->update([
-            'explanation' => $request->input('title', $tooltip->title)
-        ]);
+        if ($translation = $tooltip->translation()->first()) {
+            $translation->update([
+                'explanation' => $request->input('title', $tooltip->title)
+            ]);
+        } else {
+            $translation = $tooltip->translation()->create([
+                'explanation' => $request->input('title')
+            ]);
+        }
 
         if (is_array($content = $request->input('content'))) {
             $translation->translationContents()->each(function ($o) use (&$content) {
-                if ($content[$o->lang]) {
+                if (isset($content[$o->lang])) {
                     $o->update(['value' => $content[$o->lang]]);
                     unset($content[$o->lang]);
                 }
@@ -319,12 +382,16 @@ class TooltipController extends Controller
      *          description="deleted"
      *      ),
      *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated (비로그인)"
+     *      ),
+     *      @OA\Response(
      *          response=403,
-     *          description="forbidden"
+     *          description="Forbidden (백오피스 로그인시에만 가능)"
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="not found"
+     *          description="Not found (삭제할 툴팁이 존재하지 않음)"
      *      ),
      *      security={{
      *          "davinci_auth":{}
@@ -357,11 +424,11 @@ class TooltipController extends Controller
 
         // post processing
         $contents = [];
-        $data->contents->each(function ($o) use (&$contents) {
+        $data->translation->translationContents->each(function ($o) use (&$contents) {
             $contents[$o->lang] = $o->value;
         });
-        unset($data->contents);
         $data->setAttribute('contents', $contents);
+        unset($data->translation);
 
         // return
         return collect($data);
