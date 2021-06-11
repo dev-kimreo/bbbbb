@@ -494,6 +494,9 @@ class InquiryController extends Controller
         }
 
         // Save Data
+        if ($inquiry->status == Inquiry::$status['waiting']) {
+            $inquiry->status = Inquiry::$status['answering'];
+        }
         $inquiry->assignee_id = $assignee_id;
         $inquiry->save();
 

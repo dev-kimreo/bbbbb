@@ -49,10 +49,10 @@ class Inquiry extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
-    public $status = [
-        'waiting',       // 접수
-        'answering',    // 확인중
-        'answered',     // 완료
+    public static array $status = [
+        'waiting' => 'waiting',       // 접수
+        'answering' => 'answering',   // 확인중
+        'answered' => 'answered',     // 완료
     ];
 
     /**
