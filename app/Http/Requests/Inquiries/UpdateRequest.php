@@ -25,10 +25,10 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required_without_all:question,assigneeId,referrerId|string|between:6,100',
-            'question' => 'required_without_all:title,assigneeId,referrerId|string|min:10',
-            'assigneeId' => 'required_without_all:title,question,referrerId|integer|exists:App\Models\Manager,user_id',
-            'referrerId' => 'required_without_all:title,question,assigneeId|integer|exists:App\Models\Manager,user_id'
+            'title' => 'required_without_all:question,assignee_id,referrer_id|string|between:6,100',
+            'question' => 'required_without_all:title,assignee_id,referrer_id|string|min:10',
+            'assignee_id' => 'required_without_all:title,question,referrer_id|integer|exists:App\Models\Manager,user_id',
+            'referrer_id' => 'required_without_all:title,question,assignee_id|integer|exists:App\Models\Manager,user_id'
         ];
     }
 
