@@ -239,6 +239,7 @@ class InquiryController extends Controller
         // Post processing
         $data->each(function ($item) {
             // Edit data
+            $item->assigned_at = $item->assigned_at ? Carbon::parse($item->assigned_at)->toIso8601String() : null;
             $item->created_at = $item->created_at ? Carbon::parse($item->created_at)->toIso8601String() : null;
             $item->updated_at = $item->updated_at ? Carbon::parse($item->updated_at)->toIso8601String() : null;
             unset($item->deleted_at);
@@ -496,6 +497,7 @@ class InquiryController extends Controller
             $inquiry->status = Inquiry::$status['answering'];
         }
         $inquiry->assignee_id = $assignee_id;
+        $inquiry->assigned_at = Carbon::now();
         $inquiry->save();
 
         // Send an event for remaining backoffice logs
