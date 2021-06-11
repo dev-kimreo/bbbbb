@@ -81,6 +81,9 @@ class InquiryAnswerController extends Controller
         $answer->answer = $request->input('answer');
         $answer->save();
 
+        $answer->inquiry->status = Inquiry::$status['answered'];
+        $answer->inquiry->save();
+
         // response
         $data = $this->getOne($answer->inquiry_id);
         return response()->json(collect($data), 201);
@@ -236,9 +239,18 @@ class InquiryAnswerController extends Controller
      */
     public function destroy(DestroyRequest $request, int $inquiryId): Response
     {
-        $answer = Inquiry::findOrFail($inquiryId)->answer;
+        // find
+        $inquiry = Inquiry::findOrFail($inquiryId);
+        $answer = $inquiry->answer;
+
+        // delete
         InquiryAnswer::findOrFail(@$answer->id)->destroy($answer->id);
 
+        // change status
+        $inquiry->status = $inquiry->assignee_id? Inquiry::$status['answering']: Inquiry::$status['waiting'];
+        $inquiry->save();
+
+        // response
         return response()->noContent();
     }
 
