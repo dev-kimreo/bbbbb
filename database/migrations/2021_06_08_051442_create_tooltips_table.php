@@ -19,7 +19,7 @@ class CreateTooltipsTable extends Migration
             $table->foreignId('user_id')->constrained();
             $table->string('type', 16);
             $table->string('title', 256);
-            $table->boolean('visible');
+            $table->boolean('visible')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
