@@ -3,7 +3,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Backoffice\DataUpdated;
 use App\Exceptions\QpickHttpException;
+use App\Http\Requests\Inquiries\AssignRequest;
 use App\Http\Requests\Inquiries\CreateRequest;
 use App\Http\Requests\Inquiries\DestroyRequest;
 use App\Http\Requests\Inquiries\IndexRequest;
@@ -63,25 +65,7 @@ class InquiryController extends Controller
      *      @OA\Response(
      *          response=201,
      *          description="created",
-     *          @OA\JsonContent(
-     *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/Inquiry"),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="user", type="object", ref="#/components/schemas/User")
-     *                  ),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="answer", type="null")
-     *                  ),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="assignee", type="null")
-     *                  ),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="attachFiles", type="array",
-     *                          @OA\Items(ref="#/components/schemas/AttachFile")
-     *                      )
-     *                  )
-     *              }
-     *          )
+     *          @OA\JsonContent(ref="#/components/schemas/Inquiry")
      *      ),
      *      @OA\Response(
      *          response=403,
@@ -102,14 +86,12 @@ class InquiryController extends Controller
     {
         // 초기화
         $inquiry = $this->inquiry;
-        $inquiry->timestamps = false;
 
         // 데이터 가공
         $inquiry->user_id = Auth::id();
         $inquiry->title = $request->input('title');
         $inquiry->question = $request->input('question');
         $inquiry->assignee_id = $request->input('assignee_id');
-        $inquiry->created_at = Carbon::now();
         $inquiry->save();
 
         // Response
@@ -119,49 +101,6 @@ class InquiryController extends Controller
 
 
     /**
-     * @OA\Schema (
-     *      schema="inquiryList",
-     *      @OA\Property(property="page", type="integer", example=1, default=1, description="페이지"),
-     *      @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
-     *      @OA\Property(property="id", type="string", example=1, description="1:1문의의 고유번호(PK)"),
-     *      @OA\Property(property="status", type="string", example=1, description="상태값"),
-     *      @OA\Property(property="startDate", type="date(Y-m-d)", example=1, description="접수기간 검색 시작일"),
-     *      @OA\Property(property="endDate", type="date(Y-m-d)", example=1, description="접수기간 검색 종료일"),
-     *      @OA\Property(property="title", type="string", example=1, description="제목 검색어"),
-     *      @OA\Property(property="userId", type="integer", example=1, description="작성한 사용자의 고유번호(PK)"),
-     *      @OA\Property(property="userEmail", type="string", example=1, description="작성한 사용자의 이메일"),
-     *      @OA\Property(property="userName", type="string", example=1, description="작성한 사용자의 이름"),
-     *      @OA\Property(property="assigneeId", type="integer", example=1, description="처리담당자의 고유번호(PK)"),
-     *      @OA\Property(property="assigneeName", type="string", example=1, description="처리담당자의 이름"),
-     *      @OA\Property(property="multiSearch", type="string|integer", example=1, description="통합검색을 위한 검색어")
-     * )
-     *
-     * @OA\Schema (
-     *      schema="inquiryListElement",
-     *      allOf={
-     *          @OA\Schema (
-     *              @OA\Property(property="id", type="integer", example=1, description="고유 번호" ),
-     *              @OA\Property(property="title", type="string", example="1:1 문의 제목", description="1:1문의 제목" ),
-     *              @OA\Property(property="question", type="string", example="1:1 문의 내용", description="1:1문의 내용" ),
-     *              @OA\Property(property="status", type="string", example="waiting", description="처리상태<br/>waiting:접수<br/>answering:확인중<br/>answered:완료" ),
-     *              @OA\Property(property="createdAt", type="ISO 8601 date", example="2021-02-12T15:19:21+00:00", description="등록일자"),
-     *              @OA\Property(property="updatedAt", type="ISO 8601 date", example="2021-02-13T18:52:16+00:00", description="수정일자"),
-     *              @OA\Property(property="answered", type="boolean", example="true", description="답변완료 여부"),
-     *              @OA\Property(property="answeredAt", type="boolean", example="2021-02-13T18:52:16+00:00", description="답변완료일 (답변이 없는 경우 null)"),
-     *              @OA\Property(property="attached", type="boolean", example="false", description="첨부파일 존재여부")
-     *          ),
-     *          @OA\Schema (
-     *              @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply")
-     *          ),
-     *          @OA\Schema (
-     *              @OA\Property(property="referrer", type="object", ref="#/components/schemas/UserSimply")
-     *          ),
-     *          @OA\Schema (
-     *              @OA\Property(property="assignee", type="object", ref="#/components/schemas/UserSimply")
-     *          )
-     *      }
-     * )
-     *
      * @OA\Get(
      *      path="/v1/inquiry",
      *      summary="1:1문의 목록",
@@ -172,7 +111,19 @@ class InquiryController extends Controller
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              ref="#/components/schemas/inquiryList"
+     *              @OA\Property(property="page", type="integer", example=1, default=1, description="페이지"),
+     *              @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
+     *              @OA\Property(property="id", type="string", example=1, description="1:1문의의 고유번호(PK)"),
+     *              @OA\Property(property="status", type="string", example=1, description="상태값"),
+     *              @OA\Property(property="startDate", type="date(Y-m-d)", example=1, description="접수기간 검색 시작일"),
+     *              @OA\Property(property="endDate", type="date(Y-m-d)", example=1, description="접수기간 검색 종료일"),
+     *              @OA\Property(property="title", type="string", example=1, description="제목 검색어"),
+     *              @OA\Property(property="userId", type="integer", example=1, description="작성한 사용자의 고유번호(PK)"),
+     *              @OA\Property(property="userEmail", type="string", example=1, description="작성한 사용자의 이메일"),
+     *              @OA\Property(property="userName", type="string", example=1, description="작성한 사용자의 이름"),
+     *              @OA\Property(property="assigneeId", type="integer", example=1, description="처리담당자의 고유번호(PK)"),
+     *              @OA\Property(property="assigneeName", type="string", example=1, description="처리담당자의 이름"),
+     *              @OA\Property(property="multiSearch", type="string|integer", example=1, description="통합검색을 위한 검색어")
      *          ),
      *      ),
      *      @OA\Response(
@@ -181,7 +132,7 @@ class InquiryController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination"),
      *              @OA\Property(property="list", type="array",
-     *                  @OA\Items(type="object", ref="#/components/schemas/inquiryListElement")
+     *                  @OA\Items(type="object", ref="#/components/schemas/InquiryForList")
      *              )
      *          )
      *      ),
@@ -288,6 +239,7 @@ class InquiryController extends Controller
         // Post processing
         $data->each(function ($item) {
             // Edit data
+            $item->assigned_at = $item->assigned_at ? Carbon::parse($item->assigned_at)->toIso8601String() : null;
             $item->created_at = $item->created_at ? Carbon::parse($item->created_at)->toIso8601String() : null;
             $item->updated_at = $item->updated_at ? Carbon::parse($item->updated_at)->toIso8601String() : null;
             unset($item->deleted_at);
@@ -327,28 +279,7 @@ class InquiryController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
-     *          @OA\JsonContent(
-     *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/Inquiry"),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply")
-     *                  ),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="referrer", type="object", ref="#/components/schemas/UserSimply")
-     *                  ),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="assignee", type="object", ref="#/components/schemas/UserSimply")
-     *                  ),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="answer", type="object", ref="#/components/schemas/InquiryAnswer")
-     *                  ),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="attachFiles", type="array",
-     *                          @OA\Items(ref="#/components/schemas/AttachFile")
-     *                      )
-     *                  )
-     *              }
-     *          )
+     *          @OA\JsonContent(ref="#/components/schemas/Inquiry")
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -385,9 +316,6 @@ class InquiryController extends Controller
      * @OA\Schema (
      *      schema="inquiryModify",
      *      required={},
-     *      @OA\Property(property="title", type="string", example="1:1 문의 제목입니다.", description="1:1 문의 제목"),
-     *      @OA\Property(property="question", type="string", example="1:1 문의 내용입니다.", description="1:1 문의 내용"),
-     *      @OA\Property(property="assigneeId", type="integer", example="5", description="1:1 문의 처리담당자")
      *  )
      *
      * @OA\Patch(
@@ -400,31 +328,19 @@ class InquiryController extends Controller
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              ref="#/components/schemas/inquiryModify"
+     *              @OA\Property(property="title", type="string", example="1:1 문의 제목입니다.", description="1:1 문의 제목"),
+     *              @OA\Property(property="question", type="string", example="1:1 문의 내용입니다.", description="1:1 문의 내용"),
+     *              @OA\Property(property="referrerId", type="integer", example="5", description="문의계정의 사용자 고유번호")
      *          ),
      *      ),
      *      @OA\Response(
      *          response=201,
      *          description="modified",
-     *          @OA\JsonContent(
-     *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/Inquiry"),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="user", type="object", ref="#/components/schemas/User")
-     *                  ),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="answer", type="object", ref="#/components/schemas/InquiryAnswer")
-     *                  ),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="assignee", type="object", ref="#/components/schemas/User")
-     *                  ),
-     *                  @OA\Schema(
-     *                      @OA\Property(property="attachFiles", type="array",
-     *                          @OA\Items(ref="#/components/schemas/AttachFile")
-     *                      )
-     *                  )
-     *              }
-     *          )
+     *          @OA\JsonContent(ref="#/components/schemas/Inquiry")
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated (비로그인)"
      *      ),
      *      @OA\Response(
      *          response=403,
@@ -438,6 +354,7 @@ class InquiryController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
+     *
      * @param int $id
      * @param UpdateRequest $request
      * @return JsonResponse
@@ -449,14 +366,13 @@ class InquiryController extends Controller
         $inquiry = Inquiry::findOrFail($id);
 
         // Check authority
-        if ($inquiry->user_id != Auth::id()) {
+        if ($inquiry->user_id != Auth::id() && !Auth::hasAccessRightsToBackoffice()) {
             throw new QpickHttpException(403, 'inquiry.disable.writer_only');
         }
 
         // Save Data
         $inquiry->title = $request->input('title', $inquiry->title);
         $inquiry->question = $request->input('question', $inquiry->question);
-        $inquiry->assignee_id = $request->input('assignee_id', $inquiry->assignee_id);
         $inquiry->referrer_id = $request->input('referrer_id', $inquiry->referrer_id);
         $inquiry->save();
 
@@ -478,6 +394,10 @@ class InquiryController extends Controller
      *          description="deleted"
      *      ),
      *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated (비로그인)"
+     *      ),
+     *      @OA\Response(
      *          response=403,
      *          description="forbidden"
      *      ),
@@ -497,13 +417,9 @@ class InquiryController extends Controller
     public function destroy(DestroyRequest $request, int $id): Response
     {
         // Get Data from DB
-        $inquiry = Inquiry::where('id', $id)->first();
+        $inquiry = Inquiry::findOrFail($id);
 
         // Check authority
-        if (!$inquiry) {
-            throw new QpickHttpException(404, 'common.not_found');
-        }
-
         if ($inquiry->user_id != Auth::id()) {
             throw new QpickHttpException(403, 'inquiry.disable.writer_only');
         }
@@ -517,6 +433,81 @@ class InquiryController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * @OA\Patch(
+     *      path="/v1/inquiry/{inquiry_id}/assignee/{assignee_id}",
+     *      summary="1:1문의 접수(처리담당자 변경)",
+     *      description="1:1문의 접수(처리담당자 변경)",
+     *      operationId="inquiryAssign",
+     *      tags={"1:1문의"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="modified",
+     *          @OA\JsonContent(ref="#/components/schemas/Inquiry")
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated (비로그인)"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found (답변할 1:1 문의가 존재하지 않음)"
+     *      ),
+     *      @OA\Response(
+     *          response=409,
+     *          description="Conflict (이미 답변이 완료되어 접수 및 담당자 변경이 불가능함)"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Failed"
+     *      ),
+     *      security={{
+     *          "davinci_auth":{}
+     *      }}
+     *  )
+     *
+     * @param AssignRequest $request
+     * @param int $inquiry_id
+     * @param int $assignee_id
+     * @return JsonResponse
+     * @throws QpickHttpException
+     */
+    public function assignee(AssignRequest $request, int $inquiry_id, int $assignee_id): JsonResponse
+    {
+        // Get Data from DB
+        $inquiry = Inquiry::findOrFail($inquiry_id);
+
+        // Check authority
+        if ($inquiry->answer) {
+            throw new QpickHttpException(409, 'inquiry.answer.disable.already_exists');
+        }
+
+        // Save Data
+        if ($inquiry->status == Inquiry::$status['waiting']) {
+            $inquiry->status = Inquiry::$status['answering'];
+        }
+        $inquiry->assignee_id = $assignee_id;
+        $inquiry->assigned_at = Carbon::now();
+        $inquiry->save();
+
+        // Send an event for remaining backoffice logs
+        DataUpdated::dispatch($inquiry, $inquiry_id, '접수');
+
+        // Response
+        $data = $this->getOne($inquiry_id);
+        return response()->json(collect($data), 201);
+    }
+
     /* Custom Methods */
     protected function getUser($id)
     {
@@ -527,6 +518,12 @@ class InquiryController extends Controller
 
     protected function getOne(int $id)
     {
-        return Inquiry::with(['user', 'referrer', 'assignee', 'answer', 'attachFiles'])->findOrFail($id);
+        $with = ['user', 'referrer', 'assignee', 'answer', 'attachFiles'];
+
+        if (Auth::hasAccessRightsToBackoffice()) {
+            $with[] = 'backofficeLogs';
+        }
+
+        return Inquiry::with($with)->findOrFail($id);
     }
 }

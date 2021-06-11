@@ -22,6 +22,7 @@ class CreateInquiriesTable extends Migration
             $table->string('title', 100);
             $table->mediumText('question');
             $table->string('status', 16)->default('waiting');
+            $table->timestamp('assigned_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
