@@ -186,7 +186,7 @@ Route::group([
         Route::post('', [InquiryController::class, 'store'])->middleware('chkAccess:regular');
         Route::get('', [InquiryController::class, 'index'])->middleware('chkAccess:regular,backoffice');
         Route::get('{inquiryId}', [InquiryController::class, 'show'])->middleware('chkAccess:regular,backoffice');
-        Route::patch('{inquiryId}', [InquiryController::class, 'update'])->middleware('chkAccess:regular');
+        Route::patch('{inquiryId}', [InquiryController::class, 'update'])->middleware('chkAccess:regular,backoffice');
         Route::delete('{inquiryId}', [InquiryController::class, 'destroy'])->middleware('chkAccess:regular');
     });
 

@@ -449,7 +449,7 @@ class InquiryController extends Controller
         $inquiry = Inquiry::findOrFail($id);
 
         // Check authority
-        if ($inquiry->user_id != Auth::id()) {
+        if ($inquiry->user_id != Auth::id() && !Auth::hasAccessRightsToBackoffice()) {
             throw new QpickHttpException(403, 'inquiry.disable.writer_only');
         }
 
