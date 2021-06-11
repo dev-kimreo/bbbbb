@@ -6,6 +6,7 @@ use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -94,6 +95,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function manager(): HasOne
     {
         return $this->hasOne(Manager::class);
+    }
+
+    public function authority(): BelongsToMany
+    {
+        return $this->belongsToMany('App\Models\Authority', 'managers')->wherePivot('deleted_at', null);
     }
 
     public function inquiry(): HasMany

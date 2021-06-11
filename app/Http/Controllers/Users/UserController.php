@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Users;
 
+use App\Events\Member\Login as LoginEvent;
 use App\Events\Member\VerifyEmail;
 use App\Events\Member\VerifyEmailCheck;
 use App\Exceptions\QpickHttpException;
@@ -19,6 +20,7 @@ use App\Http\Requests\Members\UpdateRequest;
 use App\Jobs\SendMail;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
+use App\Models\Authority;
 use App\Models\SignedCode;
 use App\Models\User;
 use Auth;
@@ -59,7 +61,19 @@ class UserController extends Controller
      *      tags={"회원관련"},
      *      @OA\RequestBody(
      *          required=true,
-     *          description=""
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={},
+     *              @OA\Property(property="startCreatedDate", type="date(Y-m-d)", example="2021-01-01", description="가입일 검색 시작일"),
+     *              @OA\Property(property="endCreatedDate", type="date(Y-m-d)", example="2021-03-01", description="가입일 검색 종료일"),
+     *              @OA\Property(property="startRegisteredDate", type="date(Y-m-d)", example="2021-03-01", description="전환일 검색 시작일"),
+     *              @OA\Property(property="endRegisteredDate", type="date(Y-m-d)", example="2021-05-01", description="전환일 검색 종료일"),
+     *              @OA\Property(property="grade", type="integer", example=1, description="회원 등급"),
+     *              @OA\Property(property="id", type="integer", example=1, description="회원 번호"),
+     *              @OA\Property(property="email", type="string", example="abcd@qpicki.com", description="ID(메일)"),
+     *              @OA\Property(property="name", type="string", example="홍길동", description="이름"),
+     *              @OA\Property(property="multiSearch", type="string", example="홍길동", description="전체 검색"),
+     *          ),
      *      ),
      *      @OA\Response(
      *          response=200,
@@ -67,7 +81,16 @@ class UserController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination" ),
      *              @OA\Property(property="list", type="array",
-     *                  @OA\Items(type="object", ref="#/components/schemas/User")
+     *                  @OA\Items(type="object",
+     *                      allOf={
+     *                          @OA\Schema(ref="#/components/schemas/User"),
+     *                          @OA\Schema(
+     *                              @OA\Property(property="authority", type="array",
+     *                                  @OA\Items(type="object", ref="#/components/schemas/Authority")
+     *                              )
+     *                          ),
+     *                      }
+     *                  )
      *              ),
      *          )
      *      ),
@@ -89,7 +112,7 @@ class UserController extends Controller
     public function index(IndexRequest $request): Collection
     {
         // get model
-        $user = $this->user::with(['advAgree', 'sites']);
+        $user = $this->user::with(['advAgree', 'sites', 'authority']);
 
         // set search conditions
         if ($s = $request->input('start_created_date')) {
@@ -793,7 +816,6 @@ class UserController extends Controller
      * @param $id
      * @return Collection
      */
-    # TODO 백오피스에서 특정 회원 로그인 기능시 Log 남기도록 해야함. 최종원 과장의 피드백 이후 추가 작업 필요
     public function personalClientLogin(Request $request, $id): Collection
     {
         $this->user = $this->user->find($id);
@@ -803,6 +825,8 @@ class UserController extends Controller
         $res['token_type'] = 'Bearer';
         $res['expire_in'] = config('auth.personal_client.expire') * 60;
         $res['access_token'] = $token->accessToken;
+
+        LoginEvent::dispatch($request, $id, 1, Auth::id());
 
         return collect($res);
     }

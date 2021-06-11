@@ -10,7 +10,6 @@ use Carbon\Carbon;
 
 
 /**
- *
  *  @OA\Schema(
  *      @OA\Xml(name="이미지"),
  *      @OA\Property(property="id", type="integer", example=1, description="업로드 파일 고유 번호" ),
@@ -26,6 +25,13 @@ use Carbon\Carbon;
  *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자", readOnly="true")
  *  )
  *
+ *  @OA\Schema(
+ *      schema="AttachFileSimply",
+ *      @OA\Property(property="id", type="integer", example=1, description="업로드 파일 고유 번호" ),
+ *      @OA\Property(property="url", type="string", example="http://qpicki.com/storage/temp/123asfd12ju4121.jpg", description="파일 url" ),
+ *      @OA\Property(property="attachableType", type="string", example="temp", description=" 업로드 타입" ),
+ *      @OA\Property(property="attachableId", type="integer", example=1, description="타입의 고유 번호" )
+ *  )
  *
  *
  */

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBackofficeMenuPermissionsTable extends Migration
+class CreateTooltipsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,13 @@ class CreateBackofficeMenuPermissionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('backoffice_permissions', function (Blueprint $table) {
+        Schema::create('tooltips', function (Blueprint $table) {
+            $table->collation = 'utf8mb4_general_ci';
             $table->id();
-            $table->foreignId('authority_id')->constrained();
-            $table->foreignId('backoffice_menu_id')->constrained();
+            $table->foreignId('user_id')->constrained();
+            $table->string('type', 16);
+            $table->string('title', 256);
+            $table->boolean('visible')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -29,6 +32,6 @@ class CreateBackofficeMenuPermissionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('backoffice_permissions');
+        Schema::dropIfExists('tooltips');
     }
 }

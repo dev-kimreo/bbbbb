@@ -32,7 +32,6 @@ class CreateManagersTable extends Migration
             $table->foreignId('authority_id')->constrained();
             $table->timestamps();
             $table->softDeletes();
-            $table->unique(['user_id']);
         });
     }
 

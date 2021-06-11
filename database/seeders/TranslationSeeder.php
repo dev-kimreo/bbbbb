@@ -133,7 +133,7 @@ class TranslationSeeder extends Seeder
             ],
             [
                 'exceptions',
-                'not_found_sign_code',
+                'email.not_found_sign_code',
                 '발급된 적이 없거나 만료된 메일인증키입니다.',
                 'The validation key is not found.'
             ],
@@ -221,19 +221,25 @@ class TranslationSeeder extends Seeder
                 '마지막 메뉴만이 권한을 가질 수 있습니다.',
                 '마지막 메뉴만이 권한을 가질 수 있습니다.'
             ],
+            [
+                'exceptions',
+                'authority.delete.disable.exists_manager',
+                '현재 사용중인 관리자가 존재하여 삭제할 수 없습니다.',
+                '현재 사용중인 관리자가 존재하여 삭제할 수 없습니다.'
+            ],
         ];
 
         // Truncate tables
-        if(app()->environment() == 'local') {
+        if (app()->environment() == 'local') {
             Schema::disableForeignKeyConstraints();
             Translation::truncate();
             TranslationContent::truncate();
         }
 
         // Insert data
-        foreach($words as $v) {
+        foreach ($words as $v) {
             $word = new Translation;
-            $word->type = $v[0];
+            $word->linkable_type = $v[0];
             $word->code = $v[1];
             $word->explanation = $v[2];
             $word->save();

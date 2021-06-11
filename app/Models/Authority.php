@@ -45,4 +45,9 @@ class Authority extends Model
     {
         return $this->hasMany(Manager::class);
     }
+
+    public function permissions()
+    {
+        return $this->hasMany(BackofficePermission::class);
+    }
 }

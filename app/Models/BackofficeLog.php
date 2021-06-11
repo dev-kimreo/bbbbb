@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 class BackofficeLog extends Model
 {
-    use HasFactory;
+    use HasFactory, DateFormatISO8601;
 
     public $timestamps = false;
     public $hidden = ['user_id', 'loggable_type', 'loggable_id'];
@@ -38,7 +39,7 @@ class BackofficeLog extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class)->select(['id', 'name', 'email']);
+        return $this->belongsTo(User::class)->simplify();
     }
 
     public function loggable(): MorphTo

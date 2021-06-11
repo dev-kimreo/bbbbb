@@ -437,7 +437,6 @@ class PostController extends Controller
      *          )
      *      )
      *  )
-     *
      * @param GetListRequest $request
      * @return Collection
      * @throws QpickHttpException
@@ -519,6 +518,7 @@ class PostController extends Controller
             $item->repliesCount = Reply::where('post_id', $item->id)->count();
             $item->attachFilesCount = AttachFile::where(['attachable_type' => 'post', 'attachable_id' => $item->id])->count();
         });
+
 
         $res['header'] = $pagination;
         $res['list'] = $postModel;

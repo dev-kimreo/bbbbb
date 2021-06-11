@@ -11,6 +11,7 @@ use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\BackofficeMenuController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
+use App\Http\Controllers\TooltipController;
 use App\Http\Controllers\Users\ManagerController;
 use App\Http\Controllers\Users\UserAdvAgreeController;
 use App\Http\Controllers\Users\UserController;
@@ -103,10 +104,18 @@ Route::group([
      * 관리자 및 권한 관련
      */
     Route::group(['middleware' => 'chkAccess:backoffice'], function () {
-        Route::resource('authority', AuthorityController::class);
-        Route::resource('manager', ManagerController::class,[
-            'only' => ['index', 'show', 'store', 'destroy']
-        ]);
+        Route::group(['prefix' => 'authority'], function(){
+            Route::post('', [AuthorityController::class, 'store']);
+            Route::get('', [AuthorityController::class, 'index']);
+            Route::get('/{id}', [AuthorityController::class, 'show'])->where(['id' => '[0-9]+']);
+            Route::patch('/{id}', [AuthorityController::class, 'update'])->where(['id' => '[0-9]+']);
+            Route::delete('/{id}', [AuthorityController::class, 'destroy']);
+
+            Route::get('/{id}/menu-permission', [AuthorityController::class, 'getMenuListWithPermission']);
+        });
+
+
+        Route::resource('manager', ManagerController::class);
     });
 
     /**
@@ -180,6 +189,9 @@ Route::group([
         Route::get('{inquiryId}', [InquiryController::class, 'show'])->middleware('chkAccess:regular,backoffice');
         Route::patch('{inquiryId}', [InquiryController::class, 'update'])->middleware('chkAccess:regular');
         Route::delete('{inquiryId}', [InquiryController::class, 'destroy'])->middleware('chkAccess:regular');
+
+        // 담당자 지정
+        Route::patch('{inquiryId}/assignee/{assignee_id}', [InquiryController::class, 'assignee'])->middleware('chkAccess:backoffice');
     });
 
     // 답변 CRUD (Customized Router)
@@ -200,7 +212,14 @@ Route::group([
         Route::delete('/{id}', [AttachController::class, 'delete']);    // 파일 삭제
     });
 
-
-
-
+    /**
+     * 툴팁
+     */
+    Route::group(['prefix' => 'tooltip'], function () {
+        Route::post('', [TooltipController::class, 'store'])->middleware('chkAccess:backoffice');
+        Route::get('', [TooltipController::class, 'index']);
+        Route::get('/{tooltip_id}', [TooltipController::class, 'show']);
+        Route::patch('/{tooltip_id}', [TooltipController::class, 'update'])->middleware('chkAccess:backoffice');
+        Route::delete('/{tooltip_id}', [TooltipController::class, 'destroy'])->middleware('chkAccess:backoffice');
+    });
 });

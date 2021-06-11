@@ -23,7 +23,7 @@ class BackofficeMenuController extends Controller
 
     /**
      * @OA\Post (
-     *      path="/v1/menu",
+     *      path="/v1/backoffice-menu",
      *      summary="메뉴 등록",
      *      description="새로운 메뉴를 등록합니다.",
      *      operationId="menuCreate",
@@ -79,7 +79,7 @@ class BackofficeMenuController extends Controller
 
     /**
      * @OA\Patch (
-     *      path="/v1/menu/{menu_id}",
+     *      path="/v1/backoffice-menu/{menu_id}",
      *      summary="메뉴 수정",
      *      description="메뉴를 수정합니다.",
      *      operationId="menuUpdate",
@@ -117,7 +117,7 @@ class BackofficeMenuController extends Controller
 
     /**
      * @OA\Get (
-     *      path="/v1/menu/{menu_id}",
+     *      path="/v1/backoffice-menu/{menu_id}",
      *      summary="메뉴 상세",
      *      description="메뉴의 상세정보",
      *      operationId="menuShow",
@@ -145,7 +145,7 @@ class BackofficeMenuController extends Controller
 
     /**
      * @OA\Get (
-     *      path="/v1/menu",
+     *      path="/v1/backoffice-menu",
      *      summary="메뉴 목록",
      *      description="메뉴의 목록",
      *      operationId="menuIndex",
@@ -178,7 +178,7 @@ class BackofficeMenuController extends Controller
 
     /**
      * @OA\Delete (
-     *      path="/v1/menu/{menu_id}",
+     *      path="/v1/backoffice-menu/{menu_id}",
      *      summary="메뉴 삭제",
      *      description="메뉴를 삭제합니다",
      *      operationId="menuDestroy",
