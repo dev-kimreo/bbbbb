@@ -14,14 +14,35 @@ use Illuminate\Support\Carbon;
 
 
 /**
- *
  *  @OA\Schema(
+ *     schema="Inquiry",
  *      @OA\Property(property="id", type="integer", example=1, description="고유 번호" ),
  *      @OA\Property(property="title", type="string", example="1:1 문의 제목", description="1:1문의 제목" ),
  *      @OA\Property(property="question", type="string", example="1:1 문의 내용", description="1:1문의 내용" ),
  *      @OA\Property(property="status", type="string", example="waiting", description="처리상태<br/>waiting:접수<br/>answering:확인중<br/>answered:완료" ),
- *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자", readOnly="true"),
- *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자", readOnly="true")
+ *      @OA\Property(property="createdAt", type="string", format="date-time", description="1:1문의 등록일자"),
+ *      @OA\Property(property="updatedAt", type="string", format="date-time", description="1:1문의 수정일자"),
+ *      @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply", description="작성한 사용자 정보"),
+ *      @OA\Property(property="referrer", type="object", ref="#/components/schemas/UserSimply", description="문의계정으로 지정된 사용자 정보"),
+ *      @OA\Property(property="assignee", type="object", ref="#/components/schemas/UserSimply", description="처리담당자 정보"),
+ *      @OA\Property(property="attachFiles", type="array", description="첨부파일", @OA\Items(ref="#/components/schemas/AttachFileSimply")),
+ *      @OA\Property(property="backofficeLogs", type="array", description="백오피스 업데이트 로그", @OA\Items(ref="#/components/schemas/BackofficeLog")),
+ *  )
+ *
+ *  @OA\Schema(
+ *      schema="InquiryForList",
+ *      @OA\Property(property="id", type="integer", example=1, description="고유 번호" ),
+ *      @OA\Property(property="title", type="string", example="1:1 문의 제목", description="1:1문의 제목" ),
+ *      @OA\Property(property="question", type="string", example="1:1 문의 내용", description="1:1문의 내용" ),
+ *      @OA\Property(property="status", type="string", example="waiting", description="처리상태<br/>waiting:접수<br/>answering:확인중<br/>answered:완료" ),
+ *      @OA\Property(property="createdAt", type="ISO 8601 date", example="2021-02-12T15:19:21+00:00", description="등록일자"),
+ *      @OA\Property(property="updatedAt", type="ISO 8601 date", example="2021-02-13T18:52:16+00:00", description="수정일자"),
+ *      @OA\Property(property="answered", type="boolean", example="true", description="답변완료 여부"),
+ *      @OA\Property(property="answeredAt", type="boolean", example="2021-02-13T18:52:16+00:00", description="답변완료일 (답변이 없는 경우 null)"),
+ *      @OA\Property(property="attached", type="boolean", example="false", description="첨부파일 존재여부"),
+ *      @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply", description="작성한 사용자 정보"),
+ *      @OA\Property(property="referrer", type="object", ref="#/components/schemas/UserSimply", description="문의계정으로 지정된 사용자 정보"),
+ *      @OA\Property(property="assignee", type="object", ref="#/components/schemas/UserSimply", description="처리담당자의 사용자 정보"),
  *  )
  */
 class Inquiry extends Model
