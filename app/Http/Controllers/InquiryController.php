@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Backoffice\DataUpdated;
 use App\Exceptions\QpickHttpException;
 use App\Http\Requests\Inquiries\AssignRequest;
 use App\Http\Requests\Inquiries\CreateRequest;
@@ -496,6 +497,9 @@ class InquiryController extends Controller
         $inquiry->assignee_id = $assignee_id;
         $inquiry->save();
 
+        // Send an event for remaining backoffice logs
+        DataUpdated::dispatch($inquiry, $inquiry_id, '접수');
+
         // Response
         $data = $this->getOne($inquiry_id);
         return response()->json(collect($data), 201);
@@ -511,6 +515,12 @@ class InquiryController extends Controller
 
     protected function getOne(int $id)
     {
-        return Inquiry::with(['user', 'referrer', 'assignee', 'answer', 'attachFiles'])->findOrFail($id);
+        $with = ['user', 'referrer', 'assignee', 'answer', 'attachFiles'];
+
+        if (Auth::hasAccessRightsToBackoffice()) {
+            $with[] = 'backofficeLogs';
+        }
+
+        return Inquiry::with($with)->findOrFail($id);
     }
 }
