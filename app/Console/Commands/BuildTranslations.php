@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Translation;
+use App\Models\Exception;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class BuildTranslations extends Command
 {
@@ -41,15 +41,16 @@ class BuildTranslations extends Command
         $res = [];
 
         // Getting translated words from DB
-        Translation::with('TranslationContent')->get()->each(
-            function ($v) use (&$res) {
-                $v->translationContent->each(
-                    function ($v2) use ($v, &$res) {
-                        $this->assignArrayByPath($res[$v2->lang][$v->linkable_type], $v->code, $v2->value);
-                    }
+        Exception::with('translation.translationContents')->get()->each(function ($exception) use (&$res) {
+            $translation = $exception->translation;
+            $translation->translationContents->each(function ($content) use ($exception, $translation, &$res) {
+                $this->assignArrayByPath(
+                    $res[$content->lang][$translation->linkable_type],
+                    $exception->code,
+                    $content->value
                 );
-            }
-        );
+            });
+        });
 
         // Getting the path for language resources
         $basePath = base_path();

@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             OauthClientsSeeder::class,
             BoardsSeeder::class,
             BoardOptionsSeeder::class,
-            TranslationSeeder::class,
+            ExceptionSeeder::class,
             BackofficeMenuSeeder::class,
         ]);
 

@@ -27,9 +27,9 @@ class Translation extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
-    protected $fillable = ['linkable_type', 'linkable_id', 'code', 'explanation'];
+    protected $fillable = ['linkable_type', 'linkable_id'];
     protected $with = ['translationContents'];
-    protected $hidden = ['linkable_type', 'linkable_id', 'code', 'explanation', 'created_at', 'updated_at', 'deleted_at'];
+    protected $hidden = ['linkable_type', 'linkable_id', 'created_at', 'updated_at', 'deleted_at'];
 
     public static function boot()
     {
