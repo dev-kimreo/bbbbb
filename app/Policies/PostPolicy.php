@@ -35,7 +35,11 @@ class PostPolicy
         $viewAnyPolicy = Gate::allows('viewAny', [$post, $board]);
 
         if ($viewAnyPolicy) {
-            return $post->hidden ? false : true;
+            if (Auth::hasAccessRightsToBackoffice()) {
+                return true;
+            } else {
+                return $post->hidden ? false : true;
+            }
         }
 
         return false;
