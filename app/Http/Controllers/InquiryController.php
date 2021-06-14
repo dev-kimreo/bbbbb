@@ -11,6 +11,7 @@ use App\Http\Requests\Inquiries\DestroyRequest;
 use App\Http\Requests\Inquiries\IndexRequest;
 use App\Http\Requests\Inquiries\ShowRequest;
 use App\Http\Requests\Inquiries\UpdateRequest;
+use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
 use App\Models\AttachFile;
@@ -20,6 +21,7 @@ use App\Models\User;
 use App\Services\AttachService;
 use Auth;
 use DB;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
@@ -114,16 +116,16 @@ class InquiryController extends Controller
      *              @OA\Property(property="page", type="integer", example=1, default=1, description="페이지"),
      *              @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
      *              @OA\Property(property="id", type="string", example=1, description="1:1문의의 고유번호(PK)"),
-     *              @OA\Property(property="status", type="string", example=1, description="상태값"),
+     *              @OA\Property(property="status[]", type="string", example="waiting", description="검색할 상태값(다중입력 가능)<br>waiting:접수, answering:확인중, answered:완료"),
      *              @OA\Property(property="startDate", type="date(Y-m-d)", example=1, description="접수기간 검색 시작일"),
      *              @OA\Property(property="endDate", type="date(Y-m-d)", example=1, description="접수기간 검색 종료일"),
      *              @OA\Property(property="title", type="string", example=1, description="제목 검색어"),
-     *              @OA\Property(property="userId", type="integer", example=1, description="작성한 사용자의 고유번호(PK)"),
-     *              @OA\Property(property="userEmail", type="string", example=1, description="작성한 사용자의 이메일"),
-     *              @OA\Property(property="userName", type="string", example=1, description="작성한 사용자의 이름"),
+     *              @OA\Property(property="userId", type="integer", example=1, description="문의를 작성한 사용자의 고유번호(PK)"),
+     *              @OA\Property(property="userEmail", type="string", example=1, description="문의를 작성한 사용자의 이메일"),
+     *              @OA\Property(property="userName", type="string", example=1, description="문의를 작성한 사용자의 이름"),
      *              @OA\Property(property="assigneeId", type="integer", example=1, description="처리담당자의 고유번호(PK)"),
      *              @OA\Property(property="assigneeName", type="string", example=1, description="처리담당자의 이름"),
-     *              @OA\Property(property="multiSearch", type="string|integer", example=1, description="통합검색을 위한 검색어")
+     *              @OA\Property(property="answerId", type="integer", example=1, description="답변한 관리자의 고유번호(PK)"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -150,6 +152,103 @@ class InquiryController extends Controller
      */
     public function index(IndexRequest $request): Collection
     {
+        return $this->indexByEloquentOrm($request);
+        //return $this->indexByQueryBuilder($request);
+    }
+
+    protected function indexByEloquentOrm(IndexRequest $request): Collection
+    {
+        // init model
+        $inquiry = Inquiry::with('user', 'referrer', 'assignee')
+            ->orderByDesc('id');
+
+        // set search conditions
+        if (!Auth::hasAccessRightsToBackoffice()) {
+            $inquiry->where('user_id', Auth::id());
+        }
+
+        if ($s = $request->input('id')) {
+            $inquiry->where('id', $s);
+        }
+
+        if (is_array($s = $request->input('status'))) {
+            $inquiry->whereIn('status', $s);
+        }
+
+        if ($s = $request->input('start_date')) {
+            $s = Carbon::parse($s);
+            $inquiry->where('created_at', '>=', $s);
+        }
+
+        if ($s = $request->input('end_date')) {
+            $s = Carbon::parse($s)->setTime(23, 59, 59);
+            $inquiry->where('created_at', '<=', $s);
+        }
+
+        if ($s = $request->input('title')) {
+            $inquiry->where('title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+        }
+
+        if ($s = $request->input('user_id')) {
+            $inquiry->where('user_id', $s);
+        }
+
+        if ($s = $request->input('user_email')) {
+            $inquiry->whereHas('user', function (Builder $q) use ($s) {
+                $q->where('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+            });
+        }
+
+        if ($s = $request->input('user_name')) {
+            $inquiry->whereHas('user', function (Builder $q) use ($s) {
+                $q->where('name', $s);
+            });
+        }
+
+        if ($s = $request->input('assignee_id')) {
+            $inquiry->where('assignee_id', $s);
+        }
+
+        if ($s = $request->input('assignee_name')) {
+            $inquiry->whereHas('assignee', function (Builder $q) use ($s) {
+                $q->where('name', $s);
+            });
+        }
+
+        if ($s = $request->input('answer_id')) {
+            $inquiry->whereHas('answer', function (Builder $q) use ($s) {
+                $q->where('user_id', $s);
+            });
+        }
+
+        // Set Pagination Information
+        $pagination = PaginationLibrary::set($request->input('page'), $inquiry->count(), $request->input('per_page'));
+
+        // Get Data from DB
+        $data = $inquiry->skip($pagination['skip'])->take($pagination['perPage'])->get();
+
+        // Post processing
+        $data->each(function ($item) {
+            // Check if there is a related data
+            $answer = InquiryAnswer::where('inquiry_id', $item->id);
+            $item->answered = $answer->exists();
+            $item->answered_at = ($item->answered)? $answer->first()->created_at: null;
+
+            // Getting attach
+            $item->attached = Inquiry::find($item->id)->attachFiles()->exists();
+        });
+
+        // Result
+        $result = [
+            'header' => $pagination ?? [],
+            'list' => $data ?? []
+        ];
+
+        return collect($result);
+    }
+
+    protected function indexByQueryBuilder(IndexRequest $request): Collection
+    {
         // check viewAny Policy
 //        if (!auth()->user()->can('viewAny', [$this->inquiry])) {
 //            throw new QpickHttpException(403, 'common.unauthorized');
@@ -170,8 +269,8 @@ class InquiryController extends Controller
             $inquiry->where('inquiries.id', $s);
         }
 
-        if ($s = $request->input('status')) {
-            $inquiry->where('inquiries.status', $s);
+        if (is_array($s = $request->input('status'))) {
+            $inquiry->whereIn('inquiries.status', $s);
         }
 
         if ($s = $request->input('start_date')) {
@@ -184,6 +283,7 @@ class InquiryController extends Controller
             $inquiry->where('inquiries.created_at', '<=', $s);
         }
 
+        /*
         if ($s = $request->input('multi_search')) {
             // 통합검색
             $inquiry->join('users as users_ms', 'inquiries.user_id', '=', 'users_ms.id');
@@ -200,6 +300,7 @@ class InquiryController extends Controller
                 }
             });
         }
+        */
 
         if ($s = $request->input('title')) {
             $inquiry->where('inquiries.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
@@ -243,6 +344,10 @@ class InquiryController extends Controller
             $item->created_at = $item->created_at ? Carbon::parse($item->created_at)->toIso8601String() : null;
             $item->updated_at = $item->updated_at ? Carbon::parse($item->updated_at)->toIso8601String() : null;
             unset($item->deleted_at);
+
+            if ($item->updated_at == $item->created_at) {
+                $item->updated_at = null;
+            }
 
             // Check if there is a related data
             $answer = InquiryAnswer::where('inquiry_id', $item->id);

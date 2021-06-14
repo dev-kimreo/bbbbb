@@ -12,27 +12,46 @@ use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 trait QpickTestBase
 {
     protected string $accessToken = '';
-    protected string $userPassword = 'password#30';
+    protected string $userPassword = 'password!1';
 
-    protected function actingAsQpickUser(string $role): User
+    protected function createAsQpickUser(string $role)
     {
-        $user = User::factory()->create([
+        $newArrs = [
             'password' => Hash::make($this->userPassword)
-        ]);
+        ];
 
         switch ($role) {
             case 'associate':
-                $user->grade = 0;
-                Passport::actingAs($user);
+                $newArrs['grade'] = 0;
                 break;
 
             case 'regular':
-                $user->grade = 1;
-                Passport::actingAs($user);
+                $newArrs['grade'] = 1;
                 break;
 
             case 'backoffice':
                 $user = User::find(Manager::first()->user_id);
+                break;
+        }
+
+        if ($role != 'backoffice') {
+            $user = User::factory()->create($newArrs);
+        }
+
+        return $user;
+    }
+
+    protected function actingAsQpickUser(string $role): User
+    {
+        $user = $this->createAsQpickUser($role);
+
+        switch ($role) {
+            case 'associate':
+            case 'regular':
+                $this->getPassportToken($user, 'front');
+                break;
+
+            case 'backoffice':
                 $this->getPassportToken($user);
                 break;
         }
@@ -40,13 +59,13 @@ trait QpickTestBase
         return $user;
     }
 
-    protected function getPassportToken($user)
+    protected function getPassportToken($user, $service = 'crm')
     {
-        $oauth_client = Client::where(['name' => 'qpicki_crm'])->firstOrFail();
+        $oauth_client = Client::where(['name' => 'qpicki_' . $service])->firstOrFail();
 
         $body = [
             'username' => $user->email,
-            'password' => 'password',
+            'password' => $this->userPassword,
             'grant_type' => 'password',
             'client_id' => $oauth_client->id,
             'client_secret' => $oauth_client->secret,
@@ -60,15 +79,23 @@ trait QpickTestBase
     {
         $header = [];
 
-        if($this->accessToken) {
+        if ($this->accessToken) {
             $header['Authorization'] = 'Bearer ' . $this->accessToken;
         }
 
-        switch($method) {
-            case 'get': $response = $this->getJson($url, $header); break;
-            case 'post': $response = $this->postJson($url, $param, $header); break;
-            case 'patch': $response = $this->patchJson($url, $param, $header); break;
-            case 'delete': $response = $this->deleteJson($url, $param, $header); break;
+        switch ($method) {
+            case 'get':
+                $response = $this->getJson($url, $header);
+                break;
+            case 'post':
+                $response = $this->postJson($url, $param, $header);
+                break;
+            case 'patch':
+                $response = $this->patchJson($url, $param, $header);
+                break;
+            case 'delete':
+                $response = $this->deleteJson($url, $param, $header);
+                break;
             default:
                 throw new MethodNotAllowedHttpException(['GET', 'POST', 'PATCH', 'DELETE']);
         }

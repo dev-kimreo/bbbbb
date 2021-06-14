@@ -43,19 +43,33 @@ class ReplyPolicy
 //            if (Gate::allows('view', [$post, $board])) {
 //                return true;
 //            } else {
-                return false;
+            return false;
 //            }
         }
     }
 
     public function update(User $user, Reply $reply)
     {
-        return $user->id === $reply->user_id;
+        if (Auth::hasAccessRightsToBackoffice()) {
+            return $user->id === $reply->user_id;
+        } else {
+            return false;
+//            if (Auth::user()->can('viewAny', [$reply, $reply->post, $reply->post->board])) {
+//
+//            }
+        }
     }
 
     public function delete(User $user, Reply $reply)
     {
-        return $user->id === $reply->user_id;
+        if (Auth::hasAccessRightsToBackoffice()) {
+            return $user->id === $reply->user_id;
+        } else {
+            return false;
+//            if (Auth::user()->can('viewAny', [$reply, $reply->post, $reply->post->board])) {
+//
+//            }
+        }
     }
 
 

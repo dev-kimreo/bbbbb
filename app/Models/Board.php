@@ -68,6 +68,8 @@ class Board extends Model
     protected $fillable = [
         'name',
         'options',
+        'sort',
+        'enable'
     ];
 
     /**
@@ -83,7 +85,7 @@ class Board extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class)->simplify();
+        return $this->belongsTo(User::class)->simplify('manager');
     }
 
     public function posts()
