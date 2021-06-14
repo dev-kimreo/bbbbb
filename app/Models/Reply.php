@@ -21,6 +21,7 @@ class Reply extends Model
      * @var array
      */
     protected $fillable = [
+        'content', 'post_id', 'user_id'
     ];
 
 

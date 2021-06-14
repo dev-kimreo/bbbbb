@@ -68,6 +68,8 @@ class Board extends Model
     protected $fillable = [
         'name',
         'options',
+        'sort',
+        'enable'
     ];
 
     /**
