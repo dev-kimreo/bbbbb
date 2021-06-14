@@ -28,7 +28,7 @@ class IndexRequest extends FormRequest
             'page' => 'nullable|integer|min:1',
             'per_page' => 'nullable|integer|between:1,50',
             'id' => 'nullable|integer',
-            'status' => 'nullable|string',
+            'status' => 'nullable|array',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
             'title' => 'nullable|string',
@@ -37,7 +37,7 @@ class IndexRequest extends FormRequest
             'user_name' => 'nullable|string',
             'assignee_id' => 'nullable|integer|exists:App\Models\User,id|exists:App\Models\Manager,user_id',
             'assignee_name' => 'nullable|string',
-            'multi_search' => 'nullable'
+//            'multi_search' => 'nullable'
         ];
     }
 

@@ -114,7 +114,7 @@ class InquiryController extends Controller
      *              @OA\Property(property="page", type="integer", example=1, default=1, description="페이지"),
      *              @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
      *              @OA\Property(property="id", type="string", example=1, description="1:1문의의 고유번호(PK)"),
-     *              @OA\Property(property="status", type="string", example=1, description="상태값"),
+     *              @OA\Property(property="status[]", type="string", example="waiting", description="검색할 상태값(다중입력 가능)<br>waiting:접수, answering:확인중, answered:완료"),
      *              @OA\Property(property="startDate", type="date(Y-m-d)", example=1, description="접수기간 검색 시작일"),
      *              @OA\Property(property="endDate", type="date(Y-m-d)", example=1, description="접수기간 검색 종료일"),
      *              @OA\Property(property="title", type="string", example=1, description="제목 검색어"),
@@ -122,8 +122,7 @@ class InquiryController extends Controller
      *              @OA\Property(property="userEmail", type="string", example=1, description="작성한 사용자의 이메일"),
      *              @OA\Property(property="userName", type="string", example=1, description="작성한 사용자의 이름"),
      *              @OA\Property(property="assigneeId", type="integer", example=1, description="처리담당자의 고유번호(PK)"),
-     *              @OA\Property(property="assigneeName", type="string", example=1, description="처리담당자의 이름"),
-     *              @OA\Property(property="multiSearch", type="string|integer", example=1, description="통합검색을 위한 검색어")
+     *              @OA\Property(property="assigneeName", type="string", example=1, description="처리담당자의 이름")
      *          ),
      *      ),
      *      @OA\Response(
@@ -170,8 +169,8 @@ class InquiryController extends Controller
             $inquiry->where('inquiries.id', $s);
         }
 
-        if ($s = $request->input('status')) {
-            $inquiry->where('inquiries.status', $s);
+        if (is_array($s = $request->input('status'))) {
+            $inquiry->whereIn('inquiries.status', $s);
         }
 
         if ($s = $request->input('start_date')) {
@@ -184,6 +183,7 @@ class InquiryController extends Controller
             $inquiry->where('inquiries.created_at', '<=', $s);
         }
 
+        /*
         if ($s = $request->input('multi_search')) {
             // 통합검색
             $inquiry->join('users as users_ms', 'inquiries.user_id', '=', 'users_ms.id');
@@ -200,6 +200,7 @@ class InquiryController extends Controller
                 }
             });
         }
+        */
 
         if ($s = $request->input('title')) {
             $inquiry->where('inquiries.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
