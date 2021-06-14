@@ -26,8 +26,7 @@ class IndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'page' => 'sometimes|integer|min:1',
-            'per_page' => 'sometimes|integer|between:1,50',
+            'sort_by' => 'sometimes|string',
         ];
     }
 
