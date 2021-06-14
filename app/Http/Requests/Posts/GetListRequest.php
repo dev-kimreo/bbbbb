@@ -32,7 +32,10 @@ class GetListRequest extends FormRequest
             'post_id' => 'nullable|integer',
             'title' => 'nullable|string',
             'sort_by' => 'nullable|string',
+            'start_created_date' => 'nullable|date',
+            'end_created_date' => 'nullable|date',
             'multi_search' => 'nullable',
+            'hidden.*' => 'nullable|boolean',
             'page' => 'nullable|integer|min:1',
             'per_page' => 'nullable|integer|between:1,100',
         ];
