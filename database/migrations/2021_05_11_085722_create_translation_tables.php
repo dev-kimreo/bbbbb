@@ -24,7 +24,7 @@ class CreateTranslationTables extends Migration
             $table->id();
             $table->foreignId('translation_id')->constrained();
             $table->char('lang', 2);
-            $table->string('value', 512);
+            $table->text('value');
             $table->timestamps();
             $table->softDeletes();
         });
