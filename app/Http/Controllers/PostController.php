@@ -384,11 +384,19 @@ class PostController extends Controller
      * @param int $board_id
      * @param int $post_id
      * @return Collection
+     * @throws QpickHttpException
      */
 
     public function show(int $board_id, int $post_id): Collection
     {
-        return collect($this->getOne($post_id));
+        $post = $this->getOne($post_id);
+
+        // 리소스 접근 권한 체크
+        if (!Gate::allows('view', [$post, $post->board])) {
+            throw new QpickHttpException(403, 'common.forbidden');
+        }
+
+        return collect($post);
     }
 
 
