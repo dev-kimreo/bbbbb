@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
+use Auth;
+use DB;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -117,9 +119,20 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Inquiry::class, 'assignee_id', 'id');
     }
 
-    public function scopeSimplify($query)
+    public function scopeSimplify($query, $type)
     {
-        return $query->select(['id', 'name', 'email']);
+        if ($type == 'manager' && Auth::isLoggedForFront()) {
+            // 관리자 권한을 가진 회원은 이름을 관리그룹 닉네임으로 바꾸어 출력
+            $res = $query
+                ->leftJoin('managers', 'users.id', '=', 'managers.user_id')
+                ->leftJoin('authorities', 'managers.authority_id', '=', 'authorities.id')
+                ->select(['users.id', DB::raw('IFNULL(authorities.display_name, users.name) as name'), 'users.email']);
+        } else {
+            // 회원정보에 기재된 본래의 이름을 그대로 출력
+            $res = $query->select(['id', 'name', 'email']);
+        }
+
+        return $res;
     }
 }
 

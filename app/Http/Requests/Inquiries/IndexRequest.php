@@ -37,6 +37,7 @@ class IndexRequest extends FormRequest
             'user_name' => 'nullable|string',
             'assignee_id' => 'nullable|integer|exists:App\Models\User,id|exists:App\Models\Manager,user_id',
             'assignee_name' => 'nullable|string',
+            'answer_id' => 'nullable|integer|exists:App\Models\User,id|exists:App\Models\Manager,user_id',
 //            'multi_search' => 'nullable'
         ];
     }
