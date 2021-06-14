@@ -28,7 +28,7 @@ class QpickHttpException extends Exception
 
     protected function getErrorInfo($code, $key) {
         // Getting Translated Message
-        $msg = __('exceptions.' . $code);
+        $msg = __('exception.' . $code);
 
         // Invalid message
         if(!$msg || $msg == $code) {

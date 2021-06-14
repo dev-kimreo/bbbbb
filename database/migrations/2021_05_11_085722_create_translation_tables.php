@@ -16,11 +16,8 @@ class CreateTranslationTables extends Migration
         Schema::create('translations', function (Blueprint $table) {
             $table->id();
             $table->nullableMorphs('linkable');
-            $table->string('code', 64);
-            $table->string('explanation', 512);
             $table->timestamps();
             $table->softDeletes();
-            $table->index('code');
         });
 
         Schema::create('translation_contents', function (Blueprint $table) {

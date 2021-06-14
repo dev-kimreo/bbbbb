@@ -196,9 +196,7 @@ class TooltipController extends Controller
         );
 
         // create a translation
-        $translation = $tooltip->translation()->create([
-            'explanation' => $request->input('title')
-        ]);
+        $translation = $tooltip->translation()->create([]);
 
         // create a translation content
         if (is_array($content = $request->input('content'))) {
@@ -325,13 +323,9 @@ class TooltipController extends Controller
 
         // update the translation
         if ($translation = $tooltip->translation()->first()) {
-            $translation->update([
-                'explanation' => $request->input('title', $tooltip->title)
-            ]);
+            $translation->update([]);
         } else {
-            $translation = $tooltip->translation()->create([
-                'explanation' => $request->input('title')
-            ]);
+            $translation = $tooltip->translation()->create([]);
         }
 
         if (is_array($content = $request->input('content'))) {
