@@ -247,12 +247,12 @@ class TranslationSeeder extends Seeder
             $lang = new TranslationContent;
             $lang->lang = 'ko';
             $lang->value = $v[2];
-            $word->translationContent()->save($lang);
+            $word->translationContents()->save($lang);
 
             $lang = new TranslationContent;
             $lang->lang = 'en';
             $lang->value = $v[3];
-            $word->translationContent()->save($lang);
+            $word->translationContents()->save($lang);
         }
     }
 }
