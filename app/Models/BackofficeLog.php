@@ -39,7 +39,7 @@ class BackofficeLog extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class)->simplify();
+        return $this->belongsTo(User::class)->simplify('user');
     }
 
     public function loggable(): MorphTo

@@ -77,7 +77,7 @@ class Tooltip extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class)->simplify();
+        return $this->belongsTo(User::class)->simplify('manager');
     }
 
     public function manager(): BelongsTo
