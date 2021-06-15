@@ -9,10 +9,12 @@ use App\Listeners\RemainBackofficeLog;
 use App\Models\Board;
 use App\Models\InquiryAnswer;
 use App\Models\Post;
+use App\Models\TermsOfUse;
 use App\Models\Tooltip;
 use App\Observers\BoardObserver;
 use App\Observers\InquiryAnswerObserver;
 use App\Observers\PostObserver;
+use App\Observers\TermsOfUSeObserver;
 use App\Observers\TooltipObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -52,6 +54,7 @@ class EventServiceProvider extends ServiceProvider
         Board::observe(BoardObserver::class);
         Post::observe(PostObserver::class);
         Tooltip::observe(TooltipObserver::class);
+        TermsOfUse::observe(TermsOfUSeObserver::class);
         InquiryAnswer::observe(InquiryAnswerObserver::class);
     }
 
