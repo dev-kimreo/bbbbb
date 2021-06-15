@@ -228,6 +228,12 @@ class ExceptionSeeder extends Seeder
                 '현재 사용중인 관리자가 존재하여 삭제할 수 없습니다.',
                 '현재 사용중인 관리자가 존재하여 삭제할 수 없습니다.'
             ],
+            [
+                'exception',
+                'terms.disable.modify.over.start_date',
+                '전시 시작일이 지나 수정/삭제가 불가능 합니다.',
+                '전시 시작일이 지나 수정/삭제가 불가능 합니다.'
+            ],
         ];
 
         // Truncate tables
