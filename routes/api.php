@@ -56,6 +56,7 @@ Route::group([
             Route::get('/{user_id}', [UserController::class, 'show'])->where(['user_id' => '[0-9]+']);
             Route::patch('/{user_id}', [UserController::class, 'update'])->where(['user_id' => '[0-9]+']);
             Route::delete('/{user_id}', [UserController::class, 'destroy'])->where(['user_id' => '[0-9]+']);
+            Route::get('/{user_id}/login-log', [UserController::class, 'getLoginLog'])->where(['user_id' => '[0-9]+']);
         });
 
         // 회원 세션 CRUD
