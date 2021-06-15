@@ -50,6 +50,12 @@ class ExceptionSeeder extends Seeder
             ],
             [
                 'exception',
+                'common.wrong_language_code',
+                '올바른 ISO 639-1 코드가 아닙니다.',
+                'It is not an ISO 639-1 code.'
+            ],
+            [
+                'exception',
                 'auth.incorrect_timeout',
                 '잘못된 인증방식이거나 token의 유효시간이 지났습니다.',
                 'Either incorrect information or the token expiration time has expired.'
