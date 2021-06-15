@@ -40,6 +40,7 @@ class InquiryAnswer extends Model
      * @var array
      */
     protected $fillable = [
+        'user_id', 'answer'
     ];
 
     /**
