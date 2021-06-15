@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *     @OA\Property(property="userId", type="integer", example=1, description="작성한 관리자의 회원 고유번호"),
  *     @OA\Property(property="type", type="string", example="이용약관", description="구분 (이용약관, 개인정보처리방침)"),
  *     @OA\Property(property="title", type="string", example="이용약관 제목", description="이용약관&개인정보처리방침 제목"),
- *     @OA\Property(property="startDate", type="datetime", example="2021-06-05T09:00:00+00:00", description="전시 시작일"),
+ *     @OA\Property(property="startAt", type="datetime", example="2021-06-05T09:00:00+00:00", description="전시 시작일"),
  *     @OA\Property(property="history", type="string", example="변경내역", description="변경내역"),
  *     @OA\Property(property="createdAt", type="datetime", example="2021-04-08T07:04:52+00:00", description="작성일자" ),
  *     @OA\Property(property="updatedAt", type="datetime", example="2021-04-08T07:57:55+00:00", description="수정일자" ),
@@ -35,7 +35,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *     @OA\Property(property="userId", type="integer", example=1, description="작성한 관리자의 회원 고유번호"),
  *     @OA\Property(property="type", type="string", example="이용약관", description="구분 (이용약관, 개인정보처리방침)"),
  *     @OA\Property(property="title", type="string", example="이용약관 제목", description="이용약관&개인정보처리방침 제목"),
- *     @OA\Property(property="startDate", type="datetime", example="2021-06-05T09:00:00+00:00", description="전시 시작일"),
+ *     @OA\Property(property="startAt", type="datetime", example="2021-06-05T09:00:00+00:00", description="전시 시작일"),
  *     @OA\Property(property="history", type="string", example="변경내역", description="변경내역"),
  *     @OA\Property(property="createdAt", type="datetime", example="2021-04-08T07:04:52+00:00", description="작성일자" ),
  *     @OA\Property(property="updatedAt", type="datetime", example="2021-04-08T07:57:55+00:00", description="수정일자" ),
@@ -46,10 +46,10 @@ class TermsOfUse extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
-    protected $fillable = ['user_id', 'type', 'title', 'start_date', 'history'];
+    protected $fillable = ['user_id', 'type', 'title', 'start_at', 'history'];
     protected $hidden = ['deleted_at'];
     protected $casts = [
-        'start_date' => 'datetime'
+        'start_at' => 'datetime'
     ];
 
     public static array $types = [
