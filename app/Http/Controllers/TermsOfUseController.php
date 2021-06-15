@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\QpickHttpException;
 use App\Http\Requests\TermsOfUse\CreateRequest;
 use App\Http\Requests\TermsOfUse\IndexRequest;
 use App\Http\Requests\TermsOfUse\UpdateRequest;
+use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
-use App\Libraries\StringLibrary;
 use App\Models\TermsOfUse;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 
@@ -40,8 +40,7 @@ class TermsOfUseController extends Controller
      *              @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
      *              @OA\Property(property="hasLang[]", type="string", example="en", description="언어구분 (다중입력 가능)"),
      *              @OA\Property(property="type", type="string", example="이용약관", description="구분 (이용약관, 개인정보처리방침)"),
-     *              @OA\Property(property="title", type="string", example="이용약관", description="제목"),
-     *              @OA\Property(property="userName", type="string", example="홍길동", description="등록자 이름"),
+     *              @OA\Property(property="sortBy", type="string", example="-id", description="정렬기준<br/>+:오름차순, -:내림차순" )
      *          ),
      *      ),
      *      @OA\Response(
@@ -67,6 +66,7 @@ class TermsOfUseController extends Controller
      *
      * @param IndexRequest $request
      * @return Collection
+     * @throws QpickHttpException
      */
     public function index(IndexRequest $request): Collection
     {
@@ -75,17 +75,37 @@ class TermsOfUseController extends Controller
 
         $terms = $this->termsOfUse->with($with);
 
+        if ($s = $request->input('type')) {
+            $terms->where('type', $s);
+        }
+
+        // set search conditions
+        if (is_array($s = $request->input('has_lang'))) {
+            // search by contents' language
+            foreach ($s as $v) {
+                $terms->whereHasLanguage($v);
+            }
+        }
+
+        // Sort By
+        if ($s = $request->input('sort_by')) {
+            $sortCollect = CollectionLibrary::getBySort($s, ['id']);
+            $sortCollect->each(function ($item) use ($terms) {
+                $terms->orderBy($item['key'], $item['value']);
+            });
+        }
+
         // set pagination information
         $pagination = PaginationLibrary::set($request->input('page'), $terms->count(), $request->input('per_page'));
 
         $data = $terms
-                    ->skip($pagination['skip'])
-                    ->take($pagination['perPage'])
-                    ->get()
-                    ->each(function (&$v) {
-                        $v->lang = $v->translation->translationContents->pluck('lang');
-                        unset($v->translation);
-                    });
+            ->skip($pagination['skip'])
+            ->take($pagination['perPage'])
+            ->get()
+            ->each(function (&$v) {
+                $v->lang = $v->translation->translationContents->pluck('lang');
+                unset($v->translation);
+            });
 
         // result
         $result = [
@@ -303,7 +323,7 @@ class TermsOfUseController extends Controller
                 }
             });
 
-            foreach($content as $lang => $value) {
+            foreach ($content as $lang => $value) {
                 $translation->translationContents()->create([
                     'lang' => $lang,
                     'value' => $value
@@ -346,7 +366,7 @@ class TermsOfUseController extends Controller
      *
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return Response
      */
     public function destroy(int $id): Response

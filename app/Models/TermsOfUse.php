@@ -48,7 +48,9 @@ class TermsOfUse extends Model
 
     protected $fillable = ['user_id', 'type', 'title', 'start_date', 'history'];
     protected $hidden = ['deleted_at'];
-    protected $casts = [];
+    protected $casts = [
+        'start_date' => 'datetime'
+    ];
 
     public static array $types = [
         'termsOfUse' => '이용약관',
