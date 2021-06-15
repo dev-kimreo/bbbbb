@@ -17,12 +17,13 @@ use App\Http\Requests\Members\PasswordResetSendLinkRequest;
 use App\Http\Requests\Members\ShowRequest;
 use App\Http\Requests\Members\StoreRequest;
 use App\Http\Requests\Members\UpdateRequest;
+use App\Http\Requests\Users\LoginLogRequest;
 use App\Jobs\SendMail;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
-use App\Models\Authority;
 use App\Models\SignedCode;
 use App\Models\User;
+use App\Models\UserLoginLog;
 use Auth;
 use DB;
 use Hash;
@@ -831,6 +832,73 @@ class UserController extends Controller
         return collect($res);
     }
 
+    /**
+     * @OA\Get(
+     *      path="/v1/user/{user_id}/login-log",
+     *      summary="로그인 기록",
+     *      description="특정 회원의 로그인 기록 조회",
+     *      operationId="userLoginLog",
+     *      tags={"회원관련"},
+     *      @OA\Parameter(name="byManager", in="query", required=false,
+     *          description="관리자의 로그인 기록만 조회할지 여부<br>1:관리자의 로그인 기록만 조회<br>>0:사용자 본인의 로그인 기록도 함께 조회",
+     *          @OA\Schema(type="boolean", example="1", default=0),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination"),
+     *              @OA\Property(property="list", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="id", type="integer", example="7"),
+     *                      @OA\Property(property="ip", type="string(ipv4)", example="10.0.1.9"),
+     *                      @OA\Property(
+     *                          property="createdAt", type="string", readOnly="true", format="date-time",
+     *                          ref="#/components/schemas/Base/properties/created_at", example="2021-02-25 12:59:20"
+     *                      ),
+     *                      @OA\Property(property="attemptedUser", type="object", ref="#/components/schemas/UserSimply")
+     *                  )
+     *              ),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      )
+     * )
+     *
+     * 회원 로그인기록
+     *
+     * @param LoginLogRequest $request
+     * @param int $user_id
+     * @return array
+     */
+    public function getLoginLog(LoginLogRequest $request, int $user_id): array
+    {
+        // get a model
+        $logs = UserLoginLog::where('user_id', $user_id)->orderByDesc('id');
+
+        // set search condition
+        if ($request->input('by_manager')) {
+            $logs->whereNotNull('manager_id');
+        }
+
+        // set pagination information
+        $pagination = PaginationLibrary::set($request->input('page'), $logs->count(), $request->input('per_page'));
+
+        // get data
+        $data = $logs->skip($pagination['skip'])->take($pagination['perPage'])->get();
+
+        // result
+        return [
+            'header' => $pagination ?? [],
+            'list' => $data ?? []
+        ];
+    }
 
     /**
      * 비밀번호 패턴 체크 함수
