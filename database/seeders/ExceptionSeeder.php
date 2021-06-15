@@ -245,6 +245,7 @@ class ExceptionSeeder extends Seeder
         // Truncate tables
         if (app()->environment() == 'local') {
             Schema::disableForeignKeyConstraints();
+            Exception::truncate();
             Translation::truncate();
             TranslationContent::truncate();
         }

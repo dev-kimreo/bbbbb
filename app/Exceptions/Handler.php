@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use App\Exceptions\QpickHttpException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
@@ -93,6 +92,16 @@ class Handler extends ExceptionHandler
 
             foreach ($e->errors() as $field => $v) {
                 $rule = array_keys($rules[$field]);
+
+                if (is_array($rule)) {
+                    foreach ($rule as $k => $code) {
+                        if (strpos($code, '\\') !== false) {
+                            $code = substr(strrchr($code, '\\'), 1);
+                        }
+
+                        $rule[$k] = Str::snake($code);
+                    }
+                }
 
                 foreach ($v as $k => $message) {
                     $response['errors'][] = [
