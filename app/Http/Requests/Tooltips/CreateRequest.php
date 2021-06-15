@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tooltips;
 
 use App\Models\Tooltip;
+use App\Rules\ArrayKeysInIso639_1;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -30,7 +31,7 @@ class CreateRequest extends FormRequest
             'title' => ['required', 'string', 'between:6,100'],
             'type' => ['required', Rule::in(Tooltip::$prefixes)],
             'visible' => ['nullable', 'boolean'],
-            'content' => ['nullable', 'array']
+            'content' => ['nullable', 'array', new ArrayKeysInIso639_1]
         ];
     }
 }
