@@ -43,7 +43,9 @@ class InquiryTest extends TestCase
     {
         $user = $this->createAsQpickUser('regular');
 
-        $response = $this->requestQpickApi('post', '/v1/inquiry', array_merge());
+        $response = $this->requestQpickApi('post', '/v1/inquiry', array_merge(
+            $this->createResource
+        ));
         $response
             ->assertUnauthorized();
     }
