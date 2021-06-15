@@ -306,6 +306,12 @@ class TermsOfUseController extends Controller
     {
         // update the tooltip
         $terms = $this->termsOfUse::with('translation')->findOrFail($id);
+
+        // 전시시작일 이후일 경우 수정 불가
+        if (Carbon::now()->format('c') >= $terms->start_date->format('c')) {
+            throw new QpickHttpException(422, 'terms.disable.modify.over.start_date');
+        }
+
         $terms->update($request->all());
 
         // update the translation
@@ -372,7 +378,14 @@ class TermsOfUseController extends Controller
     public function destroy(int $id): Response
     {
         //
-        $this->termsOfUse::findOrFail($id)->delete();
+        $terms = $this->termsOfUse::findOrFail($id);
+
+        // 전시시작일 이후일 경우 삭제 불가
+        if (Carbon::now()->format('c') >= $terms->start_date->format('c')) {
+            throw new QpickHttpException(422, 'terms.disable.modify.over.start_date');
+        }
+
+        $terms->delete();
         return response()->noContent();
     }
 
