@@ -321,14 +321,14 @@ class UserController extends Controller
      * @return JsonResponse
      * @throws QpickHttpException
      */
-    public function update(int $id, UpdateRequest $request): JsonResponse
+    public function update(UpdateRequest $request, int $id): JsonResponse
     {
         if (!Auth::hasAccessRightsToBackoffice() && !$this::chkPasswordMatched($request->input('password'))) {
             throw new QpickHttpException(403, 'user.password.incorrect', 'password');
         }
 
         // update
-        User::find($id)->fill($request->except(['password']))->save();
+        User::find($id)->update($request->except(['email', 'password']));
 
         //response
         $data = $this->getOne($id);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Members;
 
+use App\Rules\StringInIso639_1;
 use Auth;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
@@ -28,14 +29,17 @@ class UpdateRequest extends FormRequest
     {
         if (Auth::hasAccessRightsToBackoffice()) {
             return [
-                'name' => 'nullable|string|between:2,100',
-                'password' => 'nullable',
-                'memo_for_managers' => 'nullable|string'
+                'name' => ['nullable', 'string', 'between:2,100'],
+                'password' => ['nullable'],
+                'language' => ['nullable', new StringInIso639_1],
+                'memo_for_managers' => ['nullable', 'string']
             ];
         } else {
             return [
-                'name' => 'required|string|between:2,100',
-                'password' => 'required'
+                'name' => ['required', 'string', 'between:2,100'],
+                'password' => ['required'],
+                'language' => ['nullable', new StringInIso639_1],
+                'memo_for_managers' => ['prohibited'],
             ];
         }
     }
