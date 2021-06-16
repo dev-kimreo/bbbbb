@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Users;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\SiteRequest;
 use App\Models\UserAdvAgree;
+use Illuminate\Http\JsonResponse;
 
 class UserAdvAgreeController extends Controller
 {
@@ -13,17 +14,21 @@ class UserAdvAgreeController extends Controller
      *
      * @param int $user_id
      * @param SiteRequest $req
-     * @return UserAdvAgree
+     * @return JsonResponse
      */
-    public function update(SiteRequest $req, int $user_id): UserAdvAgree
+    public function update(SiteRequest $req, int $user_id): JsonResponse
     {
         // delete
-        UserAdvAgree::where('user_id', $user_id)->first()->delete();
+        $userAdvAgree = UserAdvAgree::where('user_id', $user_id)->first();
+        if ($userAdvAgree) {
+            $userAdvAgree->delete();
+        }
 
         // create
-        return UserAdvAgree::create([
+        return response()->json(UserAdvAgree::create([
             'user_id' => $user_id,
             'agree' => boolval($req->input('agree'))
-        ]);
+        ]), 201);
+
     }
 }
