@@ -6,6 +6,7 @@ use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -45,5 +46,10 @@ class UserAdvAgree extends Model
     public function setUpdatedAt($value)
     {
         // Do nothing
+    }
+
+    public function backofficeLogs(): MorphMany
+    {
+        return $this->morphMany(BackofficeLog::class, 'loggable');
     }
 }
