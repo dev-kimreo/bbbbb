@@ -286,8 +286,9 @@ class UserController extends Controller
      *          description="",
      *          @OA\JsonContent(
      *              required={"name", "password"},
-     *              @OA\Property(property="name", type="string", example="홍길동", description="변경할 이름"),
-     *              @OA\Property(property="password", type="string", format="password", example="1234qwer", description="비밀번호"),
+     *              @OA\Property(property="name", type="string", example="홍길동", description="변경하고자 하는 이름"),
+     *              @OA\Property(property="password", type="string", format="password", example="1234qwer", description="확인용 비밀번호<br>프론트에서 본 파라미터는 필수입력항목이며, 파라미터에 입력된 값이 기존에 설정된 비밀번호와 일치하지 않으면 403 오류가 발생한다.<br>백오피스에서는 이 파라미터를 생략할 수 있으며, 어떠한 값을 입력하여도 검사하지 않고 무시한다."),
+     *              @OA\Property(property="memoForManagers", type="string", example="이 사용자는 어뷰징 기록이 있습니다.", description="관리자 메모 (백오피스에서만 사용 가능)"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -297,6 +298,10 @@ class UserController extends Controller
      *      @OA\Response(
      *          response=401,
      *          description="unauthenticated"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -316,14 +321,14 @@ class UserController extends Controller
      * @return JsonResponse
      * @throws QpickHttpException
      */
-    public function update(int $id, UpdateRequest $request): JsonResponse
+    public function update(UpdateRequest $request, int $id): JsonResponse
     {
         if (!Auth::hasAccessRightsToBackoffice() && !$this::chkPasswordMatched($request->input('password'))) {
-            throw new QpickHttpException(422, 'user.password.incorrect');
+            throw new QpickHttpException(403, 'user.password.incorrect', 'password');
         }
 
         // update
-        User::find($id)->fill($request->toArray())->save();
+        User::find($id)->update($request->except(['email', 'password']));
 
         //response
         $data = $this->getOne($id);
