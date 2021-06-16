@@ -13,6 +13,7 @@ use App\Models\Post;
 use App\Models\Reply;
 use Auth;
 use Gate;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -57,7 +58,9 @@ class ReplyController extends Controller
      *          response=201,
      *          description="created",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="생성되었습니다." ),
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/Reply")
+     *              }
      *          )
      *      ),
      *      @OA\Response(
@@ -99,9 +102,7 @@ class ReplyController extends Controller
         $this->reply->content = $request->input('content');
         $this->reply->save();
 
-        $this->reply->refresh();
-
-        return response()->json(collect($this->reply), 201);
+        return response()->json($this->getOne($this->reply->id), 201);
     }
 
 
@@ -129,7 +130,12 @@ class ReplyController extends Controller
      *      ),
      *      @OA\Response(
      *          response=201,
-     *          description="modified."
+     *          description="modified",
+     *          @OA\JsonContent(
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/Reply")
+     *              }
+     *          )
      *      ),
      *      @OA\Response(
      *          response=403,
@@ -170,7 +176,7 @@ class ReplyController extends Controller
         $this->reply->content = $request->input('content', $this->reply->content);
         $this->reply->update();
 
-        return response()->json(collect($this->reply), 201);
+        return response()->json($this->getOne($id), 201);
     }
 
 
@@ -247,15 +253,7 @@ class ReplyController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination" ),
      *              @OA\Property(property="list", type="array",
-     *                  @OA\Items(type="object",
-     *                      @OA\Property(property="id", type="integer", example=1, description="댓글 고유번호" ),
-     *                      @OA\Property(property="content", type="string", example="댓글 내용입니다.", description="댓글 내용" ),
-     *                      @OA\Property(property="hidden", type="integer", example=0, default=0, description="게시글 숨김 여부<br/>0:노출<br/>1:숨김" ),
-     *                      @OA\Property(property="userName", type="string", example="홍길동", description="작성자" ),
-     *                      @OA\Property(property="userId", type="integer", example=1, description="작성자 회원 고유번호" ),
-     *                      @OA\Property(property="createdAt", type="datetime", example="2021-04-08T07:04:52+00:00", description="게시글 작성일자" ),
-     *                      @OA\Property(property="updatedAt", type="datetime", example="2021-04-08T07:57:55+00:00", description="게시글 수정일자" ),
-     *                  )
+     *                  @OA\Items(type="object", ref="#/components/schemas/Reply")
      *              ),
      *          )
      *      ),
@@ -271,11 +269,11 @@ class ReplyController extends Controller
      * @param IndexRequest $request
      * @param $boardId
      * @param $postId
-     * @return JsonResponse
+     * @return array
      * @throws QpickHttpException
      */
 
-    public function index(IndexRequest $request, $boardId, $postId): JsonResponse
+    public function index(IndexRequest $request, $boardId, $postId): array
     {
         $this->post = $this->post::where('board_id', $boardId)->findOrFail($postId);
 
@@ -290,11 +288,11 @@ class ReplyController extends Controller
         }
 
         // where 절 eloquent
-        $reply = $this->reply::where('post_id', $postId);
+        $reply = $this->reply::where('post_id', $postId)->with('user');
 
         // pagination
         $pagination = PaginationLibrary::set($request->input('page'), $reply->count(), $request->input('per_page'));
-
+        $reply->skip($pagination['skip'])->take($pagination['perPage']);
 
         // Sort By
         if ($s = $request->input('sort_by')) {
@@ -304,19 +302,15 @@ class ReplyController extends Controller
             });
         }
 
-        if ($request->input('page') <= $pagination['totalPage']) {
-            $reply->with('user:id,name');
-            $reply->skip($pagination['skip'])
-                ->take($pagination['perPage']);
+        // result
+        return [
+            'header' => $pagination,
+            'list' => $reply->get() ?? []
+        ];
+    }
 
-            $reply = $reply->get();
-        }
-
-        $data = $reply ?? array();
-
-        $result = ['header' => $pagination];
-        $result['list'] = $data;
-
-        return response()->json(collect($result));
+    protected function getOne(int $id)
+    {
+        return Reply::with('user')->findOrFail($id);
     }
 }
