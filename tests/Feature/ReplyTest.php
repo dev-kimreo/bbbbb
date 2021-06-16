@@ -71,8 +71,8 @@ class ReplyTest extends TestCase
     public function createReply($user)
     {
         $post = $this->enableBoard->posts()->where('hidden', 0)->first();
-        $replyCreateResource = Reply::factory()->make(['post_id' => $post->id, 'user_id' => $user->id])->toArray();
-        return $post->replies()->create($replyCreateResource);
+
+        return $replyCreateResource = Reply::factory()->create(['post_id' => $post->id, 'user_id' => $user->id]);
     }
 
 
