@@ -41,11 +41,11 @@ class Reply extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\Models\User')->simplify('manager');
+        return $this->belongsTo(User::class)->simplify('manager');
     }
 
     public function post()
     {
-        return $this->belongsTo('App\Models\Post');
+        return $this->belongsTo(Post::class);
     }
 }
