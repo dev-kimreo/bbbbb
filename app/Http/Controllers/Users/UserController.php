@@ -954,7 +954,13 @@ class UserController extends Controller
      */
     protected function getOne(int $id)
     {
-        $user = $this->user->with(['advAgree', 'sites'])->findOrFail($id);
+        $with = ['advAgree', 'sites'];
+
+        if (Auth::hasAccessRightsToBackoffice()) {
+            $with[] = 'backofficeLogs';
+        }
+
+        $user = $this->user->with($with)->findOrFail($id);
 
         if (Auth::hasAccessRightsToBackoffice()) {
             $user->makeVisible(['memo_for_managers']);

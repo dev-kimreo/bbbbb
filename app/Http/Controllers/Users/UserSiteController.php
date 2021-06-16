@@ -11,6 +11,8 @@ use Illuminate\Http\Response;
 
 class UserSiteController extends Controller
 {
+    ## TODO 추후 백오피스에 기획에 따라 백오피스 로그 남겨야 함.
+
     /**
      * @OA\Post(
      *      path="/v1/user/{user_id}/site",

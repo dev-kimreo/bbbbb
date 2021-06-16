@@ -11,11 +11,15 @@ use App\Models\InquiryAnswer;
 use App\Models\Post;
 use App\Models\TermsOfUse;
 use App\Models\Tooltip;
+use App\Models\User;
+use App\Models\UserAdvAgree;
 use App\Observers\BoardObserver;
 use App\Observers\InquiryAnswerObserver;
 use App\Observers\PostObserver;
 use App\Observers\TermsOfUSeObserver;
 use App\Observers\TooltipObserver;
+use App\Observers\UserAdvAgreeObserver;
+use App\Observers\UserObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -56,6 +60,8 @@ class EventServiceProvider extends ServiceProvider
         Tooltip::observe(TooltipObserver::class);
         TermsOfUse::observe(TermsOfUSeObserver::class);
         InquiryAnswer::observe(InquiryAnswerObserver::class);
+        User::observe(UserObserver::class);
+        UserAdvAgree::observe(UserAdvAgreeObserver::class);
     }
 
     protected $subscribe = [

@@ -92,8 +92,7 @@ class Tooltip extends Model
 
     public function backofficeLogs(): MorphMany
     {
-        return $this->morphMany(BackofficeLog::class, 'loggable')
-            ->orderByDesc('id');
+        return $this->morphMany(BackofficeLog::class, 'loggable');
     }
 
     public function getCodeAttribute(): string
