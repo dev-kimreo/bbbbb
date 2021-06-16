@@ -122,7 +122,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function scopeSimplify($query, $type)
     {
-        if ($type == 'manager' && Auth::isLoggedForFront()) {
+        if ($type == 'manager') {
             // 관리자 권한을 가진 회원은 이름을 관리그룹 닉네임으로 바꾸어 출력
             $res = $query
                 ->leftJoin('managers', 'users.id', '=', 'managers.user_id')
