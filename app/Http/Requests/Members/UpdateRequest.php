@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Members;
 
+use Auth;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -25,10 +26,18 @@ class UpdateRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'name' => 'required|string|between:2,100',
-            'password' => 'required'
-        ];
+        if (Auth::hasAccessRightsToBackoffice()) {
+            return [
+                'name' => 'nullable|string|between:2,100',
+                'password' => 'nullable',
+                'memo_for_managers' => 'nullable|string'
+            ];
+        } else {
+            return [
+                'name' => 'required|string|between:2,100',
+                'password' => 'required'
+            ];
+        }
     }
 
     /**

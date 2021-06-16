@@ -323,7 +323,7 @@ class UserController extends Controller
         }
 
         // update
-        User::find($id)->fill($request->toArray())->save();
+        User::find($id)->fill($request->all())->save();
 
         //response
         $data = $this->getOne($id);
