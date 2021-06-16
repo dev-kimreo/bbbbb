@@ -109,7 +109,7 @@ class Inquiry extends Model
 
     public function backofficeLogs(): MorphMany
     {
-        return $this->morphMany(BackofficeLog::class, 'loggable')->orderByDesc('id');
+        return $this->morphMany(BackofficeLog::class, 'loggable');
     }
 
     // 파일 첨부 갯수 제한
