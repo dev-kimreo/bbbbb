@@ -73,6 +73,8 @@ class UserController extends Controller
      *              @OA\Property(property="email", type="string", example="abcd@qpicki.com", description="ID(메일)"),
      *              @OA\Property(property="name", type="string", example="홍길동", description="이름"),
      *              @OA\Property(property="multiSearch", type="string", example="홍길동", description="전체 검색"),
+     *              @OA\Property(property="advAgree", type="boolean", example="true", description="광고수신동의 여부<br/>(true:동의, false:미동의)"),
+     *              @OA\Property(property="activate", type="boolean", example="true", description="회원 상태 여부<br/>(true:정상, false:휴면)"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -161,6 +163,31 @@ class UserController extends Controller
                     $q->orWhere('id', $s);
                 }
             });
+        }
+
+        // 광고수신동의
+        if (strlen($s = $request->input('adv_agree'))) {
+            switch ($s) {
+                case 1:
+                    $user->whereHas('advAgree', function (Builder $q) use ($s) {
+                        $q->where('agree', $s);
+                    });
+                    break;
+                default:
+                    $user->whereHas('advAgree', function (Builder $q) use ($s) {
+                        $q->where('agree', 1);
+                    }, '!=');
+                    break;
+            }
+        }
+
+        // 회원 상태 구분
+        if (strlen($s = $request->input('activate'))) {
+            if ($s) {
+                $user->orWhereNull('inactivated_at');
+            } else {
+                $user->orWhereNotNull('inactivated_at');
+            }
         }
 
         // set pagination information
@@ -463,8 +490,7 @@ class UserController extends Controller
         // 가상 서명키 유효성 체크
         if (!$request->hasValidSignature()) {
             throw new QpickHttpException(422, 'email.failed_validation_signature');
-        }
-        else if(!$signCode || !$signCode['id']) {
+        } else if (!$signCode || !$signCode['id']) {
             throw new QpickHttpException(422, 'email.not_found_sign_code');
         }
 
