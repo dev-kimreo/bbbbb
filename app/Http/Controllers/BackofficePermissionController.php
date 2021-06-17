@@ -6,6 +6,7 @@ use App\Exceptions\QpickHttpException;
 use App\Http\Requests\BackofficeMenus\Permissions\StoreRequest;
 use App\Models\BackofficeMenu;
 use App\Models\BackofficePermission;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -51,10 +52,10 @@ class BackofficePermissionController extends Controller
      *      )
      *  )
      * @param StoreRequest $req
-     * @return BackofficePermission
+     * @return JsonResponse
      * @throws QpickHttpException
      */
-    public function store(StoreRequest $req): BackofficePermission
+    public function store(StoreRequest $req): JsonResponse
     {
         $menuCollect = BackofficeMenu::find($req->input('backoffice_menu_id'));
         if (!$menuCollect->last) {
@@ -66,7 +67,7 @@ class BackofficePermissionController extends Controller
         );
         $this->permission->refresh();
 
-        return $this->permission;
+        return response()->json($this->permission, 201);
     }
 
 
@@ -89,9 +90,9 @@ class BackofficePermissionController extends Controller
      *  )
      * @param Request $req
      * @param $permission_id
-     * @return BackofficeMenu
+     * @return BackofficePermission
      */
-    public function show(Request $req, $permission_id): BackofficeMenu
+    public function show(Request $req, $permission_id): BackofficePermission
     {
         return $this->permission->findOrfail($permission_id);
     }
