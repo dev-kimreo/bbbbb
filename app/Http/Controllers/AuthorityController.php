@@ -8,6 +8,7 @@ use App\Models\Authority;
 use App\Http\Requests\Members\Authorities\StoreAuthorityRequest;
 use App\Http\Requests\Members\Authorities\UpdateAuthorityRequest;
 use App\Models\BackofficeMenu;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -190,9 +191,9 @@ class AuthorityController extends Controller
      *
      * @param Request|UpdateAuthorityRequest $request
      * @param int $id
-     * @return Collection
+     * @return JsonResponse
      */
-    public function update(UpdateAuthorityRequest $request, int $id): Collection
+    public function update(UpdateAuthorityRequest $request, int $id): JsonResponse
     {
         // getting original data
         $authority = Authority::findOrFail($id);
@@ -205,7 +206,7 @@ class AuthorityController extends Controller
         $authority->saveOrFail();
 
         // response
-        return collect(Authority::find($id));
+        return response()->json(collect(Authority::find($id)), 201);
     }
 
     /**
