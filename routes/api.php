@@ -61,7 +61,8 @@ Route::group([
 
         // 회원 세션 CRUD
         Route::post('/auth', [AccessTokenController::class, 'store'])
-            ->withoutmiddleware('auth:api');
+            ->withoutmiddleware('auth:api')
+            ->middleware('chkAccess:guest');
         Route::get('/auth', [AccessTokenController::class, 'show']);
         Route::delete('/auth', [AccessTokenController::class, 'destroy']);
 
