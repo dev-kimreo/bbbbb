@@ -35,8 +35,7 @@ class BackofficeMenuTest extends TestCase
 
     protected function createMenu($parent = null, $sort = null)
     {
-        return BackofficeMenu::create([
-            'name' => $this->faker->text(16),
+        return BackofficeMenu::factory()->create([
             'parent' => $parent ?? 0,
             'sort' => $sort ?? 0
         ]);
