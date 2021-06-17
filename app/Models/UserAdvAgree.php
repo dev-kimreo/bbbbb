@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * @OA\Schema (
  *   schema="UserAdvAgree",
- *   @OA\Property(property="agree", type="boolean", example="true"),
+ *   @OA\Property(property="agree", type="boolean", example=true),
  *   @OA\Property(property="createdAt", ref="#/components/schemas/Base/properties/created_at"),
  * )
  *
