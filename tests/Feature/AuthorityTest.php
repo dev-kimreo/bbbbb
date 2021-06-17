@@ -32,7 +32,7 @@ class AuthorityTest extends TestCase
 
     protected function createAuthority()
     {
-        return Authority::create($this->createResource);
+        return Authority::factory()->create();
     }
 
 
