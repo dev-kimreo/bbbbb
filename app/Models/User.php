@@ -31,6 +31,7 @@ use Laravel\Passport\HasApiTokens;
  *   ),
  *   @OA\Property(property="grade", type="integer", default=1, description="0:준회원, 1:정회원", example=1),
  *   @OA\Property(property="lanugage", type="string", default="ko", description="선택한 언어코드", example="ko"),
+ *   @OA\Property(property="memoForManagers", type="string", description="관리자 메모", example="어뷰징 기록이 있는 사용자입니다"),
  *   @OA\Property(
  *       property="registerdAt", type="string", readOnly="true", format="date-time",
  *       description="정회원 등록일", default=null, example="2019-02-25 12:59:20"

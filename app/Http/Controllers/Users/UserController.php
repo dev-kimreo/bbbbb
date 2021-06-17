@@ -196,6 +196,11 @@ class UserController extends Controller
         // get data
         $data = $user->skip($pagination['skip'])->take($pagination['perPage'])->get();
 
+        // 백오피스인 경우, 관리자메모 추가
+        if (Auth::hasAccessRightsToBackoffice()) {
+            $data->makeVisible(['memo_for_managers']);
+        }
+
         // result
         $result = [
             'header' => $pagination ?? [],
