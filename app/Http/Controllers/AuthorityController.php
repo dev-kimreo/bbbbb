@@ -109,12 +109,7 @@ class AuthorityController extends Controller
     public function store(StoreAuthorityRequest $request): Collection
     {
         // store
-        $authority = new Authority;
-        $authority->code = $request->input('code');
-        $authority->title = $request->input('title');
-        $authority->display_name = $request->input('display_name');
-        $authority->memo = $request->input('memo');
-        $authority->save();
+        $authority = Authority::create($request->all());
 
         return collect(Authority::find($authority->id));
     }
@@ -195,15 +190,8 @@ class AuthorityController extends Controller
      */
     public function update(UpdateAuthorityRequest $request, int $id): JsonResponse
     {
-        // getting original data
-        $authority = Authority::findOrFail($id);
-
-        // update
-        $authority->code = $request->input('code', $authority->code);
-        $authority->title = $request->input('title', $authority->title);
-        $authority->display_name = $request->input('display_name', $authority->display_name);
-        $authority->memo = $request->input('memo', $authority->memo);
-        $authority->saveOrFail();
+        // getting original data & update
+        $authority = Authority::findOrFail($id)->update($request->all());
 
         // response
         return response()->json(collect(Authority::find($id)), 201);

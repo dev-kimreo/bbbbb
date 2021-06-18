@@ -26,6 +26,7 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
+            'user_id' => ['prohibited'],
         ];
     }
 }
