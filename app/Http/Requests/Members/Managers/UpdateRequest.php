@@ -25,6 +25,7 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
+            'user_id' => ['prohibited'],
             'authority_id' => 'required|integer|exists:authorities,id,deleted_at,NULL'
         ];
     }

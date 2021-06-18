@@ -57,7 +57,10 @@ class UserAdvAgreeController extends Controller
     public function update(SiteRequest $req, int $user_id): JsonResponse
     {
         // delete
-        UserAdvAgree::where('user_id', $user_id)->first()->delete();
+        $userAdvAgree = UserAdvAgree::where('user_id', $user_id)->first();
+        if ($userAdvAgree) {
+            $userAdvAgree->delete();
+        }
 
         // create
         return response()->json(UserAdvAgree::create([

@@ -30,10 +30,12 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap([
             'attach' => 'App\Models\AttachFile',
             'board' => 'App\Models\Board',
+            'exception' => 'App\Models\Exception',
             'inquiry' => 'App\Models\Inquiry',
             'post' => 'App\Models\Post',
             'post_thumbnail' => 'App\Models\PostThumbnail',
             'tooltip' => 'App\Models\Tooltip',
+            'terms_of_use' => 'App\Models\TermsOfUse',
             'user' => 'App\Models\User',
         ]);
     }

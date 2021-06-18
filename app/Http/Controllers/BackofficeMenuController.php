@@ -7,6 +7,7 @@ use App\Http\Requests\BackofficeMenus\StoreRequest;
 use App\Http\Requests\BackofficeMenus\UpdateRequest;
 use App\Http\Requests\BackofficeMenus\IndexRequest;
 use App\Models\BackofficeMenu;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -103,15 +104,13 @@ class BackofficeMenuController extends Controller
      *  )
      * @param UpdateRequest $req
      * @param $menu_id
-     * @return BackofficeMenu
+     * @return JsonResponse
      */
-    public function update(UpdateRequest $req, $menu_id): BackofficeMenu
+    public function update(UpdateRequest $req, $menu_id): JsonResponse
     {
-        $this->menu = $this->menu->findOrFail($menu_id);
-        $this->menu->fill($req->all());
-        $this->menu->save();
+        $this->menu = $this->menu->findOrFail($menu_id)->update($req->all());
 
-        return $this->menu;
+        return response()->json($this->menu, 201);
     }
 
 
@@ -138,9 +137,7 @@ class BackofficeMenuController extends Controller
      */
     public function show(Request $req, $menu_id): BackofficeMenu
     {
-        $this->menu = $this->menu->findOrFail($menu_id);
-
-        return $this->menu;
+        return $this->menu->findOrFail($menu_id);
     }
 
     /**

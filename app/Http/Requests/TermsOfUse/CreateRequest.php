@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Members\Authorities;
+namespace App\Http\Requests\TermsOfUse;
 
-use Auth;
+use App\Models\TermsOfUse;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class StoreAuthorityRequest extends FormRequest
+class CreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,10 +26,11 @@ class StoreAuthorityRequest extends FormRequest
     public function rules()
     {
         return [
-            'code' => 'required|unique:authorities,code',
-            'title' => 'required',
-            'memo' => 'sometimes',
-            'display_name' => 'required'
+            'type' => ['required', Rule::in(TermsOfUse::$types)],
+            'title' => ['required'],
+            'content' => ['required', 'array'],
+            'start_at' => ['required', 'date'],
+            'history' => ['sometimes'],
         ];
     }
 }

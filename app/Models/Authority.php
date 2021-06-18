@@ -41,6 +41,18 @@ class Authority extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'code',
+        'title',
+        'display_name',
+        'memo'
+    ];
+
     public function managers(): HasMany
     {
         return $this->hasMany(Manager::class);

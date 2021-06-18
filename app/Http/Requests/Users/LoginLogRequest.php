@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Members\Authorities;
+namespace App\Http\Requests\Users;
 
-use Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreAuthorityRequest extends FormRequest
+class LoginLogRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,10 +24,7 @@ class StoreAuthorityRequest extends FormRequest
     public function rules()
     {
         return [
-            'code' => 'required|unique:authorities,code',
-            'title' => 'required',
-            'memo' => 'sometimes',
-            'display_name' => 'required'
+            'by_manager' => 'nullable|boolean'
         ];
     }
 }

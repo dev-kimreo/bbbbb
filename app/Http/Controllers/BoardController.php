@@ -88,7 +88,7 @@ class BoardController extends Controller
         $res['list'] = [];
 
         // 게시판 목록
-        $boardModel = $this->board::with('user:id,name');
+        $boardModel = $this->board::with('user');
 
 
         // Sort By

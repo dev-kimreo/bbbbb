@@ -5,13 +5,15 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Feature\Traits\QpickTestBase;
 
 class UserTest extends TestCase
 {
-    use DatabaseTransactions, QpickTestBase;
+    use WithFaker, DatabaseTransactions, QpickTestBase;
 
     protected array $resJson = [];
 
@@ -36,183 +38,485 @@ class UserTest extends TestCase
         ];
     }
 
-    public function testUserCreateByGuest()
-    {
-        $response = $this->requestQpickApi('post', '/v1/user/', $this->getReqJson());
-        $response->assertStatus(201);
-    }
-
-    public function testUserListByGuest()
-    {
-        $response = $this->requestQpickApi('get', '/v1/user/', []);
-        $response->assertStatus(401);
-    }
-
-    public function testUserReadByGuest()
-    {
-        $response = $this->requestQpickApi('get', '/v1/user/' . rand(1, 10), []);
-        $response->assertStatus(401);
-    }
-
-    public function testUserUpdateByGuest()
-    {
-        $response = $this->requestQpickApi('patch', '/v1/user/' . rand(1, 10), []);
-        $response->assertStatus(401);
-    }
-
-    public function testUserDeleteByGuest()
-    {
-        $response = $this->requestQpickApi('delete', '/v1/user/' . rand(1, 10), []);
-        $response->assertStatus(401);
-    }
-
-    public function testUserCreateByRegular()
-    {
-        $this->actingAsQpickUser('regular');
-
-        $response = $this->requestQpickApi('post', '/v1/user/', $this->getReqJson());
-        $response->assertStatus(403);
-    }
-
-    public function testUserListByRegular()
-    {
-        $this->actingAsQpickUser('regular');
-
-        $response = $this->requestQpickApi('get', '/v1/user/', []);
-        $response->assertStatus(403);
-    }
-
-    public function testUserReadOtherByRegular()
-    {
-        $user = $this->actingAsQpickUser('regular');
-        $other = $this->getExistsData($user->id);
-
-        $response = $this->requestQpickApi('get', '/v1/user/' . $other->id, []);
-        $response->assertStatus(403);
-    }
-
-    public function testUserUpdateOtherByRegular()
-    {
-        $user = $this->actingAsQpickUser('regular');
-        $other = $this->getExistsData($user->id);
-
-        $response = $this->requestQpickApi('patch', '/v1/user/' . $other->id, $this->getReqJson());
-        $response->assertStatus(403);
-    }
-
-    public function testUserDeleteOtherByRegular()
-    {
-        $user = $this->actingAsQpickUser('regular');
-        $other = $this->getExistsData($user->id);
-
-        $response = $this->requestQpickApi('delete', '/v1/user/' . $other->id, $this->getReqJson());
-        $response->assertStatus(403);
-    }
-
-    public function testUserReadOwnByRegular()
-    {
-        $user = $this->actingAsQpickUser('regular');
-
-        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id, []);
-        $response->assertStatus(200)->assertJsonStructure($this->resJson);
-    }
-
-    public function testUserUpdateOwnByRegular()
-    {
-        $user = $this->actingAsQpickUser('regular');
-
-        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id, $this->getReqJson());
-        $response->assertStatus(201)->assertJsonStructure($this->resJson);
-    }
-
-    public function testUserDeleteOwnByRegular()
-    {
-        $user = $this->actingAsQpickUser('regular');
-
-        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id, $this->getReqJson());
-        $response->assertStatus(204);
-    }
-
-    public function testUserCreateByBackoffice()
-    {
-        $this->actingAsQpickUser('backoffice');
-
-        $response = $this->requestQpickApi('post', '/v1/user/', $this->getReqJson());
-        $response->assertStatus(403);
-    }
-
-    public function testUserListByBackoffice()
-    {
-        $this->actingAsQpickUser('backoffice');
-
-        $response = $this->requestQpickApi('get', '/v1/user/', []);
-        $response->assertStatus(200);
-    }
-
-    public function testUserReadOtherByBackoffice()
-    {
-        $user = $this->actingAsQpickUser('backoffice');
-        $other = $this->getExistsData($user->id);
-
-        // try to access others
-        $response = $this->requestQpickApi('get', '/v1/user/' . $other->id, []);
-        $response->assertStatus(200)->assertJsonStructure($this->resJson);
-    }
-
-    public function testUserUpdateOtherByBackoffice()
-    {
-        $user = $this->actingAsQpickUser('backoffice');
-        $other = $this->getExistsData($user->id);
-
-        $response = $this->requestQpickApi('patch', '/v1/user/' . $other->id, $this->getReqJson());
-        $response->assertStatus(201)->assertJsonStructure($this->resJson);
-    }
-
-    public function testUserDeleteOtherByBackoffice()
-    {
-        $user = $this->actingAsQpickUser('backoffice');
-        $other = $this->getExistsData($user->id);
-
-        $response = $this->requestQpickApi('delete', '/v1/user/' . $other->id, $this->getReqJson());
-        $response->assertStatus(204);
-    }
-
-    public function testUserReadOwnByBackoffice()
-    {
-        $user = $this->actingAsQpickUser('backoffice');
-
-        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id, []);
-        $response->assertStatus(200)->assertJsonStructure($this->resJson);
-    }
-
-    public function testUserUpdateOwnByBackoffice()
-    {
-        $user = $this->actingAsQpickUser('backoffice');
-
-        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id, $this->getReqJson());
-        $response->assertStatus(201)->assertJsonStructure($this->resJson);
-    }
-
-    public function testUserDeleteOwnByBackoffice()
-    {
-        $user = $this->actingAsQpickUser('backoffice');
-
-        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id, $this->getReqJson());
-        $response->assertStatus(204);
-    }
-
-    public function getExistsData($exceptId): Model
-    {
-        return User::where('id', '!=', $exceptId)->get()->random(1)->first();
-    }
-
     public function getReqJson(): array
     {
         return [
-            'name' => Str::random(10) . ' ' . Str::random(10),
-            'email' => Str::random(20) . '@qpick.cocen.com',
+            'name' => $this->faker->lastName,
+            'email' => $this->faker->unique()->safeEmail,
             'password' => $this->userPassword,
             'password_confirmation' => $this->userPassword
         ];
     }
+
+    /**
+     * Create
+     */
+
+    public function testCreateByGuest()
+    {
+        $response = $this->requestQpickApi('post', '/v1/user/', $this->getReqJson());
+        $response->assertCreated();
+    }
+
+    public function testCreateByAssociate()
+    {
+        $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('post', '/v1/user/', $this->getReqJson());
+        $response->assertForbidden();
+    }
+
+    public function testCreateByRegular()
+    {
+        $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('post', '/v1/user/', $this->getReqJson());
+        $response->assertForbidden();
+    }
+
+    public function testCreateByBackoffice()
+    {
+        $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('post', '/v1/user/', $this->getReqJson());
+        $response->assertForbidden();
+    }
+
+
+    /**
+     * Index
+     */
+    public function testIndexByGuest()
+    {
+        $response = $this->requestQpickApi('get', '/v1/user/', []);
+        $response->assertUnauthorized();
+    }
+
+    public function testIndexByAssociate()
+    {
+        $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('get', '/v1/user/', []);
+        $response->assertForbidden();
+    }
+
+    public function testIndexByRegular()
+    {
+        $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('get', '/v1/user/', []);
+        $response->assertForbidden();
+    }
+
+    public function testIndexByBackoffice()
+    {
+        $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('get', '/v1/user/', []);
+        $response->assertOk();
+    }
+
+
+    /**
+     * Show
+     */
+
+    public function testShowByGuest()
+    {
+        $user = $this->createAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id, []);
+        $response->assertUnauthorized();
+    }
+
+    public function testShowOwnerByAssociate()
+    {
+        $user = $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id, []);
+        $response->assertOk()
+            ->assertJsonStructure($this->resJson);
+    }
+
+    public function testShowOtherByAssociate()
+    {
+        $user = $this->createAsQpickUser('associate');
+        $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id, []);
+        $response->assertForbidden();
+    }
+
+    public function testShowOwnerByRegular()
+    {
+        $user = $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id, []);
+        $response->assertOk()
+            ->assertJsonStructure($this->resJson);
+    }
+
+    public function testShowOtherByRegular()
+    {
+        $user = $this->createAsQpickUser('regular');
+        $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id, []);
+        $response->assertForbidden();
+    }
+
+    public function testShowOwnerByBackoffice()
+    {
+        $user = $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id, []);
+        $response->assertOk()
+            ->assertJsonStructure($this->resJson);
+    }
+
+    public function testShowOtherByBackoffice()
+    {
+        $user = $this->createAsQpickUser('regular');
+        $this->actingAsQpickUser('backoffice');
+
+        // try to access others
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id, []);
+        $response->assertOk()
+            ->assertJsonStructure($this->resJson);
+    }
+
+
+    /**
+     * Update
+     */
+    public function testUpdateByGuest()
+    {
+        $user = $this->createAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id, []);
+        $response->assertUnauthorized();
+    }
+
+    public function testUpdateOwnerByAssociate()
+    {
+        $user = $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id, $this->getReqJson());
+        $response->assertCreated()
+            ->assertJsonStructure($this->resJson);
+    }
+
+    public function testUpdateOtherByAssociate()
+    {
+        $user = $this->createAsQpickUser('associate');
+        $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id, $this->getReqJson());
+        $response->assertForbidden();
+    }
+
+
+    public function testUpdateOwnerByRegular()
+    {
+        $user = $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id, $this->getReqJson());
+        $response->assertCreated()
+            ->assertJsonStructure($this->resJson);
+    }
+
+    public function testUpdateOtherByRegular()
+    {
+        $user = $this->createAsQpickUser('regular');
+        $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id, $this->getReqJson());
+        $response->assertForbidden();
+    }
+
+    public function testUpdateOwnerByBackoffice()
+    {
+        $user = $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id, $this->getReqJson());
+        $response->assertCreated()
+            ->assertJsonStructure($this->resJson);
+    }
+
+    public function testUpdateOtherByBackoffice()
+    {
+        $user = $this->createAsQpickUser('regular');
+        $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id, $this->getReqJson());
+        $response->assertCreated()->assertJsonStructure($this->resJson);
+    }
+
+
+    /**
+     * Destroy
+     */
+    public function testDestroyByGuest()
+    {
+        $user = $this->createAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id, []);
+        $response->assertUnauthorized();
+    }
+
+    public function testDestroyOwnerByAssociate()
+    {
+        $user = $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id, $this->getReqJson());
+        $response->assertNoContent();
+    }
+
+    public function testUserDeleteOtherByAssociate()
+    {
+        $user = $this->createAsQpickUser('associate');
+        $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id, $this->getReqJson());
+        $response->assertForbidden();
+    }
+
+
+    public function testDestroyOwnerByRegular()
+    {
+        $user = $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id, $this->getReqJson());
+        $response->assertNoContent();
+    }
+
+    public function testUserDeleteOtherByRegular()
+    {
+        $user = $this->createAsQpickUser('regular');
+        $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id, $this->getReqJson());
+        $response->assertForbidden();
+    }
+
+    public function testDestroyOwnerByBackoffice()
+    {
+        $user = $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id, $this->getReqJson());
+        $response->assertNoContent();
+    }
+
+    public function testDestroyOtherByBackoffice()
+    {
+        $user = $this->createAsQpickUser('regular');
+        $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id, $this->getReqJson());
+        $response->assertNoContent();
+    }
+
+
+    /**
+     * Non-CRUD
+     */
+
+    public function testSendEmailVerificationByGuest()
+    {
+        $response = $this->requestQpickApi('post', '/v1/user/email-verification');
+        $response->assertUnauthorized();
+    }
+
+    public function testSendEmailVerificationByAssociate()
+    {
+        $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('post', '/v1/user/email-verification');
+        $response->assertNoContent();
+    }
+
+    public function testSendEmailVerificationByRegular()
+    {
+        $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('post', '/v1/user/email-verification');
+        $response->assertNoContent();
+    }
+
+
+    // function checkPassword()
+    public function testCheckPasswordByGuest()
+    {
+        $response = $this->requestQpickApi('post', '/v1/user/password');
+        $response->assertUnauthorized();
+    }
+
+    public function testCheckPasswordByAssociate()
+    {
+        $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('post', '/v1/user/password', ['password' => $this->userPassword]);
+        $response->assertNoContent();
+    }
+
+    public function testCheckPasswordByRegular()
+    {
+        $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('post', '/v1/user/password', ['password' => $this->userPassword]);
+        $response->assertNoContent();
+    }
+
+    public function testCheckPasswordByBackoffice()
+    {
+        $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('post', '/v1/user/password', ['password' => $this->userPassword]);
+        $response->assertNoContent();
+    }
+
+
+    // function modifyPassword()
+    public function testModifyPasswordByGuest()
+    {
+        $response = $this->requestQpickApi('patch', '/v1/user/password');
+        $response->assertUnauthorized();
+    }
+
+    public function testModifyPasswordByAssociate()
+    {
+        $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('post', '/v1/user/password', [
+            'password' => $this->userPassword,
+            'changePassword' => 'password!2',
+            'passwordConfirmation' => 'password!2'
+        ]);
+
+        $response->assertNoContent();
+    }
+
+    public function testModifyPasswordByRegular()
+    {
+        $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('post', '/v1/user/password', [
+            'password' => $this->userPassword,
+            'changePassword' => 'password!2',
+            'passwordConfirmation' => 'password!2'
+        ]);
+
+        $response->assertNoContent();
+    }
+
+    public function testModifyPasswordByBackoffice()
+    {
+        $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('post', '/v1/user/password', [
+            'password' => $this->userPassword,
+            'changePassword' => 'password!2',
+            'passwordConfirmation' => 'password!2'
+        ]);
+
+        $response->assertNoContent();
+    }
+
+
+    // function personalClientLogin
+    public function testPersonalLoginByGuest()
+    {
+        $user = $this->createAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('post', '/v1/user/' . $user->id . '/auth');
+        $response->assertUnauthorized();
+    }
+
+    public function testPersonalLoginByAssociate()
+    {
+        $user = $this->createAsQpickUser('regular');
+        $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('post', '/v1/user/' . $user->id . '/auth');
+        $response->assertForbidden();
+    }
+
+    public function testPersonalLoginByRegular()
+    {
+        $user = $this->createAsQpickUser('regular');
+        $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('post', '/v1/user/' . $user->id . '/auth');
+        $response->assertForbidden();
+    }
+
+    public function testPersonalLoginByBackoffice()
+    {
+        $user = $this->createAsQpickUser('regular');
+        $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('post', '/v1/user/' . $user->id . '/auth');
+        $response->assertOk();
+    }
+
+    // function getLoginLog
+    public function testGetLoginLogByGuest()
+    {
+        $user = $this->createAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response->assertUnauthorized();
+    }
+
+    public function testGetLoginLogOwnerByAssociate()
+    {
+        $user = $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response->assertOk();
+    }
+
+    public function testGetLoginLogOtherByAssociate()
+    {
+        $user = $this->createAsQpickUser('associate');
+        $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response->assertForbidden();
+    }
+
+    public function testGetLoginLogOwnerByRegular()
+    {
+        $user = $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response->assertOk();
+    }
+
+    public function testGetLoginLogOtherByRegular()
+    {
+        $user = $this->createAsQpickUser('regular');
+        $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response->assertForbidden();
+    }
+
+    public function testGetLoginLogOwnerByBackoffice()
+    {
+        $user = $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response->assertOk();
+    }
+
+    public function testGetLoginLogOtherByBackoffice()
+    {
+        $user = $this->createAsQpickUser('backoffice');
+        $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response->assertOk();
+    }
+
 }

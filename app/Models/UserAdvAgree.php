@@ -29,6 +29,7 @@ class UserAdvAgree extends Model
     protected $hidden = ['id', 'user_id', 'deleted_at'];
     protected $casts = [
         'agree' => 'boolean',
+        'created_at' => 'datetime',
     ];
 
     protected static function booted(): void

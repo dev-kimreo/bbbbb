@@ -12,9 +12,13 @@ class UserLoginLog extends Model
     use HasFactory, DateFormatISO8601;
 
     public $timestamps = false;
+    protected $appends = ['attempted_user'];
     protected $fillable = ['user_id', 'manager_id', 'client_id', 'ip'];
-    protected $hidden = ['user_id'];
-    protected $with = ['user'];
+    protected $hidden = ['user_id', 'manager_id', 'client_id'];
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
+    protected $with = [];
 
     public static function boot()
     {
@@ -28,5 +32,19 @@ class UserLoginLog extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class)->simplify('user');
+    }
+
+    public function manager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'manager_id')->simplify('manager');
+    }
+
+    public function getAttemptedUserAttribute()
+    {
+        if(empty($this->attributes['manager_id'])) {
+            return $this->user()->first();
+        } else {
+            return $this->manager()->first();
+        }
     }
 }

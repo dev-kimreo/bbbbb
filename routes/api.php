@@ -11,6 +11,7 @@ use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\BackofficeMenuController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
+use App\Http\Controllers\TermsOfUseController;
 use App\Http\Controllers\TooltipController;
 use App\Http\Controllers\Users\ManagerController;
 use App\Http\Controllers\Users\UserAdvAgreeController;
@@ -55,11 +56,13 @@ Route::group([
             Route::get('/{user_id}', [UserController::class, 'show'])->where(['user_id' => '[0-9]+']);
             Route::patch('/{user_id}', [UserController::class, 'update'])->where(['user_id' => '[0-9]+']);
             Route::delete('/{user_id}', [UserController::class, 'destroy'])->where(['user_id' => '[0-9]+']);
+            Route::get('/{user_id}/login-log', [UserController::class, 'getLoginLog'])->where(['user_id' => '[0-9]+']);
         });
 
         // 회원 세션 CRUD
         Route::post('/auth', [AccessTokenController::class, 'store'])
-            ->withoutmiddleware('auth:api');
+            ->withoutmiddleware('auth:api')
+            ->middleware('chkAccess:guest');
         Route::get('/auth', [AccessTokenController::class, 'show']);
         Route::delete('/auth', [AccessTokenController::class, 'destroy']);
 
@@ -210,6 +213,18 @@ Route::group([
         Route::post('', [AttachController::class, 'store']);            // 임시 파일 첨부
         Route::patch('/{id}', [AttachController::class, 'update']);     // 파일 이동
         Route::delete('/{id}', [AttachController::class, 'delete']);    // 파일 삭제
+    });
+
+    // 이용약관 & 개인정보 처리 방침
+    Route::group([
+        'prefix' => 'terms-of-use',
+        'middleware' => 'chkAccess:backoffice'
+    ], function(){
+        Route::post('', [TermsOfUseController::class, 'store']);
+        Route::get('', [TermsOfUseController::class, 'index']);
+        Route::get('/{terms_of_use_id}', [TermsOfUseController::class, 'show']);
+        Route::patch('/{terms_of_use_id}', [TermsOfUseController::class, 'update']);
+        Route::delete('/{terms_of_use_id}', [TermsOfUseController::class, 'destroy']);
     });
 
     /**

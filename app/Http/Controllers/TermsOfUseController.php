@@ -2,28 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Tooltips\CreateRequest;
-use App\Http\Requests\Tooltips\IndexRequest;
-use App\Http\Requests\Tooltips\UpdateRequest;
+use App\Exceptions\QpickHttpException;
+use App\Http\Requests\TermsOfUse\CreateRequest;
+use App\Http\Requests\TermsOfUse\IndexRequest;
+use App\Http\Requests\TermsOfUse\UpdateRequest;
+use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
-use App\Libraries\StringLibrary;
-use App\Models\Tooltip;
+use App\Models\TermsOfUse;
 use Auth;
-use Illuminate\Database\Eloquent\Builder;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 
-class TooltipController extends Controller
+class TermsOfUseController extends Controller
 {
+    private TermsOfUse $termsOfUse;
+
+    public function __construct(TermsOfUse $termsOfUse)
+    {
+        $this->termsOfUse = $termsOfUse;
+    }
+
+
     /**
      * @OA\Get(
-     *      path="/v1/tooltip",
-     *      summary="툴팁 목록",
-     *      description="툴팁 목록",
-     *      operationId="TooltipList",
-     *      tags={"툴팁"},
+     *      path="/v1/terms-of-use",
+     *      summary="이용약관&개인정보처리방침 목록",
+     *      description="이용약관&개인정보처리방침 목록",
+     *      operationId="termsOfUseIndex",
+     *      tags={"이용약관&개인정보처리방침"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
@@ -31,11 +39,8 @@ class TooltipController extends Controller
      *              @OA\Property(property="page", type="integer", example=1, default=1, description="페이지"),
      *              @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
      *              @OA\Property(property="hasLang[]", type="string", example="en", description="언어구분 (다중입력 가능)"),
-     *              @OA\Property(property="visible", type="boolean", example="true", description="전시여부"),
-     *              @OA\Property(property="type", type="string", example="헬프센터", description="전시구분 (한글이름으로 입력)"),
-     *              @OA\Property(property="title", type="string", example="도움말 작성버튼", description="제목"),
-     *              @OA\Property(property="code", type="string", example="HP_0012", description="전시코드"),
-     *              @OA\Property(property="userName", type="string", example="홍길동", description="등록자 이름"),
+     *              @OA\Property(property="type", type="string", example="이용약관", description="구분 (이용약관, 개인정보처리방침)"),
+     *              @OA\Property(property="sortBy", type="string", example="-id", description="정렬기준<br/>+:오름차순, -:내림차순" )
      *          ),
      *      ),
      *      @OA\Response(
@@ -44,7 +49,7 @@ class TooltipController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination"),
      *              @OA\Property(property="list", type="array",
-     *                  @OA\Items(type="object", ref="#/components/schemas/TooltipForList")
+     *                  @OA\Items(type="object", ref="#/components/schemas/TermsOfUseForList")
      *              )
      *          )
      *      ),
@@ -53,71 +58,49 @@ class TooltipController extends Controller
      *          description="failed"
      *      ),
      *      security={{
-     *          "davinci_auth":{},
      *          "admin_auth":{}
      *      }}
      *  )
      *
      * Display a listing of the resource.
      *
-     * @param Request $request
+     * @param IndexRequest $request
      * @return Collection
+     * @throws QpickHttpException
      */
     public function index(IndexRequest $request): Collection
     {
         // set relations
         $with = ['translation', 'translation.translationContents'];
 
-        if (Auth::hasAccessRightsToBackoffice()) {
-            $with[] = 'user';
-        }
+        $terms = $this->termsOfUse->with($with);
 
-        // get model
-        $tooltip = Tooltip::with($with);
+        if ($s = $request->input('type')) {
+            $terms->where('type', $s);
+        }
 
         // set search conditions
         if (is_array($s = $request->input('has_lang'))) {
             // search by contents' language
             foreach ($s as $v) {
-                $tooltip->whereHasLanguage($v);
+                $terms->whereHasLanguage($v);
             }
         }
 
-        if (strlen($s = $request->input('visible')) > 0) {
-            // search by visibility
-            $tooltip->where('visible', ($s && $s != 'false'));
-        }
-
-        if ($s = $request->input('type')) {
-            // search by display type
-            $tooltip->where('type', $s);
-        }
-
-        if ($s = $request->input('title')) {
-            // search by title
-            $tooltip->where('title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-        }
-
-        if ($s = $request->input('code')) {
-            // search by title
-            $tooltip->whereCodeIs($s);
-        }
-
-        if ($s = $request->input('user_name')) {
-            // search by writer name
-            $tooltip->whereHas('user', function (Builder $q) use ($s) {
-                $q->where('name', $s);
+        // Sort By
+        if ($s = $request->input('sort_by')) {
+            $sortCollect = CollectionLibrary::getBySort($s, ['id']);
+            $sortCollect->each(function ($item) use ($terms) {
+                $terms->orderBy($item['key'], $item['value']);
             });
         }
 
         // set pagination information
-        $pagination = PaginationLibrary::set($request->input('page'), $tooltip->count(), $request->input('per_page'));
+        $pagination = PaginationLibrary::set($request->input('page'), $terms->count(), $request->input('per_page'));
 
-        // get data
-        $data = $tooltip
+        $data = $terms
             ->skip($pagination['skip'])
             ->take($pagination['perPage'])
-            ->orderByDesc('id')
             ->get()
             ->each(function (&$v) {
                 $v->lang = $v->translation->translationContents->pluck('lang');
@@ -135,21 +118,22 @@ class TooltipController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/v1/tooltip",
-     *      summary="툴팁 작성",
-     *      description="툴팁 작성",
-     *      operationId="tooltipCreate",
-     *      tags={"툴팁"},
+     *      path="/v1/terms-of-use",
+     *      summary="이용약관&개인정보처리방침 작성",
+     *      description="이용약관&개인정보처리방침 작성",
+     *      operationId="termsOfUseCreate",
+     *      tags={"이용약관&개인정보처리방침"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              @OA\Property(property="type", type="string", example="헬프센터", description="전시구분"),
-     *              @OA\Property(property="title", type="string", example="1부터 100 사이의 숫자로 입력", description="툴팁 제목"),
-     *              @OA\Property(property="visible", type="integer", example=1, default=1, description="1 또는 0"),
-     *              @OA\Property(property="content[ko]", type="string", example="한국어로 입력된 툴팁 내용", description="한국어로 입력된 툴팁 내용"),
-     *              @OA\Property(property="content[en]", type="string", example="Contents written in English", description="영어로 입력된 툴팁 내용"),
-     *              @OA\Property(property="content[..]", type="string", example="다른 어떤 언어로 쓰인 툴팁 내용", description="[..]안에 쓰인 ISO 639-1코드의 언어로 입력된 툴팁 내용"),
+     *              @OA\Property(property="type", type="string", example="이용약관", description="구분<br/>이용약관, 개인정보처리방침"),
+     *              @OA\Property(property="title", type="string", example="전시 제목", description="전시 제목"),
+     *              @OA\Property(property="startAt", type="date(Y-m-d H:i:s)", example="2021-06-01 09:00:00", description="전시 시작일"),
+     *              @OA\Property(property="history", type="string", example="변경내역", description="변경내역"),
+     *              @OA\Property(property="content[ko]", type="string", example="한국어로 입력된 툴팁 내용", description="한국어로 입력된 내용"),
+     *              @OA\Property(property="content[en]", type="string", example="Contents written in English", description="영어로 입력된 내용"),
+     *              @OA\Property(property="content[..]", type="string", example="다른 어떤 언어로 쓰인 툴팁 내용", description="[..]안에 쓰인 ISO 639-1코드의 언어로 입력된 내용"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -157,7 +141,7 @@ class TooltipController extends Controller
      *          description="created",
      *          @OA\JsonContent(
      *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/Tooltip")
+     *                  @OA\Schema(ref="#/components/schemas/TermsOfUse")
      *              }
      *          )
      *      ),
@@ -174,7 +158,7 @@ class TooltipController extends Controller
      *          description="failed"
      *      ),
      *      security={{
-     *          "davinci_auth":{}
+     *          "admin_auth":{}
      *      }}
      *  )
      *
@@ -185,18 +169,19 @@ class TooltipController extends Controller
      */
     public function store(CreateRequest $request): JsonResponse
     {
-        // create a tooltip
-        $tooltip = Tooltip::create(
+        // create a terms
+        $terms = $this->termsOfUse::create(
             array_merge(
                 $request->all(),
                 [
+                    'start_at' => Carbon::parse($request->input('start_at')),
                     'user_id' => Auth::id()
                 ]
             )
         );
 
         // create a translation
-        $translation = $tooltip->translation()->create([]);
+        $translation = $terms->translation()->create([]);
 
         // create a translation content
         if (is_array($content = $request->input('content'))) {
@@ -209,17 +194,18 @@ class TooltipController extends Controller
         }
 
         // response
-        $data = $this->getOne($tooltip->id);
+        $data = $this->getOne($terms->id);
         return response()->json(collect($data), 201);
     }
 
+
     /**
      * @OA\Get(
-     *      path="/v1/tooltip/{tooltip_id}",
-     *      summary="툴팁 상세",
-     *      description="툴팁 상세",
-     *      operationId="tooltipShow",
-     *      tags={"툴팁"},
+     *      path="/v1/terms-of-use/{terms_of_use_id}",
+     *      summary="이용약관&개인정보처리방침 상세",
+     *      description="이용약관&개인정보처리방침 상세",
+     *      operationId="termsOfUseShow",
+     *      tags={"이용약관&개인정보처리방침"},
      *      @OA\RequestBody(
      *          required=true,
      *          description=""
@@ -229,7 +215,7 @@ class TooltipController extends Controller
      *          description="OK",
      *          @OA\JsonContent(
      *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/Tooltip")
+     *                  @OA\Schema(ref="#/components/schemas/TermsOfUse")
      *              }
      *          )
      *      ),
@@ -239,14 +225,14 @@ class TooltipController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found (열람할 툴팁이 존재하지 않음)"
+     *          description="Not found"
      *      ),
      *      @OA\Response(
      *          response=422,
      *          description="failed"
      *      ),
      *      security={{
-     *          "davinci_auth":{}
+     *          "admin_auth":{}
      *      }}
      *  )
      *
@@ -262,21 +248,22 @@ class TooltipController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/v1/tooltip/{tooltip_id}",
-     *      summary="툴팁 수정",
-     *      description="툴팁 수정",
-     *      operationId="tooltipUpdate",
-     *      tags={"툴팁"},
+     *      path="/v1/terms-of-use/{terms_of_use_id}",
+     *      summary="이용약관&개인정보처리방침 수정",
+     *      description="이용약관&개인정보처리방침 수정",
+     *      operationId="termsOfUseUpdate",
+     *      tags={"이용약관&개인정보처리방침"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              @OA\Property(property="type", type="string", example="헬프센터", description="전시구분"),
-     *              @OA\Property(property="title", type="string", example="1부터 100 사이의 숫자로 입력", description="툴팁 제목"),
-     *              @OA\Property(property="visible", type="integer", example=1, default=1, description="1 또는 0"),
-     *              @OA\Property(property="content[ko]", type="string", example="한국어로 입력된 툴팁 내용", description="한국어로 입력된 툴팁 내용"),
-     *              @OA\Property(property="content[en]", type="string", example="Contents written in English", description="영어로 입력된 툴팁 내용"),
-     *              @OA\Property(property="content[..]", type="string", example="다른 어떤 언어로 쓰인 툴팁 내용", description="[..]안에 쓰인 ISO 639-1코드의 언어로 입력된 툴팁 내용"),
+     *              @OA\Property(property="type", type="string", example="이용약관", description="구분<br/>이용약관, 개인정보처리방침"),
+     *              @OA\Property(property="title", type="string", example="전시 제목", description="전시 제목"),
+     *              @OA\Property(property="startAt", type="date(Y-m-d H:i:s)", example="2021-06-01 09:00:00", description="전시 시작일"),
+     *              @OA\Property(property="history", type="string", example="변경내역", description="변경내역"),
+     *              @OA\Property(property="content[ko]", type="string", example="한국어로 입력된 툴팁 내용", description="한국어로 입력된 내용"),
+     *              @OA\Property(property="content[en]", type="string", example="Contents written in English", description="영어로 입력된 내용"),
+     *              @OA\Property(property="content[..]", type="string", example="다른 어떤 언어로 쓰인 툴팁 내용", description="[..]안에 쓰인 ISO 639-1코드의 언어로 입력된 내용"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -284,7 +271,7 @@ class TooltipController extends Controller
      *          description="created",
      *          @OA\JsonContent(
      *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/Tooltip")
+     *                  @OA\Schema(ref="#/components/schemas/TermsOfUse")
      *              }
      *          )
      *      ),
@@ -305,7 +292,7 @@ class TooltipController extends Controller
      *          description="failed"
      *      ),
      *      security={{
-     *          "davinci_auth":{}
+     *          "admin_auth":{}
      *      }}
      *  )
      *
@@ -318,14 +305,20 @@ class TooltipController extends Controller
     public function update(UpdateRequest $request, int $id): JsonResponse
     {
         // update the tooltip
-        $tooltip = Tooltip::with('translation')->findOrFail($id);
-        $tooltip->update($request->all());
+        $terms = $this->termsOfUse::with('translation')->findOrFail($id);
+
+        // 전시시작일 이후일 경우 수정 불가
+        if (Carbon::now()->format('c') >= $terms->start_at->format('c')) {
+            throw new QpickHttpException(422, 'terms.disable.modify.over.start_at');
+        }
+
+        $terms->update($request->all());
 
         // update the translation
-        if ($translation = $tooltip->translation()->first()) {
+        if ($translation = $terms->translation()->first()) {
             $translation->update([]);
         } else {
-            $translation = $tooltip->translation()->create([]);
+            $translation = $terms->translation()->create([]);
         }
 
         if (is_array($content = $request->input('content'))) {
@@ -336,28 +329,13 @@ class TooltipController extends Controller
                 }
             });
 
-            foreach($content as $lang => $value) {
+            foreach ($content as $lang => $value) {
                 $translation->translationContents()->create([
                     'lang' => $lang,
                     'value' => $value
                 ]);
             };
         }
-        /*
-        $tooltip->translation()->each(function ($o) use ($request, $tooltip) {
-            $o->update([
-                'explanation' => $request->input('title', $tooltip->title)
-            ]);
-
-            if (is_array($content = $request->input('content'))) {
-                $o->translationContents()->each(function ($o) use ($content) {
-                    if ($content[$o->lang]) {
-                        $o->update(['value' => $content[$o->lang]]);
-                    }
-                });
-            }
-        });
-        */
 
         // response
         $data = $this->getOne($id);
@@ -366,11 +344,11 @@ class TooltipController extends Controller
 
     /**
      * @OA\delete(
-     *      path="/v1/tooltip/{tooltip_id}",
-     *      summary="툴팁 삭제",
-     *      description="툴팁 삭제",
-     *      operationId="tooltipDelete",
-     *      tags={"툴팁"},
+     *      path="/v1/terms-of-use/{terms_of_use_id}",
+     *      summary="이용약관&개인정보처리방침 삭제",
+     *      description="이용약관&개인정보처리방침 삭제",
+     *      operationId="termsOfUseDelete",
+     *      tags={"이용약관&개인정보처리방침"},
      *      @OA\Response(
      *          response=204,
      *          description="deleted"
@@ -385,23 +363,32 @@ class TooltipController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found (삭제할 툴팁이 존재하지 않음)"
+     *          description="Not found"
      *      ),
      *      security={{
-     *          "davinci_auth":{}
+     *          "admin_auth":{}
      *      }}
      *  )
      *
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return Response
      */
     public function destroy(int $id): Response
     {
-        Tooltip::findOrFail($id)->delete();
+        //
+        $terms = $this->termsOfUse::findOrFail($id);
+
+        // 전시시작일 이후일 경우 삭제 불가
+        if (Carbon::now()->format('c') >= $terms->start_at->format('c')) {
+            throw new QpickHttpException(422, 'terms.disable.modify.over.start_at');
+        }
+
+        $terms->delete();
         return response()->noContent();
     }
+
 
     protected function getOne($id): Collection
     {
@@ -414,7 +401,7 @@ class TooltipController extends Controller
         }
 
         // get data
-        $data = Tooltip::with($with)->findOrFail($id);
+        $data = $this->termsOfUse::with($with)->findOrFail($id);
 
         // post processing
         $contents = [];
