@@ -3,6 +3,7 @@
 namespace App\Http\Requests\TermsOfUse;
 
 use App\Models\TermsOfUse;
+use App\Rules\ArrayKeysInIso639_1;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,6 +28,7 @@ class UpdateRequest extends FormRequest
     {
         return [
             'user_id' => ['prohibited'],
+            'content' => ['sometimes', 'array', new ArrayKeysInIso639_1],
         ];
     }
 }
