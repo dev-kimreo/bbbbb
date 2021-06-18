@@ -62,7 +62,7 @@ class UserSiteController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/v1/user/{user_id}/site",
+     *      path="/v1/user/{user_id}/site/{site_id}",
      *      summary="사이트 정보 수정",
      *      description="새로운 사이트 정보 수정",
      *      operationId="userSiteUpdate",
@@ -109,7 +109,7 @@ class UserSiteController extends Controller
 
     /**
      * @OA\delete(
-     *      path="/v1/user/{user_id}/site",
+     *      path="/v1/user/{user_id}/site/{site_id}",
      *      summary="사이트 정보 삭제",
      *      description="기존 사이트 정보 삭제",
      *      operationId="userSiteDelete",
