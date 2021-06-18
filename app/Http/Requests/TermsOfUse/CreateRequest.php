@@ -3,6 +3,7 @@
 namespace App\Http\Requests\TermsOfUse;
 
 use App\Models\TermsOfUse;
+use App\Rules\ArrayKeysInIso639_1;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,7 +29,7 @@ class CreateRequest extends FormRequest
         return [
             'type' => ['required', Rule::in(TermsOfUse::$types)],
             'title' => ['required'],
-            'content' => ['required', 'array'],
+            'content' => ['required', 'array', new ArrayKeysInIso639_1],
             'start_at' => ['required', 'date'],
             'history' => ['sometimes'],
         ];
