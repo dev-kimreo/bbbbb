@@ -27,6 +27,7 @@ class StoreAuthorityRequest extends FormRequest
         return [
             'code' => 'required|unique:authorities,code',
             'title' => 'required',
+            'memo' => 'sometimes',
             'display_name' => 'required'
         ];
     }

@@ -25,9 +25,10 @@ class UpdateAuthorityRequest extends FormRequest
     public function rules()
     {
         return [
-            'code' => 'required_without_all:title,display_name',
-            'title' => 'required_without_all:code,display_name',
-            'display_name' => 'required_without_all:code,title'
+            'code' => 'required_without_all:title,memo,display_name',
+            'title' => 'required_without_all:code,memo,display_name',
+            'memo' => 'required_without_all:code,title,display_name',
+            'display_name' => 'required_without_all:code,title,memo'
         ];
     }
 }

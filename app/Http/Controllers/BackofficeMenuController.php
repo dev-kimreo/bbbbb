@@ -108,9 +108,7 @@ class BackofficeMenuController extends Controller
      */
     public function update(UpdateRequest $req, $menu_id): JsonResponse
     {
-        $this->menu = $this->menu->findOrFail($menu_id);
-        $this->menu->fill($req->all());
-        $this->menu->save();
+        $this->menu = $this->menu->findOrFail($menu_id)->update($req->all());
 
         return response()->json($this->menu, 201);
     }

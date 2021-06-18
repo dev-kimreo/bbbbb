@@ -21,6 +21,7 @@ class SiteRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'user_id' => ['prohibited'],
             'type' => ['string', 'max:16'],
             'name' => ['string', 'max:32'],
             'url' => ['url', 'max:256'],
