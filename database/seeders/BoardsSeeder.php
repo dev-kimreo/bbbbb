@@ -104,14 +104,9 @@ class BoardsSeeder extends Seeder
             $board->posts()->createMany($posts);
 
             $board->posts()->each(function ($m) use ($manager) {
-                $replies = [];
-                $replies = array_merge(
-                    $replies,
-                    Reply::factory()->count(10)->make(['user_id' => $manager->get(0)->id])->toArray(),
-                    Reply::factory()->count(10)->make(['user_id' => $manager->get(1)->id])->toArray()
-                );
+                Reply::factory()->count(10)->create(['post_id' => $m->id, 'user_id' => $manager->get(0)->id]);
+                Reply::factory()->count(10)->create(['post_id' => $m->id, 'user_id' => $manager->get(1)->id]);
 
-                $m->replies()->createMany($replies);
             });
         }
 
