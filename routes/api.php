@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthorityController;
 use App\Http\Controllers\BackofficePermissionController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\Boards\OptionController;
+use App\Http\Controllers\Exhibitions\CategoryController as ExhibitionCategoryController;
 use App\Http\Controllers\InquiryAnswerController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\BackofficeMenuController;
@@ -240,6 +241,13 @@ Route::group([
         Route::get('/{tooltip_id}', [TooltipController::class, 'show']);
         Route::patch('/{tooltip_id}', [TooltipController::class, 'update'])->middleware('chkAccess:backoffice');
         Route::delete('/{tooltip_id}', [TooltipController::class, 'destroy'])->middleware('chkAccess:backoffice');
+    });
+
+    /**
+     * 전시관리
+     */
+    Route::group(['prefix' => 'exhibition'], function () {
+        Route::resource('/category', ExhibitionCategoryController::class)->middleware('chkAccess:backoffice');
     });
 
     /**
