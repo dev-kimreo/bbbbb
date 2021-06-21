@@ -6,6 +6,7 @@ use App\Events\Member\Login as LoginEvent;
 use App\Exceptions\QpickHttpException;
 use App\Models\User;
 use Auth;
+use Carbon\Carbon;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -109,6 +110,10 @@ class AccessTokenController extends ATC
         }
 
         LoginEvent::dispatch($this->req, $user->getAttribute('id'), $requestBody['client_id']);
+
+        // 로그인 시간 남기기
+        $user->last_authorized_at = Carbon::now();
+        $user->save();
 
         return parent::issueToken($request);
     }
