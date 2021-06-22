@@ -236,7 +236,7 @@ class ExceptionSeeder extends Seeder
             ],
             [
                 'exception',
-                'terms.disable.modify.over.start_date',
+                'terms.disable.modify.over.started_date',
                 '전시 시작일이 지나 수정/삭제가 불가능 합니다.',
                 '전시 시작일이 지나 수정/삭제가 불가능 합니다.'
             ],

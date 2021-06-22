@@ -27,7 +27,7 @@ class TermsOfUseFactory extends Factory
             'user_id' => 0,
             'type' => collect(TermsOfUse::$types)->random(1)->pop(),
             'title' => $this->faker->realText(16),
-            'start_at' => Carbon::now()->addWeeks(),
+            'started_at' => Carbon::now()->addWeeks(),
             'history' => $this->faker->realText(16),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
