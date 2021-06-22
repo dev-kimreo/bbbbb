@@ -30,7 +30,7 @@ class CreateRequest extends FormRequest
             'type' => ['required', Rule::in(TermsOfUse::$types)],
             'title' => ['required'],
             'content' => ['required', 'array', new ArrayKeysInIso639_1],
-            'start_at' => ['required', 'date'],
+            'started_at' => ['required', 'date'],
             'history' => ['sometimes'],
         ];
     }
