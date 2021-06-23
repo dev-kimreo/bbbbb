@@ -27,6 +27,7 @@ class IndexRequest extends FormRequest
     public function rules()
     {
         return [
+            'grade.*' => 'nullable|integer',
         ];
     }
 
