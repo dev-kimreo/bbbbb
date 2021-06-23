@@ -301,6 +301,7 @@ class TermsOfUseController extends Controller
      * @param UpdateRequest $request
      * @param int $id
      * @return JsonResponse
+     * @throws QpickHttpException
      */
     public function update(UpdateRequest $request, int $id): JsonResponse
     {
@@ -374,6 +375,7 @@ class TermsOfUseController extends Controller
      *
      * @param int $id
      * @return Response
+     * @throws QpickHttpException
      */
     public function destroy(int $id): Response
     {
