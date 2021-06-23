@@ -69,7 +69,7 @@ class UserController extends Controller
      *              @OA\Property(property="endCreatedDate", type="date(Y-m-d)", example="2021-03-01", description="가입일 검색 종료일"),
      *              @OA\Property(property="startRegisteredDate", type="date(Y-m-d)", example="2021-03-01", description="전환일 검색 시작일"),
      *              @OA\Property(property="endRegisteredDate", type="date(Y-m-d)", example="2021-05-01", description="전환일 검색 종료일"),
-     *              @OA\Property(property="grade", type="integer", example=1, description="회원 등급"),
+     *              @OA\Property(property="grade[]", type="integer", example=1, description="회원 등급"),
      *              @OA\Property(property="id", type="integer", example=1, description="회원 번호"),
      *              @OA\Property(property="email", type="string", example="abcd@qpicki.com", description="ID(메일)"),
      *              @OA\Property(property="name", type="string", example="홍길동", description="이름"),
@@ -138,8 +138,9 @@ class UserController extends Controller
             $user->where('registered_at', '<=', $s);
         }
 
-        if (strlen($s = $request->input('grade'))) {
-            $user->where('grade', $s);
+
+        if (is_array($s = $request->input('grade')) && !in_array(null, $s) ) {
+            $user->whereIn('grade', $s);
         }
 
         if ($s = $request->input('id')) {
