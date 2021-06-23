@@ -7,7 +7,7 @@ use App\Events\Backoffice\DataDeleted;
 use App\Events\Backoffice\DataUpdated;
 use App\Models\TermsOfUse;
 
-class TermsOfUSeObserver
+class TermsOfUseObserver
 {
     /**
      * Handle the Tooltip "created" event.
