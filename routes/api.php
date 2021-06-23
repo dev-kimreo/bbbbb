@@ -9,6 +9,7 @@ use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\InquiryAnswerController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\BackofficeMenuController;
+use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\TermsOfUseController;
@@ -236,5 +237,19 @@ Route::group([
         Route::get('/{tooltip_id}', [TooltipController::class, 'show']);
         Route::patch('/{tooltip_id}', [TooltipController::class, 'update'])->middleware('chkAccess:backoffice');
         Route::delete('/{tooltip_id}', [TooltipController::class, 'destroy'])->middleware('chkAccess:backoffice');
+    });
+
+    /**
+     * 이메일 템플릿
+     */
+    Route::group([
+        'prefix' => 'email-template',
+        'middleware' => 'chkAccess:backoffice'
+    ], function(){
+        Route::get('', [EmailTemplateController::class, 'index']);
+        Route::get('/{email_template_id}', [EmailTemplateController::class, 'show']);
+        Route::post('', [EmailTemplateController::class, 'store']);
+        Route::patch('/{email_template_id}', [EmailTemplateController::class, 'update']);
+        Route::delete('/{email_template_id}', [EmailTemplateController::class, 'destroy']);
     });
 });
