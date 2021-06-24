@@ -32,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
             'board' => 'App\Models\Board',
             'exception' => 'App\Models\Exception',
             'inquiry' => 'App\Models\Inquiry',
+            'popup' => 'App\Models\Exhibitions\Popup',
             'post' => 'App\Models\Post',
             'post_thumbnail' => 'App\Models\PostThumbnail',
             'tooltip' => 'App\Models\Tooltip',

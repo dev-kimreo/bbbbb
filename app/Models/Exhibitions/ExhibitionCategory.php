@@ -31,4 +31,9 @@ class ExhibitionCategory extends Model
     {
         return $this->hasMany(Exhibition::class);
     }
+
+    public function scopeSimplify($query)
+    {
+        return $query->select('id', 'name');
+    }
 }

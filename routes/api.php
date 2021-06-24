@@ -7,6 +7,7 @@ use App\Http\Controllers\BackofficePermissionController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\Exhibitions\CategoryController as ExhibitionCategoryController;
+use App\Http\Controllers\Exhibitions\PopupController;
 use App\Http\Controllers\InquiryAnswerController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\BackofficeMenuController;
@@ -247,7 +248,16 @@ Route::group([
      * 전시관리
      */
     Route::group(['prefix' => 'exhibition'], function () {
+        // 전시관리 카테고리
         Route::resource('/category', ExhibitionCategoryController::class)->middleware('chkAccess:backoffice');
+
+        // 팝업관리
+        Route::resource('/popup', PopupController::class, [
+            'only' => ['store', 'update', 'destroy']
+        ])->middleware('chkAccess:backoffice');
+        Route::resource('/popup', PopupController::class, [
+            'only' => ['index', 'show']
+        ]);
     });
 
     /**
