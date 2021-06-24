@@ -26,9 +26,7 @@ class UpdateRequest extends FormRequest
         return [
             'code' => ['prohibited'],
             'name' => ['required_without_all:enable,title,content', 'string'],
-            'enable' => ['required_without_all:name,title,content', 'boolean'],
             'title' => ['required_without_all:name,enable,content', 'string'],
-            'content' => ['required_without_all:name,enable,title', 'string'],
         ];
     }
 }

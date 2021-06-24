@@ -29,9 +29,7 @@ class CreateRequest extends FormRequest
                 return $q->where('deleted_at', NULL);
             })],
             'name' => ['required'],
-            'enable' => ['nullable', 'boolean'],
             'title' => ['required'],
-            'content' => ['required'],
         ];
     }
 }
