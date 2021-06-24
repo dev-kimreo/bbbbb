@@ -22,7 +22,6 @@ class EmailTemplateController extends Controller
         $this->mailTemplate = $mailTemplate;
     }
 
-
     /**
      * @OA\Post(
      *      path="/v1/email-template",
@@ -36,9 +35,7 @@ class EmailTemplateController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="code", type="string", example="USER_REGISTED", description="메일 템플릿 코드"),
      *              @OA\Property(property="name", type="string", example="[회원] 회원가입 완료 메일", description="메일 템플릿 명"),
-     *              @OA\Property(property="enable", type="boolean", example=1, description="사용 여부<br/>true:사용<br/>false:미사용"),
      *              @OA\Property(property="title", type="string", example="{{$name}}님의 가입을 축하합니다.", description="메일 제목"),
-     *              @OA\Property(property="content", type="string", example="", description="메일 내용" ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -202,9 +199,7 @@ class EmailTemplateController extends Controller
      *          description="",
      *          @OA\JsonContent(
      *              @OA\Property(property="name", type="string", example="[회원] 회원가입 완료 메일", description="메일 템플릿 명"),
-     *              @OA\Property(property="enable", type="boolean", example=1, description="사용 여부<br/>true:사용<br/>false:미사용"),
      *              @OA\Property(property="title", type="string", example="{{$name}}님의 가입을 축하합니다.", description="메일 제목"),
-     *              @OA\Property(property="content", type="string", example="", description="메일 내용" ),
      *          ),
      *      ),
      *      @OA\Response(

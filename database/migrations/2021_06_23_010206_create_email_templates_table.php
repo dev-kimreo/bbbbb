@@ -20,8 +20,8 @@ class CreateEmailTemplatesTable extends Migration
             $table->string('code', 64);
             $table->string('name', 256);
             $table->boolean('enable');
+            $table->boolean('ignore_agree')->default(1);
             $table->string('title', 256);
-            $table->text('content');
             $table->timestamps();
             $table->softDeletes();
         });

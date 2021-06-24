@@ -2,12 +2,13 @@
 
 namespace App\Listeners;
 
-use App\Jobs\SendMail;
+use App\Mail\QpickMailSender;
 use App\Models\SignedCode;
 use App\Models\UserLoginLog;
 use Carbon\Carbon;
 use Config;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\Mail;
 use URL;
 
 class MemberEventSubscriber
@@ -40,23 +41,17 @@ class MemberEventSubscriber
             preg_match('/signature=(.*)/', $verifyBeUrl, $match);
 
             $data = array(
-                'verification' => [
-                    'name' => $this->verifyKey,
-                    'no' => $event->user->no,
-                    'email' => $event->user->email,
-                    'sign' => $match[1]
-                ],
-                'user' => $event->user->toArray(),
-                'mail' => [
-                    'view' => 'emails.welcome',
-                    'subject' => '인증 메일입니다.',
-                    'data' => [
-                        'name' => $event->user->name,
-                        'url' => $verifyUrl
-                    ]
-                ]
+                'url' => $verifyUrl
             );
-            SendMail::dispatch($data);
+
+            Mail::to($event->user)->send(new QpickMailSender('Users.EmailVerification', $event->user, $data));
+
+            // 고유 생성 sign 키 저장
+            $signedModel = New SignedCode;
+            $signedModel->user_id = $event->user->id;
+            $signedModel->hash = sha1($event->user->email);
+            $signedModel->sign = $match[1];
+            $signedModel->save();
 
             return true;
         } else {

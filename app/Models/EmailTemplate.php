@@ -17,9 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *     @OA\Property(property="userId", type="integer", example=1, description="작성한 관리자의 회원 고유번호"),
  *     @OA\Property(property="code", type="string", example="USER_REGISTED", description="메일 템플릿 코드"),
  *     @OA\Property(property="name", type="string", example="[회원] 회원가입 완료 메일", description="메일 템플릿 명"),
- *     @OA\Property(property="enable", type="boolean", example=1, description="사용 여부<br/>true:사용<br/>false:미사용"),
  *     @OA\Property(property="title", type="string", example="{{$name}}님의 가입을 축하합니다.", description="메일 제목"),
- *     @OA\Property(property="content", type="string", example="", description="메일 내용" ),
  *     @OA\Property(property="createdAt", type="datetime", example="2021-04-08T07:04:52+00:00", description="작성일자" ),
  *     @OA\Property(property="updatedAt", type="datetime", example="2021-04-08T07:57:55+00:00", description="수정일자" ),
  *     @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply"),
@@ -32,9 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *     @OA\Property(property="userId", type="integer", example=1, description="작성한 관리자의 회원 고유번호"),
  *     @OA\Property(property="code", type="string", example="USER_REGISTED", description="메일 템플릿 코드"),
  *     @OA\Property(property="name", type="string", example="[회원] 회원가입 완료 메일", description="메일 템플릿 명"),
- *     @OA\Property(property="enable", type="boolean", example=1, description="사용 여부<br/>true:사용<br/>false:미사용"),
  *     @OA\Property(property="title", type="string", example="{{$name}}님의 가입을 축하합니다.", description="메일 제목"),
- *     @OA\Property(property="content", type="string", example="", description="메일 내용" ),
  *     @OA\Property(property="createdAt", type="datetime", example="2021-04-08T07:04:52+00:00", description="작성일자" ),
  *     @OA\Property(property="updatedAt", type="datetime", example="2021-04-08T07:57:55+00:00", description="수정일자" ),
  *     @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply"),
@@ -46,8 +42,8 @@ class EmailTemplate extends Model
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
     protected $appends = [];
-    protected $fillable = ['code', 'user_id', 'name', 'enable', 'title', 'content'];
-    protected $hidden = ['deleted_at'];
+    protected $fillable = ['code', 'user_id', 'name', 'title'];
+    protected $hidden = ['enable', 'ignore_agree', 'deleted_at'];
     protected $casts = [
         'enable' => 'boolean'
     ];

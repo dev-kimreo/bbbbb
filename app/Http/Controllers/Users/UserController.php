@@ -18,9 +18,9 @@ use App\Http\Requests\Members\ShowRequest;
 use App\Http\Requests\Members\StoreRequest;
 use App\Http\Requests\Members\UpdateRequest;
 use App\Http\Requests\Users\LoginLogRequest;
-use App\Jobs\SendMail;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
+use App\Mail\QpickMailSender;
 use App\Models\SignedCode;
 use App\Models\User;
 use App\Models\UserLoginLog;
@@ -34,6 +34,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Mail;
 use Password;
 
 class UserController extends Controller
@@ -674,22 +675,12 @@ class UserController extends Controller
         $verifyToken = Password::createToken($member);
         $verifyUrl = config('services.qpick.domain') . config('services.qpick.verifyPasswordPath') . '?token=' . $verifyToken . "&email=" . $request->input('email');
 
-        $member = $member->toArray();
-
         // 메일 발송
         $data = array(
-            'user' => $member,
-            'mail' => [
-                'view' => 'emails.member.verifyPassword',
-                'subject' => '비밀번호 인증 메일입니다.',
-                'data' => [
-                    'name' => $member['name'],
-                    'url' => $verifyUrl
-                ]
-            ]
+            'url' => $verifyUrl
         );
 
-        SendMail::dispatch($data);
+        Mail::to($member)->send(new QpickMailSender('Users.VerifyPassword', $member, $data));
 
         // response
         return response()->noContent();
