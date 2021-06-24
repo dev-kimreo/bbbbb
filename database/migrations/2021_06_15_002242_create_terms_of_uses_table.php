@@ -19,7 +19,7 @@ class CreateTermsOfUsesTable extends Migration
             $table->foreignId('user_id')->constrained();
             $table->string('type', 32);
             $table->string('title', 256);
-            $table->timestamp('started_at');
+            $table->timestamp('started_at')->nullable();
             $table->text('history');
             $table->timestamps();
             $table->softDeletes();
