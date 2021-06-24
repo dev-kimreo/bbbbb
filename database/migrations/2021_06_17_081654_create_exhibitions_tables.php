@@ -26,7 +26,9 @@ class CreateExhibitionsTables extends Migration
             $table->foreignId('popup_id')->constrained();
             $table->enum('device', ['pc', 'mobile']);
             $table->text('contents');
-            // No timestamps, no soft deletes
+            // No timestamps
+            $table->softDeletes();
+            $table->unique(['popup_id', 'device']);
         });
 
         Schema::create('banners', function (Blueprint $table) {
@@ -44,16 +46,19 @@ class CreateExhibitionsTables extends Migration
             $table->id();
             $table->foreignId('banner_id')->constrained();
             $table->enum('device', ['pc', 'mobile']);
-            // No timestamps, no soft deletes
+            // No timestamps
+            $table->softDeletes();
+            $table->unique(['banner_id', 'device']);
         });
 
         Schema::create('exhibitions', function (Blueprint $table) {
             $table->id();
             $table->morphs('exhibitable');
             $table->foreignId('exhibition_category_id');
-            $table->timestamp('started_at');
-            $table->timestamp('ended_at');
-            $table->enum('target_user', ['all', 'designate', 'associate', 'regular']);
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('ended_at')->nullable();
+            $table->string('target_opt');
+            $table->json('target_grade')->nullable();
             $table->unsignedSmallInteger('sort')->default(999);
             $table->boolean('visible')->default('1');
             $table->timestamps();
@@ -76,7 +81,8 @@ class CreateExhibitionsTables extends Migration
             $table->id();
             $table->foreignId('exhibition_id');
             $table->foreignId('user_id');
-            // No timestamps, no soft deletes
+            // No timestamps
+            $table->softDeletes();
         });
     }
 
