@@ -65,9 +65,9 @@ class PopupController extends Controller
             });
         }
 
-        if (is_array($s = $request->input('targets'))) {
+        if (is_array($s = $request->input('target_opt'))) {
             $popup->whereHas('exhibition', function ($q) use ($s) {
-                $q->whereJsonContains('targets', $s);
+                $q->whereJsonContains('target_opt', $s);
             });
         }
 
@@ -116,7 +116,9 @@ class PopupController extends Controller
 
         if (is_array($request->input('contents'))) {
             foreach ($request->input('contents') ?? [] as $k => $v) {
-                $popup->contents()->create(['device' => $k, 'contents' => $v]);
+                if ($v) {
+                    $popup->contents()->create(['device' => $k, 'contents' => $v]);
+                }
             }
         }
 
@@ -138,14 +140,14 @@ class PopupController extends Controller
      * Update the specified resource in storage.
      *
      * @param UpdateRequest $request
-     * @param $popup_id
+     * @param int $popup_id
      * @return JsonResponse
      */
-    public function update(UpdateRequest $request, $popup_id): JsonResponse
+    public function update(UpdateRequest $request, int $popup_id): JsonResponse
     {
         $popup = Popup::findOrFail($popup_id);
         $popup->update($request->all());
-        $popup->exhibition()->first()->update($request->all());
+        $popup->exhibition->update($request->all());
 
         // Target User Update
         if (($request->input('target_opt') ?? $popup->exhibition->target_opt) == 'designate') {
@@ -176,10 +178,16 @@ class PopupController extends Controller
 
         if (is_array($request->input('contents'))) {
             foreach ($request->input('contents') ?? [] as $k => $v) {
-                PopupDeviceContent::updateOrCreate(
-                    ['popup_id' => $popup_id, 'device' => $k],
-                    ['contents' => $v]
-                );
+                if ($v) {
+                    PopupDeviceContent::withTrashed()
+                        ->updateOrCreate(['popup_id' => $popup_id, 'device' => $k], ['contents' => $v])
+                        ->restore();
+                } else {
+                    PopupDeviceContent::where('popup_id', $popup_id)
+                        ->where('device', $k)
+                        ->first()
+                        ->delete();
+                }
             }
         }
 
@@ -189,10 +197,10 @@ class PopupController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param $popup_id
+     * @param int $popup_id
      * @return Response
      */
-    public function destroy($popup_id): Response
+    public function destroy(int $popup_id): Response
     {
         Popup::findOrFail($popup_id)->delete();
         return response()->noContent();

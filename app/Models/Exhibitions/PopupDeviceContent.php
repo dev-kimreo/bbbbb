@@ -13,7 +13,7 @@ class PopupDeviceContent extends Model
 
     public $timestamps = false;
     protected $fillable = ['popup_id', 'device', 'contents'];
-    protected $hidden = ['id', 'popup_id', 'deleted_at'];
+    protected $hidden = ['popup_id', 'deleted_at'];
     protected $casts = [];
     protected $appends = [];
 
