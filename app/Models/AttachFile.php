@@ -66,7 +66,8 @@ class AttachFile extends Model
     protected $appends = [
     ];
 
-    public function scopeTempType($q) {
+    public function scopeTempType($q)
+    {
         return $q->where('attachable_type', 'temp');
     }
 
