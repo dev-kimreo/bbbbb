@@ -37,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
             'tooltip' => 'App\Models\Tooltip',
             'terms_of_use' => 'App\Models\TermsOfUse',
             'user' => 'App\Models\User',
+            'email_template' => 'App\Models\EmailTemplate',
         ]);
     }
 }

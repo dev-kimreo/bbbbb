@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTermsOfUsesTable extends Migration
+class CreateEmailTemplatesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,15 @@ class CreateTermsOfUsesTable extends Migration
      */
     public function up()
     {
-        Schema::create('terms_of_uses', function (Blueprint $table) {
+        Schema::create('email_templates', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->string('type', 32);
+            $table->string('code', 64);
+            $table->string('name', 256);
+            $table->boolean('enable');
+            $table->boolean('ignore_agree')->default(1);
             $table->string('title', 256);
-            $table->timestamp('started_at')->nullable();
-            $table->text('history');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -33,6 +34,6 @@ class CreateTermsOfUsesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('terms_of_uses');
+        Schema::dropIfExists('email_templates');
     }
 }

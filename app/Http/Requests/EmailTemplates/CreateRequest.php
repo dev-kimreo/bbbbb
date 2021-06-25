@@ -1,9 +1,7 @@
 <?php
 
-namespace App\Http\Requests\TermsOfUse;
+namespace App\Http\Requests\EmailTemplates;
 
-use App\Models\TermsOfUse;
-use App\Rules\ArrayKeysInIso639_1;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -14,7 +12,7 @@ class CreateRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -24,14 +22,14 @@ class CreateRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'type' => ['required', Rule::in(TermsOfUse::$types)],
+            'code' => ['required', Rule::unique('App\Models\EmailTemplate', 'code')->where(function ($q){
+                return $q->where('deleted_at', NULL);
+            })],
+            'name' => ['required'],
             'title' => ['required'],
-            'content' => ['required', 'array', new ArrayKeysInIso639_1],
-            'started_at' => ['required', 'date'],
-            'history' => ['sometimes'],
         ];
     }
 }

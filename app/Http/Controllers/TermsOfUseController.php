@@ -129,7 +129,7 @@ class TermsOfUseController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="type", type="string", example="이용약관", description="구분<br/>이용약관, 개인정보처리방침"),
      *              @OA\Property(property="title", type="string", example="전시 제목", description="전시 제목"),
-     *              @OA\Property(property="startAt", type="date(Y-m-d H:i:s)", example="2021-06-01 09:00:00", description="전시 시작일"),
+     *              @OA\Property(property="startedAt", type="date(Y-m-d H:i:s)", example="2021-06-01 09:00:00", description="전시 시작일"),
      *              @OA\Property(property="history", type="string", example="변경내역", description="변경내역"),
      *              @OA\Property(property="content[ko]", type="string", example="한국어로 입력된 툴팁 내용", description="한국어로 입력된 내용"),
      *              @OA\Property(property="content[en]", type="string", example="Contents written in English", description="영어로 입력된 내용"),
@@ -174,7 +174,7 @@ class TermsOfUseController extends Controller
             array_merge(
                 $request->all(),
                 [
-                    'start_at' => Carbon::parse($request->input('start_at')),
+                    'started_at' => Carbon::parse($request->input('started_at')),
                     'user_id' => Auth::id()
                 ]
             )
@@ -259,7 +259,7 @@ class TermsOfUseController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="type", type="string", example="이용약관", description="구분<br/>이용약관, 개인정보처리방침"),
      *              @OA\Property(property="title", type="string", example="전시 제목", description="전시 제목"),
-     *              @OA\Property(property="startAt", type="date(Y-m-d H:i:s)", example="2021-06-01 09:00:00", description="전시 시작일"),
+     *              @OA\Property(property="startedAt", type="date(Y-m-d H:i:s)", example="2021-06-01 09:00:00", description="전시 시작일"),
      *              @OA\Property(property="history", type="string", example="변경내역", description="변경내역"),
      *              @OA\Property(property="content[ko]", type="string", example="한국어로 입력된 툴팁 내용", description="한국어로 입력된 내용"),
      *              @OA\Property(property="content[en]", type="string", example="Contents written in English", description="영어로 입력된 내용"),
@@ -301,6 +301,7 @@ class TermsOfUseController extends Controller
      * @param UpdateRequest $request
      * @param int $id
      * @return JsonResponse
+     * @throws QpickHttpException
      */
     public function update(UpdateRequest $request, int $id): JsonResponse
     {
@@ -308,8 +309,8 @@ class TermsOfUseController extends Controller
         $terms = $this->termsOfUse::with('translation')->findOrFail($id);
 
         // 전시시작일 이후일 경우 수정 불가
-        if (Carbon::now()->format('c') >= $terms->start_at->format('c')) {
-            throw new QpickHttpException(422, 'terms.disable.modify.over.start_at');
+        if (Carbon::now()->format('c') >= $terms->started_at->format('c')) {
+            throw new QpickHttpException(422, 'terms.disable.modify.over.started_at');
         }
 
         $terms->update($request->all());
@@ -374,6 +375,7 @@ class TermsOfUseController extends Controller
      *
      * @param int $id
      * @return Response
+     * @throws QpickHttpException
      */
     public function destroy(int $id): Response
     {
@@ -381,8 +383,8 @@ class TermsOfUseController extends Controller
         $terms = $this->termsOfUse::findOrFail($id);
 
         // 전시시작일 이후일 경우 삭제 불가
-        if (Carbon::now()->format('c') >= $terms->start_at->format('c')) {
-            throw new QpickHttpException(422, 'terms.disable.modify.over.start_at');
+        if (Carbon::now()->format('c') >= $terms->started_at->format('c')) {
+            throw new QpickHttpException(422, 'terms.disable.modify.over.started_at');
         }
 
         $terms->delete();

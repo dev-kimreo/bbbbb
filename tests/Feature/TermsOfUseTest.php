@@ -47,14 +47,14 @@ class TermsOfUseTest extends TestCase
         ];
     }
 
-    protected function createReq($type = null, $startAt = null)
+    protected function createReq($type = null, $startedAt = null)
     {
         $this->createResource['type'] = $type ?? '이용약관';
-        $this->createResource['startAt'] = $startAt ?? $this->faker->date('Y-m-d H:i:s');
+        $this->createResource['startedAt'] = $startedAt ?? $this->faker->date('Y-m-d H:i:s');
         return $this->createResource;
     }
 
-    protected function createTermsOfUse($user, $type = null, $startAt = null)
+    protected function createTermsOfUse($user, $type = null, $startedAt = null)
     {
         $res = [];
         $res['user_id'] = $user->id;
@@ -63,8 +63,8 @@ class TermsOfUseTest extends TestCase
             $res['type'] = $type;
         }
 
-        if ($startAt) {
-            $res['start_at'] = $startAt;
+        if ($startedAt) {
+            $res['started_at'] = $startedAt;
         }
 
         $terms = TermsOfUse::factory()
@@ -295,14 +295,14 @@ class TermsOfUseTest extends TestCase
         $response->assertCreated();
     }
 
-    public function testUpdateOverStartAtByBackoffice()
+    public function testUpdateOverStartedAtByBackoffice()
     {
         $user = $this->actingAsQpickUser('backoffice');
         $terms = $this->createTermsOfUse($user, '이용약관', Carbon::now()->addWeeks(-1));
 
         $response = $this->requestQpickApi('patch', '/v1/terms-of-use/' . $terms->id, $this->updateResource);
 
-        // Start_at 를 지나 수정이 불가
+        // Started_at 를 지나 수정이 불가
         $response->assertStatus(422);
     }
 
@@ -349,14 +349,14 @@ class TermsOfUseTest extends TestCase
         $response->assertNoContent();
     }
 
-    public function testDestroyOverStartAtByBackoffice()
+    public function testDestroyOverStartedAtByBackoffice()
     {
         $user = $this->actingAsQpickUser('backoffice');
         $terms = $this->createTermsOfUse($user, '이용약관', Carbon::now()->addWeeks(-1));
 
         $response = $this->requestQpickApi('delete', '/v1/terms-of-use/' . $terms->id);
 
-        // Start_at 를 지나 수정이 불가
+        // Started_at 를 지나 수정이 불가
         $response->assertStatus(422);
     }
 

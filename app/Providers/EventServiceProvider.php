@@ -8,6 +8,7 @@ use App\Events\Backoffice\DataUpdated;
 use App\Listeners\RemainBackofficeLog;
 use App\Models\Board;
 use App\Models\InquiryAnswer;
+use App\Models\EmailTemplate;
 use App\Models\Post;
 use App\Models\TermsOfUse;
 use App\Models\Tooltip;
@@ -15,8 +16,9 @@ use App\Models\User;
 use App\Models\UserAdvAgree;
 use App\Observers\BoardObserver;
 use App\Observers\InquiryAnswerObserver;
+use App\Observers\EmailTemplateObserver;
 use App\Observers\PostObserver;
-use App\Observers\TermsOfUSeObserver;
+use App\Observers\TermsOfUseObserver;
 use App\Observers\TooltipObserver;
 use App\Observers\UserAdvAgreeObserver;
 use App\Observers\UserObserver;
@@ -58,10 +60,11 @@ class EventServiceProvider extends ServiceProvider
         Board::observe(BoardObserver::class);
         Post::observe(PostObserver::class);
         Tooltip::observe(TooltipObserver::class);
-        TermsOfUse::observe(TermsOfUSeObserver::class);
+        TermsOfUse::observe(TermsOfUseObserver::class);
         InquiryAnswer::observe(InquiryAnswerObserver::class);
         User::observe(UserObserver::class);
         UserAdvAgree::observe(UserAdvAgreeObserver::class);
+        EmailTemplate::observe(EmailTemplateObserver::class);
     }
 
     protected $subscribe = [

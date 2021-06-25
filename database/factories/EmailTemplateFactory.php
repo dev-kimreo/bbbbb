@@ -2,19 +2,19 @@
 
 namespace Database\Factories;
 
-use App\Models\TermsOfUse;
+use App\Models\EmailTemplate;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Str;
 
-class TermsOfUseFactory extends Factory
+class EmailTemplateFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = TermsOfUse::class;
+    protected $model = EmailTemplate::class;
 
     /**
      * Define the model's default state.
@@ -25,10 +25,11 @@ class TermsOfUseFactory extends Factory
     {
         return [
             'user_id' => 0,
-            'type' => collect(TermsOfUse::$types)->random(1)->pop(),
+            'code' => $this->faker->realText(16),
+            'name' => $this->faker->realText(16),
+            'enable' => 1,
+            'ignore_agree' => 1,
             'title' => $this->faker->realText(16),
-            'started_at' => Carbon::now()->addWeeks(),
-            'history' => $this->faker->realText(16),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];

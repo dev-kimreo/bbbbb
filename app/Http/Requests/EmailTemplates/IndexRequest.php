@@ -1,11 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Members;
+namespace App\Http\Requests\EmailTemplates;
 
-use Auth;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
 
 class IndexRequest extends FormRequest
 {
@@ -14,7 +11,7 @@ class IndexRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -24,11 +21,10 @@ class IndexRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'grade.*' => 'nullable|integer',
+            'sort_by' => ['nullable', 'string'],
         ];
     }
-
 }

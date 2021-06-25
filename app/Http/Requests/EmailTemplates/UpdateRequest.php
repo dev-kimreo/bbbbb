@@ -1,11 +1,8 @@
 <?php
 
-namespace App\Http\Requests\TermsOfUse;
+namespace App\Http\Requests\EmailTemplates;
 
-use App\Models\TermsOfUse;
-use App\Rules\ArrayKeysInIso639_1;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateRequest extends FormRequest
 {
@@ -14,7 +11,7 @@ class UpdateRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -24,11 +21,12 @@ class UpdateRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'user_id' => ['prohibited'],
-            'content' => ['sometimes', 'array', new ArrayKeysInIso639_1],
+            'code' => ['prohibited'],
+            'name' => ['required_without_all:enable,title,content', 'string'],
+            'title' => ['required_without_all:name,enable,content', 'string'],
         ];
     }
 }
