@@ -20,7 +20,46 @@ use Illuminate\Support\Collection;
 class PopupController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *      path="/v1/exhibition/popup",
+     *      summary="팝업 목록",
+     *      description="팝업 목록",
+     *      operationId="exhibitionPopupList",
+     *      tags={"전시관리"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="page", type="integer", example=1, default=1, description="페이지"),
+     *              @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
+     *              @OA\Property(property="category", type="string", example="헬프센터", description="카테고리 이름"),
+     *              @OA\Property(property="title", type="string", example="7월", description="팝업 제목"),
+     *              @OA\Property(property="startDate", type="date(Y-m-d)", example="2021-07-01", description="전시기간 검색 시작일"),
+     *              @OA\Property(property="endDate", type="date(Y-m-d)", example="2021-07-01", description="전시기간 검색 종료일"),
+     *              @OA\Property(property="device", type="string", example="both", description="디바이스 선택<br />both:양쪽 모두 선택된 팝업<br />pc:PC만 선택된 팝업<br />mobile:모바일만 선택된 팝업"),
+     *              @OA\Property(property="targetOpt", type="string", example="all", description="전시 타겟설정<br />all:모든 회원<br />grade:회원구분<br />designate:특정회원"),
+     *              @OA\Property(property="visible", type="boolean", example=1, description="전시여부<br />1:보임으로 설정한 팝업만 검색<br />0:숨김으로 설정한 팝업만 검색"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination"),
+     *              @OA\Property(property="list", type="array",
+     *                  @OA\Items(type="object", ref="#/components/schemas/ExhibitionPopup")
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "davinci_auth":{},
+     *          "admin_auth":{}
+     *      }}
+     *  )
      *
      * @param IndexRequest $request
      * @return Collection
@@ -98,7 +137,49 @@ class PopupController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *      path="/v1/exhibition/popup",
+     *      summary="팝업 생성",
+     *      description="팝업 생성",
+     *      operationId="exhibitionPopupCreate",
+     *      tags={"전시관리"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="exhibition_category_id", type="integer", example=5, description="전시관리 카테고리 고유번호(PK)"),
+     *              @OA\Property(property="title", type="string", example="7월 광고팝업", description="팝업 제목"),
+     *              @OA\Property(property="startedAt", type="string", format="date-time", description="전시기간 시작일자"),
+     *              @OA\Property(property="endedAt", type="string", format="date-time", description="전시기간 종료일자"),
+     *              @OA\Property(property="sort", type="integer", example=999, description="전시순서"),
+     *              @OA\Property(property="visible", type="boolean", example=true, description="전시여부<br />true:노출<br />false:숨김"),
+     *              @OA\Property(property="targetOpt", type="string", example="grade", description="전시 타겟설정<br />all:모든 회원<br />grade:회원구분<br />designate:특정회원"),
+     *              @OA\Property(property="targetGrade[]", type="array of string", example="associate", description="타겟설정을 위한 회원등급, 타겟설정이 [회원구분]인 경우에 입력<br />associate:준회원<br />regular:정회원"),
+     *              @OA\Property(property="targetUsers[]", type="array of integer", example="74", description="타겟설정을 위한 회원 고유번호(PK), 타겟설정이 [회원구분]인 경우에 입력"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/ExhibitionPopup")
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="unauthenticated"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="not found"
+     *      ),
+     *      security={{
+     *          "davinci_auth":{},
+     *          "admin_auth":{}
+     *      }}
+     *  )
      *
      * @param CreateRequest $request
      * @return JsonResponse
@@ -126,7 +207,30 @@ class PopupController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *      path="/v1/exhibition/popup/{popup_id}",
+     *      summary="팝업 상세",
+     *      description="팝업 상세",
+     *      operationId="exhibitionPopupShow",
+     *      tags={"전시관리"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description=""
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/ExhibitionPopup")
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="not found"
+     *      ),
+     *      security={{
+     *          "davinci_auth":{},
+     *          "admin_auth":{}
+     *      }}
+     *  )
      *
      * @param $popup_id
      * @return Collection
@@ -137,7 +241,52 @@ class PopupController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Patch(
+     *      path="/v1/exhibition/popup/{popup_id}",
+     *      summary="팝업 수정",
+     *      description="팝업 수정",
+     *      operationId="exhibitionPopupEdit",
+     *      tags={"전시관리"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="exhibition_category_id", type="integer", example=5, description="전시관리 카테고리 고유번호(PK)"),
+     *              @OA\Property(property="title", type="string", example="7월 광고팝업", description="팝업 제목"),
+     *              @OA\Property(property="url", type="url", example="https://help.qpick.com/board/1", description="링크 URL"),
+     *              @OA\Property(property="gaCode", type="url", example="27bf63c92ced856d1b931162a15383e3", description="구글 애널리틱스 트래킹 코드"),
+     *              @OA\Property(property="memo", type="string", example="7월 회원가입 이벤트 광고팝업", description="팝업 설명"),
+     *              @OA\Property(property="startedAt", type="string", format="date-time", description="전시기간 시작일자"),
+     *              @OA\Property(property="endedAt", type="string", format="date-time", description="전시기간 종료일자"),
+     *              @OA\Property(property="sort", type="integer", example=999, description="전시순서"),
+     *              @OA\Property(property="visible", type="boolean", example=true, description="전시여부<br />true:노출<br />false:숨김"),
+     *              @OA\Property(property="targetOpt", type="string", example="grade", description="전시 타겟설정<br />all:모든 회원<br />grade:회원구분<br />designate:특정회원"),
+     *              @OA\Property(property="targetGrade[]", type="array of string", example="associate", description="타겟설정을 위한 회원등급, 타겟설정이 [회원구분]인 경우에 입력<br />associate:준회원<br />regular:정회원"),
+     *              @OA\Property(property="targetUsers[]", type="array of integer", example="74", description="타겟설정을 위한 회원 고유번호(PK), 타겟설정이 [회원구분]인 경우에 입력"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/ExhibitionPopup")
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="unauthenticated"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="not found"
+     *      ),
+     *      security={{
+     *          "davinci_auth":{},
+     *          "admin_auth":{}
+     *      }}
+     *  )
      *
      * @param UpdateRequest $request
      * @param int $popup_id
@@ -195,7 +344,32 @@ class PopupController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\delete(
+     *      path="/v1/exhibition/popup/{popup_id}",
+     *      summary="팝업 삭제",
+     *      description="팝업 삭제",
+     *      operationId="exhibitionPopupDelete",
+     *      tags={"전시관리"},
+     *      @OA\Response(
+     *          response=204,
+     *          description="deleted"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="not found"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "admin_auth":{}
+     *      }}
+     *  )
      *
      * @param int $popup_id
      * @return Response
