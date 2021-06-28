@@ -250,7 +250,8 @@ Route::group([
      */
     Route::group(['prefix' => 'exhibition'], function () {
         // 전시관리 카테고리
-        Route::resource('/category', ExhibitionCategoryController::class)->middleware('chkAccess:backoffice');
+        Route::resource('/category', ExhibitionCategoryController::class)
+            ->middleware('chkAccess:backoffice');
 
         // 팝업관리
         Route::resource('/popup', PopupController::class, [

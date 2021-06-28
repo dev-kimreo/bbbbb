@@ -165,9 +165,9 @@ class CategoryController extends Controller
      *  )
      *
      * @param int $category_id
-     * @return Response
+     * @return Collection
      */
-    public function show(int $category_id): Response
+    public function show(int $category_id): Collection
     {
         return $this->getOne($category_id);
     }
@@ -269,6 +269,6 @@ class CategoryController extends Controller
 
     protected function getOne(int $category_id)
     {
-        return ExhibitionCategory::findOrFail($category_id);
+        return collect(ExhibitionCategory::findOrFail($category_id));
     }
 }
