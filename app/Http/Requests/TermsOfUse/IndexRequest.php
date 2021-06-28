@@ -26,6 +26,7 @@ class IndexRequest extends FormRequest
     public function rules()
     {
         return [
+            'service' => ['required', Rule::in(array_keys(TermsOfUse::$services))],
             'type' => ['required', Rule::in(array_keys(TermsOfUse::$types))],
         ];
     }

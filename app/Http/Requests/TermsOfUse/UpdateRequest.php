@@ -28,6 +28,8 @@ class UpdateRequest extends FormRequest
     {
         return [
             'user_id' => ['prohibited'],
+            'service' => ['prohibited'],
+            'type' => ['prohibited'],
             'content' => ['sometimes', 'array', new ArrayKeysInIso639_1],
         ];
     }

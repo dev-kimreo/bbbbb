@@ -27,8 +27,8 @@ class CreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'type' => ['required', Rule::in(array_keys(TermsOfUse::$types))],
             'service' => ['required', Rule::in(array_keys(TermsOfUse::$services))],
+            'type' => ['required', Rule::in(array_keys(TermsOfUse::$types))],
             'title' => ['required'],
             'content' => ['required', 'array', new ArrayKeysInIso639_1],
             'started_at' => ['required', 'date'],

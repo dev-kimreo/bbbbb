@@ -76,6 +76,10 @@ class TermsOfUseController extends Controller
 
         $terms = $this->termsOfUse->with($with);
 
+        if ($s = $request->input('service')) {
+            $terms->where('service', $s);
+        }
+
         if ($s = $request->input('type')) {
             $terms->where('type', $s);
         }
@@ -315,7 +319,8 @@ class TermsOfUseController extends Controller
             throw new QpickHttpException(422, 'terms.disable.modify.over.started_at');
         }
 
-        $terms->update($request->all());
+        $terms->update($request->except(['service', 'type']));
+
 
         // update the translation
         if ($translation = $terms->translation()->first()) {
