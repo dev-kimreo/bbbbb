@@ -43,25 +43,26 @@ class TermsOfUseTest extends TestCase
         ];
 
         $this->searchResource = [
-            'type' => '이용약관'
+            'service' => collect(array_keys(TermsOfUse::$services))->random(1)->pop(),
+            'type' => collect(array_keys(TermsOfUse::$types))->random(1)->pop(),
         ];
     }
 
     protected function createReq($type = null, $startedAt = null)
     {
-        $this->createResource['type'] = $type ?? '이용약관';
-        $this->createResource['startedAt'] = $startedAt ?? $this->faker->date('Y-m-d H:i:s');
+        $this->createResource['service'] = collect(array_keys(TermsOfUse::$services))->random(1)->pop();
+        $this->createResource['type'] = collect(array_keys(TermsOfUse::$types))->random(1)->pop();
+        $this->createResource['startedAt'] = $startedAt ?? Carbon::now()->addWeeks(1);
         return $this->createResource;
     }
 
-    protected function createTermsOfUse($user, $type = null, $startedAt = null)
+    protected function createTermsOfUse($user, $startedAt = null)
     {
         $res = [];
         $res['user_id'] = $user->id;
 
-        if ($type) {
-            $res['type'] = $type;
-        }
+        $res['service'] = collect(array_keys(TermsOfUse::$services))->random(1)->pop();
+        $res['type'] = collect(array_keys(TermsOfUse::$types))->random(1)->pop();
 
         if ($startedAt) {
             $res['started_at'] = $startedAt;
@@ -81,19 +82,13 @@ class TermsOfUseTest extends TestCase
     /**
      * Create
      */
-    public function testCreateTermsOfUseByGuest()
+    public function testCreateByGuest()
     {
         $response = $this->requestQpickApi('post', '/v1/terms-of-use', $this->createReq());
         $response->assertUnauthorized();
     }
 
-    public function testCreatePrivacyPolicyByGuest()
-    {
-        $response = $this->requestQpickApi('post', '/v1/terms-of-use', $this->createReq('개인정보처리방침'));
-        $response->assertUnauthorized();
-    }
-
-    public function testCreateTermsOfUseByAssociate()
+    public function testCreateByAssociate()
     {
         $this->actingAsQpickUser('associate');
 
@@ -101,15 +96,7 @@ class TermsOfUseTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function testCreatePrivacyPolicyByAssociate()
-    {
-        $this->actingAsQpickUser('associate');
-
-        $response = $this->requestQpickApi('post', '/v1/terms-of-use', $this->createReq('개인정보처리방침'));
-        $response->assertForbidden();
-    }
-
-    public function testCreateTermsOfUseByRegular()
+    public function testCreateByRegular()
     {
         $this->actingAsQpickUser('regular');
 
@@ -117,27 +104,11 @@ class TermsOfUseTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function testCreatePrivacyPolicyByRegular()
-    {
-        $this->actingAsQpickUser('regular');
-
-        $response = $this->requestQpickApi('post', '/v1/terms-of-use', $this->createReq('개인정보처리방침'));
-        $response->assertForbidden();
-    }
-
-    public function testCreateTermsOfUseByBackoffice()
+    public function testCreateByBackoffice()
     {
         $this->actingAsQpickUser('backoffice');
 
         $response = $this->requestQpickApi('post', '/v1/terms-of-use', $this->createReq());
-        $response->assertCreated();
-    }
-
-    public function testCreatePrivacyPolicyByBackoffice()
-    {
-        $this->actingAsQpickUser('backoffice');
-
-        $response = $this->requestQpickApi('post', '/v1/terms-of-use', $this->createReq('개인정보처리방침'));
         $response->assertCreated();
     }
 
@@ -187,21 +158,13 @@ class TermsOfUseTest extends TestCase
     /**
      * index
      */
-    public function testIndexTermsOfUseByGuest()
+    public function testIndexByGuest()
     {
         $response = $this->requestQpickApi('get', '/v1/terms-of-use?' . Arr::query($this->searchResource));
         $response->assertUnauthorized();
     }
 
-    public function testIndexPrivacyPolicyByGuest()
-    {
-        $this->searchResource['type'] = '개인정보처리방침';
-
-        $response = $this->requestQpickApi('get', '/v1/terms-of-use?' . Arr::query($this->searchResource));
-        $response->assertUnauthorized();
-    }
-
-    public function testIndexTermsOfUseByAssociate()
+    public function testIndexByAssociate()
     {
         $this->actingAsQpickUser('associate');
 
@@ -209,16 +172,7 @@ class TermsOfUseTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function testIndexPrivacyPolicyByAssociate()
-    {
-        $this->actingAsQpickUser('associate');
-        $this->searchResource['type'] = '개인정보처리방침';
-
-        $response = $this->requestQpickApi('get', '/v1/terms-of-use?' . Arr::query($this->searchResource));
-        $response->assertForbidden();
-    }
-
-    public function testIndexTermsOfUseByRegular()
+    public function testIndexByRegular()
     {
         $this->actingAsQpickUser('regular');
 
@@ -226,27 +180,9 @@ class TermsOfUseTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function testIndexPrivacyPolicyByRegular()
-    {
-        $this->actingAsQpickUser('regular');
-        $this->searchResource['type'] = '개인정보처리방침';
-
-        $response = $this->requestQpickApi('get', '/v1/terms-of-use?' . Arr::query($this->searchResource));
-        $response->assertForbidden();
-    }
-
-    public function testIndexTermsOfUseByBackoffice()
+    public function testIndexByBackoffice()
     {
         $this->actingAsQpickUser('backoffice');
-
-        $response = $this->requestQpickApi('get', '/v1/terms-of-use?' . Arr::query($this->searchResource));
-        $response->assertOk();
-    }
-
-    public function testIndexPrivacyPolicyByBackoffice()
-    {
-        $this->actingAsQpickUser('backoffice');
-        $this->searchResource['type'] = '개인정보처리방침';
 
         $response = $this->requestQpickApi('get', '/v1/terms-of-use?' . Arr::query($this->searchResource));
         $response->assertOk();
@@ -298,7 +234,7 @@ class TermsOfUseTest extends TestCase
     public function testUpdateOverStartedAtByBackoffice()
     {
         $user = $this->actingAsQpickUser('backoffice');
-        $terms = $this->createTermsOfUse($user, '이용약관', Carbon::now()->addWeeks(-1));
+        $terms = $this->createTermsOfUse($user, Carbon::now()->addWeeks(-1));
 
         $response = $this->requestQpickApi('patch', '/v1/terms-of-use/' . $terms->id, $this->updateResource);
 
@@ -352,7 +288,7 @@ class TermsOfUseTest extends TestCase
     public function testDestroyOverStartedAtByBackoffice()
     {
         $user = $this->actingAsQpickUser('backoffice');
-        $terms = $this->createTermsOfUse($user, '이용약관', Carbon::now()->addWeeks(-1));
+        $terms = $this->createTermsOfUse($user, Carbon::now()->addWeeks(-1));
 
         $response = $this->requestQpickApi('delete', '/v1/terms-of-use/' . $terms->id);
 
