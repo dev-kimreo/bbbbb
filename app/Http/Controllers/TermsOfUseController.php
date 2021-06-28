@@ -39,7 +39,8 @@ class TermsOfUseController extends Controller
      *              @OA\Property(property="page", type="integer", example=1, default=1, description="페이지"),
      *              @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
      *              @OA\Property(property="hasLang[]", type="string", example="en", description="언어구분 (다중입력 가능)"),
-     *              @OA\Property(property="type", type="string", example="이용약관", description="구분 (이용약관, 개인정보처리방침)"),
+     *              @OA\Property(property="service", type="string", example="qpick", description="서비스<br/>qpick:큐픽, partner:파트너센터"),
+     *              @OA\Property(property="type", type="string", example="termsOfUse", description="구분<br/>termsOfUse:이용약관, privacyPolicy:개인정보처리방침"),
      *              @OA\Property(property="sortBy", type="string", example="-id", description="정렬기준<br/>+:오름차순, -:내림차순" )
      *          ),
      *      ),
@@ -74,6 +75,10 @@ class TermsOfUseController extends Controller
         $with = ['translation', 'translation.translationContents'];
 
         $terms = $this->termsOfUse->with($with);
+
+        if ($s = $request->input('service')) {
+            $terms->where('service', $s);
+        }
 
         if ($s = $request->input('type')) {
             $terms->where('type', $s);
@@ -127,7 +132,8 @@ class TermsOfUseController extends Controller
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              @OA\Property(property="type", type="string", example="이용약관", description="구분<br/>이용약관, 개인정보처리방침"),
+     *              @OA\Property(property="service", type="string", example="qpick", description="서비스<br/>qpick:큐픽, partner:파트너센터"),
+     *              @OA\Property(property="type", type="string", example="termsOfUse", description="구분<br/>termsOfUse:이용약관, privacyPolicy:개인정보처리방침"),
      *              @OA\Property(property="title", type="string", example="전시 제목", description="전시 제목"),
      *              @OA\Property(property="startedAt", type="date(Y-m-d H:i:s)", example="2021-06-01 09:00:00", description="전시 시작일"),
      *              @OA\Property(property="history", type="string", example="변경내역", description="변경내역"),
@@ -257,7 +263,7 @@ class TermsOfUseController extends Controller
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              @OA\Property(property="type", type="string", example="이용약관", description="구분<br/>이용약관, 개인정보처리방침"),
+     *              @OA\Property(property="type", type="string", example="termsOfUse", description="구분<br/>termsOfUse:이용약관, privacyPolicy:개인정보처리방침"),
      *              @OA\Property(property="title", type="string", example="전시 제목", description="전시 제목"),
      *              @OA\Property(property="startedAt", type="date(Y-m-d H:i:s)", example="2021-06-01 09:00:00", description="전시 시작일"),
      *              @OA\Property(property="history", type="string", example="변경내역", description="변경내역"),
@@ -313,7 +319,8 @@ class TermsOfUseController extends Controller
             throw new QpickHttpException(422, 'terms.disable.modify.over.started_at');
         }
 
-        $terms->update($request->all());
+        $terms->update($request->except(['service', 'type']));
+
 
         // update the translation
         if ($translation = $terms->translation()->first()) {
@@ -335,7 +342,7 @@ class TermsOfUseController extends Controller
                     'lang' => $lang,
                     'value' => $value
                 ]);
-            };
+            }
         }
 
         // response
@@ -416,4 +423,69 @@ class TermsOfUseController extends Controller
         // return
         return collect($data);
     }
+
+
+    /**
+     * @OA\Get(
+     *      path="/v1/terms-of-use/type",
+     *      summary="이용약관&개인정보처리방침 타입 목록",
+     *      description="이용약관&개인정보처리방침 타입 목록",
+     *      operationId="termsOfUseTypeList",
+     *      tags={"이용약관&개인정보처리방침"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/TermsOfUseTypeList")
+     *              }
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "admin_auth":{}
+     *      }}
+     *  )
+     *
+     */
+    public function getTypeList(): array
+    {
+        return TermsOfUse::$types;
+    }
+
+
+    /**
+     * @OA\Get(
+     *      path="/v1/terms-of-use/service",
+     *      summary="이용약관&개인정보처리방침 서비스 목록",
+     *      description="이용약관&개인정보처리방침 서비스 목록",
+     *      operationId="termsOfUseServiceList",
+     *      tags={"이용약관&개인정보처리방침"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/TermsOfUseServiceList")
+     *              }
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "admin_auth":{}
+     *      }}
+     *  )
+     *
+     */
+    public function getServiceList(): array
+    {
+        return TermsOfUse::$services;
+    }
+
 }

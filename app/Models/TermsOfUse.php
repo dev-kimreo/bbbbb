@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- *  @OA\Schema(
+ * @OA\Schema(
  *     schema="TermsOfUse",
  *     @OA\Property(property="id", type="integer", example=23, description="이용약관&개인정보처리방침 고유번호"),
  *     @OA\Property(property="userId", type="integer", example=1, description="작성한 관리자의 회원 고유번호"),
@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *  )
  *
  *
- *  @OA\Schema(
+ * @OA\Schema(
  *     schema="TermsOfUseForList",
  *     @OA\Property(property="id", type="integer", example=1, description="이용약관&개인정보처리방침 고유번호"),
  *     @OA\Property(property="userId", type="integer", example=1, description="작성한 관리자의 회원 고유번호"),
@@ -41,16 +41,34 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *     @OA\Property(property="updatedAt", type="datetime", example="2021-04-08T07:57:55+00:00", description="수정일자" ),
  *     @OA\Property(property="lang", type="array", @OA\Items(example="en"), description="콘텐츠가 등록된 언어 목록" ),
  *  )
+ *
+ * @OA\Schema(
+ *     schema="TermsOfUseTypeList",
+ *     @OA\Property(property="termsOfUse", type="string", example="이용약관"),
+ *     @OA\Property(property="privacyPolicy", type="string", example="개인정보처리방침"),
+ * )
+ *
+ * @OA\Schema(
+ *     schema="TermsOfUseServiceList",
+ *     @OA\Property(property="qpick", type="string", example="큐픽 서비스"),
+ *     @OA\Property(property="partner", type="string", example="파트너센터"),
+ * )
  */
 class TermsOfUse extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
-    protected $fillable = ['user_id', 'type', 'title', 'started_at', 'history'];
+    protected $fillable = ['user_id', 'type', 'service', 'title', 'started_at', 'history'];
     protected $hidden = ['deleted_at'];
     protected $casts = [
         'started_at' => 'datetime'
     ];
+
+    public static array $services = [
+        'qpick' => '큐픽 서비스',
+        'partner' => '파트너센터'
+    ];
+
 
     public static array $types = [
         'termsOfUse' => '이용약관',
@@ -62,7 +80,7 @@ class TermsOfUse extends Model
         parent::boot();
 
         static::deleting(function ($tooltip) {
-            $tooltip->translation()->each(function($o){
+            $tooltip->translation()->each(function ($o) {
                 $o->delete();
             });
         });
@@ -91,10 +109,15 @@ class TermsOfUse extends Model
 
     public function scopeWhereHasLanguage($q, $v)
     {
-        return $q->whereHas('translation', function(Builder $q) use ($v) {
+        return $q->whereHas('translation', function (Builder $q) use ($v) {
             $q->whereHas('translationContents', function (Builder $q) use ($v) {
                 $q->where('lang', $v);
             });
         });
+    }
+
+    public function getServiceKorAttribute()
+    {
+        return self::$services[$this->service];
     }
 }

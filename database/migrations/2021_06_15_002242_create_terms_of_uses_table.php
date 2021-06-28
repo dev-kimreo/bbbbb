@@ -17,6 +17,7 @@ class CreateTermsOfUsesTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_id')->constrained();
+            $table->string('service', 32);
             $table->string('type', 32);
             $table->string('title', 256);
             $table->timestamp('started_at')->nullable();
