@@ -11,6 +11,8 @@ class PopupDeviceContent extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public static array $device = ['pc', 'mobile'];
+
     public $timestamps = false;
     protected $fillable = ['popup_id', 'device', 'contents'];
     protected $hidden = ['popup_id', 'deleted_at'];
