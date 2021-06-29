@@ -13,6 +13,8 @@ class BannerDeviceContent extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public static array $device = ['pc', 'mobile'];
+
     public $timestamps = false;
     protected $fillable = ['banner_id', 'device'];
     protected $hidden = ['banner_id', 'deleted_at'];

@@ -75,4 +75,9 @@ class AttachFile extends Model
     {
         return $this->morphTo(__FUNCTION__, 'attachable_type', 'attachable_id');
     }
+
+    public function uploader()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
