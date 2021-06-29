@@ -123,7 +123,7 @@ class BannerController extends Controller
         $data = $banner->skip($pagination['skip'])->take($pagination['perPage'])->get();
 
         $data->each(function(&$v, $k) {
-            $v->setHidden(['contents']);
+            $v->setHidden(['user_id', 'contents', 'deleted_at']);
             $v->setAppends(['devices']);
         });
 
