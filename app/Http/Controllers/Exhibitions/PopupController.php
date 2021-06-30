@@ -47,7 +47,7 @@ class PopupController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination"),
      *              @OA\Property(property="list", type="array",
-     *                  @OA\Items(type="object", ref="#/components/schemas/ExhibitionPopup")
+     *                  @OA\Items(type="object", ref="#/components/schemas/ExhibitionPopupForList")
      *              )
      *          )
      *      ),
