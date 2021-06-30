@@ -93,6 +93,9 @@ class CreateUsersTable extends Migration
         Schema::dropIfExists('user_login_logs');
         Schema::dropIfExists('user_sites');
         Schema::dropIfExists('user_advertising_agrees');
+        Schema::dropIfExists('user_privacy_active');
+        Schema::dropIfExists('user_privacy_inactive');
+        Schema::dropIfExists('user_privacy_deleted');
         Schema::dropIfExists('users');
     }
 }

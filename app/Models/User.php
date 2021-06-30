@@ -11,6 +11,7 @@ use App\Models\Users\UserPrivacyInactive;
 use Auth;
 use DB;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -173,12 +174,20 @@ class User extends Authenticatable implements MustVerifyEmail
             $query->onlyTrashed();
             $query->whereNotNull('deleted_at');
         } else {
+            throw new QpickHttpException(422, 'common.bad_request', 'status');
         }
     }
 
     public function backofficeLogs(): MorphMany
     {
         return $this->morphMany(BackofficeLog::class, 'loggable');
+    }
+
+    public function findForPassport($username)
+    {
+        return $this->status('active')->whereHas('privacy', function(Builder $q) use ($username){
+            $q->where('email', $username);
+        })->first();
     }
 }
 
