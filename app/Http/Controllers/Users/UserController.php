@@ -116,9 +116,70 @@ class UserController extends Controller
     public function index(IndexRequest $request): Collection
     {
         // get model
-        $user = $this->user::with(['advAgree', 'sites', 'authority']);
+        $user = $this->user::withTrashed();
+        $user->with(['advAgree', 'sites', 'authority']);
+        $status = $request->input('status') ?? 'active';
 
         // set search conditions
+        if ($s = $request->input('id')) {
+            $user->where('id', $s);
+        }
+
+        if (is_array($s = $request->input('grade')) && !in_array(null, $s) ) {
+            $user->whereIn('grade', $s);
+        }
+
+        if ($status == 'inactivate') {
+            // 휴면회원 검색
+
+            if ($s = $request->input('email')) {
+                $user->where('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+            }
+
+            if ($s = $request->input('name')) {
+                $user->where('name', $s);
+            }
+
+            if ($s = $request->input('multi_search')) {
+                // 통합검색
+                $user->where(function ($q) use ($s) {
+                    $q->orWhere('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+                    $q->orWhere('name', $s);
+
+                    if (is_numeric($s)) {
+                        $q->orWhere('id', $s);
+                    }
+                });
+            }
+        } else {
+            if ($status == 'withdraw') {
+                $user->whereNotNull('deleted_at');
+            } else if ($status == 'active') {
+                $user->whereNull('deleted_at');
+            }
+
+            // 활성회원 및 탈퇴회원 검색
+            if ($s = $request->input('email')) {
+                $user->where('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+            }
+
+            if ($s = $request->input('name')) {
+                $user->where('name', $s);
+            }
+
+            if ($s = $request->input('multi_search')) {
+                // 통합검색
+                $user->where(function ($q) use ($s) {
+                    $q->orWhere('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+                    $q->orWhere('name', $s);
+
+                    if (is_numeric($s)) {
+                        $q->orWhere('id', $s);
+                    }
+                });
+            }
+        }
+
         if ($s = $request->input('start_created_date')) {
             $s = Carbon::parse($s);
             $user->where('created_at', '>=', $s);
@@ -137,35 +198,6 @@ class UserController extends Controller
         if ($s = $request->input('end_registered_date')) {
             $s = Carbon::parse($s);
             $user->where('registered_at', '<=', $s);
-        }
-
-
-        if (is_array($s = $request->input('grade')) && !in_array(null, $s) ) {
-            $user->whereIn('grade', $s);
-        }
-
-        if ($s = $request->input('id')) {
-            $user->where('id', $s);
-        }
-
-        if ($s = $request->input('email')) {
-            $user->where('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-        }
-
-        if ($s = $request->input('name')) {
-            $user->where('name', $s);
-        }
-
-        if ($s = $request->input('multi_search')) {
-            // 통합검색
-            $user->where(function ($q) use ($s) {
-                $q->orWhere('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-                $q->orWhere('name', $s);
-
-                if (is_numeric($s)) {
-                    $q->orWhere('id', $s);
-                }
-            });
         }
 
         // 광고수신동의

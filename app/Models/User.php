@@ -126,12 +126,15 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($type == 'manager') {
             // 관리자 권한을 가진 회원은 이름을 관리그룹 닉네임으로 바꾸어 출력
             $res = $query
+                ->leftJoin('user_privacy_active', 'users.id', '=', 'user_privacy_active.id')
                 ->leftJoin('managers', 'users.id', '=', 'managers.user_id')
                 ->leftJoin('authorities', 'managers.authority_id', '=', 'authorities.id')
-                ->select(['users.id', DB::raw('IFNULL(authorities.display_name, users.name) as name'), 'users.email']);
+                ->select(['users.id', DB::raw('IFNULL(authorities.display_name, user_privacy_active.name) as name'), 'user_privacy_active.email']);
         } else {
             // 회원정보에 기재된 본래의 이름을 그대로 출력
-            $res = $query->select(['id', 'name', 'email']);
+            $res = $query
+                ->leftJoin('user_privacy_active', 'users.id', '=', 'user_privacy_active.id')
+                ->select(['id', 'user_privacy_active.name as name', 'user_privacy_active.email as email']);
         }
 
         return $res;

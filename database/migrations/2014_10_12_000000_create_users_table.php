@@ -16,8 +16,6 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
-            $table->string('name', 100)->index();
-            $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
@@ -32,6 +30,16 @@ class CreateUsersTable extends Migration
 
             $table->index(['created_at']);
         });
+
+        foreach (['active', 'inactive', 'deleted'] as $v) {
+            Schema::create('user_privacy_' . $v, function (Blueprint $table) {
+                $table->collation = 'utf8mb4_general_ci';
+                $table->id();
+                $table->foreignId('user_id')->constrained();
+                $table->string('name', 100)->index();
+                $table->string('email')->unique();
+            });
+        }
 
         Schema::create('user_sites', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
