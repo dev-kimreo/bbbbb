@@ -452,14 +452,15 @@ class BoardController extends Controller
         // 게시판의 글 수
         $postModel = DB::table('posts')->selectRaw('posts.board_id, count(posts.id) as posts_count')->groupBy('board_id');
         $postModel->join('users', 'posts.user_id', '=', 'users.id');
+        $postModel->leftjoin('user_privacy_active', 'user_privacy_active.user_id', '=', 'users.id');
 
         // Where
         if ($s = $request->input('email')) {
-            $postModel->where('users.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+            $postModel->where('user_privacy_active.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
         if ($s = $request->input('name')) {
-            $postModel->where('users.name', $s);
+            $postModel->where('user_privacy_active.name', $s);
         }
 
         if ($s = $request->input('post_id')) {

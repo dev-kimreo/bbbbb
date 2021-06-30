@@ -66,6 +66,7 @@ class UserController extends Controller
      *          description="",
      *          @OA\JsonContent(
      *              required={},
+     *              @OA\Property(property="status", type="string", example="inactive", default="active", description="active:활성회원<br />inactive:휴면회원<br />deleted:탈퇴회원"),
      *              @OA\Property(property="startCreatedDate", type="date(Y-m-d)", example="2021-01-01", description="가입일 검색 시작일"),
      *              @OA\Property(property="endCreatedDate", type="date(Y-m-d)", example="2021-03-01", description="가입일 검색 종료일"),
      *              @OA\Property(property="startRegisteredDate", type="date(Y-m-d)", example="2021-03-01", description="전환일 검색 시작일"),
@@ -116,9 +117,14 @@ class UserController extends Controller
     public function index(IndexRequest $request): Collection
     {
         // get model
-        $user = $this->user::withTrashed();
-        $user->with(['advAgree', 'sites', 'authority']);
+        $user = $this->user;
+
         $status = $request->input('status') ?? 'active';
+        if (in_array($status, ['active', 'inactive', 'deleted'])) {
+            $user = $this->user::status($status);
+        }
+
+        $user = $user->with(['privacy', 'advAgree', 'sites', 'authority']);
 
         // set search conditions
         if ($s = $request->input('id')) {
@@ -129,55 +135,24 @@ class UserController extends Controller
             $user->whereIn('grade', $s);
         }
 
-        if ($status == 'inactivate') {
-            // 휴면회원 검색
+        if ($s = $request->input('email')) {
+            $user->where('privacy.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+        }
 
-            if ($s = $request->input('email')) {
-                $user->where('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-            }
+        if ($s = $request->input('name')) {
+            $user->where('privacy.name', $s);
+        }
 
-            if ($s = $request->input('name')) {
-                $user->where('name', $s);
-            }
+        if ($s = $request->input('multi_search')) {
+            // 통합검색
+            $user->where(function ($q) use ($s) {
+                $q->orWhere('privacy.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+                $q->orWhere('privacy.name', $s);
 
-            if ($s = $request->input('multi_search')) {
-                // 통합검색
-                $user->where(function ($q) use ($s) {
-                    $q->orWhere('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-                    $q->orWhere('name', $s);
-
-                    if (is_numeric($s)) {
-                        $q->orWhere('id', $s);
-                    }
-                });
-            }
-        } else {
-            if ($status == 'withdraw') {
-                $user->whereNotNull('deleted_at');
-            } else if ($status == 'active') {
-                $user->whereNull('deleted_at');
-            }
-
-            // 활성회원 및 탈퇴회원 검색
-            if ($s = $request->input('email')) {
-                $user->where('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-            }
-
-            if ($s = $request->input('name')) {
-                $user->where('name', $s);
-            }
-
-            if ($s = $request->input('multi_search')) {
-                // 통합검색
-                $user->where(function ($q) use ($s) {
-                    $q->orWhere('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-                    $q->orWhere('name', $s);
-
-                    if (is_numeric($s)) {
-                        $q->orWhere('id', $s);
-                    }
-                });
-            }
+                if (is_numeric($s)) {
+                    $q->orWhere('id', $s);
+                }
+            });
         }
 
         if ($s = $request->input('start_created_date')) {
@@ -1014,7 +989,7 @@ class UserController extends Controller
      */
     protected function getOne(int $id)
     {
-        $with = ['advAgree', 'sites'];
+        $with = ['privacy', 'advAgree', 'sites'];
 
         if (Auth::hasAccessRightsToBackoffice()) {
             $with[] = 'backofficeLogs';
@@ -1025,6 +1000,10 @@ class UserController extends Controller
         if (Auth::hasAccessRightsToBackoffice()) {
             $user->makeVisible(['memo_for_managers']);
         }
+
+        $user->name = $user->privacy->name;
+        $user->email = $user->privacy->email;
+        unset($user->privacy);
 
         return $user;
     }
