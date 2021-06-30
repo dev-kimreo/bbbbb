@@ -122,6 +122,7 @@ class ManagerController extends Controller
         $data->each(function (&$item) {
             $item->user = $this->getUser($item->user_id);
             $item->authority = $this->getAuthority($item->authority_id);
+            unset($item->updated_at, $item->deleted_at);
         });
 
         return [
@@ -313,7 +314,7 @@ class ManagerController extends Controller
     {
         static $users = [];
 
-        return $users[$id] ?? ($users[$id] = User::select(['id', 'name', 'email'])->find($id));
+        return $users[$id] ?? ($users[$id] = User::status('active')->simplify('user')->find($id));
     }
 
     protected function getAuthority($id)

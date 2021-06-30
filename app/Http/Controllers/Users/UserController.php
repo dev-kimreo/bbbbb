@@ -1014,7 +1014,7 @@ class UserController extends Controller
      */
     protected function getOne(int $id)
     {
-        $with = ['advAgree', 'sites'];
+        $with = ['privacy', 'advAgree', 'sites'];
 
         if (Auth::hasAccessRightsToBackoffice()) {
             $with[] = 'backofficeLogs';
@@ -1025,6 +1025,10 @@ class UserController extends Controller
         if (Auth::hasAccessRightsToBackoffice()) {
             $user->makeVisible(['memo_for_managers']);
         }
+
+        $user->name = $user->privacy->name;
+        $user->email = $user->privacy->email;
+        unset($user->privacy);
 
         return $user;
     }
