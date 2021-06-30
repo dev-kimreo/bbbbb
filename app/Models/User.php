@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use App\Exceptions\QpickHttpException;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
+use App\Models\Users\UserPrivacyActive;
+use App\Models\Users\UserPrivacyDeleted;
+use App\Models\Users\UserPrivacyInactive;
 use Auth;
 use DB;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -80,6 +84,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'inactivated_at' => 'datetime',
         'last_authorized_at' => 'datetime',
     ];
+    protected static string $statusMode = 'active';
 
     public function advAgree(): HasOne
     {
@@ -121,6 +126,19 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Inquiry::class, 'assignee_id', 'id');
     }
 
+    public function privacy(): HasOne
+    {
+        if (self::$statusMode == 'active') {
+            $model = UserPrivacyActive::class;
+        } elseif (self::$statusMode == 'inactive') {
+            $model = UserPrivacyInactive::class;
+        } else {
+            $model = UserPrivacyDeleted::class;
+        }
+
+        return $this->hasOne($model);
+    }
+
     public function scopeSimplify($query, $type)
     {
         if ($type == 'manager') {
@@ -138,6 +156,24 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return $res;
+    }
+
+    /**
+     * @throws QpickHttpException
+     */
+    public static function scopeStatus($query, $status)
+    {
+        self::$statusMode = $status;
+
+        if ($status == 'active') {
+            $query->whereNull('inactivated_at');
+        } elseif ($status == 'inactive') {
+            $query->whereNotNull('inactivated_at');
+        } elseif ($status == 'deleted') {
+            $query->onlyTrashed();
+            $query->whereNotNull('deleted_at');
+        } else {
+        }
     }
 
     public function backofficeLogs(): MorphMany
