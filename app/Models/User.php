@@ -153,7 +153,7 @@ class User extends Authenticatable implements MustVerifyEmail
             // 회원정보에 기재된 본래의 이름을 그대로 출력
             $res = $query
                 ->leftJoin('user_privacy_active', 'users.id', '=', 'user_privacy_active.id')
-                ->select(['id', 'user_privacy_active.name as name', 'user_privacy_active.email as email']);
+                ->select(['users.id', 'user_privacy_active.name as name', 'user_privacy_active.email as email']);
         }
 
         return $res;
