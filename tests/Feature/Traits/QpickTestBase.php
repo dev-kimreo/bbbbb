@@ -4,6 +4,7 @@ namespace Tests\Feature\Traits;
 
 use App\Models\Manager;
 use App\Models\User;
+use App\Models\Users\UserPrivacyActive;
 use Hash;
 use Laravel\Passport\Passport;
 use Laravel\Passport\Client;
@@ -35,7 +36,10 @@ trait QpickTestBase
         }
 
         if ($role != 'backoffice') {
-            $user = User::factory()->create($newArrs);
+            $user = User::factory()->has(
+                UserPrivacyActive::factory(),
+                'privacy'
+            )->create($newArrs);
         }
 
         return $user;
@@ -64,7 +68,7 @@ trait QpickTestBase
         $oauth_client = Client::where(['name' => 'qpicki_' . $service])->firstOrFail();
 
         $body = [
-            'username' => $user->email,
+            'username' => $user->privacy->email,
             'password' => $this->userPassword,
             'grant_type' => 'password',
             'client_id' => $oauth_client->id,
