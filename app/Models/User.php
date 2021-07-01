@@ -76,7 +76,7 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $fillable = [
-        'name', 'email', 'language', 'password', 'memo_for_managers'
+        'language', 'password', 'memo_for_managers'
     ];
     protected $hidden = ['password', 'remember_token', 'deleted_at', 'memo_for_managers'];
     protected $casts = [
@@ -185,7 +185,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function findForPassport($username)
     {
-        return $this->status('active')->whereHas('privacy', function(Builder $q) use ($username){
+        return $this->status('active')->whereHas('privacy', function (Builder $q) use ($username) {
             $q->where('email', $username);
         })->first();
     }
