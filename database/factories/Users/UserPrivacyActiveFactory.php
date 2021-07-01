@@ -4,7 +4,6 @@ namespace Database\Factories\Users;
 
 use App\Models\Users\UserPrivacyActive;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class UserPrivacyActiveFactory extends Factory
 {
@@ -24,8 +23,7 @@ class UserPrivacyActiveFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
-            'email' => $this->faker->unique()->safeEmail,
+            'email' => $this->faker->unique()->safeEmail
         ];
     }
-
 }

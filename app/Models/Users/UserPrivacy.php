@@ -13,7 +13,7 @@ abstract class UserPrivacy extends Model
 
     public $timestamps = false;
     protected $hidden = ['id', 'user_id'];
-    protected $fillable = ['name', 'email'];
+    protected $fillable = ['user_id', 'name', 'email'];
 
     public function user(): BelongsTo
     {

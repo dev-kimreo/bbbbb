@@ -508,7 +508,7 @@ class PostController extends Controller
         // 통합 검색
         if ($s = $request->input('multi_search')) {
             $postModel->where(function ($q) use ($s) {
-                $q->orWhere('users.name', $s);
+                $q->orWhere('user_privacy_active.name', $s);
 
                 if (is_numeric($s)) {
                     $q->orWhere('posts.id', $s);

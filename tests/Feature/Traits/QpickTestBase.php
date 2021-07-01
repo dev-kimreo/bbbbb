@@ -37,8 +37,7 @@ trait QpickTestBase
 
         if ($role != 'backoffice') {
             $user = User::factory()->has(
-                UserPrivacyActive::factory(),
-                'privacy'
+                UserPrivacyActive::factory(), 'privacy'
             )->create($newArrs);
         }
 

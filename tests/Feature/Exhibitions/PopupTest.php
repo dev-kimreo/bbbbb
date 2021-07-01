@@ -7,6 +7,7 @@ use App\Models\Exhibitions\ExhibitionCategory;
 use App\Models\Exhibitions\Popup;
 use App\Models\Exhibitions\PopupDeviceContent;
 use App\Models\User;
+use App\Models\Users\UserPrivacyActive;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -86,27 +87,42 @@ class PopupTest extends TestCase
     {
         return Popup::factory()
             ->has(
-                Exhibition::factory()->for(
-                    ExhibitionCategory::factory()->create(), 'category'
-                )
-            )->for(User::factory()->create(), 'creator')
+                Exhibition::factory()->for(ExhibitionCategory::factory()->create(), 'category')
+            )->for(User::factory()->has(
+                UserPrivacyActive::factory(), 'privacy'
+            )->create(), 'creator')
             ->has(PopupDeviceContent::factory(), 'contents');
     }
 
-    protected function getResponseCreate()
+    protected function getReqStructure($exhibitionCategoryId, $targetOpt): array
     {
-        return $this->requestQpickApi('post', '/v1/exhibition/popup', [
-            'exhibitionCategoryId' => 1,
+        $req = [
+            'exhibitionCategoryId' => $exhibitionCategoryId,
             'title' => '메인 공지팝업',
             'startedAt' => '2021-07-01',
             'endedAt' => '2021-07-22',
-            'targetOpt' => 'all',
-            'targetUsers' => [3, 1],
+            'targetOpt' => $targetOpt,
             'contents' => [
                 'mobile' => '모바일용 콘텐츠',
                 'pc' => 'PC용 콘텐츠'
             ]
-        ]);
+        ];
+
+        if ($targetOpt == 'grade') {
+            $req['targetGrade'] = ['associate', 'regular'];
+        } elseif ($targetOpt == 'designate') {
+            $req['targetUsers'] = [3, 1];
+        }
+
+        return $req;
+    }
+
+    protected function getResponseCreate($targetOpt = 'all')
+    {
+        $exhibitionCategoryId = ExhibitionCategory::factory()->create()->id;
+        $req = $this->getReqStructure($exhibitionCategoryId, $targetOpt);
+
+        return $this->requestQpickApi('post', '/v1/exhibition/popup', $req);
     }
 
     protected function getResponseList()
@@ -125,22 +141,12 @@ class PopupTest extends TestCase
         return $this->requestQpickApi('get', '/v1/exhibition/popup/' . $factory->id, []);
     }
 
-    protected function getResponseUpdate()
+    protected function getResponseUpdate($targetOpt = 'all')
     {
         $factory = $this->getFactory()->create();
+        $req = $this->getReqStructure($factory->exhibition->category->id, $targetOpt);
 
-        return $this->requestQpickApi('patch', '/v1/exhibition/popup/' . $factory->id, [
-            'exhibitionCategoryId' => 1,
-            'title' => '메인 공지팝업',
-            'startedAt' => '2021-07-01',
-            'endedAt' => '2021-07-22',
-            'targetOpt' => 'all',
-            'targetUsers' => [3, 1],
-            'contents' => [
-                'mobile' => '모바일용 콘텐츠',
-                'pc' => 'PC용 콘텐츠'
-            ]
-        ]);
+        return $this->requestQpickApi('patch', '/v1/exhibition/popup/' . $factory->id, $req);
     }
 
     protected function getResponseDelete()
@@ -173,9 +179,12 @@ class PopupTest extends TestCase
     public function testCreatePopupByBackoffice()
     {
         $this->actingAsQpickUser('backoffice');
-        $response = $this->getResponseCreate();
-        $response->assertCreated();
-        $response->assertJsonStructure($this->structureShow);
+
+        foreach (['all', 'grade', 'designate'] as $targetOpt) {
+            $response = $this->getResponseCreate($targetOpt);
+            $response->assertCreated();
+            $response->assertJsonStructure($this->structureShow);
+        }
     }
 
     public function testListPopupByGuest()
@@ -263,9 +272,12 @@ class PopupTest extends TestCase
     public function testUpdatePopupByBackoffice()
     {
         $this->actingAsQpickUser('backoffice');
-        $response = $this->getResponseUpdate();
-        $response->assertCreated();
-        $response->assertJsonStructure($this->structureShow);
+
+        foreach (['all', 'grade', 'designate'] as $targetOpt) {
+            $response = $this->getResponseUpdate($targetOpt);
+            $response->assertCreated();
+            $response->assertJsonStructure($this->structureShow);
+        }
     }
 
     public function testDeletePopupByGuest()
