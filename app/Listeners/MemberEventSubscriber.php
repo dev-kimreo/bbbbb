@@ -28,7 +28,7 @@ class MemberEventSubscriber
                 [
                     'verifyKey' => $this->verifyKey,
                     'user_id' => $event->user->id,
-                    'hash' => sha1($event->user->email)
+                    'hash' => sha1($event->user->privacy->email)
                 ]
             );
 
@@ -44,12 +44,12 @@ class MemberEventSubscriber
                 'url' => $verifyUrl
             );
 
-            Mail::to($event->user)->send(new QpickMailSender('Users.EmailVerification', $event->user, $data));
+            Mail::to($event->user->privacy)->send(new QpickMailSender('Users.EmailVerification', $event->user, $data));
 
             // 고유 생성 sign 키 저장
             $signedModel = New SignedCode;
             $signedModel->user_id = $event->user->id;
-            $signedModel->hash = sha1($event->user->email);
+            $signedModel->hash = sha1($event->user->privacy->email);
             $signedModel->sign = $match[1];
             $signedModel->save();
 

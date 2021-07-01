@@ -76,13 +76,14 @@ class ManagerController extends Controller
             ->whereNull('manager.deleted_at');
 
         $manager->join('users AS user', 'manager.user_id', 'user.id');
+        $manager->leftjoin('user_privacy_active AS privacy', 'manager.user_id', 'user.id');
 
         if ($s = $request->input('authority_id')) {
             $manager->where('authority_id', $s);
         }
 
         if ($s = $request->input('name')) {
-            $manager->where('user.name', $s);
+            $manager->where('privacy.name', $s);
         }
 
         if ($s = $request->input('id')) {
@@ -90,14 +91,14 @@ class ManagerController extends Controller
         }
 
         if ($s = $request->input('email')) {
-            $manager->where('user.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+            $manager->where('privacy.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
         // 통합 검색
         if ($s = $request->input('multi_search')) {
             $manager->where(function ($q) use ($s) {
-                $q->orWhere('user.name', $s);
-                $q->orWhere('user.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+                $q->orWhere('privacy.name', $s);
+                $q->orWhere('privacy.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
 
                 if (is_numeric($s)) {
                     $q->orWhere('user.id', $s);
@@ -122,6 +123,7 @@ class ManagerController extends Controller
         $data->each(function (&$item) {
             $item->user = $this->getUser($item->user_id);
             $item->authority = $this->getAuthority($item->authority_id);
+            unset($item->updated_at, $item->deleted_at);
         });
 
         return [
@@ -313,7 +315,7 @@ class ManagerController extends Controller
     {
         static $users = [];
 
-        return $users[$id] ?? ($users[$id] = User::select(['id', 'name', 'email'])->find($id));
+        return $users[$id] ?? ($users[$id] = User::status('active')->simplify('user')->find($id));
     }
 
     protected function getAuthority($id)

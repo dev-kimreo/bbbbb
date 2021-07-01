@@ -26,6 +26,7 @@ class QpickMailSender extends Mailable implements ShouldQueue
     public function __construct(string $code, $user, $data)
     {
         $this->user = $user;
+        $this->user->privacy;
         $this->template = EmailTemplate::where([
             'code' => $code,
             'enable' => 1

@@ -463,6 +463,7 @@ class PostController extends Controller
 
         // 회원정보
         $postModel->join('users', 'users.id', '=', 'posts.user_id');
+        $postModel->leftJoin('user_privacy_active', 'user_privacy_active.user_id', '=', 'posts.user_id');
 
         // 게시판 정보
         $postModel->join('boards', 'boards.id', '=', 'posts.board_id');
@@ -479,11 +480,11 @@ class PostController extends Controller
         }
 
         if ($s = $request->input('email')) {
-            $postModel->where('users.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+            $postModel->where('user_privacy_active.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
         if ($s = $request->input('name')) {
-            $postModel->where('users.name', $s);
+            $postModel->where('user_privacy_active.name', $s);
         }
 
         if ($s = $request->input('post_id')) {
@@ -507,7 +508,7 @@ class PostController extends Controller
         // 통합 검색
         if ($s = $request->input('multi_search')) {
             $postModel->where(function ($q) use ($s) {
-                $q->orWhere('users.name', $s);
+                $q->orWhere('user_privacy_active.name', $s);
 
                 if (is_numeric($s)) {
                     $q->orWhere('posts.id', $s);

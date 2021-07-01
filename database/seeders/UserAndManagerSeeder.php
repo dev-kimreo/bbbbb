@@ -17,40 +17,74 @@ class UserAndManagerSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('users')->insert(
+        DB::table('users')->insertOrIgnore(
             [
                 [
-                    'name' => '홍길동',
-                    'email' => 'honggildong@test.qpicki.com',
+                    'id' => 1,
                     'password' => Hash::make('password!1'),
                     'grade' => 1,
                     'email_verified_at' => Carbon::now(),
+                    'inactivated_at' => null,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ],
                 [
-                    'name' => '김삿갓',
-                    'email' => 'kimsatgat@test.qpicki.com',
+                    'id' => 2,
                     'password' => Hash::make('password!1'),
                     'grade' => 1,
                     'email_verified_at' => Carbon::now(),
+                    'inactivated_at' => null,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ],
                 [
-                    'name' => '신도림',
-                    'email' => 'sindorim@test.qpicki.com',
+                    'id' => 3,
                     'password' => Hash::make('password!1'),
                     'grade' => 0,
                     'email_verified_at' => Carbon::now(),
+                    'inactivated_at' => null,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ],
+                [
+                    'id' => 4,
+                    'password' => Hash::make('password!1'),
+                    'grade' => 0,
+                    'email_verified_at' => Carbon::now(),
+                    'inactivated_at' => Carbon::now(),
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ]
             ]
         );
 
+        DB::table('user_privacy_active')->insertOrIgnore([
+             [
+                 'user_id' => 1,
+                 'name' => '홍길동',
+                 'email' => 'honggildong@test.qpicki.com'
+             ],
+             [
+                 'user_id' => 2,
+                 'name' => '김삿갓',
+                 'email' => 'kimsatgat@test.qpicki.com'
+             ],
+             [
+                 'user_id' => 3,
+                 'name' => '신도림',
+                 'email' => 'sindorim@test.qpicki.com'
+             ]
+        ]);
 
-        DB::table('user_advertising_agrees')->insert(
+        DB::table('user_privacy_inactive')->insertOrIgnore([
+            [
+                'user_id' => 4,
+                'name' => '비활성',
+                'email' => 'inactivated@test.qpicki.com'
+            ]
+        ]);
+
+        DB::table('user_advertising_agrees')->insertOrIgnore(
             [
                 [
                     'user_id' => '1',
@@ -62,7 +96,7 @@ class UserAndManagerSeeder extends Seeder
                 ]
             ]
         );
-        DB::table('authorities')->insert(
+        DB::table('authorities')->insertOrIgnore(
             [
                 [
                     'code' => '1',
@@ -80,7 +114,7 @@ class UserAndManagerSeeder extends Seeder
                 ]
             ]
         );
-        DB::table('managers')->insert(
+        DB::table('managers')->insertOrIgnore(
             [
                 [
                     'user_id' => '1',
