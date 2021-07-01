@@ -26,7 +26,7 @@ class PasswordResetSendLinkRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email|exists:App\Models\User,email',
+            'email' => 'required|email',
 //            'name' => 'required'
         ];
     }

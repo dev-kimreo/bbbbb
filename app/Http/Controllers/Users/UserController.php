@@ -131,7 +131,7 @@ class UserController extends Controller
             $user->where('id', $s);
         }
 
-        if (is_array($s = $request->input('grade')) && !in_array(null, $s) ) {
+        if (is_array($s = $request->input('grade')) && !in_array(null, $s)) {
             $user->whereIn('grade', $s);
         }
 
@@ -205,6 +205,12 @@ class UserController extends Controller
 
         // get data
         $data = $user->skip($pagination['skip'])->take($pagination['perPage'])->get();
+
+        $data->each(function(&$item){
+            $item->name = $item->privacy->name;
+            $item->email = $item->privacy->email;
+            unset($item->privacy);
+        });
 
         // 백오피스인 경우, 관리자메모 추가
         if (Auth::hasAccessRightsToBackoffice()) {
@@ -301,13 +307,17 @@ class UserController extends Controller
      */
     public function store(StoreRequest $request): JsonResponse
     {
+        $this->user::status('active');
+
         // 비밀번호 체크
         $this->chkCorrectPasswordPattern($request->input('password'), $request->input('email'));
 
         $this->user = $this->user::create(array_merge(
-            $request->all(),
+            $request->except('email', 'name', 'password'),
             ['password' => hash::make($request->input('password'))]
         ));
+
+        $this->user->privacy()->create($request->all());
 
         $member = $this->getOne($this->user->id);
         VerifyEmail::dispatch($member);
@@ -370,7 +380,11 @@ class UserController extends Controller
         }
 
         // update
-        User::find($id)->update($request->except(['email', 'password']));
+        $this->user = User::find($id);
+        $this->user->update($request->except(['email', 'password']));
+
+        // privacy
+        $this->user->privacy->update($request->only(['name']));
 
         //response
         $data = $this->getOne($id);
@@ -673,11 +687,28 @@ class UserController extends Controller
      *
      * @param PasswordResetSendLinkRequest $request
      * @return Response
+     * @throws QpickHttpException
      */
     public function passwordResetSendLink(PasswordResetSendLinkRequest $request): Response
     {
         // 회원 정보
-        $member = $this->user::where('email', $request->input('email'))->first();
+        $member = $this->user->whereHas('privacy', function (Builder $q) use ($request) {
+            $q->where('email', $request->input('email'));
+        })->first();
+
+        if (!$member) {
+            $inactiveUser = $this->user::status('inactive')->whereHas('privacy', function (Builder $q) use ($request) {
+                $q->where('email', $request->input('email'));
+            })->first();
+
+            if ($inactiveUser) {
+                throw new QpickHttpException(403, 'user.inactive');
+            }
+
+            throw new QpickHttpException(404, 'common.not_found');
+        }
+
+        $member->email = $member->privacy->email;
 
         $verifyToken = Password::createToken($member);
         $verifyUrl = config('services.qpick.domain') . config('services.qpick.verifyPasswordPath') . '?token=' . $verifyToken . "&email=" . $request->input('email');
@@ -687,7 +718,7 @@ class UserController extends Controller
             'url' => $verifyUrl
         );
 
-        Mail::to($member)->send(new QpickMailSender('Users.VerifyPassword', $member, $data));
+        Mail::to($member->privacy)->send(new QpickMailSender('Users.VerifyPassword', $member, $data));
 
         // response
         return response()->noContent();
@@ -741,7 +772,21 @@ class UserController extends Controller
         }
 
         // 회원정보
-        $member = $this->user::where('email', $request->input('email'))->first();
+        $member = $this->user->whereHas('privacy', function (Builder $q) use ($request) {
+            $q->where('email', $request->input('email'));
+        })->first();
+
+        if (!$member) {
+            $inactiveUser = $this->user::status('inactive')->whereHas('privacy', function (Builder $q) use ($request) {
+                $q->where('email', $request->input('email'));
+            })->first();
+
+            if ($inactiveUser) {
+                throw new QpickHttpException(403, 'user.inactive');
+            }
+
+            throw new QpickHttpException(404, 'common.not_found');
+        }
 
         // Token 유효성 체크
         if (!Password::tokenExists($member, $request->input('token'))) {
@@ -800,7 +845,21 @@ class UserController extends Controller
         }
 
         // 회원정보
-        $member = $this->user::where('email', $request->input('email'))->first();
+        $member = $this->user->whereHas('privacy', function (Builder $q) use ($request) {
+            $q->where('email', $request->input('email'));
+        })->first();
+
+        if (!$member) {
+            $inactiveUser = $this->user::status('inactive')->whereHas('privacy', function (Builder $q) use ($request) {
+                $q->where('email', $request->input('email'));
+            })->first();
+
+            if ($inactiveUser) {
+                throw new QpickHttpException(403, 'user.inactive');
+            }
+
+            throw new QpickHttpException(404, 'common.not_found');
+        }
 
         // Token 유효성 체크
         if (!Password::tokenExists($member, $request->input('token'))) {

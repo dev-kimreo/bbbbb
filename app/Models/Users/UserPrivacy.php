@@ -11,7 +11,9 @@ abstract class UserPrivacy extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
     protected $hidden = ['id', 'user_id'];
+    protected $fillable = ['name', 'email'];
 
     public function user(): BelongsTo
     {
