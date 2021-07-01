@@ -7,6 +7,7 @@ use App\Models\Exhibitions\ExhibitionCategory;
 use App\Models\Exhibitions\Popup;
 use App\Models\Exhibitions\PopupDeviceContent;
 use App\Models\User;
+use App\Models\Users\UserPrivacyActive;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -89,7 +90,9 @@ class PopupTest extends TestCase
                 Exhibition::factory()->for(
                     ExhibitionCategory::factory()->create(), 'category'
                 )
-            )->for(User::factory()->create(), 'creator')
+            )->for(User::factory()->has(
+                UserPrivacyActive::factory(), 'privacy'
+            )->create(), 'creator')
             ->has(PopupDeviceContent::factory(), 'contents');
     }
 
