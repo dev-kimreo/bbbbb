@@ -17,6 +17,8 @@ trait QpickTestBase
 
     protected function createAsQpickUser(string $role)
     {
+        User::status('active');
+
         $newArrs = [
             'password' => Hash::make($this->userPassword)
         ];
