@@ -318,4 +318,39 @@ class InquiryTest extends TestCase
             ->assertCreated();
     }
 
+
+    public function testGetCountPerStatusByGuest()
+    {
+        $response = $this->requestQpickApi('get', '/v1/inquiry/count-per-status');
+        $response
+            ->assertUnauthorized();
+    }
+
+    public function testGetCountPerStatusByAssociate()
+    {
+        $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('get', '/v1/inquiry/count-per-status');
+        $response
+            ->assertForbidden();
+    }
+
+    public function testGetCountPerStatusByRegular()
+    {
+        $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('get', '/v1/inquiry/count-per-status');
+        $response
+            ->assertForbidden();
+    }
+
+    public function testGetCountPerStatusByBackoffice()
+    {
+        $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('get', '/v1/inquiry/count-per-status');
+        $response
+            ->assertOk();
+    }
+
 }
