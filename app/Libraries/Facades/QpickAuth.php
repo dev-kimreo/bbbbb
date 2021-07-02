@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Libraries\Facades;
 
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
 
 class QpickAuth extends Auth
@@ -61,5 +63,15 @@ class QpickAuth extends Auth
     {
         return self::check()
             && self::id() == $user_id;
+    }
+
+    public static function user(): ?Authenticatable
+    {
+        $res = parent::user();
+        $res->name = $res->privacy->name;
+        $res->email = $res->privacy->email;
+        unset($res->privacy);
+
+        return $res;
     }
 }
