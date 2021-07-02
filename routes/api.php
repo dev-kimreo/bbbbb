@@ -6,6 +6,9 @@ use App\Http\Controllers\AuthorityController;
 use App\Http\Controllers\BackofficePermissionController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\Boards\OptionController;
+use App\Http\Controllers\Exhibitions\BannerController;
+use App\Http\Controllers\Exhibitions\CategoryController as ExhibitionCategoryController;
+use App\Http\Controllers\Exhibitions\PopupController;
 use App\Http\Controllers\InquiryAnswerController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\BackofficeMenuController;
@@ -190,12 +193,14 @@ Route::group([
     Route::group(['prefix' => 'inquiry'], function () {
         Route::post('', [InquiryController::class, 'store'])->middleware('chkAccess:regular');
         Route::get('', [InquiryController::class, 'index'])->middleware('chkAccess:regular,backoffice');
-        Route::get('{inquiryId}', [InquiryController::class, 'show'])->middleware('chkAccess:regular,backoffice');
+        Route::get('{inquiryId}', [InquiryController::class, 'show'])->middleware('chkAccess:regular,backoffice')->where(['inquiryId' => '[0-9]+']);
         Route::patch('{inquiryId}', [InquiryController::class, 'update'])->middleware('chkAccess:regular');
         Route::delete('{inquiryId}', [InquiryController::class, 'destroy'])->middleware('chkAccess:regular');
 
         // 담당자 지정
         Route::patch('{inquiryId}/assignee/{assignee_id}', [InquiryController::class, 'assignee'])->middleware('chkAccess:backoffice');
+
+        Route::get('count-per-status', [InquiryController::class, 'getCountPerStatus'])->middleware('chkAccess:backoffice');
     });
 
     // 답변 CRUD (Customized Router)
@@ -223,9 +228,12 @@ Route::group([
     ], function(){
         Route::post('', [TermsOfUseController::class, 'store']);
         Route::get('', [TermsOfUseController::class, 'index']);
-        Route::get('/{terms_of_use_id}', [TermsOfUseController::class, 'show']);
+        Route::get('/{terms_of_use_id}', [TermsOfUseController::class, 'show'])->where(['terms_of_use_id' => '[0-9]+']);
         Route::patch('/{terms_of_use_id}', [TermsOfUseController::class, 'update']);
         Route::delete('/{terms_of_use_id}', [TermsOfUseController::class, 'destroy']);
+
+        Route::get('/service', [TermsOfUseController::class, 'getServiceList']);
+        Route::get('/type', [TermsOfUseController::class, 'getTypeList']);
     });
 
     /**
@@ -237,6 +245,31 @@ Route::group([
         Route::get('/{tooltip_id}', [TooltipController::class, 'show']);
         Route::patch('/{tooltip_id}', [TooltipController::class, 'update'])->middleware('chkAccess:backoffice');
         Route::delete('/{tooltip_id}', [TooltipController::class, 'destroy'])->middleware('chkAccess:backoffice');
+    });
+
+    /**
+     * 전시관리
+     */
+    Route::group(['prefix' => 'exhibition'], function () {
+        // 전시관리 카테고리
+        Route::resource('/category', ExhibitionCategoryController::class)
+            ->middleware('chkAccess:backoffice');
+
+        // 팝업관리
+        Route::resource('/popup', PopupController::class, [
+            'only' => ['store', 'update', 'destroy']
+        ])->middleware('chkAccess:backoffice');
+        Route::resource('/popup', PopupController::class, [
+            'only' => ['index', 'show']
+        ]);
+
+        // 배너관리
+        Route::resource('/banner', BannerController::class, [
+            'only' => ['store', 'update', 'destroy']
+        ])->middleware('chkAccess:backoffice');
+        Route::resource('/banner', BannerController::class, [
+            'only' => ['index', 'show']
+        ]);
     });
 
     /**

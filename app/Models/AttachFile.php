@@ -66,12 +66,18 @@ class AttachFile extends Model
     protected $appends = [
     ];
 
-    public function scopeTempType($q) {
+    public function scopeTempType($q)
+    {
         return $q->where('attachable_type', 'temp');
     }
 
     public function attachable()
     {
         return $this->morphTo(__FUNCTION__, 'attachable_type', 'attachable_id');
+    }
+
+    public function uploader()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

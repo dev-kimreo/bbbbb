@@ -26,6 +26,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class PostController
@@ -232,7 +233,7 @@ class InquiryController extends Controller
             // Check if there is a related data
             $answer = InquiryAnswer::where('inquiry_id', $item->id);
             $item->answered = $answer->exists();
-            $item->answered_at = ($item->answered)? $answer->first()->created_at: null;
+            $item->answered_at = ($item->answered) ? $answer->first()->created_at : null;
 
             // Getting attach
             $item->attached = Inquiry::find($item->id)->attachFiles()->exists();
@@ -352,7 +353,7 @@ class InquiryController extends Controller
             // Check if there is a related data
             $answer = InquiryAnswer::where('inquiry_id', $item->id);
             $item->answered = $answer->exists();
-            $item->answered_at = ($item->answered)? $answer->first()->created_at: null;
+            $item->answered_at = ($item->answered) ? $answer->first()->created_at : null;
 
             // Getting attach
             $item->attached = Inquiry::find($item->id)->attachFiles()->exists();
@@ -611,6 +612,57 @@ class InquiryController extends Controller
         // Response
         $data = $this->getOne($inquiry_id);
         return response()->json(collect($data), 201);
+    }
+
+
+    /**
+     * @OA\Get(
+     *      path="/v1/inquiry/count-per-status",
+     *      summary="1:1문의 상태별 통계",
+     *      description="1:1문의 상태별 통계",
+     *      operationId="inquiryGetCountPerStatus",
+     *      tags={"1:1문의"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              type="array",
+     *              @OA\Items(
+     *                  @OA\Property(property="status", type="string", example="waiting", description="상태"),
+     *                  @OA\Property(property="count", type="integer", example=30, description="갯수"),
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "davinci_auth":{},
+     *          "admin_auth":{}
+     *      }}
+     *  )
+     * @return Collection
+     */
+    public function getCountPerStatus(): Collection
+    {
+        $res = Cache::tags('backoffice')->remember('inquiry_count_per_status', config('cache.custom.expire.common'), function () {
+            return $this->inquiry->selectRaw('status, count(id) as count')
+                ->whereIn('status', [$this->inquiry::$status['waiting'], $this->inquiry::$status['answering']])
+                ->groupBy('status')
+                ->get();
+        });
+
+        foreach ($this->inquiry::$status as $k => $v) {
+            if (!$res->contains('status', $v)) {
+                $res->push([
+                    'status' => $v,
+                    'count' => 0
+                ]);
+            }
+        }
+
+        return $res;
     }
 
     /* Custom Methods */

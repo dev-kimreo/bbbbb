@@ -37,7 +37,7 @@ class UserAuthTest extends TestCase
     {
         $client = Client::where(['name' => 'qpicki_' . $service])->first();
 
-        $this->createResource['username'] = $user->email;
+        $this->createResource['username'] = $user->privacy->email;
         $this->createResource['password'] = $this->userPassword;
         $this->createResource['clientId'] = $client->id;
         $this->createResource['clientSecret'] = $client->secret;

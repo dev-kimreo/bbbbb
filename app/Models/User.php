@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use App\Exceptions\QpickHttpException;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
+use App\Models\Users\UserPrivacyActive;
+use App\Models\Users\UserPrivacyDeleted;
+use App\Models\Users\UserPrivacyInactive;
 use Auth;
 use DB;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -71,7 +76,7 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $fillable = [
-        'name', 'email', 'language', 'password', 'memo_for_managers'
+        'language', 'password', 'memo_for_managers'
     ];
     protected $hidden = ['password', 'remember_token', 'deleted_at', 'memo_for_managers'];
     protected $casts = [
@@ -80,6 +85,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'inactivated_at' => 'datetime',
         'last_authorized_at' => 'datetime',
     ];
+    protected static string $statusMode = 'active';
 
     public function advAgree(): HasOne
     {
@@ -121,25 +127,67 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Inquiry::class, 'assignee_id', 'id');
     }
 
+    public function privacy(): HasOne
+    {
+        if (self::$statusMode == 'active') {
+            $model = UserPrivacyActive::class;
+        } elseif (self::$statusMode == 'inactive') {
+            $model = UserPrivacyInactive::class;
+        } else {
+            $model = UserPrivacyDeleted::class;
+        }
+
+        return $this->hasOne($model);
+    }
+
     public function scopeSimplify($query, $type)
     {
         if ($type == 'manager') {
             // 관리자 권한을 가진 회원은 이름을 관리그룹 닉네임으로 바꾸어 출력
             $res = $query
+                ->leftJoin('user_privacy_active', 'users.id', '=', 'user_privacy_active.id')
                 ->leftJoin('managers', 'users.id', '=', 'managers.user_id')
                 ->leftJoin('authorities', 'managers.authority_id', '=', 'authorities.id')
-                ->select(['users.id', DB::raw('IFNULL(authorities.display_name, users.name) as name'), 'users.email']);
+                ->select(['users.id', DB::raw('IFNULL(authorities.display_name, user_privacy_active.name) as name'), 'user_privacy_active.email']);
         } else {
             // 회원정보에 기재된 본래의 이름을 그대로 출력
-            $res = $query->select(['id', 'name', 'email']);
+            $res = $query
+                ->leftJoin('user_privacy_active', 'users.id', '=', 'user_privacy_active.id')
+                ->select(['users.id', 'user_privacy_active.name as name', 'user_privacy_active.email as email']);
         }
 
         return $res;
     }
 
+    /**
+     * @throws QpickHttpException
+     */
+    public static function scopeStatus($query, $status)
+    {
+        self::$statusMode = $status;
+
+        if ($status == 'active') {
+            $query->whereNull('inactivated_at');
+        } elseif ($status == 'inactive') {
+            $query->whereNotNull('inactivated_at');
+        } elseif ($status == 'deleted') {
+            $query->onlyTrashed();
+            $query->whereNotNull('deleted_at');
+        } else {
+            throw new QpickHttpException(422, 'common.bad_request', 'status');
+        }
+    }
+
     public function backofficeLogs(): MorphMany
     {
         return $this->morphMany(BackofficeLog::class, 'loggable');
+    }
+
+    public function findForPassport($username)
+    {
+        return $this->status('active')->whereHas('privacy', function (Builder $q) use ($username) {
+            $q->where('email', $username);
+        })->first();
     }
 }
 

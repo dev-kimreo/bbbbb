@@ -66,6 +66,7 @@ class UserController extends Controller
      *          description="",
      *          @OA\JsonContent(
      *              required={},
+     *              @OA\Property(property="status", type="string", example="inactive", default="active", description="active:활성회원<br />inactive:휴면회원<br />deleted:탈퇴회원"),
      *              @OA\Property(property="startCreatedDate", type="date(Y-m-d)", example="2021-01-01", description="가입일 검색 시작일"),
      *              @OA\Property(property="endCreatedDate", type="date(Y-m-d)", example="2021-03-01", description="가입일 검색 종료일"),
      *              @OA\Property(property="startRegisteredDate", type="date(Y-m-d)", example="2021-03-01", description="전환일 검색 시작일"),
@@ -116,9 +117,44 @@ class UserController extends Controller
     public function index(IndexRequest $request): Collection
     {
         // get model
-        $user = $this->user::with(['advAgree', 'sites', 'authority']);
+        $user = $this->user;
+
+        $status = $request->input('status') ?? 'active';
+        if (in_array($status, ['active', 'inactive', 'deleted'])) {
+            $user = $this->user::status($status);
+        }
+
+        $user = $user->with(['privacy', 'advAgree', 'sites', 'authority']);
 
         // set search conditions
+        if ($s = $request->input('id')) {
+            $user->where('id', $s);
+        }
+
+        if (is_array($s = $request->input('grade')) && !in_array(null, $s)) {
+            $user->whereIn('grade', $s);
+        }
+
+        if ($s = $request->input('email')) {
+            $user->where('privacy.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+        }
+
+        if ($s = $request->input('name')) {
+            $user->where('privacy.name', $s);
+        }
+
+        if ($s = $request->input('multi_search')) {
+            // 통합검색
+            $user->where(function ($q) use ($s) {
+                $q->orWhere('privacy.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+                $q->orWhere('privacy.name', $s);
+
+                if (is_numeric($s)) {
+                    $q->orWhere('id', $s);
+                }
+            });
+        }
+
         if ($s = $request->input('start_created_date')) {
             $s = Carbon::parse($s);
             $user->where('created_at', '>=', $s);
@@ -137,35 +173,6 @@ class UserController extends Controller
         if ($s = $request->input('end_registered_date')) {
             $s = Carbon::parse($s);
             $user->where('registered_at', '<=', $s);
-        }
-
-
-        if (is_array($s = $request->input('grade')) && !in_array(null, $s) ) {
-            $user->whereIn('grade', $s);
-        }
-
-        if ($s = $request->input('id')) {
-            $user->where('id', $s);
-        }
-
-        if ($s = $request->input('email')) {
-            $user->where('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-        }
-
-        if ($s = $request->input('name')) {
-            $user->where('name', $s);
-        }
-
-        if ($s = $request->input('multi_search')) {
-            // 통합검색
-            $user->where(function ($q) use ($s) {
-                $q->orWhere('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-                $q->orWhere('name', $s);
-
-                if (is_numeric($s)) {
-                    $q->orWhere('id', $s);
-                }
-            });
         }
 
         // 광고수신동의
@@ -198,6 +205,12 @@ class UserController extends Controller
 
         // get data
         $data = $user->skip($pagination['skip'])->take($pagination['perPage'])->get();
+
+        $data->each(function(&$item){
+            $item->name = $item->privacy->name;
+            $item->email = $item->privacy->email;
+            unset($item->privacy);
+        });
 
         // 백오피스인 경우, 관리자메모 추가
         if (Auth::hasAccessRightsToBackoffice()) {
@@ -294,13 +307,17 @@ class UserController extends Controller
      */
     public function store(StoreRequest $request): JsonResponse
     {
+        $this->user::status('active');
+
         // 비밀번호 체크
         $this->chkCorrectPasswordPattern($request->input('password'), $request->input('email'));
 
         $this->user = $this->user::create(array_merge(
-            $request->all(),
+            $request->except('email', 'name', 'password'),
             ['password' => hash::make($request->input('password'))]
         ));
+
+        $this->user->privacy()->create($request->all());
 
         $member = $this->getOne($this->user->id);
         VerifyEmail::dispatch($member);
@@ -363,7 +380,11 @@ class UserController extends Controller
         }
 
         // update
-        User::find($id)->update($request->except(['email', 'password']));
+        $this->user = User::find($id);
+        $this->user->update($request->except(['email', 'password']));
+
+        // privacy
+        $this->user->privacy->update($request->only(['name']));
 
         //response
         $data = $this->getOne($id);
@@ -666,11 +687,28 @@ class UserController extends Controller
      *
      * @param PasswordResetSendLinkRequest $request
      * @return Response
+     * @throws QpickHttpException
      */
     public function passwordResetSendLink(PasswordResetSendLinkRequest $request): Response
     {
         // 회원 정보
-        $member = $this->user::where('email', $request->input('email'))->first();
+        $member = $this->user->whereHas('privacy', function (Builder $q) use ($request) {
+            $q->where('email', $request->input('email'));
+        })->first();
+
+        if (!$member) {
+            $inactiveUser = $this->user::status('inactive')->whereHas('privacy', function (Builder $q) use ($request) {
+                $q->where('email', $request->input('email'));
+            })->first();
+
+            if ($inactiveUser) {
+                throw new QpickHttpException(403, 'user.inactive');
+            }
+
+            throw new QpickHttpException(404, 'common.not_found');
+        }
+
+        $member->email = $member->privacy->email;
 
         $verifyToken = Password::createToken($member);
         $verifyUrl = config('services.qpick.domain') . config('services.qpick.verifyPasswordPath') . '?token=' . $verifyToken . "&email=" . $request->input('email');
@@ -680,7 +718,7 @@ class UserController extends Controller
             'url' => $verifyUrl
         );
 
-        Mail::to($member)->send(new QpickMailSender('Users.VerifyPassword', $member, $data));
+        Mail::to($member->privacy)->send(new QpickMailSender('Users.VerifyPassword', $member, $data));
 
         // response
         return response()->noContent();
@@ -734,7 +772,21 @@ class UserController extends Controller
         }
 
         // 회원정보
-        $member = $this->user::where('email', $request->input('email'))->first();
+        $member = $this->user->whereHas('privacy', function (Builder $q) use ($request) {
+            $q->where('email', $request->input('email'));
+        })->first();
+
+        if (!$member) {
+            $inactiveUser = $this->user::status('inactive')->whereHas('privacy', function (Builder $q) use ($request) {
+                $q->where('email', $request->input('email'));
+            })->first();
+
+            if ($inactiveUser) {
+                throw new QpickHttpException(403, 'user.inactive');
+            }
+
+            throw new QpickHttpException(404, 'common.not_found');
+        }
 
         // Token 유효성 체크
         if (!Password::tokenExists($member, $request->input('token'))) {
@@ -793,7 +845,21 @@ class UserController extends Controller
         }
 
         // 회원정보
-        $member = $this->user::where('email', $request->input('email'))->first();
+        $member = $this->user->whereHas('privacy', function (Builder $q) use ($request) {
+            $q->where('email', $request->input('email'));
+        })->first();
+
+        if (!$member) {
+            $inactiveUser = $this->user::status('inactive')->whereHas('privacy', function (Builder $q) use ($request) {
+                $q->where('email', $request->input('email'));
+            })->first();
+
+            if ($inactiveUser) {
+                throw new QpickHttpException(403, 'user.inactive');
+            }
+
+            throw new QpickHttpException(404, 'common.not_found');
+        }
 
         // Token 유효성 체크
         if (!Password::tokenExists($member, $request->input('token'))) {
@@ -982,7 +1048,7 @@ class UserController extends Controller
      */
     protected function getOne(int $id)
     {
-        $with = ['advAgree', 'sites'];
+        $with = ['privacy', 'advAgree', 'sites'];
 
         if (Auth::hasAccessRightsToBackoffice()) {
             $with[] = 'backofficeLogs';
@@ -993,6 +1059,10 @@ class UserController extends Controller
         if (Auth::hasAccessRightsToBackoffice()) {
             $user->makeVisible(['memo_for_managers']);
         }
+
+        $user->name = $user->privacy->name;
+        $user->email = $user->privacy->email;
+        unset($user->privacy);
 
         return $user;
     }

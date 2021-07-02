@@ -28,7 +28,7 @@ class StoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|between:2,100',
-            'email' => 'required|string|email|max:100|unique:App\Models\User,email',
+            'email' => 'required|string|email|max:100|unique:App\Models\Users\UserPrivacyActive,email|unique:App\Models\Users\UserPrivacyInactive,email|unique:App\Models\Users\UserPrivacyDeleted,email',
             'password' => 'required|string|min:8',
             'password_confirmation' => 'required|string|same:password'
         ];

@@ -8,6 +8,7 @@ use App\Models\User;
 use Auth;
 use Carbon\Carbon;
 use Hash;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -92,13 +93,24 @@ class AccessTokenController extends ATC
         // Check Email
         $username = $requestBody['username'];
         $password = $requestBody['password'];
-        $user = $this->user->where('email', $username)->first();
+
+        $user = $this->user::status('active')->whereHas('privacy', function(Builder $q) use ($username){
+            $q->where('email', $username);
+        })->first();
+
+        $checkInactive = $this->user::status('inactive')->whereHas('privacy', function(Builder $q) use ($username){
+            $q->where('email', $username);
+        })->first();
 
         // Backoffice 로그인 권한 체크
         if ($requestBody['client_id'] == '2') {
             if (!$user->manager) {
                 throw new QpickHttpException(403, 'common.unauthorized');
             }
+        }
+
+        if ($checkInactive) {
+            throw new QpickHttpException(403, 'user.inactive');
         }
 
         if (!$user) {

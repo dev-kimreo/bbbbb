@@ -110,6 +110,12 @@ class ExceptionSeeder extends Seeder
             ],
             [
                 'exception',
+                'user.inactive',
+                '휴먼회원 입니다. 계정 활성화 후 이용해주세요.',
+                '휴먼회원 입니다. 계정 활성화 후 이용해주세요.'
+            ],
+            [
+                'exception',
                 'email.too_many_send',
                 '짧은 시간내에 잦은 요청으로 인해 재발송 불가 합니다.',
                 'Too many attempting to send mail.'

@@ -19,7 +19,7 @@ use Carbon\Carbon;
  *     property="createdAt", type="string", readOnly="true", format="date-time",
  *     ref="#/components/schemas/Base/properties/created_at", example="2021-02-25 12:59:20"
  * ),
- * @OA\Property(property="user", type="object", readOnly="true", ref="#/components/schemas/User"),
+ * @OA\Property(property="user", type="object", readOnly="true", ref="#/components/schemas/UserSimply"),
  * @OA\Property(property="authority", type="object", readOnly="true", ref="#/components/schemas/Authority")
  * )
  *
