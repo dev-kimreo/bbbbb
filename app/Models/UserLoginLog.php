@@ -13,7 +13,7 @@ class UserLoginLog extends Model
 
     public $timestamps = false;
     protected $appends = ['attempted_user'];
-    protected $fillable = ['user_id', 'manager_id', 'client_id', 'ip'];
+    protected $fillable = ['user_id', 'user_grade', 'manager_id', 'client_id', 'ip'];
     protected $hidden = ['user_id', 'manager_id', 'client_id'];
     protected $casts = [
         'created_at' => 'datetime',

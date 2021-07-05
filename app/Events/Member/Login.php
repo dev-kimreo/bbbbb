@@ -16,6 +16,7 @@ class Login
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public int $user_id;
+    public int $user_grade;
     public ?int $manager_id = null;
     public int $client_id;
     public ?string $ip;
@@ -25,9 +26,10 @@ class Login
      *
      * @return void
      */
-    public function __construct(Request $req, int $user_id, int $client_id, int $manager_id = null)
+    public function __construct(Request $req, int $user_id, int $user_grade, int $client_id, int $manager_id = null)
     {
         $this->user_id = $user_id;
+        $this->user_grade = $user_grade;
         $this->manager_id = $manager_id;
         $this->client_id = $client_id;
         $this->ip = $req->ip();
