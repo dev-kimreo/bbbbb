@@ -3,7 +3,10 @@
 return [
 
     'user' => [
-        'toInactive' => 365
+        'toInactiveDays' => 365,
+        'deleted' => [
+            'permanentDeleteDays' => 90
+        ],
     ],
 
 ];

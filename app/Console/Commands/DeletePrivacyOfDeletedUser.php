@@ -6,21 +6,21 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 
-class SwitchToInactiveUser extends Command
+class DeletePrivacyOfDeletedUser extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'switch:userInactive';
+    protected $signature = 'delete:privacyDeletedUser';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = '활성화 사용자를 비활성 사용자로 전환';
+    protected $description = '탈퇴한 회원의 개인정보 영구삭제';
 
     /**
      * Create a new command instance.
@@ -39,17 +39,11 @@ class SwitchToInactiveUser extends Command
      */
     public function handle()
     {
-        $users = User::where('last_authorized_at', '<=', Carbon::now()->addDays(-1 * config('custom.user.toInactiveDays')))->get();
+        $users = User::onlyTrashed()->where('deleted_at', '<=', Carbon::now()->addDays(-1 * config('custom.user.deleted.permanentDeleteDays')))->get();
 
         $users->each(function ($item) {
-            $item->inactivated_at = Carbon::now();
-            $item->save();
-
-            $activePrivacy = $item->privacy->toArray();
+            $item::status('deleted');
             $item->privacy->delete();
-
-            $item::status('inactive');
-            $item->privacy()->create(array_merge($activePrivacy, ['user_id' => $item->id]));
         });
     }
 }
