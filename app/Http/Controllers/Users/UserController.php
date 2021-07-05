@@ -18,6 +18,7 @@ use App\Http\Requests\Members\ShowRequest;
 use App\Http\Requests\Members\StoreRequest;
 use App\Http\Requests\Members\UpdateRequest;
 use App\Http\Requests\Users\LoginLogRequest;
+use App\Http\Requests\Users\LoginLogStatRequest;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
 use App\Mail\QpickMailSender;
@@ -25,6 +26,7 @@ use App\Models\SignedCode;
 use App\Models\User;
 use App\Models\UserLoginLog;
 use Auth;
+use Cache;
 use DB;
 use Hash;
 use Illuminate\Database\Eloquent\Builder;
@@ -930,7 +932,7 @@ class UserController extends Controller
         $res['expire_in'] = config('auth.personal_client.expire') * 60;
         $res['access_token'] = $token->accessToken;
 
-        LoginEvent::dispatch($request, $id, 1, Auth::id());
+        LoginEvent::dispatch($request, $id, $this->user->grade, 1, Auth::id());
 
         return collect($res);
     }
@@ -1047,6 +1049,118 @@ class UserController extends Controller
     static function chkPasswordMatched($pwd): bool
     {
         return hash::check($pwd, Auth::user()->password);
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/v1/statistics/user/grade",
+     *      summary="등급별 회원수 현황",
+     *      description="등급별로 해당하는 회원의 건수를 확인",
+     *      operationId="statisticsUserGrade",
+     *      tags={"통계"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              @OA\Items(type="object",
+     *                  @OA\Property(property="grade", type="integer", example="1", description="회원등급"),
+     *                  @OA\Property(property="cnt", type="integer", example="237", description="회원수")
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated (비로그인)"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden (관리자가 아닌 상태에서 정보조회를 시도하는 상황 등)"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      )
+     * )
+     *
+     * 등급별 회원수 현황
+     *
+     * @param User $user
+     * @return Collection
+     */
+    public function getStatUserByGrade(User $user): Collection
+    {
+        return Cache::tags('backoffice')->remember('user_count_per_grade', config('cache.custom.expire.common'), function () use ($user) {
+            return $user->selectRaw('grade, count(id) as count')
+                ->groupBy('grade')
+                ->get();
+        });
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/v1/statistics/user/login-log",
+     *      summary="등급별 로그인횟수",
+     *      description="입력한 기간 내에 로그인이 일어난 횟수를 각 회원등급별로 집계",
+     *      operationId="statisticsLoginLogGrade",
+     *      tags={"통계"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={"startDate", "endDate"},
+     *              @OA\Property(property="startDate", type="string", format="date-time", description="검색시작일", readOnly="true"),
+     *              @OA\Property(property="endDate", type="string", format="date-time", description="검색종료일", readOnly="true"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              @OA\Items(type="object",
+     *                  @OA\Property(property="grade", type="integer", example="1", description="회원등급"),
+     *                  @OA\Property(property="cnt", type="integer", example="237", description="회원수")
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated (비로그인)"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="forbidden (관리자가 아닌 상태에서 정보조회를 시도하는 상황 등)"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      )
+     * )
+     *
+     * 기간내 등급별 로그인로그 통계
+     *
+     * @param LoginLogStatRequest $request
+     * @return Collection
+     */
+    public function getCountLoginLogPerGrade(LoginLogStatRequest $request, UserLoginLog $log): Collection
+    {
+        return Cache::tags('backoffice')->remember('login_log_count_per_grade', config('cache.custom.expire.common'), function () use ($request, $log) {
+            $start = Carbon::parse($request->input('start_date'));
+            $end = Carbon::parse($request->input('end_date'))->setTime(23, 59, 59);
+
+            return $log->selectRaw('user_grade as grade, count(id) as count')
+                ->whereBetween('created_at', [$start, $end])
+                ->groupBy('grade')
+                ->get()
+                ->makeHidden(['attempted_user']);
+        });
     }
 
     /**

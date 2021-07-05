@@ -79,6 +79,7 @@ class MemberEventSubscriber
     {
         UserLoginLog::create([
             'user_id' => $event->user_id,
+            'user_grade' => $event->user_grade,
             'manager_id' => $event->manager_id,
             'client_id' => $event->client_id,
             'ip' => $event->ip

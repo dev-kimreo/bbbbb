@@ -67,6 +67,7 @@ class CreateUsersTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->bigInteger('id');
             $table->foreignId('user_id'); // 로그성 테이블의 유연성을 위해 제약조건 미설정
+            $table->unsignedTinyInteger('user_grade');
             $table->foreignId('manager_id')->nullable(); // 로그성 테이블의 유연성을 위해 제약조건 미설정
             $table->foreignId('client_id');
             $table->char('ip', 15);

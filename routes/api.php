@@ -278,11 +278,22 @@ Route::group([
     Route::group([
         'prefix' => 'email-template',
         'middleware' => 'chkAccess:backoffice'
-    ], function(){
+    ], function () {
         Route::get('', [EmailTemplateController::class, 'index']);
         Route::get('/{email_template_id}', [EmailTemplateController::class, 'show']);
         Route::post('', [EmailTemplateController::class, 'store']);
         Route::patch('/{email_template_id}', [EmailTemplateController::class, 'update']);
         Route::delete('/{email_template_id}', [EmailTemplateController::class, 'destroy']);
     });
+
+    /**
+     * 통계
+     */
+    Route::group([
+        'prefix' => 'statistics',
+        'middleware' => ['auth:api', 'chkAccess:backoffice']
+    ], function () {
+        Route::get('user/count-per-grade', [UserController::class, 'getStatUserByGrade']);
+        Route::get('user/login-log/count-per-grade', [UserController::class, 'getCountLoginLogPerGrade']);
+	});
 });
