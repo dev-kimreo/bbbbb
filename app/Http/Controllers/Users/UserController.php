@@ -1062,6 +1062,7 @@ class UserController extends Controller
      *          response=200,
      *          description="successfully",
      *          @OA\JsonContent(
+     *              type="array",
      *              @OA\Items(type="object",
      *                  @OA\Property(property="grade", type="integer", example="1", description="회원등급"),
      *                  @OA\Property(property="cnt", type="integer", example="237", description="회원수")
@@ -1120,6 +1121,7 @@ class UserController extends Controller
      *          response=200,
      *          description="successfully",
      *          @OA\JsonContent(
+     *              type="array",
      *              @OA\Items(type="object",
      *                  @OA\Property(property="grade", type="integer", example="1", description="회원등급"),
      *                  @OA\Property(property="cnt", type="integer", example="237", description="회원수")
