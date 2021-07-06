@@ -7,6 +7,9 @@ use App\Events\Backoffice\DataDeleted;
 use App\Events\Backoffice\DataUpdated;
 use App\Listeners\RemainBackofficeLog;
 use App\Models\Board;
+use App\Models\Exhibitions\Banner;
+use App\Models\Exhibitions\ExhibitionCategory;
+use App\Models\Exhibitions\Popup;
 use App\Models\InquiryAnswer;
 use App\Models\EmailTemplate;
 use App\Models\Post;
@@ -15,6 +18,9 @@ use App\Models\Tooltip;
 use App\Models\User;
 use App\Models\UserAdvAgree;
 use App\Observers\BoardObserver;
+use App\Observers\Exhibitions\BannerObserver;
+use App\Observers\Exhibitions\ExhibitionCategoryObserver;
+use App\Observers\Exhibitions\PopupObserver;
 use App\Observers\InquiryAnswerObserver;
 use App\Observers\EmailTemplateObserver;
 use App\Observers\PostObserver;
@@ -57,14 +63,17 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Banner::observe(BannerObserver::class);
         Board::observe(BoardObserver::class);
-        Post::observe(PostObserver::class);
-        Tooltip::observe(TooltipObserver::class);
-        TermsOfUse::observe(TermsOfUseObserver::class);
+        EmailTemplate::observe(EmailTemplateObserver::class);
+        ExhibitionCategory::observe(ExhibitionCategoryObserver::class);
         InquiryAnswer::observe(InquiryAnswerObserver::class);
+        Popup::observe(PopupObserver::class);
+        Post::observe(PostObserver::class);
+        TermsOfUse::observe(TermsOfUseObserver::class);
+        Tooltip::observe(TooltipObserver::class);
         User::observe(UserObserver::class);
         UserAdvAgree::observe(UserAdvAgreeObserver::class);
-        EmailTemplate::observe(EmailTemplateObserver::class);
     }
 
     protected $subscribe = [
