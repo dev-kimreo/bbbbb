@@ -5,7 +5,7 @@ namespace App\Rules;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Rule;
 
-class DifferenceInDays implements Rule
+class WithinDaysOfOtherDate implements Rule
 {
     public $other;
     public $diff;
@@ -43,6 +43,6 @@ class DifferenceInDays implements Rule
      */
     public function message(): string
     {
-        return __('exception.common.difference_from_other_date', ['day' => $this->diff]);
+        return __('exception.common.within_days_of_other_date', ['day' => $this->diff]);
     }
 }
