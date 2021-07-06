@@ -41,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
             'terms_of_use' => 'App\Models\TermsOfUse',
             'user' => 'App\Models\User',
             'email_template' => 'App\Models\EmailTemplate',
+            'exhibition_category' => 'App\Models\Exhibitions\ExhibitionCategory',
         ]);
     }
 }
