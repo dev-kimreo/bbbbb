@@ -56,6 +56,12 @@ class ExceptionSeeder extends Seeder
             ],
             [
                 'exception',
+                'common.difference_from_other_date',
+                '다른 날짜와의 차이가 :day일 이내이여야 합니다.',
+                '다른 날짜와의 차이가 :day일 이내이여야 합니다.'
+            ],
+            [
+                'exception',
                 'auth.incorrect_timeout',
                 '잘못된 인증방식이거나 token의 유효시간이 지났습니다.',
                 'Either incorrect information or the token expiration time has expired.'
