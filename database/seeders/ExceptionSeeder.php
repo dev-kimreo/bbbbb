@@ -56,7 +56,7 @@ class ExceptionSeeder extends Seeder
             ],
             [
                 'exception',
-                'common.difference_from_other_date',
+                'common.within_days_of_other_date',
                 '다른 날짜와의 차이가 :day일 이내이여야 합니다.',
                 '다른 날짜와의 차이가 :day일 이내이여야 합니다.'
             ],
