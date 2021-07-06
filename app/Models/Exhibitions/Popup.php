@@ -3,6 +3,7 @@
 namespace App\Models\Exhibitions;
 
 use App\Libraries\StringLibrary;
+use App\Models\BackofficeLog;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use App\Models\User;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -133,5 +135,10 @@ class Popup extends Model
         $this->exhibition()->delete();
         $this->contents()->delete();
         return parent::delete();
+    }
+
+    public function backofficeLogs(): MorphMany
+    {
+        return $this->morphMany(BackofficeLog::class, 'loggable');
     }
 }
