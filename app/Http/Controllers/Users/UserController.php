@@ -442,7 +442,9 @@ class UserController extends Controller
         $this->user->privacy()->create(array_merge($activePrivacy, ['user_id' => $this->user->id]));
 
         // logout
-        $tokenController->destroy();
+        if(Auth::id() == $id) {
+            $tokenController->destroy();
+        }
 
         // response
         return response()->noContent();
