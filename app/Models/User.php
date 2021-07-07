@@ -8,7 +8,8 @@ use App\Models\Traits\DateFormatISO8601;
 use App\Models\Users\UserPrivacyActive;
 use App\Models\Users\UserPrivacyDeleted;
 use App\Models\Users\UserPrivacyInactive;
-use Auth;
+use Carbon\Carbon;
+use Closure;
 use DB;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
@@ -64,6 +65,15 @@ use Laravel\Passport\HasApiTokens;
  *
  * Class User
  * @package App\Models
+ * @method static create(array|string[] $array_merge)
+ * @method static find(int $id)
+ * @method static findOrFail(int $id)
+ * @method static select(string[] $array)
+ * @method static selectRaw(string $string)
+ * @method static status(string $string)
+ * @method static updateOrCreate(array $array, array $array1)
+ * @method static where(string $string, string $string1, Carbon $addDays)
+ * @method static whereHas(string $string, Closure $param)
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
