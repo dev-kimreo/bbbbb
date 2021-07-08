@@ -1151,6 +1151,7 @@ class UserController extends Controller
      * 기간내 등급별 로그인로그 통계
      *
      * @param LoginLogStatRequest $request
+     * @param UserLoginLog $log
      * @return Collection
      */
     public function getCountLoginLogPerGrade(LoginLogStatRequest $request, UserLoginLog $log): Collection

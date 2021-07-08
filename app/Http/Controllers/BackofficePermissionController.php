@@ -88,11 +88,10 @@ class BackofficePermissionController extends Controller
      *          description="failed"
      *      )
      *  )
-     * @param Request $req
      * @param $permission_id
      * @return BackofficePermission
      */
-    public function show(Request $req, $permission_id): BackofficePermission
+    public function show($permission_id): BackofficePermission
     {
         return $this->permission->findOrfail($permission_id);
     }
@@ -118,10 +117,9 @@ class BackofficePermissionController extends Controller
      *          description="failed"
      *      )
      *  )
-     * @param Request $req
      * @return Collection
      */
-    public function index(Request $req): Collection
+    public function index(): Collection
     {
         return $this->permission->all();
     }
@@ -143,12 +141,10 @@ class BackofficePermissionController extends Controller
      *          description="failed"
      *      )
      *  )
-     * @param Request $req
      * @param $permission_id
      * @return Response
-     *
      */
-    public function destroy(Request $req, $permission_id): Response
+    public function destroy($permission_id): Response
     {
         $permission = $this->permission->find($permission_id);
 

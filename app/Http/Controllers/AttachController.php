@@ -71,9 +71,9 @@ class AttachController extends Controller
      */
     /**
      * @param StoreRequest $request
-     * @return mixed
+     * @return JsonResponse
      */
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request): JsonResponse
     {
         $files = $request->file('files');
         $uploadFiles = [];
@@ -238,12 +238,11 @@ class AttachController extends Controller
 
     /**
      * 단일 첨부파일 삭제
-     * @param Request $request
      * @param $id
      * @return Response
      * @throws QpickHttpException
      */
-    public function delete(Request $request, $id): Response
+    public function delete($id): Response
     {
         $this->attachService->delete([$id]);
 

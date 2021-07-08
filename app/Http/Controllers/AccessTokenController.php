@@ -22,6 +22,10 @@ class AccessTokenController extends ATC
     protected User $user;
     protected Request $req;
 
+    /**
+     * @throws QpickHttpException
+     * @throws ValidationException
+     */
     public function store(Request $req, ServerRequestInterface $request, User $user): Response
     {
         $this->user = $user;

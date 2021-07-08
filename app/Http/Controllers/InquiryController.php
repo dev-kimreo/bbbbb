@@ -11,10 +11,8 @@ use App\Http\Requests\Inquiries\DestroyRequest;
 use App\Http\Requests\Inquiries\IndexRequest;
 use App\Http\Requests\Inquiries\ShowRequest;
 use App\Http\Requests\Inquiries\UpdateRequest;
-use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
-use App\Models\AttachFile;
 use App\Models\Inquiry;
 use App\Models\InquiryAnswer;
 use App\Models\User;
@@ -648,12 +646,12 @@ class InquiryController extends Controller
     {
         $res = Cache::tags('backoffice')->remember('inquiry_count_per_status', config('cache.custom.expire.common'), function () {
             return $this->inquiry->selectRaw('status, count(id) as count')
-                ->whereIn('status', [$this->inquiry::$status['waiting'], $this->inquiry::$status['answering']])
+                ->whereIn('status', [Inquiry::$status['waiting'], Inquiry::$status['answering']])
                 ->groupBy('status')
                 ->get();
         });
 
-        foreach ($this->inquiry::$status as $k => $v) {
+        foreach (Inquiry::$status as $v) {
             if (!$res->contains('status', $v)) {
                 $res->push([
                     'status' => $v,

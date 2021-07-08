@@ -191,7 +191,7 @@ class AuthorityController extends Controller
     public function update(UpdateAuthorityRequest $request, int $id): JsonResponse
     {
         // getting original data & update
-        $authority = Authority::findOrFail($id)->update($request->all());
+        Authority::findOrFail($id)->update($request->all());
 
         // response
         return response()->json(collect(Authority::find($id)), 201);
@@ -271,7 +271,7 @@ class AuthorityController extends Controller
      *  )
      */
 
-    public function getMenuListWithPermission(Request $req, $authority_id)
+    public function getMenuListWithPermission($authority_id)
     {
         $authCollect = Authority::findOrFail($authority_id);
         $usablePermissions = $authCollect->permissions->keyBy('backoffice_menu_id');
