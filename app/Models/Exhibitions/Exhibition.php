@@ -51,7 +51,8 @@ class Exhibition extends Model
         return $this->hasMany(ExhibitionTargetUser::class);
     }
 
-    public function getTargetAttribute() {
+    public function getTargetAttribute(): array
+    {
         return [
             'opt' => $this->getAttribute('target_opt'),
             'grade' => $this->getAttribute('target_grade'),
@@ -59,7 +60,7 @@ class Exhibition extends Model
         ];
     }
 
-    public function delete()
+    public function delete(): ?bool
     {
         $this->targetUsers()->delete();
         return parent::delete();

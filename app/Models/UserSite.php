@@ -26,6 +26,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * *
  * Class UserSite
  * @package App\Models
+ * @method static create(array|int[] $params)
+ * @method static findOrFail(int $solution_id)
+ * @method static find($id)
  */
 
 class UserSite extends Model

@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @method static where(string $string, $id)
+ * @method static updateOrCreate(array $array, array $array1)
+ */
 class ExhibitionTargetUser extends Model
 {
     use HasFactory, SoftDeletes;

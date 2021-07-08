@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @method static selectRaw(string $string)
+ * @method static where(string $string, int $user_id)
+ */
 class UserLoginLog extends Model
 {
     use HasFactory, DateFormatISO8601;

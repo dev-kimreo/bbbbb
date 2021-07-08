@@ -92,6 +92,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Class Banner
  * @package App\Models\Exhibitions
+ * @method static orderByDesc(string $string)
+ * @method static create(array|int[]|null[]|string[] $array_merge)
+ * @method static findOrFail(int $banner_id)
  */
 class Banner extends Model
 {

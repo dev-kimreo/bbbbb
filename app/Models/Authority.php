@@ -36,6 +36,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Class Authority
  *
+ * @method static findOrFail(mixed $get)
+ * @method static find($id)
+ * @method static withCount(string $string)
+ * @method static create(array $all)
  */
 class Authority extends Model
 {
@@ -58,7 +62,7 @@ class Authority extends Model
         return $this->hasMany(Manager::class);
     }
 
-    public function permissions()
+    public function permissions(): HasMany
     {
         return $this->hasMany(BackofficePermission::class);
     }

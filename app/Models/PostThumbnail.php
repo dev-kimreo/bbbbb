@@ -6,8 +6,9 @@ use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
 
 
 class PostThumbnail extends Model
@@ -37,17 +38,18 @@ class PostThumbnail extends Model
     protected $casts = [
     ];
 
-    public function post()
+    public function post(): BelongsTo
     {
         return $this->belongsTo('App\Models\Post');
     }
 
     // 파일 첨부 갯수 제한
-    public function getAttachFileLimit() {
+    public function getAttachFileLimit(): int
+    {
         return 1;
     }
 
-    public function attachFiles()
+    public function attachFiles(): MorphOne
     {
         return $this->morphOne('App\Models\AttachFile', 'attachable');
     }

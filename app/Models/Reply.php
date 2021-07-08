@@ -6,6 +6,7 @@ use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -22,6 +23,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Class Reply
  * @package App\Models
+ * @method static where(string $string, $id)
+ * @method static findOrFail($id)
  */
 class Reply extends Model
 {
@@ -44,7 +47,7 @@ class Reply extends Model
         return $this->belongsTo(User::class)->simplify('manager');
     }
 
-    public function post()
+    public function post(): BelongsTo
     {
         return $this->belongsTo(Post::class);
     }

@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 /**
  *  @OA\Schema(
@@ -84,6 +85,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Class Popup
  * @package App\Models\Exhibitions
+ * @method static orderByDesc(string $string)
+ * @method static create(array|int[]|null[]|string[] $array_merge)
+ * @method static findOrFail(int $popup_id)
  */
 class Popup extends Model
 {
@@ -116,7 +120,8 @@ class Popup extends Model
         return $this->belongsTo(User::class, 'user_id')->simplify('manager');
     }
 
-    public function getDevicesAttribute() {
+    public function getDevicesAttribute(): Collection
+    {
         return collect($this->getAttribute('contents'))->pluck('device');
     }
 

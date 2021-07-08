@@ -6,9 +6,11 @@ use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
 
 
 /**
@@ -26,7 +28,7 @@ use Carbon\Carbon;
  *      @OA\Property(property="updatedAt", type="datetime", example="2021-04-08T07:57:55+00:00", description="게시글 수정일자" ),
  *      @OA\Property(property="thumbnail", type="object", description="게시글 섬네일 이미지 정보",
  *          @OA\Property(property="id", type="integer", example=4, description="이미지 고유 번호" ),
- *          @OA\Property(property="url", type="string", example="http://local-api.qpicki.com/storage/post/048/000/000/caf4df2767fea15158143aaab145d94e.jpg", description="이미지 url" ),
+ *          @OA\Property(property="url", type="string", example="https://local-api.qpicki.com/storage/post/048/000/000/caf4df2767fea15158143aaab145d94e.jpg", description="이미지 url" ),
  *      ),
  *      @OA\Property(property="attachFiles", type="object", ref="#/components/schemas/AttachFile"),
  *      @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply"),
@@ -36,6 +38,7 @@ use Carbon\Carbon;
  *
  * Class Post
  *
+ * @method static where(string $string, $boardId)
  */
 class Post extends Model
 {
@@ -88,22 +91,22 @@ class Post extends Model
         return $this->belongsTo(User::class)->simplify('manager');
     }
 
-    public function replies()
+    public function replies(): HasMany
     {
         return $this->hasMany('App\Models\Reply');
     }
 
-    public function attachFiles()
+    public function attachFiles(): MorphMany
     {
         return $this->morphMany('App\Models\AttachFile', 'attachable');
     }
 
-    public function thumbnail()
+    public function thumbnail(): HasOne
     {
         return $this->hasOne('App\Models\PostThumbnail');
     }
 
-    public function board()
+    public function board(): BelongsTo
     {
         return $this->belongsTo('App\Models\Board', 'board_id', 'id');
     }
@@ -120,6 +123,6 @@ class Post extends Model
 
     public function checkAttachableModel(): bool
     {
-        return intval($this->board->options['attach']) ? true : false;
+        return boolval(intval($this->board->options['attach']));
     }
 }
