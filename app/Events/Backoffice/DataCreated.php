@@ -4,9 +4,7 @@ namespace App\Events\Backoffice;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -15,9 +13,9 @@ class DataCreated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $model;
-    public $id;
-    public $msg;
+    public Model $model;
+    public int $id;
+    public string $msg;
 
     /**
      * Create a new event instance.

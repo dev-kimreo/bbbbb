@@ -8,7 +8,6 @@ use App\Http\Requests\BackofficeMenus\UpdateRequest;
 use App\Http\Requests\BackofficeMenus\IndexRequest;
 use App\Models\BackofficeMenu;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 
@@ -132,11 +131,10 @@ class BackofficeMenuController extends Controller
      *          description="failed"
      *      )
      *  )
-     * @param Request $req
      * @param $menu_id
      * @return BackofficeMenu
      */
-    public function show(Request $req, $menu_id): BackofficeMenu
+    public function show($menu_id): BackofficeMenu
     {
         return $this->menu->findOrFail($menu_id);
     }
@@ -190,12 +188,11 @@ class BackofficeMenuController extends Controller
      *          description="failed"
      *      )
      *  )
-     * @param Request $req
      * @param $menu_id
      * @return Response
      * @throws QpickHttpException
      */
-    public function destroy(Request $req, $menu_id): Response
+    public function destroy($menu_id): Response
     {
         $this->menu = $this->menu->withCount('children')->findOrFail($menu_id);
 

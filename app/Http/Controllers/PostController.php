@@ -278,7 +278,7 @@ class PostController extends Controller
      *                      @OA\Property(property="id", type="integer", example=1, description="게시글 고유번호" ),
      *                      @OA\Property(property="title", type="string", example="게시글 제목입니다.", description="게시글 제목" ),
      *                      @OA\Property(property="thumbnail", type="object",
-     *                          @OA\Property(property="url", example="http://local-api.qpicki.com/storage/post/048/000/000/caf4df2767fea15158143aaab145d94e.jpg", description="게시글 섬네일 이미지 url" ),
+     *                          @OA\Property(property="url", example="https://local-api.qpicki.com/storage/post/048/000/000/caf4df2767fea15158143aaab145d94e.jpg", description="게시글 섬네일 이미지 url" ),
      *                      ),
      *                      @OA\Property(property="repliesCount", type="integer", example=20, description="게시글의 댓글 수" ),
      *                      @OA\Property(property="user", type="object", description="작성자" ),
@@ -315,9 +315,7 @@ class PostController extends Controller
         $postModel = $this->post->where('board_id', $boardId);
 
         // Backoffice login
-        if (Auth::hasAccessRightsToBackoffice()) {
-
-        } else {
+        if (!Auth::hasAccessRightsToBackoffice()) {
             $postModel->where('hidden', 0);
         }
 

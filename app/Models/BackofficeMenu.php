@@ -24,6 +24,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *      @OA\Property(property="deletedAt", type="string", format="date-time", description="삭제 일자")
  * )
  *
+ * @method static where(int[] $array)
+ * @method static findOrFail($menu_id)
+ * @method static create(array|int[] $array_merge)
+ * @method static find($menu_id)
+ * @method static withCount(string $string)
  */
 class BackofficeMenu extends Model
 {

@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @method static where(string $string, int $popup_id)
+ */
 class PopupDeviceContent extends Model
 {
     use HasFactory, SoftDeletes;

@@ -27,6 +27,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Class ExhibitionCategory
  * @package App\Models\Exhibitions
+ * @method static findOrFail(int $category_id)
+ * @method static orderByDesc(string $string)
+ * @method static create(array $all)
  */
 class ExhibitionCategory extends Model
 {

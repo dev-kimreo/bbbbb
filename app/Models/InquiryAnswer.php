@@ -28,6 +28,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Class InquiryAnswer
  *
+ * @method static where(string $string, int $inquiryId)
+ * @method static findOrFail($param)
  */
 
 class InquiryAnswer extends Model

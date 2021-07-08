@@ -36,6 +36,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *     @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply"),
  *  )
  *
+ * @method static create(array|int[]|null[]|string[] $array_merge)
+ * @method static findOrFail(int $id)
  */
 class EmailTemplate extends Model
 {

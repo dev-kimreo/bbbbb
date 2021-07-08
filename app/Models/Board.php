@@ -6,9 +6,9 @@ use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
 
 
 /**
@@ -54,6 +54,12 @@ use Carbon\Carbon;
  *
  * Class Board
  *
+ * @method static withCount(string $string)
+ * @method static findOrfail(int $id)
+ * @method static orderBy(mixed $key, mixed $value)
+ * @method static select(string $string, string $string1, string $string2)
+ * @method static whereBetween(string $string, array $sortArea)
+ * @method static find($boardId)
  */
 class Board extends Model
 {
@@ -88,7 +94,7 @@ class Board extends Model
         return $this->belongsTo(User::class)->simplify('manager');
     }
 
-    public function posts()
+    public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
     }

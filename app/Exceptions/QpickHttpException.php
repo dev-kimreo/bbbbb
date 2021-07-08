@@ -6,14 +6,14 @@ use Exception;
 
 class QpickHttpException extends Exception
 {
-    protected $errors;
+    protected array $errors;
 
     public function __construct($httpStatusCode, $errorCode, $targetKey = false)
     {
         $errorInfo = $this->getErrorInfo($errorCode, $targetKey);
         $this->errors[] = $errorInfo;
-        $this->message = $errorInfo['message'];
-        $this->code = $httpStatusCode;
+
+        parent::__construct($errorInfo['message'], $httpStatusCode);
     }
 
     public function getStatusCode()
@@ -21,12 +21,13 @@ class QpickHttpException extends Exception
         return $this->getCode();
     }
 
-    public function getErrors()
+    public function getErrors(): array
     {
         return $this->errors;
     }
 
-    protected function getErrorInfo($code, $key) {
+    protected function getErrorInfo($code, $key): array
+    {
         // Getting Translated Message
         $msg = __('exception.' . $code);
 
@@ -39,7 +40,7 @@ class QpickHttpException extends Exception
         if($key) {
             $res = [
                 'code' => $code,
-                'target' => $key ?? false,
+                'target' => $key,
                 'message' => $msg
             ];
         } else {

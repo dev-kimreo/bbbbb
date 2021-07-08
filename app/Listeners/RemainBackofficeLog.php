@@ -10,7 +10,7 @@ use Auth;
 
 class RemainBackofficeLog
 {
-    protected $log;
+    protected BackofficeLog $log;
 
     /**
      * Create the event listener.

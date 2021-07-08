@@ -267,7 +267,7 @@ class CategoryController extends Controller
         return response()->noContent();
     }
 
-    protected function getOne(int $category_id)
+    protected function getOne(int $category_id): Collection
     {
         return collect(ExhibitionCategory::findOrFail($category_id));
     }

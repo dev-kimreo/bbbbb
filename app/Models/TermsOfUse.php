@@ -53,6 +53,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *     @OA\Property(property="qpick", type="string", example="큐픽 서비스"),
  *     @OA\Property(property="partner", type="string", example="파트너센터"),
  * )
+ *
+ * Class TermsOfUse
+ * @package App\Models
+ * @method whereHasLanguage($v)
+ * @method static findOrFail(int $id)
+ * @method static create(array|\Carbon\Carbon[]|int[]|null[]|string[] $array_merge)
  */
 class TermsOfUse extends Model
 {

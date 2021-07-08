@@ -6,7 +6,6 @@ use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 
 /**
@@ -28,6 +27,7 @@ use Carbon\Carbon;
  *
  * Class BoardOption
  *
+ * @method static where(string $string, $type)
  */
 class BoardOption extends Model
 {
@@ -58,7 +58,7 @@ class BoardOption extends Model
         'options' => 'array'
     ];
 
-    protected $maps = [
+    protected array $maps = [
     ];
 
     protected $appends = [
