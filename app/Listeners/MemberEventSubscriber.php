@@ -8,19 +8,19 @@ use App\Models\UserLoginLog;
 use Carbon\Carbon;
 use Config;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Mail;
 use URL;
 
 class MemberEventSubscriber
 {
-
     public string $subName = 'verification.verify';
     public string $verifyKey = 'user.regist';
 
     public function handleMemberVerifyEmail($event): bool
     {
         // 이메일 인증되지 않은 회원일 경우
-        if ($event->user instanceof MustVerifyEmail && !$event->user->hasVerifiedEmail() ) {
+        if ($event->user instanceof MustVerifyEmail && !$event->user->hasVerifiedEmail()) {
             // 고유 url 생성
             $verifyBeUrl = URL::temporarySignedRoute(
                 $this->subName,
@@ -91,9 +91,9 @@ class MemberEventSubscriber
     /**
      * Register the listeners for the subscriber.
      *
-     * @param  \Illuminate\Events\Dispatcher  $events
+     * @param  Dispatcher $events
      */
-    public function subscribe($events){
+    public function subscribe(Dispatcher $events){
         $events->listen(
             'App\Events\Member\VerifyEmail',
             [MemberEventSubscriber::class, 'handleMemberVerifyEmail']

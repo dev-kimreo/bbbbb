@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  * Class SignedCode
  * @package App\Models
  * @method static nameId($nameId)
+ * @method static where(string $string, $id)
  */
 class SignedCode extends Model
 {
