@@ -39,6 +39,7 @@ class RemainActionLog
                     // TODO - 백오피스 로그에 변경항목 기록하기
                     //$changes = $event->model->getChanges();
                     $log = $this->log;
+                    $log->setAttribute('client_id', Auth::getClientId() ?? 0);
                     $log->setAttribute('user_id', Auth::id() ?? $event->model->user_id);
                     $log->setAttribute('loggable_type', $event->model->getMorphClass());
                     $log->setAttribute('loggable_id', $event->id);
@@ -48,6 +49,7 @@ class RemainActionLog
                     $log->save();
                 } elseif ($event instanceof DataCreated || $event instanceof DataDeleted) {
                     $log = $this->log;
+                    $log->setAttribute('client_id', Auth::getClientId() ?? 0);
                     $log->setAttribute('user_id', Auth::id() ?? $event->model->id);
                     $log->setAttribute('loggable_type', $event->model->getMorphClass());
                     $log->setAttribute('loggable_id', $event->id);

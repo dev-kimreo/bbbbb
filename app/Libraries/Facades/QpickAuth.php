@@ -39,7 +39,7 @@ class QpickAuth extends Auth
     {
         return self::check()
             && self::user()
-            && self::user()->token()->getAttribute('client_id') == 1;
+            && self::getClientId() == 1;
     }
 
     /**
@@ -51,7 +51,7 @@ class QpickAuth extends Auth
     {
         return self::check()
             && self::user()
-            && self::user()->token()->getAttribute('client_id') == 2;
+            && self::getClientId() == 2;
     }
 
     /**
@@ -64,6 +64,14 @@ class QpickAuth extends Auth
     {
         return self::check()
             && self::id() == $user_id;
+    }
+
+    /**
+     * @return int
+     */
+    public static function getClientId(): int
+    {
+        return intval(self::user()->token()->getAttribute('client_id'));
     }
 
     public static function user(): ?Authenticatable
