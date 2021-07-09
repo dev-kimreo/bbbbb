@@ -5,7 +5,7 @@ namespace App\Providers;
 use App\Events\Backoffice\DataCreated;
 use App\Events\Backoffice\DataDeleted;
 use App\Events\Backoffice\DataUpdated;
-use App\Listeners\RemainBackofficeLog;
+use App\Listeners\RemainActionLog;
 use App\Models\Board;
 use App\Models\Exhibitions\Banner;
 use App\Models\Exhibitions\ExhibitionCategory;
@@ -46,13 +46,13 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         DataCreated::class => [
-            RemainBackofficeLog::class
+            RemainActionLog::class
         ],
         DataUpdated::class => [
-            RemainBackofficeLog::class
+            RemainActionLog::class
         ],
         DataDeleted::class => [
-            RemainBackofficeLog::class
+            RemainActionLog::class
         ]
     ];
 

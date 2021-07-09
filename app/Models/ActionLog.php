@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * Class BackofficeLog
  * @package App\Models
  */
-class BackofficeLog extends Model
+class ActionLog extends Model
 {
     use HasFactory, DateFormatISO8601;
 

@@ -190,7 +190,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function backofficeLogs(): MorphMany
     {
-        return $this->morphMany(BackofficeLog::class, 'loggable');
+        return $this->morphMany(ActionLog::class, 'loggable');
     }
 
     public function findForPassport($username)

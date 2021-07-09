@@ -5,21 +5,24 @@ namespace App\Listeners;
 use App\Events\Backoffice\DataCreated;
 use App\Events\Backoffice\DataDeleted;
 use App\Events\Backoffice\DataUpdated;
-use App\Models\BackofficeLog;
+use App\Models\ActionLog;
 use Auth;
+use Illuminate\Http\Request;
 
-class RemainBackofficeLog
+class RemainActionLog
 {
-    protected BackofficeLog $log;
+    protected ActionLog $log;
+    protected Request $request;
 
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct(BackofficeLog $log)
+    public function __construct(ActionLog $log, Request $req)
     {
         $this->log = $log;
+        $this->request = $req;
     }
 
     /**
@@ -39,6 +42,8 @@ class RemainBackofficeLog
                     $log->setAttribute('user_id', Auth::id() ?? $event->model->user_id);
                     $log->setAttribute('loggable_type', $event->model->getMorphClass());
                     $log->setAttribute('loggable_id', $event->id);
+                    $log->setAttribute('crud', $event::$crud);
+                    $log->setAttribute('path', $this->request->path());
                     $log->setAttribute('memo', $event->msg);
                     $log->save();
                 } elseif ($event instanceof DataCreated || $event instanceof DataDeleted) {
@@ -46,6 +51,8 @@ class RemainBackofficeLog
                     $log->setAttribute('user_id', Auth::id() ?? $event->model->id);
                     $log->setAttribute('loggable_type', $event->model->getMorphClass());
                     $log->setAttribute('loggable_id', $event->id);
+                    $log->setAttribute('crud', $event::$crud);
+                    $log->setAttribute('path', $this->request->path());
                     $log->setAttribute('memo', $event->msg);
                     $log->save();
                 }

@@ -109,7 +109,7 @@ class TermsOfUse extends Model
 
     public function backofficeLogs(): MorphMany
     {
-        return $this->morphMany(BackofficeLog::class, 'loggable')
+        return $this->morphMany(ActionLog::class, 'loggable')
             ->orderByDesc('id');
     }
 

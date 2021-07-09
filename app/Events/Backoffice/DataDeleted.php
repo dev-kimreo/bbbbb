@@ -13,6 +13,7 @@ class DataDeleted
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public static string $crud = 'd';
     public Model $model;
     public int $id;
     public string $msg;

@@ -13,6 +13,7 @@ class DataUpdated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public static string $crud = 'u';
     public Model $model;
     public int $id;
     public string $msg;

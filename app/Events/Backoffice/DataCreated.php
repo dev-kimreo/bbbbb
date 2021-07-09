@@ -13,6 +13,7 @@ class DataCreated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public static string $crud = 'c';
     public Model $model;
     public int $id;
     public string $msg;
