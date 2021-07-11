@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 
 /**
@@ -46,6 +45,9 @@ use Illuminate\Support\Carbon;
  *      @OA\Property(property="referrer", type="object", ref="#/components/schemas/UserSimply", description="문의계정으로 지정된 사용자 정보"),
  *      @OA\Property(property="assignee", type="object", ref="#/components/schemas/UserSimply", description="처리담당자의 사용자 정보"),
  *  )
+ * @method static findOrFail(int $inquiryId)
+ * @method static find($id)
+ * @method static selectRaw(string $string)
  */
 class Inquiry extends Model
 {

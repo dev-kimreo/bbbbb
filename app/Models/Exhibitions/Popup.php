@@ -3,6 +3,7 @@
 namespace App\Models\Exhibitions;
 
 use App\Libraries\StringLibrary;
+use App\Models\BackofficeLog;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use App\Models\User;
@@ -12,8 +13,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 /**
  *  @OA\Schema(
@@ -82,6 +85,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Class Popup
  * @package App\Models\Exhibitions
+ * @method static orderByDesc(string $string)
+ * @method static create(array|int[]|null[]|string[] $array_merge)
+ * @method static findOrFail(int $popup_id)
  */
 class Popup extends Model
 {
@@ -114,7 +120,8 @@ class Popup extends Model
         return $this->belongsTo(User::class, 'user_id')->simplify('manager');
     }
 
-    public function getDevicesAttribute() {
+    public function getDevicesAttribute(): Collection
+    {
         return collect($this->getAttribute('contents'))->pluck('device');
     }
 
@@ -133,5 +140,10 @@ class Popup extends Model
         $this->exhibition()->delete();
         $this->contents()->delete();
         return parent::delete();
+    }
+
+    public function backofficeLogs(): MorphMany
+    {
+        return $this->morphMany(BackofficeLog::class, 'loggable');
     }
 }

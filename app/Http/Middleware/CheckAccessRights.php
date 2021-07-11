@@ -15,6 +15,7 @@ class CheckAccessRights
      *
      * @param Request $request
      * @param Closure $next
+     * @param mixed ...$range
      * @return mixed
      * @throws AuthenticationException
      * @throws QpickHttpException

@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Class UserAdvAgree
  * @package App\Models
+ * @method static where(string $string, int $user_id)
+ * @method static create(array $array)
  */
 class UserAdvAgree extends Model
 {

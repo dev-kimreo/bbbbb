@@ -22,6 +22,10 @@ class AccessTokenController extends ATC
     protected User $user;
     protected Request $req;
 
+    /**
+     * @throws QpickHttpException
+     * @throws ValidationException
+     */
     public function store(Request $req, ServerRequestInterface $request, User $user): Response
     {
         $this->user = $user;
@@ -121,7 +125,7 @@ class AccessTokenController extends ATC
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
-        LoginEvent::dispatch($this->req, $user->getAttribute('id'), $requestBody['client_id']);
+        LoginEvent::dispatch($this->req, $user->id, $user->grade, $requestBody['client_id']);
 
         // 로그인 시간 남기기
         $user->last_authorized_at = Carbon::now();

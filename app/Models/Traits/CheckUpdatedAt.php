@@ -6,7 +6,7 @@ use Illuminate\Support\Carbon;
 
 trait CheckUpdatedAt
 {
-    public function getUpdatedAtAttribute($value)
+    public function getUpdatedAtAttribute($value): ?string
     {
         $res = null;
 

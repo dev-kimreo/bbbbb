@@ -27,6 +27,11 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
 
+        // User 관련
+        // TODO 주기 정해지면 적용해서 살려야함
+//        $schedule->command('switch:userInactive')->daily();   // 활성화 회원 -> 휴먼회원으로 전환
+//        $schedule->command('delete:privacyDeletedUser')->daily();   // 탈퇴 회원 개인정보 영구 삭제
+
         // Telescope 데이터 제거
         $schedule->command('telescope:prune')->daily();
 

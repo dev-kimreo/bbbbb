@@ -12,7 +12,7 @@ class BoardObserver
     /**
      * Handle the Board "created" event.
      *
-     * @param  \App\Models\Board  $board
+     * @param Board $board
      * @return void
      */
     public function created(Board $board)
@@ -23,7 +23,7 @@ class BoardObserver
     /**
      * Handle the Board "updated" event.
      *
-     * @param  \App\Models\Board  $board
+     * @param Board $board
      * @return void
      */
     public function updated(Board $board)
@@ -34,7 +34,7 @@ class BoardObserver
     /**
      * Handle the Board "deleted" event.
      *
-     * @param  \App\Models\Board  $board
+     * @param Board $board
      * @return void
      */
     public function deleted(Board $board)
@@ -45,7 +45,7 @@ class BoardObserver
     /**
      * Handle the Board "restored" event.
      *
-     * @param  \App\Models\Board  $board
+     * @param Board $board
      * @return void
      */
     public function restored(Board $board)
@@ -56,7 +56,7 @@ class BoardObserver
     /**
      * Handle the Board "force deleted" event.
      *
-     * @param  \App\Models\Board  $board
+     * @param Board $board
      * @return void
      */
     public function forceDeleted(Board $board)

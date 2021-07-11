@@ -11,7 +11,6 @@ use App\Models\Tooltip;
 use Auth;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 
@@ -60,7 +59,7 @@ class TooltipController extends Controller
      *
      * Display a listing of the resource.
      *
-     * @param Request $request
+     * @param IndexRequest $request
      * @return Collection
      */
     public function index(IndexRequest $request): Collection
@@ -336,28 +335,13 @@ class TooltipController extends Controller
                 }
             });
 
-            foreach($content as $lang => $value) {
+            foreach ($content as $lang => $value) {
                 $translation->translationContents()->create([
                     'lang' => $lang,
                     'value' => $value
                 ]);
             };
         }
-        /*
-        $tooltip->translation()->each(function ($o) use ($request, $tooltip) {
-            $o->update([
-                'explanation' => $request->input('title', $tooltip->title)
-            ]);
-
-            if (is_array($content = $request->input('content'))) {
-                $o->translationContents()->each(function ($o) use ($content) {
-                    if ($content[$o->lang]) {
-                        $o->update(['value' => $content[$o->lang]]);
-                    }
-                });
-            }
-        });
-        */
 
         // response
         $data = $this->getOne($id);

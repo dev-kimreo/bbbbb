@@ -6,6 +6,7 @@ use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
@@ -23,6 +24,10 @@ use Carbon\Carbon;
  * @OA\Property(property="authority", type="object", readOnly="true", ref="#/components/schemas/Authority")
  * )
  *
+ * @method static find($id)
+ * @method static firstOrCreate(array $array, array $array1)
+ * @method static findOrFail(int $id)
+ * @method static create(array $array_merge)
  */
 class Manager extends Model
 {
@@ -50,7 +55,7 @@ class Manager extends Model
         return $this->belongsTo(User::class)->simplify('manager');
     }
 
-    public function authority()
+    public function authority(): BelongsTo
     {
         return $this->belongsTo(Authority::class);
     }

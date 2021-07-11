@@ -2,11 +2,13 @@
 
 namespace App\Models\Exhibitions;
 
+use App\Models\BackofficeLog;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -25,6 +27,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Class ExhibitionCategory
  * @package App\Models\Exhibitions
+ * @method static findOrFail(int $category_id)
+ * @method static orderByDesc(string $string)
+ * @method static create(array $all)
  */
 class ExhibitionCategory extends Model
 {
@@ -53,4 +58,10 @@ class ExhibitionCategory extends Model
     {
         return $query->select('id', 'name');
     }
+
+    public function backofficeLogs(): MorphMany
+    {
+        return $this->morphMany(BackofficeLog::class, 'loggable');
+    }
+
 }

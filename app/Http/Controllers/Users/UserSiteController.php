@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\SiteRequest;
 use App\Models\UserSite;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class UserSiteController extends Controller
@@ -49,7 +48,7 @@ class UserSiteController extends Controller
      *      )
      *  )
      *
-     * @param Request $req
+     * @param SiteRequest $req
      * @param int $user_id
      * @return JsonResponse
      */

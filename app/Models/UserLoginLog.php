@@ -7,13 +7,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @method static selectRaw(string $string)
+ * @method static where(string $string, int $user_id)
+ * @method static create(array $array)
+ */
 class UserLoginLog extends Model
 {
     use HasFactory, DateFormatISO8601;
 
     public $timestamps = false;
     protected $appends = ['attempted_user'];
-    protected $fillable = ['user_id', 'manager_id', 'client_id', 'ip'];
+    protected $fillable = ['user_id', 'user_grade', 'manager_id', 'client_id', 'ip'];
     protected $hidden = ['user_id', 'manager_id', 'client_id'];
     protected $casts = [
         'created_at' => 'datetime',

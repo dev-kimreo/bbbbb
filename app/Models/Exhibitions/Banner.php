@@ -4,6 +4,7 @@ namespace App\Models\Exhibitions;
 
 use App\Libraries\StringLibrary;
 use App\Models\AttachFile;
+use App\Models\BackofficeLog;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use App\Models\User;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -90,6 +92,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Class Banner
  * @package App\Models\Exhibitions
+ * @method static orderByDesc(string $string)
+ * @method static create(array|int[]|null[]|string[] $array_merge)
+ * @method static findOrFail(int $banner_id)
  */
 class Banner extends Model
 {
@@ -149,5 +154,10 @@ class Banner extends Model
         $this->contentsAttachFiles()->delete();
         $this->contents()->delete();
         return parent::delete();
+    }
+
+    public function backofficeLogs(): MorphMany
+    {
+        return $this->morphMany(BackofficeLog::class, 'loggable');
     }
 }

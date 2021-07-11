@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @method static where(string $string, int $banner_id)
+ */
 class BannerDeviceContent extends Model
 {
     use HasFactory, SoftDeletes;

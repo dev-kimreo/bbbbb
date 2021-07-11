@@ -19,6 +19,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *      @OA\Property(property="deletedAt", type="string", format="date-time", description="삭제 일자")
  * )
  *
+ * @method static findOrfail($permission_id)
+ * @method static firstOrCreate(array $all)
+ * @method static find($permission_id)
  */
 class BackofficePermission extends Model
 {
