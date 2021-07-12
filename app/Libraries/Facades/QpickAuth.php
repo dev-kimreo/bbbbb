@@ -2,6 +2,7 @@
 
 namespace App\Libraries\Facades;
 
+use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
 
@@ -68,7 +69,7 @@ class QpickAuth extends Auth
     public static function user(): ?Authenticatable
     {
         static $res;
-        if (!is_object($res)) {
+        if (!is_object($res) && !($res instanceof User)) {
             $res = parent::user();
             $privacy = $res->privacy()->first();
             $res->name = $privacy->name;
