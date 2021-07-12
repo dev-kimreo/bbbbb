@@ -17,7 +17,7 @@ class UserObserver
      */
     public function created(User $user)
     {
-        DataCreated::dispatch($user, $user->getAttribute('id'), '회원 가입');
+        DataCreated::dispatch($user, $user->getAttribute('id'), '회원가입');
     }
 
     /**
@@ -29,6 +29,16 @@ class UserObserver
     public function updated(User $user)
     {
         DataUpdated::dispatch($user, $user->getAttribute('id'), '회원정보 수정');
+
+        $changedColumns = $user->getChanges();
+
+        if ($changedColumns['name']) {
+            DataUpdated::dispatch($user, $user->getAttribute('id'), '이름 변경');
+        }
+
+        if ($changedColumns['password']) {
+            DataUpdated::dispatch($user, $user->getAttribute('id'), '비밀번호 변경');
+        }
     }
 
     /**
@@ -39,7 +49,7 @@ class UserObserver
      */
     public function deleted(User $user)
     {
-        DataDeleted::dispatch($user, $user->getAttribute('id'), '회원정보 삭제');
+        DataDeleted::dispatch($user, $user->getAttribute('id'), '회원탈퇴');
     }
 
     /**
@@ -50,7 +60,7 @@ class UserObserver
      */
     public function restored(User $user)
     {
-        DataUpdated::dispatch($user, $user->getAttribute('id'), '삭제된 회원정보 복구');
+        DataUpdated::dispatch($user, $user->getAttribute('id'), '탈퇴회원 복구');
     }
 
     /**
@@ -61,6 +71,6 @@ class UserObserver
      */
     public function forceDeleted(User $user)
     {
-        DataDeleted::dispatch($user, $user->getAttribute('id'), '회원정보 영구 삭제');
+        DataDeleted::dispatch($user, $user->getAttribute('id'), '회원탈퇴');
     }
 }

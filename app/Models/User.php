@@ -193,6 +193,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->morphMany(ActionLog::class, 'loggable');
     }
 
+    public function actionLogs(): MorphMany
+    {
+        return $this->morphMany(ActionLog::class, 'loggable');
+    }
+
     public function findForPassport($username)
     {
         return $this->status('active')->whereHas('privacy', function (Builder $q) use ($username) {
