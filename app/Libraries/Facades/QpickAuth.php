@@ -67,11 +67,13 @@ class QpickAuth extends Auth
 
     public static function user(): ?Authenticatable
     {
-        $res = parent::user();
-        $res->name = $res->privacy->name;
-        $res->email = $res->privacy->email;
-        unset($res->privacy);
-
+        static $res;
+        if (!is_object($res)) {
+            $res = parent::user();
+            $privacy = $res->privacy()->first();
+            $res->name = $privacy->name;
+            $res->email = $privacy->email;
+        }
         return $res;
     }
 }
