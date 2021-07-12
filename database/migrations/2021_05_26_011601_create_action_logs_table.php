@@ -17,12 +17,13 @@ class CreateActionLogsTable extends Migration
             $table->bigInteger('id');
             $table->tinyInteger('client_id');
             $table->foreignId('user_id'); // 로그성 테이블의 유연성을 위해 제약조건 미설정
+            $table->char('ip', 15);
             $table->morphs('loggable');
             $table->char('crud', 1);
-            $table->string('action_type', 16)->nullable();
             $table->string('path', 128);
-            $table->string('memo', 512);
-            $table->json('columns')->nullable();
+            $table->string('title', 16)->nullable();
+            $table->string('memo', 512)->nullable();
+            $table->json('properties')->nullable();
             $table->timestamp('created_at')->index();
             $table->primary(['id', 'created_at']);
         });
