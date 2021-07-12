@@ -18,6 +18,7 @@ class Login
     public ?int $manager_id = null;
     public int $client_id;
     public ?string $ip;
+    public ?array $properties = [];
 
     /**
      * Create a new event instance.
