@@ -158,6 +158,6 @@ class Banner extends Model
 
     public function backofficeLogs(): MorphMany
     {
-        return $this->morphMany(ActionLog::class, 'loggable');
+        return $this->morphMany(ActionLog::class, 'loggable')->forBackoffice();
     }
 }

@@ -46,4 +46,12 @@ class ActionLog extends Model
     {
         return $this->morphTo();
     }
+
+    public function scopeForBackoffice($query)
+    {
+        return $query
+            ->select('loggable_id', 'loggable_type', 'user_id', 'title', 'properties', 'created_at')
+            ->where('client_id', '=', 2)
+            ->orderByDesc('id');
+    }
 }

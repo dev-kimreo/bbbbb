@@ -109,8 +109,7 @@ class TermsOfUse extends Model
 
     public function backofficeLogs(): MorphMany
     {
-        return $this->morphMany(ActionLog::class, 'loggable')
-            ->orderByDesc('id');
+        return $this->morphMany(ActionLog::class, 'loggable')->forBackoffice();
     }
 
     public function scopeWhereHasLanguage($q, $v)
