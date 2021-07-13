@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -88,7 +89,7 @@ class UserTest extends TestCase
      */
     public function testIndexByGuest()
     {
-        $response = $this->requestQpickApi('get', '/v1/user/', []);
+        $response = $this->requestQpickApi('get', '/v1/user', []);
         $response->assertUnauthorized();
     }
 
@@ -96,7 +97,7 @@ class UserTest extends TestCase
     {
         $this->actingAsQpickUser('associate');
 
-        $response = $this->requestQpickApi('get', '/v1/user/', []);
+        $response = $this->requestQpickApi('get', '/v1/user', []);
         $response->assertForbidden();
     }
 
@@ -104,7 +105,7 @@ class UserTest extends TestCase
     {
         $this->actingAsQpickUser('regular');
 
-        $response = $this->requestQpickApi('get', '/v1/user/', []);
+        $response = $this->requestQpickApi('get', '/v1/user', []);
         $response->assertForbidden();
     }
 
@@ -112,7 +113,7 @@ class UserTest extends TestCase
     {
         $this->actingAsQpickUser('backoffice');
 
-        $response = $this->requestQpickApi('get', '/v1/user/', []);
+        $response = $this->requestQpickApi('get', '/v1/user', []);
         $response->assertOk();
     }
 
@@ -518,5 +519,80 @@ class UserTest extends TestCase
         $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
         $response->assertOk();
     }
+
+    // function getStatUserByGrade
+    public function testGetStatUserByGradeByGuest()
+    {
+        $response = $this->requestQpickApi('get', '/v1/statistics/user/count-per-grade');
+        $response->assertUnauthorized();
+    }
+
+    public function testGetStatUserByGradeByAssociate()
+    {
+        $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('get', '/v1/statistics/user/count-per-grade');
+        $response->assertForbidden();
+    }
+
+    public function testGetStatUserByGradeByRegular()
+    {
+        $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('get', '/v1/statistics/user/count-per-grade');
+        $response->assertForbidden();
+    }
+
+    public function testGetStatUserByGradeByBackoffice()
+    {
+        $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('get', '/v1/statistics/user/count-per-grade');
+        $response->assertOk();
+    }
+
+    // function getCountLoginLogPerGrade
+    protected function getCountLoginLogPerGradeReqStructure(): string
+    {
+        $req = [
+            'startDate' => Carbon::now()->subDays(7),
+            'endDate' => Carbon::now(),
+        ];
+
+        return http_build_query($req);
+    }
+
+    public function testGetCountLoginLogPerGradeByGuest()
+    {
+        dd($this->getCountLoginLogPerGradeReqStructure());
+        $response = $this->requestQpickApi('get', '/v1/statistics/user/login-log/count-per-grade?' . $this->getCountLoginLogPerGradeReqStructure());
+        $response->assertUnauthorized();
+    }
+
+    public function testGetCountLoginLogPerGradeByAssociate()
+    {
+        $this->actingAsQpickUser('associate');
+
+        $response = $this->requestQpickApi('get', '/v1/statistics/user/login-log/count-per-grade?' . $this->getCountLoginLogPerGradeReqStructure());
+        $response->assertForbidden();
+    }
+
+    public function testGetCountLoginLogPerGradeByRegular()
+    {
+        $this->actingAsQpickUser('regular');
+
+        $response = $this->requestQpickApi('get', '/v1/statistics/user/login-log/count-per-grade?' . $this->getCountLoginLogPerGradeReqStructure());
+        $response->assertForbidden();
+    }
+
+    public function testGetCountLoginLogPerGradeByBackoffice()
+    {
+        $this->actingAsQpickUser('backoffice');
+
+        $response = $this->requestQpickApi('get', '/v1/statistics/user/login-log/count-per-grade?' . $this->getCountLoginLogPerGradeReqStructure());
+        dd($response->getContent());
+        $response->assertOk();
+    }
+
 
 }

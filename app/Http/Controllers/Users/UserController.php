@@ -1055,7 +1055,7 @@ class UserController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/statistics/user/grade",
+     *      path="/v1/statistics/user/count-per-grade",
      *      summary="등급별 회원수 현황",
      *      description="등급별로 해당하는 회원의 건수를 확인",
      *      operationId="statisticsUserGrade",
@@ -1105,7 +1105,7 @@ class UserController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/statistics/user/login-log",
+     *      path="/v1/statistics/user/login-log/count-per-grade",
      *      summary="등급별 로그인횟수",
      *      description="입력한 기간 내에 로그인이 일어난 횟수를 각 회원등급별로 집계",
      *      operationId="statisticsLoginLogGrade",
