@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Libraries\CollectionLibrary;
 use Exception;
 
 class QpickHttpException extends Exception
@@ -40,7 +41,7 @@ class QpickHttpException extends Exception
         if($key) {
             $res = [
                 'code' => $code,
-                'target' => $key,
+                'target' => CollectionLibrary::hasKeyCaseInsensitive(collect(request()->originals), $key),
                 'message' => $msg
             ];
         } else {
