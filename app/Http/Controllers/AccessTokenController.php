@@ -128,8 +128,7 @@ class AccessTokenController extends ATC
         LoginEvent::dispatch($this->req, $user->id, $user->grade, $requestBody['client_id']);
 
         // 로그인 시간 남기기
-        $user->last_authorized_at = Carbon::now();
-        $user->save();
+        $user->update(['last_authorized_at' => Carbon::now()]);
 
         return parent::issueToken($request);
     }
