@@ -209,8 +209,8 @@ class UserController extends Controller
         $data = $user->skip($pagination['skip'])->take($pagination['perPage'])->get();
 
         $data->each(function(&$item){
-            $item->name = $item->privacy->name;
-            $item->email = $item->privacy->email;
+            $item->name = $item->privacy->name ?? null;
+            $item->email = $item->privacy->email ?? null;
             unset($item->privacy);
         });
 

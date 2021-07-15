@@ -555,8 +555,8 @@ class UserTest extends TestCase
     protected function getCountLoginLogPerGradeReqStructure(): string
     {
         $req = [
-            'startDate' => Carbon::now()->subDays(7),
-            'endDate' => Carbon::now(),
+            'startDate' => Carbon::now()->subDays(7)->toString(),
+            'endDate' => Carbon::now()->toString(),
         ];
 
         return http_build_query($req);
@@ -564,7 +564,6 @@ class UserTest extends TestCase
 
     public function testGetCountLoginLogPerGradeByGuest()
     {
-        dd($this->getCountLoginLogPerGradeReqStructure());
         $response = $this->requestQpickApi('get', '/v1/statistics/user/login-log/count-per-grade?' . $this->getCountLoginLogPerGradeReqStructure());
         $response->assertUnauthorized();
     }
@@ -589,8 +588,8 @@ class UserTest extends TestCase
     {
         $this->actingAsQpickUser('backoffice');
 
-        $response = $this->requestQpickApi('get', '/v1/statistics/user/login-log/count-per-grade?' . $this->getCountLoginLogPerGradeReqStructure());
-        dd($response->getContent());
+        $param = $this->getCountLoginLogPerGradeReqStructure();
+        $response = $this->requestQpickApi('get', '/v1/statistics/user/login-log/count-per-grade?' . $param);
         $response->assertOk();
     }
 

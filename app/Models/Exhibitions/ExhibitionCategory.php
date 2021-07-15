@@ -2,7 +2,7 @@
 
 namespace App\Models\Exhibitions;
 
-use App\Models\BackofficeLog;
+use App\Models\ActionLog;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -61,7 +61,7 @@ class ExhibitionCategory extends Model
 
     public function backofficeLogs(): MorphMany
     {
-        return $this->morphMany(BackofficeLog::class, 'loggable');
+        return $this->morphMany(ActionLog::class, 'loggable')->forBackoffice();
     }
 
 }

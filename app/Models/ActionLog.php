@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * Class BackofficeLog
  * @package App\Models
  */
-class BackofficeLog extends Model
+class ActionLog extends Model
 {
     use HasFactory, DateFormatISO8601;
 
@@ -45,5 +45,13 @@ class BackofficeLog extends Model
     public function loggable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function scopeForBackoffice($query)
+    {
+        return $query
+            ->select('loggable_id', 'loggable_type', 'user_id', 'title', 'properties', 'created_at')
+            ->where('client_id', '=', 2)
+            ->orderByDesc('id');
     }
 }

@@ -39,7 +39,7 @@ class QpickAuth extends Auth
     {
         return self::check()
             && self::user()
-            && self::user()->token()->getAttribute('client_id') == 1;
+            && self::getClientId() == 1;
     }
 
     /**
@@ -51,7 +51,7 @@ class QpickAuth extends Auth
     {
         return self::check()
             && self::user()
-            && self::user()->token()->getAttribute('client_id') == 2;
+            && self::getClientId() == 2;
     }
 
     /**
@@ -66,16 +66,29 @@ class QpickAuth extends Auth
             && self::id() == $user_id;
     }
 
+    /**
+     * @return int|null
+     */
+    public static function getClientId(): ?int
+    {
+        $user = self::user();
+        return $user? intval($user->token()->getAttribute('client_id')): null;
+    }
+
+    /**
+     * @return Authenticatable|null
+     */
     public static function user(): ?Authenticatable
     {
         static $res;
-        $user = parent::user();
 
-        if ( (!($res instanceof User) && !is_object($res)) || ($res->id != $user->id) ) {
-            $res = $user;
-            $privacy = $res->privacy()->first();
-            $res->name = $privacy->name;
-            $res->email = $privacy->email;
+        if ($user = parent::user()) {
+            if ((!($res instanceof User) && !is_object($res)) || ($res->id != $user->id)) {
+                $res = $user;
+                $privacy = $res->privacy()->first();
+                $res->name = $privacy->name;
+                $res->email = $privacy->email;
+            }
         }
         return $res;
     }

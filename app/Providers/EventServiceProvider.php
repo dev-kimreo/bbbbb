@@ -5,7 +5,8 @@ namespace App\Providers;
 use App\Events\Backoffice\DataCreated;
 use App\Events\Backoffice\DataDeleted;
 use App\Events\Backoffice\DataUpdated;
-use App\Listeners\RemainBackofficeLog;
+use App\Events\Member\Login;
+use App\Listeners\RemainActionLog;
 use App\Models\Board;
 use App\Models\Exhibitions\Banner;
 use App\Models\Exhibitions\ExhibitionCategory;
@@ -17,6 +18,7 @@ use App\Models\TermsOfUse;
 use App\Models\Tooltip;
 use App\Models\User;
 use App\Models\UserAdvAgree;
+use App\Models\UserSite;
 use App\Observers\BoardObserver;
 use App\Observers\Exhibitions\BannerObserver;
 use App\Observers\Exhibitions\ExhibitionCategoryObserver;
@@ -28,6 +30,7 @@ use App\Observers\TermsOfUseObserver;
 use App\Observers\TooltipObserver;
 use App\Observers\UserAdvAgreeObserver;
 use App\Observers\UserObserver;
+use App\Observers\UserSiteObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -46,14 +49,17 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         DataCreated::class => [
-            RemainBackofficeLog::class
+            RemainActionLog::class
         ],
         DataUpdated::class => [
-            RemainBackofficeLog::class
+            RemainActionLog::class
         ],
         DataDeleted::class => [
-            RemainBackofficeLog::class
-        ]
+            RemainActionLog::class
+        ],
+        Login::class => [
+            RemainActionLog::class
+        ],
     ];
 
     /**
@@ -74,6 +80,7 @@ class EventServiceProvider extends ServiceProvider
         Tooltip::observe(TooltipObserver::class);
         User::observe(UserObserver::class);
         UserAdvAgree::observe(UserAdvAgreeObserver::class);
+        UserSite::observe(UserSiteObserver::class);
     }
 
     protected $subscribe = [

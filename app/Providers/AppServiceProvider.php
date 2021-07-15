@@ -40,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
             'tooltip' => 'App\Models\Tooltip',
             'terms_of_use' => 'App\Models\TermsOfUse',
             'user' => 'App\Models\User',
+            'user_site' => 'App\Models\UserSite',
             'email_template' => 'App\Models\EmailTemplate',
             'exhibition_category' => 'App\Models\Exhibitions\ExhibitionCategory',
         ]);
