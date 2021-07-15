@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Libraries\CollectionLibrary;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
@@ -106,7 +107,7 @@ class Handler extends ExceptionHandler
                 foreach ($v as $k => $message) {
                     $response['errors'][] = [
                         'code' => 'validation.' . lcfirst($rule[$k]),
-                        'target' => $field,
+                        'target' => CollectionLibrary::hasKeyCaseInsensitive(collect(request()->originals), $field),
                         'msg' => $message
                     ];
                 }
