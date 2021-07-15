@@ -67,23 +67,28 @@ class QpickAuth extends Auth
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public static function getClientId(): int
+    public static function getClientId(): ?int
     {
-        return intval(self::user()->token()->getAttribute('client_id'));
+        $user = self::user();
+        return $user? intval($user->token()->getAttribute('client_id')): null;
     }
 
+    /**
+     * @return Authenticatable|null
+     */
     public static function user(): ?Authenticatable
     {
         static $res;
-        $user = parent::user();
 
-        if ( (!($res instanceof User) && !is_object($res)) || ($res->id != $user->id) ) {
-            $res = $user;
-            $privacy = $res->privacy()->first();
-            $res->name = $privacy->name;
-            $res->email = $privacy->email;
+        if ($user = parent::user()) {
+            if ((!($res instanceof User) && !is_object($res)) || ($res->id != $user->id)) {
+                $res = $user;
+                $privacy = $res->privacy()->first();
+                $res->name = $privacy->name;
+                $res->email = $privacy->email;
+            }
         }
         return $res;
     }

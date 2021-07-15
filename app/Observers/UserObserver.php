@@ -32,11 +32,11 @@ class UserObserver
 
         $changedColumns = $user->getChanges();
 
-        if ($changedColumns['name']) {
+        if (isset($changedColumns['name'])) {
             DataUpdated::dispatch($user, $user->getAttribute('id'), '이름 변경');
         }
 
-        if ($changedColumns['password']) {
+        if (isset($changedColumns['password'])) {
             DataUpdated::dispatch($user, $user->getAttribute('id'), '비밀번호 변경');
         }
     }
