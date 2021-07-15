@@ -200,7 +200,6 @@ Route::group([
         // 담당자 지정
         Route::patch('{inquiryId}/assignee/{assignee_id}', [InquiryController::class, 'assignee'])->middleware('chkAccess:backoffice');
 
-        Route::get('count-per-status', [InquiryController::class, 'getCountPerStatus'])->middleware('chkAccess:backoffice');
     });
 
     // 답변 CRUD (Customized Router)
@@ -293,7 +292,11 @@ Route::group([
         'prefix' => 'statistics',
         'middleware' => ['auth:api', 'chkAccess:backoffice']
     ], function () {
+        // User
         Route::get('user/count-per-grade', [UserController::class, 'getStatUserByGrade']);
         Route::get('user/login-log/count-per-grade', [UserController::class, 'getCountLoginLogPerGrade']);
+
+        // Inquiry
+        Route::get('inquiry/count-per-status', [InquiryController::class, 'getCountPerStatus']);
 	});
 });

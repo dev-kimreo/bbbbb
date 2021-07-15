@@ -321,7 +321,7 @@ class InquiryTest extends TestCase
 
     public function testGetCountPerStatusByGuest()
     {
-        $response = $this->requestQpickApi('get', '/v1/inquiry/count-per-status');
+        $response = $this->requestQpickApi('get', '/v1/statistics/inquiry/count-per-status');
         $response
             ->assertUnauthorized();
     }
@@ -330,7 +330,7 @@ class InquiryTest extends TestCase
     {
         $this->actingAsQpickUser('associate');
 
-        $response = $this->requestQpickApi('get', '/v1/inquiry/count-per-status');
+        $response = $this->requestQpickApi('get', '/v1/statistics/inquiry/count-per-status');
         $response
             ->assertForbidden();
     }
@@ -339,7 +339,7 @@ class InquiryTest extends TestCase
     {
         $this->actingAsQpickUser('regular');
 
-        $response = $this->requestQpickApi('get', '/v1/inquiry/count-per-status');
+        $response = $this->requestQpickApi('get', '/v1/statistics/inquiry/count-per-status');
         $response
             ->assertForbidden();
     }
@@ -348,7 +348,7 @@ class InquiryTest extends TestCase
     {
         $this->actingAsQpickUser('backoffice');
 
-        $response = $this->requestQpickApi('get', '/v1/inquiry/count-per-status');
+        $response = $this->requestQpickApi('get', '/v1/statistics/inquiry/count-per-status');
         $response
             ->assertOk();
     }
