@@ -15,6 +15,7 @@ class CreateActionLogsTable extends Migration
     {
         Schema::create('action_logs', function (Blueprint $table) {
             $table->bigInteger('id');
+            $table->string('conn_id', 32)->nullable();
             $table->tinyInteger('client_id')->nullable();
             $table->foreignId('user_id')->nullable(); // 로그성 테이블의 유연성을 위해 제약조건 미설정
             $table->char('ip', 15);

@@ -57,6 +57,7 @@ class RemainActionLog
             return;
         }
 
+        $log->setAttribute('conn_id', Auth::getConnectId());
         $log->setAttribute('ip', $this->request->ip());
         $log->setAttribute('crud', $event::$crud ?? 'r');
         $log->setAttribute('path', $this->request->path());
@@ -68,6 +69,7 @@ class RemainActionLog
     public function customLog(Model $model, string $title, ?string $memo = null)
     {
         $log = $this->log;
+        $log->setAttribute('conn_id', Auth::getConnectId());
         $log->setAttribute('client_id', Auth::getClientId() ?? 0);
         $log->setAttribute('user_id', Auth::id() ?? $model->getAttribute('user_id'));
         $log->setAttribute('ip', $this->request->ip());
