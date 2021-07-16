@@ -6,6 +6,7 @@ use App\Events\Backoffice\DataCreated;
 use App\Events\Backoffice\DataDeleted;
 use App\Events\Backoffice\DataUpdated;
 use App\Events\Member\Login;
+use App\Events\Member\Logout;
 use App\Listeners\RemainActionLog;
 use App\Models\Board;
 use App\Models\Exhibitions\Banner;
@@ -58,6 +59,9 @@ class EventServiceProvider extends ServiceProvider
             RemainActionLog::class
         ],
         Login::class => [
+            RemainActionLog::class
+        ],
+        Logout::class => [
             RemainActionLog::class
         ],
     ];

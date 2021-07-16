@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\Member\Login as LoginEvent;
+use App\Events\Member\Logout as LogoutEvent;
 use App\Exceptions\QpickHttpException;
 use App\Models\User;
 use Auth;
@@ -20,7 +21,6 @@ use Validator;
 class AccessTokenController extends ATC
 {
     protected User $user;
-    protected Request $req;
 
     /**
      * @throws QpickHttpException
@@ -165,7 +165,6 @@ class AccessTokenController extends ATC
     }
 
 
-
     /**
      * @OA\Delete(
      *      path="/v1/user/auth",
@@ -185,20 +184,26 @@ class AccessTokenController extends ATC
      *          "davinci_auth":{}
      *      }}
      *  )
-     */
-    /**
+     *
      * 로그아웃
      *
+     * @param Request $req
      * @return Response
      */
-    public function destroy(): Response
+    public function destroy(Request $req): Response
     {
+        // Init
+        $user = Auth::user();
+
         // 엑세스 토큰 제거
-        Auth::user()->token()->revoke();
+        $user->token()->revoke();
 
         // refresh token revoke
 //        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
 //        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId(auth()->user()->token()->id);
+
+        // Dispatch the logout event
+        LogoutEvent::dispatch($req, $user->id, $user->grade, Auth::getClientId());
 
         return response()->noContent();
     }

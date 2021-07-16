@@ -6,6 +6,7 @@ use App\Events\Backoffice\DataCreated;
 use App\Events\Backoffice\DataDeleted;
 use App\Events\Backoffice\DataUpdated;
 use App\Events\Member\Login;
+use App\Events\Member\Logout;
 use App\Models\ActionLog;
 use Auth;
 use Illuminate\Database\Eloquent\Model;
@@ -30,19 +31,19 @@ class RemainActionLog
     /**
      * Handle the event.
      *
-     * @param  DataCreated|DataUpdated|DataDeleted|Login  $event
+     * @param  DataCreated|DataUpdated|DataDeleted|Login|Logout  $event
      * @return void
      */
     public function handle($event)
     {
         $log = $this->log;
 
-        if ($event instanceof Login) {
+        if ($event instanceof Login || $event instanceof Logout) {
             $log->setAttribute('client_id', $event->client_id);
             $log->setAttribute('user_id', $event->manager_id ?? $event->user_id);
             $log->setAttribute('loggable_type', 'user');
             $log->setAttribute('loggable_id', $event->user_id);
-            $log->setAttribute('title', $event->manager_id? '관리자 로그인': '로그인');
+            $log->setAttribute('title', ($event->manager_id? '관리자 ': '') . ($event instanceof Login? '로그인': '로그아웃'));
         } elseif (
             method_exists($event->model, 'actionLogs') ||
             (method_exists($event->model, 'backofficeLogs') && Auth::hasAccessRightsToBackoffice())
