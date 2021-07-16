@@ -38,9 +38,9 @@ class DataUpdated
         $this->properties = collect([]);
 
         // Getting updated columns with values
-        $changes = array_diff_key($model->getChanges(), array_flip([
+        $changes = array_diff(array_keys($model->getChanges()), [
             'updated_at'
-        ]));
+        ]);
         $this->setData('changes', $changes);
     }
 
