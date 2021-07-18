@@ -36,6 +36,15 @@ class OauthClientsSeeder extends Seeder
                     "redirect" => 'http://localhost',
                     "personal_access_client" => 0,
                     "password_client" => 1
+                ],
+                [
+                    "id" => '3',
+                    "name" => 'qpicki_partner',
+                    "secret" => '1qHu1PnRScO20Lh6OvM4Rso83jypcx0rQ0B3rY8Y',
+                    "provider" => 'users',
+                    "redirect" => 'http://localhost',
+                    "personal_access_client" => 0,
+                    "password_client" => 1
                 ]
             ]
         );
