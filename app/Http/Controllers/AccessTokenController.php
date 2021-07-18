@@ -98,11 +98,11 @@ class AccessTokenController extends ATC
         $username = $requestBody['username'];
         $password = $requestBody['password'];
 
-        $user = $this->user::status('active')->whereHas('privacy', function(Builder $q) use ($username){
+        $user = $this->user::status('active')->whereHas('privacy', function (Builder $q) use ($username) {
             $q->where('email', $username);
         })->first();
 
-        $checkInactive = $this->user::status('inactive')->whereHas('privacy', function(Builder $q) use ($username){
+        $checkInactive = $this->user::status('inactive')->whereHas('privacy', function (Builder $q) use ($username) {
             $q->where('email', $username);
         })->first();
 
@@ -110,6 +110,10 @@ class AccessTokenController extends ATC
         if ($requestBody['client_id'] == '2') {
             if (!$user->manager) {
                 throw new QpickHttpException(403, 'common.unauthorized');
+            }
+        } else if ($requestBody['client_id'] == '3') {  // Partner center 로그인 권한 체크
+            if (!$user->partner) {
+                throw new QpickHttpException(403, 'common.forbidden');
             }
         }
 
@@ -132,7 +136,6 @@ class AccessTokenController extends ATC
 
         return parent::issueToken($request);
     }
-
 
 
     /**

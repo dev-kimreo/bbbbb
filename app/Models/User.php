@@ -117,6 +117,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Manager::class);
     }
 
+    public function partner(): HasOne
+    {
+        return $this->hasOne(UserPartner::class);
+    }
+
     public function authority(): BelongsToMany
     {
         return $this->belongsToMany('App\Models\Authority', 'managers')->wherePivot('deleted_at', null);
