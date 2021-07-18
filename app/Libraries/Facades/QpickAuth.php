@@ -88,6 +88,10 @@ class QpickAuth extends Auth
                 $privacy = $res->privacy()->first();
                 $res->name = $privacy->name;
                 $res->email = $privacy->email;
+
+                if ($user->token()->getAttribute('client_id') == '3') {
+                    $res->partner;
+                }
             }
         }
         return $res;
