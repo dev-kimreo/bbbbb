@@ -264,10 +264,10 @@ Route::group([
 
         // 배너관리
         Route::resource('/banner', BannerController::class, [
-            'only' => ['store', 'update', 'destroy']
+            'only' => ['store', 'update', 'destroy', 'show']
         ])->middleware('chkAccess:backoffice');
         Route::resource('/banner', BannerController::class, [
-            'only' => ['index', 'show']
+            'only' => ['index']
         ]);
     });
 
