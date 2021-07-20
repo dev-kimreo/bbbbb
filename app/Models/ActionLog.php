@@ -19,14 +19,20 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  *
  * Class BackofficeLog
  * @package App\Models
+ * @method updateOrCreate(array $array, array $data)
  */
 class ActionLog extends Model
 {
     use HasFactory, DateFormatISO8601;
 
     public $timestamps = false;
+    public $fillable = [
+        'client_id', 'conn_id', 'crud', 'ip', 'loggable_id', 'loggable_type',
+        'memo', 'path', 'properties', 'title', 'user_id'
+    ];
     public $hidden = ['user_id', 'loggable_type', 'loggable_id'];
     public $with = ['user'];
+    protected $casts = ['properties' => 'json'];
 
     public static function boot()
     {

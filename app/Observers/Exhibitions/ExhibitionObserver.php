@@ -50,7 +50,7 @@ class ExhibitionObserver
      */
     public function restored(Model $model)
     {
-        DataUpdated::dispatch($model, $model->getAttribute('id'), '삭제복원');
+        DataUpdated::dispatch($model, $model->getAttribute('id'), '정보수정');
     }
 
     /**

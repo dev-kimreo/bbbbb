@@ -36,33 +36,59 @@ class RemainActionLog
      */
     public function handle($event)
     {
+        // init
+        $model = $event->model;
+        $id = $event->id;
         $log = $this->log;
+        $conn_id = Auth::getConnectId();
 
+        // get the origin log
+        $where = [
+            'loggable_type' => $model->getMorphClass(),
+            'loggable_id' => $id,
+            'conn_id' => $conn_id,
+            'path' => $this->request->path()
+        ];
+
+        if ($origin = ActionLog::where($where)->first()) {
+            $log = $origin;
+        }
+
+        // get some attribute values
         if ($event instanceof Login || $event instanceof Logout) {
-            $log->setAttribute('client_id', $event->client_id);
-            $log->setAttribute('user_id', $event->manager_id ?? $event->user_id);
-            $log->setAttribute('loggable_type', 'user');
-            $log->setAttribute('loggable_id', $event->user_id);
-            $log->setAttribute('title', ($event->manager_id? '관리자 ': '') . ($event instanceof Login? '로그인': '로그아웃'));
+            $client_id = $event->client_id;
+            $user_id = $event->manager_id ?? $event->user_id;
         } elseif (
-            method_exists($event->model, 'actionLogs') ||
-            (method_exists($event->model, 'backofficeLogs') && Auth::hasAccessRightsToBackoffice())
+            method_exists($model, 'actionLogs') ||
+            (method_exists($model, 'backofficeLogs') && Auth::hasAccessRightsToBackoffice())
         ) {
-            $log->setAttribute('client_id', Auth::getClientId() ?? 0);
-            $log->setAttribute('user_id', Auth::id() ?? $event->model->getAttribute('user_id'));
-            $log->setAttribute('loggable_type', $event->model->getMorphClass());
-            $log->setAttribute('loggable_id', $event->id);
-            $log->setAttribute('title', $event->title);
+            $client_id = Auth::getClientId() ?? 0;
+            $user_id = Auth::id() ?? $model->getAttribute('user_id');
         } else {
             return;
         }
 
-        $log->setAttribute('conn_id', Auth::getConnectId());
+        // set attributes
+        $log->setAttribute('conn_id', $conn_id);
+        $log->setAttribute('client_id', $client_id);
+        $log->setAttribute('user_id', $user_id);
+        $log->setAttribute('loggable_type', $model->getMorphClass());
+        $log->setAttribute('loggable_id', $id);
+        $log->setAttribute('title', $event->title);
         $log->setAttribute('ip', $this->request->ip());
         $log->setAttribute('crud', $event::$crud ?? 'r');
         $log->setAttribute('path', $this->request->path());
         $log->setAttribute('memo', $event->memo ?? null);
-        $log->setAttribute('properties', $event->properties && $event->properties->count()? $event->properties->toJson(): '{}');
+
+        // set properties
+        $properties = collect($origin->properties ?? []);
+        $properties = $properties->mergeRecursive($event->properties ?? []);
+        $properties = $properties->replace([
+            'changes' => collect($properties->get('changes'))->unique()->toArray()
+        ]);
+        $log->setAttribute('properties', $properties);
+
+        // save
         $log->save();
     }
 
