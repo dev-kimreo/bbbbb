@@ -10,8 +10,12 @@ use App\Events\Member\Logout;
 use App\Listeners\RemainActionLog;
 use App\Models\Board;
 use App\Models\Exhibitions\Banner;
+use App\Models\Exhibitions\BannerDeviceContent;
+use App\Models\Exhibitions\Exhibition;
 use App\Models\Exhibitions\ExhibitionCategory;
+use App\Models\Exhibitions\ExhibitionTargetUser;
 use App\Models\Exhibitions\Popup;
+use App\Models\Exhibitions\PopupDeviceContent;
 use App\Models\InquiryAnswer;
 use App\Models\EmailTemplate;
 use App\Models\Post;
@@ -22,6 +26,7 @@ use App\Models\UserAdvAgree;
 use App\Models\UserSite;
 use App\Observers\BoardObserver;
 use App\Observers\Exhibitions\BannerObserver;
+use App\Observers\Exhibitions\ExhibitionObserver;
 use App\Observers\Exhibitions\ExhibitionCategoryObserver;
 use App\Observers\Exhibitions\PopupObserver;
 use App\Observers\InquiryAnswerObserver;
@@ -73,12 +78,16 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Banner::observe(BannerObserver::class);
+        Banner::observe(ExhibitionObserver::class);
+        BannerDeviceContent::observe(ExhibitionObserver::class);
         Board::observe(BoardObserver::class);
         EmailTemplate::observe(EmailTemplateObserver::class);
+        Exhibition::observe(ExhibitionObserver::class);
+        ExhibitionTargetUser::observe(ExhibitionObserver::class);
         ExhibitionCategory::observe(ExhibitionCategoryObserver::class);
         InquiryAnswer::observe(InquiryAnswerObserver::class);
-        Popup::observe(PopupObserver::class);
+        Popup::observe(ExhibitionObserver::class);
+        PopupDeviceContent::observe(ExhibitionObserver::class);
         Post::observe(PostObserver::class);
         TermsOfUse::observe(TermsOfUseObserver::class);
         Tooltip::observe(TooltipObserver::class);
