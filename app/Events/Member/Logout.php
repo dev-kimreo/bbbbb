@@ -11,7 +11,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Queue\SerializesModels;
 
-class Login
+class Logout
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -39,7 +39,7 @@ class Login
         $this->manager_id = $manager_id;
         $this->client_id = $client_id;
         $this->ip = $req->ip();
-        $this->title = ($this->manager_id? '관리자 ': '') . '로그인';
+        $this->title = '로그아웃';
     }
 
     /**

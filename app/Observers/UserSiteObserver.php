@@ -24,6 +24,19 @@ class UserSiteObserver
     }
 
     /**
+     * Handle the User site "updated" event.
+     *
+     * @param UserSite $site
+     * @return void
+     */
+    public function updated(UserSite $site)
+    {
+        $event = new DataUpdated($site, $site->getAttribute('id'), '연동정보 수정');
+        $event->setData('solution', $site->getAttribute('solution'));
+        event($event);
+    }
+
+    /**
      * Handle the User site "deleted" event.
      *
      * @param UserSite $site
@@ -31,7 +44,7 @@ class UserSiteObserver
      */
     public function deleted(UserSite $site)
     {
-        $event = new DataDeleted($site, $site->getAttribute('id'), '연동 끊기');
+        $event = new DataDeleted($site, $site->getAttribute('id'), '연동 해제');
         $event->setData('solution', $site->getAttribute('solution'));
         event($event);
     }

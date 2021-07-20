@@ -32,17 +32,20 @@ class AppServiceProvider extends ServiceProvider
             'banner' => 'App\Models\Exhibitions\Banner',
             'banner_content' => 'App\Models\Exhibitions\BannerDeviceContent',
             'board' => 'App\Models\Board',
+            'email_template' => 'App\Models\EmailTemplate',
             'exception' => 'App\Models\Exception',
+            'exhibition' => 'App\Models\Exhibitions\Exhibition',
+            'exhibition_category' => 'App\Models\Exhibitions\ExhibitionCategory',
+            'exhibition_target_user' => 'App\Models\Exhibitions\ExhibitionTargetUser',
             'inquiry' => 'App\Models\Inquiry',
             'popup' => 'App\Models\Exhibitions\Popup',
+            'popup_content' => 'App\Models\Exhibitions\PopupDeviceContent',
             'post' => 'App\Models\Post',
             'post_thumbnail' => 'App\Models\PostThumbnail',
-            'tooltip' => 'App\Models\Tooltip',
             'terms_of_use' => 'App\Models\TermsOfUse',
+            'tooltip' => 'App\Models\Tooltip',
             'user' => 'App\Models\User',
             'user_site' => 'App\Models\UserSite',
-            'email_template' => 'App\Models\EmailTemplate',
-            'exhibition_category' => 'App\Models\Exhibitions\ExhibitionCategory',
         ]);
     }
 }

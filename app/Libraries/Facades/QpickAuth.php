@@ -4,6 +4,7 @@ namespace App\Libraries\Facades;
 
 use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class QpickAuth extends Auth
@@ -95,5 +96,13 @@ class QpickAuth extends Auth
             }
         }
         return $res;
+    }
+
+    public static function getConnectId(): string
+    {
+        static $conn_id = null;
+        $req = request();
+
+        return $conn_id = $conn_id ?? md5(Auth::id() . '+' . $req->ip() . '+' . Carbon::now());
     }
 }
