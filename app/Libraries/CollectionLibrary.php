@@ -64,4 +64,15 @@ class CollectionLibrary
 
         return $res ?? $key;
     }
+
+    public static function replaceValuesByPrefix(Collection $target, string $prefix): Collection
+    {
+        $res = collect();
+
+        $target->each(function ($item, $key) use ($res, $prefix) {
+            $res[$key] = $prefix . '.' . $item;
+        });
+
+        return $res;
+    }
 }

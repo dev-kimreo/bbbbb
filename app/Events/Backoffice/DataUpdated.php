@@ -2,6 +2,7 @@
 
 namespace App\Events\Backoffice;
 
+use App\Libraries\CollectionLibrary;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -31,16 +32,28 @@ class DataUpdated
      */
     public function __construct(Model $model, int $id, string $title, string $memo = null)
     {
+        // get updated columns with values
+        $changes = array_diff(array_keys($model->getChanges()), [
+            'updated_at'
+        ]);
+
+        // get the root model
+        while (method_exists($model, 'getParentRelation')) {
+            $prefix = $model->getMorphClass();
+
+            $model = $model->getParentRelation();
+            $id = $model->first()->id;
+            $model = $model->getModel();
+
+            $changes = CollectionLibrary::replaceValuesByPrefix(collect($changes), $prefix)->toArray();
+        }
+
+        // set properties
         $this->model = $model;
         $this->id = $id;
         $this->title = $title;
         $this->memo = $memo;
         $this->properties = collect([]);
-
-        // Getting updated columns with values
-        $changes = array_diff(array_keys($model->getChanges()), [
-            'updated_at'
-        ]);
         $this->setData('changes', $changes);
     }
 
