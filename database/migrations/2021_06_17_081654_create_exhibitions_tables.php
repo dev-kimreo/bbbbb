@@ -79,8 +79,8 @@ class CreateExhibitionsTables extends Migration
 
         Schema::create('exhibition_target_users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('exhibition_id');
-            $table->foreignId('user_id');
+            $table->foreignId('exhibition_id')->constrained();
+            $table->foreignId('user_id')->constrained();
             // No timestamps
             $table->softDeletes();
         });
