@@ -443,7 +443,7 @@ class UserController extends Controller
 
         // logout
         if(Auth::id() == $id) {
-            $tokenController->destroy();
+            $tokenController->logout();
         }
 
         // response
