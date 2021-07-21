@@ -245,24 +245,21 @@ class BannerTest extends TestCase
     public function testShowBannerByGuest()
     {
         $response = $this->getResponseShow();
-        $response->assertOk();
-        $response->assertJsonStructure($this->structureShow);
+        $response->assertUnauthorized();
     }
 
     public function testShowBannerByAssociate()
     {
         $this->actingAsQpickUser('associate');
         $response = $this->getResponseShow();
-        $response->assertOk();
-        $response->assertJsonStructure($this->structureShow);
+        $response->assertForbidden();
     }
 
     public function testShowBannerByRegular()
     {
         $this->actingAsQpickUser('regular');
         $response = $this->getResponseShow();
-        $response->assertOk();
-        $response->assertJsonStructure($this->structureShow);
+        $response->assertForbidden();
     }
 
     public function testShowBannerByBackoffice()
