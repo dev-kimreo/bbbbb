@@ -104,17 +104,41 @@ class PopupController extends Controller
             });
         }
 
-        if (is_array($s = $request->input('target_opt'))) {
-            $popup->whereHas('exhibition', function ($q) use ($s) {
-                $q->whereJsonContains('target_opt', $s);
+
+        if (Auth::check()) {
+            if (Auth::hasAccessRightsToBackoffice()) {
+                if (is_array($s = $request->input('target_opt'))) {
+                    $popup->whereHas('exhibition', function ($q) use ($s) {
+                        $q->whereJsonContains('target_opt', $s);
+                    });
+                }
+
+                if (strlen($s = $request->input('visible'))) {
+                    $popup->whereHas('exhibition', function ($q) use ($s) {
+                        $q->where('visible', $s);
+                    });
+                }
+            } else {
+                $popup->whereHas('exhibition', function ($q) {
+                    $q->where('target_opt', 'all')
+                        ->orWhere(function ($oq) {
+                            $oq->where('target_opt', 'grade')->whereJsonContains('target_grade', Auth::user()::$userGrade[Auth::user()->grade]);
+                        })
+                        ->orWhere(function ($oq) {
+                            $oq->where('target_opt', 'designate')->whereHas('targetUsers', function ($hq) {
+                                $hq->where('user_id', Auth::id());
+                            });
+                        })
+                        ->where('visible', 1);
+                });
+            }
+        } else {
+            $popup->whereHas('exhibition', function ($q) {
+                $q->where('target_opt', 'all')
+                    ->where('visible', 1);
             });
         }
 
-        if (strlen($s = $request->input('visible'))) {
-            $popup->whereHas('exhibition', function ($q) use ($s) {
-                $q->where('visible', $s);
-            });
-        }
 
         // set pagination information
         $pagination = PaginationLibrary::set($request->input('page'), $popup->count(), $request->input('per_page'));
@@ -123,7 +147,7 @@ class PopupController extends Controller
         $data = $popup->skip($pagination['skip'])->take($pagination['perPage'])->get();
 
         $data->each(function(&$v) {
-            $v->setHidden(['user_id', 'contents', 'deleted_at']);
+            $v->setHidden(['user_id', 'deleted_at']);
             $v->setAppends(['devices']);
         });
 
