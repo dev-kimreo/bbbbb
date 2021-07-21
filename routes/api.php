@@ -256,10 +256,10 @@ Route::group([
 
         // 팝업관리
         Route::resource('/popup', PopupController::class, [
-            'only' => ['store', 'update', 'destroy']
+            'only' => ['store', 'update', 'destroy', 'show']
         ])->middleware('chkAccess:backoffice');
         Route::resource('/popup', PopupController::class, [
-            'only' => ['index', 'show']
+            'only' => ['index']
         ]);
 
         // 배너관리

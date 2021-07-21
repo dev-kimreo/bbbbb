@@ -221,24 +221,21 @@ class PopupTest extends TestCase
     public function testShowPopupByGuest()
     {
         $response = $this->getResponseShow();
-        $response->assertOk();
-        $response->assertJsonStructure($this->structureShow);
+        $response->assertUnauthorized();
     }
 
     public function testShowPopupByAssociate()
     {
         $this->actingAsQpickUser('associate');
         $response = $this->getResponseShow();
-        $response->assertOk();
-        $response->assertJsonStructure($this->structureShow);
+        $response->assertForbidden();
     }
 
     public function testShowPopupByRegular()
     {
         $this->actingAsQpickUser('regular');
         $response = $this->getResponseShow();
-        $response->assertOk();
-        $response->assertJsonStructure($this->structureShow);
+        $response->assertForbidden();
     }
 
     public function testShowPopupByBackoffice()
