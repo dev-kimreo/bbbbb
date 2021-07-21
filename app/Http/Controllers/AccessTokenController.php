@@ -192,20 +192,25 @@ class AccessTokenController extends ATC
      */
     public function destroy(Request $req): Response
     {
-        // Init
-        $user = Auth::user();
+        $this->logout();
 
-        // 엑세스 토큰 제거
-        $user->token()->revoke();
-
+        /*
         // refresh token revoke
-//        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
-//        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId(auth()->user()->token()->id);
+        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
+        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId(auth()->user()->token()->id);
+        */
 
         // Dispatch the logout event
+        $user = Auth::user();
         LogoutEvent::dispatch($req, $user->id, $user->grade, Auth::getClientId());
 
         return response()->noContent();
     }
 
+    public function logout()
+    {
+        // 엑세스 토큰 제거
+        $user = Auth::user();
+        $user->token()->revoke();
+    }
 }
