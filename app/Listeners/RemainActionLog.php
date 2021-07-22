@@ -8,6 +8,7 @@ use App\Events\Backoffice\DataUpdated;
 use App\Events\Member\Login;
 use App\Events\Member\Logout;
 use App\Models\ActionLog;
+use App\Models\User;
 use Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -72,6 +73,7 @@ class RemainActionLog
         $log->setAttribute('conn_id', $conn_id);
         $log->setAttribute('client_id', $client_id);
         $log->setAttribute('user_id', $user_id);
+        $log->setAttribute('user_grade', User::find($user_id)->grade ?? null);
         $log->setAttribute('loggable_type', $model->getMorphClass());
         $log->setAttribute('loggable_id', $id);
         $log->setAttribute('title', $event->title);
