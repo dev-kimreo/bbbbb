@@ -22,6 +22,7 @@ use App\Http\Requests\Users\LoginLogStatRequest;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
 use App\Mail\QpickMailSender;
+use App\Models\ActionLog;
 use App\Models\SignedCode;
 use App\Models\User;
 use App\Models\UserLoginLog;
@@ -987,11 +988,11 @@ class UserController extends Controller
     public function getLoginLog(LoginLogRequest $request, int $user_id): array
     {
         // get a model
-        $logs = UserLoginLog::where('user_id', $user_id)->orderByDesc('id');
+        $logs = ActionLog::loginLog($user_id);
 
         // set search condition
         if ($request->input('by_manager')) {
-            $logs->whereNotNull('manager_id');
+            $logs->whereRaw('user_id <> loggable_id');
         }
 
         // set pagination information
@@ -999,6 +1000,11 @@ class UserController extends Controller
 
         // get data
         $data = $logs->skip($pagination['skip'])->take($pagination['perPage'])->get();
+        $data->each(function (&$item) {
+            $item['user_grade'] = $item['properties']['user_grade'];
+            $item['attemptedUser'] = $item['user'];
+            unset($item['properties'], $item['user']);
+        });
 
         // result
         return [

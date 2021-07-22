@@ -60,4 +60,16 @@ class ActionLog extends Model
             ->where('client_id', '=', 2)
             ->orderByDesc('id');
     }
+
+    public function scopeLoginLog($query, $user_id)
+    {
+        return $query
+            ->select('id', 'ip', 'user_id', 'created_at', 'properties')
+            ->where([
+                'title' => '로그인',
+                'loggable_type' => 'user',
+                'loggable_id' => $user_id
+            ])
+            ->orderByDesc('id');
+    }
 }
