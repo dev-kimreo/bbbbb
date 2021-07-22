@@ -32,7 +32,9 @@ class ActionLog extends Model
     ];
     public $hidden = ['user_id', 'loggable_type', 'loggable_id'];
     public $with = ['user'];
-    protected $casts = ['properties' => 'json'];
+    protected $casts = [
+        'properties' => 'json'
+    ];
 
     public static function boot()
     {
@@ -61,15 +63,32 @@ class ActionLog extends Model
             ->orderByDesc('id');
     }
 
-    public function scopeLoginLog($query, $user_id)
+    public function scopeLoginLog($query, $user_id = null)
     {
+        $where = [
+            'title' => '로그인',
+            'loggable_type' => 'user'
+        ];
+
+        if ($user_id) {
+            $where['loggable_id'] = $user_id;
+        }
+
         return $query
             ->select('id', 'ip', 'user_id', 'created_at', 'properties')
+            ->where($where)
+            ->orderByDesc('id');
+    }
+
+    public function scopeLoginLogStatistics($query, $start, $end)
+    {
+        return $query
+            ->selectRaw('user_grade as grade, count(id) as count')
+            ->whereBetween('created_at', [$start, $end])
             ->where([
                 'title' => '로그인',
-                'loggable_type' => 'user',
-                'loggable_id' => $user_id
+                'loggable_type' => 'user'
             ])
-            ->orderByDesc('id');
+            ->groupBy('grade');
     }
 }

@@ -1157,20 +1157,17 @@ class UserController extends Controller
      * 기간내 등급별 로그인로그 통계
      *
      * @param LoginLogStatRequest $request
-     * @param UserLoginLog $log
      * @return Collection
      */
-    public function getCountLoginLogPerGrade(LoginLogStatRequest $request, UserLoginLog $log): Collection
+    public function getCountLoginLogPerGrade(LoginLogStatRequest $request): Collection
     {
-        return Cache::tags('backoffice')->remember('login_log_count_per_grade', config('cache.custom.expire.common'), function () use ($request, $log) {
+        return Cache::tags('backoffice')->remember('login_log_count_per_grade', config('cache.custom.expire.common'), function () use ($request) {
             $start = Carbon::parse($request->input('start_date'));
             $end = Carbon::parse($request->input('end_date'))->setTime(23, 59, 59);
 
-            return $log->selectRaw('user_grade as grade, count(id) as count')
-                ->whereBetween('created_at', [$start, $end])
-                ->groupBy('grade')
+            return ActionLog::loginLogStatistics($start, $end)
                 ->get()
-                ->makeHidden(['attempted_user']);
+                ->makeHidden(['user']);
         });
     }
 
