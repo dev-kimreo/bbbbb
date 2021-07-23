@@ -227,12 +227,12 @@ Route::group([
     ], function(){
         Route::post('', [TermsOfUseController::class, 'store']);
         Route::get('', [TermsOfUseController::class, 'index']);
-        Route::get('/{terms_of_use_id}', [TermsOfUseController::class, 'show'])->where(['terms_of_use_id' => '[0-9]+']);
+        Route::get('/{terms_of_use_id}', [TermsOfUseController::class, 'show'])->where(['terms_of_use_id' => '[0-9]+'])->withoutmiddleware('chkAccess:backoffice');
         Route::patch('/{terms_of_use_id}', [TermsOfUseController::class, 'update']);
         Route::delete('/{terms_of_use_id}', [TermsOfUseController::class, 'destroy']);
 
-        Route::get('/service', [TermsOfUseController::class, 'getServiceList']);
-        Route::get('/type', [TermsOfUseController::class, 'getTypeList']);
+        Route::get('/service', [TermsOfUseController::class, 'getServiceList'])->withoutmiddleware('chkAccess:backoffice');
+        Route::get('/type', [TermsOfUseController::class, 'getTypeList'])->withoutmiddleware('chkAccess:backoffice');
     });
 
     /**
