@@ -32,6 +32,17 @@ class QpickAuth extends Auth
     }
 
     /**
+     * 현재 로그인된 사용자가 파트너센터 사용가능 API의 접근권한을 보유하고 있는지 확인
+     *
+     * @return bool
+     */
+    public static function hasAccessRightsToPartner(): bool
+    {
+        return self::isLoggedForPartner()
+            && self::user()->partner;
+    }
+
+    /**
      * 현재 사용자가 프론트 화면용으로 로그인되어 있는지 확인
      *
      * @return bool
@@ -56,6 +67,18 @@ class QpickAuth extends Auth
     }
 
     /**
+     * 현재 사용자가 파트너센터 용으로 로그인되어 있는지 확인
+     *
+     * @return bool
+     */
+    public static function isLoggedForPartner(): bool
+    {
+        return self::check()
+            && self::user()
+            && self::getClientId() == 3;
+    }
+
+    /**
      * 현재 로그인된 사용자의 id가 주어진 인자와 동일한지 확인
      *
      * @param int $user_id
@@ -73,7 +96,7 @@ class QpickAuth extends Auth
     public static function getClientId(): ?int
     {
         $user = self::user();
-        return $user? intval($user->token()->getAttribute('client_id')): null;
+        return $user ? intval($user->token()->getAttribute('client_id')) : null;
     }
 
     /**
