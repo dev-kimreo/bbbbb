@@ -121,7 +121,7 @@ class TermsOfUseTest extends TestCase
         $terms = $this->createTermsOfUse($user);
 
         $response = $this->requestQpickApi('get', '/v1/terms-of-use/' . $terms->id);
-        $response->assertUnauthorized();
+        $response->assertOk();
     }
 
     public function testShowByAssociate()
@@ -132,7 +132,7 @@ class TermsOfUseTest extends TestCase
         $this->actingAsQpickUser('associate');
 
         $response = $this->requestQpickApi('get', '/v1/terms-of-use/' . $terms->id);
-        $response->assertForbidden();
+        $response->assertOk();
     }
 
     public function testShowByRegular()
@@ -143,7 +143,7 @@ class TermsOfUseTest extends TestCase
         $this->actingAsQpickUser('regular');
 
         $response = $this->requestQpickApi('get', '/v1/terms-of-use/' . $terms->id);
-        $response->assertForbidden();
+        $response->assertOk();
     }
 
     public function testShowByBackoffice()
