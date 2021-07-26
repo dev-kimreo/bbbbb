@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\Member\Login as LoginEvent;
+use App\Events\Member\Logout as LogoutEvent;
 use App\Exceptions\QpickHttpException;
 use App\Models\User;
 use Auth;
@@ -20,7 +21,6 @@ use Validator;
 class AccessTokenController extends ATC
 {
     protected User $user;
-    protected Request $req;
 
     /**
      * @throws QpickHttpException
@@ -98,11 +98,11 @@ class AccessTokenController extends ATC
         $username = $requestBody['username'];
         $password = $requestBody['password'];
 
-        $user = $this->user::status('active')->whereHas('privacy', function(Builder $q) use ($username){
+        $user = $this->user::status('active')->whereHas('privacy', function (Builder $q) use ($username) {
             $q->where('email', $username);
         })->first();
 
-        $checkInactive = $this->user::status('inactive')->whereHas('privacy', function(Builder $q) use ($username){
+        $checkInactive = $this->user::status('inactive')->whereHas('privacy', function (Builder $q) use ($username) {
             $q->where('email', $username);
         })->first();
 
@@ -110,6 +110,10 @@ class AccessTokenController extends ATC
         if ($requestBody['client_id'] == '2') {
             if (!$user->manager) {
                 throw new QpickHttpException(403, 'common.unauthorized');
+            }
+        } else if ($requestBody['client_id'] == '3') {  // Partner center 로그인 권한 체크
+            if (!$user->partner) {
+                throw new QpickHttpException(403, 'common.forbidden');
             }
         }
 
@@ -128,12 +132,10 @@ class AccessTokenController extends ATC
         LoginEvent::dispatch($this->req, $user->id, $user->grade, $requestBody['client_id']);
 
         // 로그인 시간 남기기
-        $user->last_authorized_at = Carbon::now();
-        $user->save();
+        $user->update(['last_authorized_at' => Carbon::now()]);
 
         return parent::issueToken($request);
     }
-
 
 
     /**
@@ -163,7 +165,6 @@ class AccessTokenController extends ATC
     }
 
 
-
     /**
      * @OA\Delete(
      *      path="/v1/user/auth",
@@ -183,22 +184,33 @@ class AccessTokenController extends ATC
      *          "davinci_auth":{}
      *      }}
      *  )
-     */
-    /**
+     *
      * 로그아웃
      *
+     * @param Request $req
      * @return Response
      */
-    public function destroy(): Response
+    public function destroy(Request $req): Response
     {
-        // 엑세스 토큰 제거
-        Auth::user()->token()->revoke();
+        $this->logout();
 
+        /*
         // refresh token revoke
-//        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
-//        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId(auth()->user()->token()->id);
+        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
+        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId(auth()->user()->token()->id);
+        */
+
+        // Dispatch the logout event
+        $user = Auth::user();
+        LogoutEvent::dispatch($req, $user->id, $user->grade, Auth::getClientId());
 
         return response()->noContent();
     }
 
+    public function logout()
+    {
+        // 엑세스 토큰 제거
+        $user = Auth::user();
+        $user->token()->revoke();
+    }
 }

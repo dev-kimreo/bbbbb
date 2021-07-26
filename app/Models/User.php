@@ -80,9 +80,9 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasFactory, Notifiable, HasApiTokens, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
     // 회원 등급
-    public array $userGrade = [
-        0,  // 준회원
-        1   // 정회원
+    public static array $userGrade = [
+        0 => 'associate',  // 준회원
+        1 => 'regular'  // 정회원
     ];
 
     protected $fillable = [
@@ -115,6 +115,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function manager(): HasOne
     {
         return $this->hasOne(Manager::class);
+    }
+
+    public function partner(): HasOne
+    {
+        return $this->hasOne(UserPartner::class);
     }
 
     public function authority(): BelongsToMany
@@ -190,7 +195,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function backofficeLogs(): MorphMany
     {
-        return $this->morphMany(BackofficeLog::class, 'loggable');
+        return $this->morphMany(ActionLog::class, 'loggable')->forBackoffice();
+    }
+
+    public function actionLogs(): MorphMany
+    {
+        return $this->morphMany(ActionLog::class, 'loggable');
     }
 
     public function findForPassport($username)

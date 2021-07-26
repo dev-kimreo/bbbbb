@@ -7,6 +7,7 @@ use App\Models\Traits\CheckUpdatedAt;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -41,5 +42,10 @@ class UserSite extends Model
     public function user(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
+    }
+
+    public function actionLogs(): MorphMany
+    {
+        return $this->morphMany(ActionLog::class, 'loggable');
     }
 }

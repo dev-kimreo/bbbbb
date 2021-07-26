@@ -78,6 +78,18 @@ class BannerController extends Controller
             $banner->where('title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
         }
 
+        if ($s = $request->input('device')) {
+            $func = in_array($s, ['mobile', 'both']) ? 'whereHas' : 'whereDoesntHave';
+            $banner->$func('contents', function ($q) {
+                $q->where('device', 'mobile');
+            });
+
+            $func = in_array($s, ['pc', 'both']) ? 'whereHas' : 'whereDoesntHave';
+            $banner->$func('contents', function ($q) {
+                $q->where('device', 'pc');
+            });
+        }
+
         if ($s = $request->input('start_date')) {
             $s = Carbon::parse($s);
             $banner->whereHas('exhibition', function ($q) use ($s) {
@@ -92,29 +104,41 @@ class BannerController extends Controller
             });
         }
 
-        if ($s = $request->input('device')) {
-            $func = in_array($s, ['mobile', 'both'])? 'whereHas': 'whereDoesntHave';
-            $banner->$func('contents', function ($q) {
-                $q->where('device', 'mobile');
-            });
+        if (Auth::check()) {
+            if (Auth::hasAccessRightsToBackoffice()) {
+                if (is_array($s = $request->input('target_opt'))) {
+                    $banner->whereHas('exhibition', function ($q) use ($s) {
+                        $q->whereJsonContains('target_opt', $s);
+                    });
+                }
 
-            $func = in_array($s, ['pc', 'both'])? 'whereHas': 'whereDoesntHave';
-            $banner->$func('contents', function ($q) {
-                $q->where('device', 'pc');
+                if (strlen($s = $request->input('visible'))) {
+                    $banner->whereHas('exhibition', function ($q) use ($s) {
+                        $q->where('visible', $s);
+                    });
+                }
+            } else {
+                $banner->whereHas('exhibition', function ($q) {
+                    $q->where('target_opt', 'all')
+                        ->orWhere(function ($oq) {
+                            $oq->where('target_opt', 'grade')->whereJsonContains('target_grade', Auth::user()::$userGrade[Auth::user()->grade]);
+                        })
+                        ->orWhere(function ($oq) {
+                            $oq->where('target_opt', 'designate')->whereHas('targetUsers', function ($hq) {
+                                $hq->where('user_id', Auth::id());
+                            });
+                        })
+                        ->where('visible', 1);
+                });
+            }
+
+        } else {
+            $banner->whereHas('exhibition', function ($q) {
+                $q->where('target_opt', 'all')
+                    ->where('visible', 1);
             });
         }
 
-        if (is_array($s = $request->input('target_opt'))) {
-            $banner->whereHas('exhibition', function ($q) use ($s) {
-                $q->whereJsonContains('target_opt', $s);
-            });
-        }
-
-        if (strlen($s = $request->input('visible'))) {
-            $banner->whereHas('exhibition', function ($q) use ($s) {
-                $q->where('visible', $s);
-            });
-        }
 
         // set pagination information
         $pagination = PaginationLibrary::set($request->input('page'), $banner->count(), $request->input('per_page'));
@@ -122,8 +146,8 @@ class BannerController extends Controller
         // get data from DB
         $data = $banner->skip($pagination['skip'])->take($pagination['perPage'])->get();
 
-        $data->each(function(&$v) {
-            $v->setHidden(['user_id', 'contents', 'deleted_at']);
+        $data->each(function (&$v) {
+            $v->setHidden(['user_id', 'deleted_at']);
             $v->setAppends(['devices']);
         });
 
@@ -200,7 +224,7 @@ class BannerController extends Controller
 
         if (is_array($request->input('contents'))) {
             foreach ($request->input('contents') ?? [] as $k => $v) {
-                if($v) {
+                if ($v) {
                     $banner->contents()->create(['device' => $k]);
                 }
             }

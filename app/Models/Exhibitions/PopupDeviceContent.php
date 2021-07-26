@@ -5,6 +5,7 @@ namespace App\Models\Exhibitions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -25,5 +26,10 @@ class PopupDeviceContent extends Model
     public function popup(): BelongsTo
     {
         return $this->belongsTo(Popup::class);
+    }
+
+    public function getParentRelation(): Relation
+    {
+        return $this->popup();
     }
 }

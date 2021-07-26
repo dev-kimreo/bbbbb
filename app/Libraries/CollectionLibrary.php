@@ -8,8 +8,6 @@ use Illuminate\Support\Collection;
 
 class CollectionLibrary
 {
-
-
     public static function toCamelCase(Collection $value): Collection
     {
         $res = [];
@@ -56,4 +54,25 @@ class CollectionLibrary
         return $res;
     }
 
+    public static function hasKeyCaseInsensitive(Collection $target, string $key): ?string
+    {
+        foreach([$key, Str::snake($key), Str::camel($key)] as $v) {
+            if($res = isset($target[$v])? $v: null) {
+                break;
+            }
+        }
+
+        return $res ?? $key;
+    }
+
+    public static function replaceValuesByPrefix(Collection $target, string $prefix): Collection
+    {
+        $res = collect();
+
+        $target->each(function ($item, $key) use ($res, $prefix) {
+            $res[$key] = $prefix . '.' . $item;
+        });
+
+        return $res;
+    }
 }

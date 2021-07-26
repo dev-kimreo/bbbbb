@@ -2,7 +2,9 @@
 
 namespace App\Libraries\Facades;
 
+use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class QpickAuth extends Auth
@@ -30,6 +32,17 @@ class QpickAuth extends Auth
     }
 
     /**
+     * 현재 로그인된 사용자가 파트너센터 사용가능 API의 접근권한을 보유하고 있는지 확인
+     *
+     * @return bool
+     */
+    public static function hasAccessRightsToPartner(): bool
+    {
+        return self::isLoggedForPartner()
+            && self::user()->partner;
+    }
+
+    /**
      * 현재 사용자가 프론트 화면용으로 로그인되어 있는지 확인
      *
      * @return bool
@@ -38,7 +51,7 @@ class QpickAuth extends Auth
     {
         return self::check()
             && self::user()
-            && self::user()->token()->getAttribute('client_id') == 1;
+            && self::getClientId() == 1;
     }
 
     /**
@@ -50,7 +63,19 @@ class QpickAuth extends Auth
     {
         return self::check()
             && self::user()
-            && self::user()->token()->getAttribute('client_id') == 2;
+            && self::getClientId() == 2;
+    }
+
+    /**
+     * 현재 사용자가 파트너센터 용으로 로그인되어 있는지 확인
+     *
+     * @return bool
+     */
+    public static function isLoggedForPartner(): bool
+    {
+        return self::check()
+            && self::user()
+            && self::getClientId() == 3;
     }
 
     /**
@@ -65,13 +90,42 @@ class QpickAuth extends Auth
             && self::id() == $user_id;
     }
 
+    /**
+     * @return int|null
+     */
+    public static function getClientId(): ?int
+    {
+        $user = self::user();
+        return $user ? intval($user->token()->getAttribute('client_id')) : null;
+    }
+
+    /**
+     * @return Authenticatable|null
+     */
     public static function user(): ?Authenticatable
     {
-        $res = parent::user();
-        $res->name = $res->privacy->name;
-        $res->email = $res->privacy->email;
-        unset($res->privacy);
+        static $res;
 
+        if ($user = parent::user()) {
+            if ((!($res instanceof User) && !is_object($res)) || ($res->id != $user->id)) {
+                $res = $user;
+                $privacy = $res->privacy()->first();
+                $res->name = $privacy->name;
+                $res->email = $privacy->email;
+
+                if ($user->token()->getAttribute('client_id') == '3') {
+                    $res->partner;
+                }
+            }
+        }
         return $res;
+    }
+
+    public static function getConnectId(): string
+    {
+        static $conn_id = null;
+        $req = request();
+
+        return $conn_id = $conn_id ?? md5(Auth::id() . '+' . $req->ip() . '+' . Carbon::now());
     }
 }

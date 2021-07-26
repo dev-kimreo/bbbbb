@@ -615,11 +615,11 @@ class InquiryController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/inquiry/count-per-status",
+     *      path="/v1/statistics/inquiry/count-per-status",
      *      summary="1:1문의 상태별 통계",
      *      description="1:1문의 상태별 통계",
      *      operationId="inquiryGetCountPerStatus",
-     *      tags={"1:1문의"},
+     *      tags={"통계"},
      *      @OA\Response(
      *          response=200,
      *          description="successfully",

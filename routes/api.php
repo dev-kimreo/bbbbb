@@ -200,7 +200,6 @@ Route::group([
         // 담당자 지정
         Route::patch('{inquiryId}/assignee/{assignee_id}', [InquiryController::class, 'assignee'])->middleware('chkAccess:backoffice');
 
-        Route::get('count-per-status', [InquiryController::class, 'getCountPerStatus'])->middleware('chkAccess:backoffice');
     });
 
     // 답변 CRUD (Customized Router)
@@ -228,12 +227,12 @@ Route::group([
     ], function(){
         Route::post('', [TermsOfUseController::class, 'store']);
         Route::get('', [TermsOfUseController::class, 'index']);
-        Route::get('/{terms_of_use_id}', [TermsOfUseController::class, 'show'])->where(['terms_of_use_id' => '[0-9]+']);
+        Route::get('/{terms_of_use_id}', [TermsOfUseController::class, 'show'])->where(['terms_of_use_id' => '[0-9]+'])->withoutmiddleware('chkAccess:backoffice');
         Route::patch('/{terms_of_use_id}', [TermsOfUseController::class, 'update']);
         Route::delete('/{terms_of_use_id}', [TermsOfUseController::class, 'destroy']);
 
-        Route::get('/service', [TermsOfUseController::class, 'getServiceList']);
-        Route::get('/type', [TermsOfUseController::class, 'getTypeList']);
+        Route::get('/service', [TermsOfUseController::class, 'getServiceList'])->withoutmiddleware('chkAccess:backoffice');
+        Route::get('/type', [TermsOfUseController::class, 'getTypeList'])->withoutmiddleware('chkAccess:backoffice');
     });
 
     /**
@@ -257,18 +256,18 @@ Route::group([
 
         // 팝업관리
         Route::resource('/popup', PopupController::class, [
-            'only' => ['store', 'update', 'destroy']
+            'only' => ['store', 'update', 'destroy', 'show']
         ])->middleware('chkAccess:backoffice');
         Route::resource('/popup', PopupController::class, [
-            'only' => ['index', 'show']
+            'only' => ['index']
         ]);
 
         // 배너관리
         Route::resource('/banner', BannerController::class, [
-            'only' => ['store', 'update', 'destroy']
+            'only' => ['store', 'update', 'destroy', 'show']
         ])->middleware('chkAccess:backoffice');
         Route::resource('/banner', BannerController::class, [
-            'only' => ['index', 'show']
+            'only' => ['index']
         ]);
     });
 
@@ -293,7 +292,11 @@ Route::group([
         'prefix' => 'statistics',
         'middleware' => ['auth:api', 'chkAccess:backoffice']
     ], function () {
+        // User
         Route::get('user/count-per-grade', [UserController::class, 'getStatUserByGrade']);
         Route::get('user/login-log/count-per-grade', [UserController::class, 'getCountLoginLogPerGrade']);
+
+        // Inquiry
+        Route::get('inquiry/count-per-status', [InquiryController::class, 'getCountPerStatus']);
 	});
 });

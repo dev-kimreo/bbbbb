@@ -32,6 +32,7 @@ class CheckAccessRights
             || (in_array('regular', $range) && Auth::hasAccessRightsToFrontForRegular())
             || (in_array('owner', $range) && Auth::isSameUserAs($request->route('user_id')))
             || (in_array('backoffice', $range) && Auth::hasAccessRightsToBackoffice())
+            || (in_array('partner', $range) && Auth::hasAccessRightsToPartner())
         )) {
             throw new QpickHttpException(403, 'common.forbidden');
         }
