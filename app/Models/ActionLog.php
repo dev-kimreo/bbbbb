@@ -28,11 +28,13 @@ class ActionLog extends Model
     public $timestamps = false;
     public $fillable = [
         'client_id', 'conn_id', 'crud', 'ip', 'loggable_id', 'loggable_type',
-        'memo', 'path', 'properties', 'title', 'user_id'
+        'memo', 'path', 'properties', 'title', 'user_id', 'user_grade'
     ];
     public $hidden = ['user_id', 'loggable_type', 'loggable_id'];
     public $with = ['user'];
-    protected $casts = ['properties' => 'json'];
+    protected $casts = [
+        'properties' => 'json'
+    ];
 
     public static function boot()
     {
@@ -59,5 +61,34 @@ class ActionLog extends Model
             ->select('loggable_id', 'loggable_type', 'user_id', 'title', 'properties', 'created_at')
             ->where('client_id', '=', 2)
             ->orderByDesc('id');
+    }
+
+    public function scopeLoginLog($query, $user_id = null)
+    {
+        $where = [
+            'title' => '로그인',
+            'loggable_type' => 'user'
+        ];
+
+        if ($user_id) {
+            $where['loggable_id'] = $user_id;
+        }
+
+        return $query
+            ->select('id', 'ip', 'user_id', 'created_at', 'properties')
+            ->where($where)
+            ->orderByDesc('id');
+    }
+
+    public function scopeLoginLogStatistics($query, $start, $end)
+    {
+        return $query
+            ->selectRaw('user_grade as grade, count(id) as count')
+            ->whereBetween('created_at', [$start, $end])
+            ->where([
+                'title' => '로그인',
+                'loggable_type' => 'user'
+            ])
+            ->groupBy('grade');
     }
 }
