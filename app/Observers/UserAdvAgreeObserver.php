@@ -5,7 +5,7 @@ namespace App\Observers;
 use App\Events\Backoffice\DataCreated;
 use App\Events\Backoffice\DataDeleted;
 use App\Events\Backoffice\DataUpdated;
-use App\Models\UserAdvAgree;
+use App\Models\Users\UserAdvAgree;
 
 class UserAdvAgreeObserver
 {

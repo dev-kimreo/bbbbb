@@ -45,7 +45,7 @@ class AppServiceProvider extends ServiceProvider
             'terms_of_use' => 'App\Models\TermsOfUse',
             'tooltip' => 'App\Models\Tooltip',
             'user' => 'App\Models\Users\User',
-            'user_site' => 'App\Models\UserSite',
+            'user_site' => 'App\Models\Users\UserSite',
         ]);
     }
 }

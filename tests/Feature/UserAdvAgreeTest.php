@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\UserAdvAgree;
+use App\Models\Users\UserAdvAgree;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;

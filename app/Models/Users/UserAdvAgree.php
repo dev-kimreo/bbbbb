@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Users;
 
 use App\Models\Traits\DateFormatISO8601;
 use App\Models\Users\User;
