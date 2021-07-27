@@ -8,7 +8,7 @@ use App\Models\Exhibitions\BannerDeviceContent;
 use App\Models\Exhibitions\Exhibition;
 use App\Models\Exhibitions\ExhibitionCategory;
 use App\Models\Exhibitions\ExhibitionTargetUser;
-use App\Models\User;
+use App\Models\Users\User;
 use App\Models\Users\UserPrivacyActive;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;

@@ -32,12 +32,12 @@ class IndexRequest extends FormRequest
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
             'title' => 'nullable|string',
-            'user_id' => 'nullable|integer|exists:App\Models\User,id',
+            'user_id' => 'nullable|integer|exists:App\Models\Users\User,id',
             'user_email' => 'nullable|string',
             'user_name' => 'nullable|string',
-            'assignee_id' => 'nullable|integer|exists:App\Models\User,id|exists:App\Models\Manager,user_id',
+            'assignee_id' => 'nullable|integer|exists:App\Models\Users\User,id|exists:App\Models\Manager,user_id',
             'assignee_name' => 'nullable|string',
-            'answer_id' => 'nullable|integer|exists:App\Models\User,id|exists:App\Models\Manager,user_id',
+            'answer_id' => 'nullable|integer|exists:App\Models\Users\User,id|exists:App\Models\Manager,user_id',
 //            'multi_search' => 'nullable'
         ];
     }

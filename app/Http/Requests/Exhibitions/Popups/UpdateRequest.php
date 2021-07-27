@@ -37,7 +37,7 @@ class UpdateRequest extends FormRequest
             'target_opt' => ['nullable', 'string', Rule::in(Exhibition::$targetOpt)],
             'target_grade' => [$isRequiredTargetGrade, 'array', Rule::in(Exhibition::$targetGrade)],
             'target_users' => [$isRequiredTargetUser, 'array'],
-            'target_users.*' => ['integer', 'exists:App\Models\User,id'],
+            'target_users.*' => ['integer', 'exists:App\Models\Users\User,id'],
             'sort' => ['nullable', 'integer', 'between:0,999'],
             'visible' => ['nullable', 'boolean'],
             'contents' => ['nullable', 'array'],

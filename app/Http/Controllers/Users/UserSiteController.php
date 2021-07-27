@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\SiteRequest;
-use App\Models\UserSite;
+use App\Models\Users\UserSite;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 

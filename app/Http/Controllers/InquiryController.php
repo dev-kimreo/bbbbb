@@ -15,7 +15,7 @@ use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
 use App\Models\Inquiry;
 use App\Models\InquiryAnswer;
-use App\Models\User;
+use App\Models\Users\User;
 use App\Services\AttachService;
 use Auth;
 use DB;

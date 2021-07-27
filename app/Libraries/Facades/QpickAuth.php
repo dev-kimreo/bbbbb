@@ -2,7 +2,7 @@
 
 namespace App\Libraries\Facades;
 
-use App\Models\User;
+use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;

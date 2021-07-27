@@ -10,7 +10,7 @@ use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use App\Models\{Manager, User, Authority};
+use App\Models\{Manager, Authority, Users\User};
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;

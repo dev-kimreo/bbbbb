@@ -5,8 +5,8 @@ namespace App\Observers;
 use App\Events\Backoffice\DataCreated;
 use App\Events\Backoffice\DataDeleted;
 use App\Events\Backoffice\DataUpdated;
-use App\Models\User;
-use App\Models\UserSite;
+use App\Models\Users\User;
+use App\Models\Users\UserSite;
 
 class UserSiteObserver
 {

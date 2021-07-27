@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\SiteRequest;
-use App\Models\UserAdvAgree;
+use App\Models\Users\UserAdvAgree;
 use Illuminate\Http\JsonResponse;
 
 class UserAdvAgreeController extends Controller

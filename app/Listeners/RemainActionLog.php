@@ -8,7 +8,7 @@ use App\Events\Backoffice\DataUpdated;
 use App\Events\Member\Login;
 use App\Events\Member\Logout;
 use App\Models\ActionLog;
-use App\Models\User;
+use App\Models\Users\User;
 use Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
