@@ -6,7 +6,7 @@ use App\Models\Exhibitions\Exhibition;
 use App\Models\Exhibitions\ExhibitionCategory;
 use App\Models\Exhibitions\Popup;
 use App\Models\Exhibitions\PopupDeviceContent;
-use App\Models\User;
+use App\Models\Users\User;
 use App\Models\Users\UserPrivacyActive;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;

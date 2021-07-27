@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\Member\Login as LoginEvent;
 use App\Events\Member\Logout as LogoutEvent;
 use App\Exceptions\QpickHttpException;
-use App\Models\User;
+use App\Models\Users\User;
 use Auth;
 use Carbon\Carbon;
 use Hash;

@@ -24,7 +24,7 @@ use App\Libraries\StringLibrary;
 use App\Mail\QpickMailSender;
 use App\Models\ActionLog;
 use App\Models\SignedCode;
-use App\Models\User;
+use App\Models\Users\User;
 use Auth;
 use Cache;
 use DB;

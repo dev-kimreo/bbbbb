@@ -1,13 +1,19 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Users;
 
 use App\Exceptions\QpickHttpException;
+use App\Models\ActionLog;
+use App\Models\Inquiry;
+use App\Models\Manager;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
+use App\Models\UserAdvAgree;
+use App\Models\UserPartner;
 use App\Models\Users\UserPrivacyActive;
 use App\Models\Users\UserPrivacyDeleted;
 use App\Models\Users\UserPrivacyInactive;
+use App\Models\UserSite;
 use Carbon\Carbon;
 use Closure;
 use DB;

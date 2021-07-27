@@ -28,7 +28,7 @@ class UpdateRequest extends FormRequest
             'title' => 'required_without_all:question,referrer_id|string|between:6,100',
             'question' => 'required_without_all:title,referrer_id|string|min:10',
             'assignee_id' => 'prohibited',
-            'referrer_id' => 'required_without_all:title,question|integer|exists:App\Models\User,user_id'
+            'referrer_id' => 'required_without_all:title,question|integer|exists:App\Models\Users\User,user_id'
         ];
     }
 

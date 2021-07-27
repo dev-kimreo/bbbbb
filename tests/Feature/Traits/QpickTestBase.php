@@ -3,7 +3,7 @@
 namespace Tests\Feature\Traits;
 
 use App\Models\Manager;
-use App\Models\User;
+use App\Models\Users\User;
 use App\Models\Users\UserPrivacyActive;
 use Hash;
 use Laravel\Passport\Passport;
