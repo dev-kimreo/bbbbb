@@ -78,7 +78,7 @@ class ActionLog extends Model
         return $query
             ->select('id', 'ip', 'user_id', 'created_at', 'properties')
             ->where($where)
-            ->orderByDesc('id');
+            ->orderByDesc('created_at');
     }
 
     public function scopeLoginLogStatistics($query, $start, $end)

@@ -990,6 +990,11 @@ class UserController extends Controller
         $logs = ActionLog::loginLog($user_id);
 
         // set search condition
+        $logs->whereBetween('created_at', [
+            Carbon::parse($request->input('start_date')),
+            Carbon::parse($request->input('end_date'))
+        ]);
+
         if ($request->input('by_manager')) {
             $logs->whereRaw('user_id <> loggable_id');
         }
