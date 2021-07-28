@@ -17,10 +17,14 @@ class ActionLogTestSeeder extends Seeder
      */
     public function run()
     {
+        ini_set('memory_limit', '2048M');
+
         $crud = ['c', 'r', 'u', 'd'];
         $types = array_keys(Relation::morphMap());
+        $date = Carbon::now();
 
         for ($i=0; $i<=500000; $i++) {
+            $date = $date->addSeconds(rand(5,40));
             shuffle($crud);
             shuffle($types);
 
@@ -40,7 +44,7 @@ class ActionLogTestSeeder extends Seeder
                             'title' => '로그인',
                             'memo' => '로그인',
                             'properties' => '{"user_grade":1,"manager_id":null,"changes":[]}',
-                            'created_at' => Carbon::now()
+                            'created_at' => $date
                         ]
                     ]
                 );
@@ -61,7 +65,7 @@ class ActionLogTestSeeder extends Seeder
                             'title' => '로그인',
                             'memo' => '관리자 로그인',
                             'properties' => '{"user_grade":1,"manager_id":' . $admin_id . ',"changes":[]}',
-                            'created_at' => Carbon::now()
+                            'created_at' => $date
                         ]
                     ]
                 );
@@ -81,7 +85,7 @@ class ActionLogTestSeeder extends Seeder
                             'title' => Str::random(32),
                             'memo' => Str::random(128),
                             'properties' => '[]',
-                            'created_at' => Carbon::now()
+                            'created_at' => $date
                         ]
                     ]
                 );
