@@ -7,8 +7,8 @@ use Illuminate\Contracts\Validation\Rule;
 
 class WithinDaysOfOtherDate implements Rule
 {
-    public $other;
-    public $diff;
+    public Carbon $other;
+    public int $diff;
 
     /**
      * Create a new rule instance.
