@@ -464,16 +464,24 @@ class UserTest extends TestCase
     public function testGetLoginLogByGuest()
     {
         $user = $this->createAsQpickUser('regular');
+        $query = http_build_query([
+            'start_date' => Carbon::yesterday()->format('Y-m-d'),
+            'end_date' => Carbon::tomorrow()->format('Y-m-d')
+        ]);
 
-        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log?' . $query);
         $response->assertUnauthorized();
     }
 
     public function testGetLoginLogOwnerByAssociate()
     {
         $user = $this->actingAsQpickUser('associate');
+        $query = http_build_query([
+            'start_date' => Carbon::yesterday()->format('Y-m-d'),
+            'end_date' => Carbon::tomorrow()->format('Y-m-d')
+        ]);
 
-        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log?' . $query);
         $response->assertOk();
     }
 
@@ -481,16 +489,24 @@ class UserTest extends TestCase
     {
         $user = $this->createAsQpickUser('associate');
         $this->actingAsQpickUser('associate');
+        $query = http_build_query([
+            'start_date' => Carbon::yesterday()->format('Y-m-d'),
+            'end_date' => Carbon::tomorrow()->format('Y-m-d')
+        ]);
 
-        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log?' . $query);
         $response->assertForbidden();
     }
 
     public function testGetLoginLogOwnerByRegular()
     {
         $user = $this->actingAsQpickUser('regular');
+        $query = http_build_query([
+            'start_date' => Carbon::yesterday()->format('Y-m-d'),
+            'end_date' => Carbon::tomorrow()->format('Y-m-d')
+        ]);
 
-        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log?' . $query);
         $response->assertOk();
     }
 
@@ -498,16 +514,24 @@ class UserTest extends TestCase
     {
         $user = $this->createAsQpickUser('regular');
         $this->actingAsQpickUser('regular');
+        $query = http_build_query([
+            'start_date' => Carbon::yesterday()->format('Y-m-d'),
+            'end_date' => Carbon::tomorrow()->format('Y-m-d')
+        ]);
 
-        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log?' . $query);
         $response->assertForbidden();
     }
 
     public function testGetLoginLogOwnerByBackoffice()
     {
         $user = $this->actingAsQpickUser('backoffice');
+        $query = http_build_query([
+            'start_date' => Carbon::yesterday()->format('Y-m-d'),
+            'end_date' => Carbon::tomorrow()->format('Y-m-d')
+        ]);
 
-        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log?' . $query);
         $response->assertOk();
     }
 
@@ -515,8 +539,12 @@ class UserTest extends TestCase
     {
         $user = $this->createAsQpickUser('backoffice');
         $this->actingAsQpickUser('backoffice');
+        $query = http_build_query([
+            'start_date' => Carbon::yesterday()->format('Y-m-d'),
+            'end_date' => Carbon::tomorrow()->format('Y-m-d')
+        ]);
 
-        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log');
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/login-log?' . $query);
         $response->assertOk();
     }
 
