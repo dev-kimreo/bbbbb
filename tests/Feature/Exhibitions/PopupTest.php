@@ -83,15 +83,19 @@ class PopupTest extends TestCase
         ]
     ];
 
-    protected function getFactory(): Factory
+    protected function getFactory($targetOpt = null): Factory
     {
         return Popup::factory()
             ->has(
-                Exhibition::factory()->for(ExhibitionCategory::factory()->create(), 'category')
-            )->for(User::factory()->has(
-                UserPrivacyActive::factory(), 'privacy'
-            )->create(), 'creator')
-            ->has(PopupDeviceContent::factory(), 'contents');
+                Exhibition::factory()
+                    ->setTargetOpt($targetOpt)
+                    ->for(ExhibitionCategory::factory()->create(), 'category')
+            )->for(
+                User::factory()
+                    ->has(UserPrivacyActive::factory(), 'privacy')
+                    ->create(),
+                'creator'
+            )->has(PopupDeviceContent::factory(), 'contents');
     }
 
     protected function getReqStructure($exhibitionCategoryId, $targetOpt): array
@@ -127,8 +131,10 @@ class PopupTest extends TestCase
 
     protected function getResponseList()
     {
-        for ($i=0; $i<=3; $i++) {
-            $this->getFactory()->create();
+        foreach (Exhibition::$targetOpt as $targetOpt) {
+            for ($i = 0; $i <= 3; $i++) {
+                $this->getFactory($targetOpt)->create();
+            }
         }
 
         return $this->requestQpickApi('get', '/v1/exhibition/popup', []);
@@ -270,7 +276,7 @@ class PopupTest extends TestCase
     {
         $this->actingAsQpickUser('backoffice');
 
-        foreach (['all', 'grade', 'designate'] as $targetOpt) {
+        foreach (Exhibition::$targetOpt as $targetOpt) {
             $response = $this->getResponseUpdate($targetOpt);
             $response->assertCreated();
             $response->assertJsonStructure($this->structureShow);
