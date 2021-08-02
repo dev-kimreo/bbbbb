@@ -18,15 +18,18 @@ class CreateActionLogsTable extends Migration
             $table->string('conn_id', 32)->nullable();
             $table->tinyInteger('client_id')->nullable();
             $table->foreignId('user_id')->nullable(); // 로그성 테이블의 유연성을 위해 제약조건 미설정
+            $table->tinyInteger('user_grade')->nullable();
             $table->char('ip', 15);
-            $table->morphs('loggable');
+            $table->string('loggable_type');
+            $table->foreignId('loggable_id');
             $table->char('crud', 1);
             $table->string('path', 128);
             $table->string('title', 16)->nullable();
             $table->string('memo', 512)->nullable();
             $table->json('properties')->nullable();
-            $table->timestamp('created_at')->index();
+            $table->timestamp('created_at');
             $table->primary(['id', 'created_at']);
+            $table->index(['created_at', 'loggable_type', 'loggable_id']);
         });
 
         DB::statement("ALTER TABLE `action_logs` MODIFY COLUMN `id` BIGINT(20) UNSIGNED NOT NULL auto_increment");

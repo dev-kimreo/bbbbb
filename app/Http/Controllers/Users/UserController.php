@@ -22,9 +22,9 @@ use App\Http\Requests\Users\LoginLogStatRequest;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
 use App\Mail\QpickMailSender;
+use App\Models\ActionLog;
 use App\Models\SignedCode;
-use App\Models\User;
-use App\Models\UserLoginLog;
+use App\Models\Users\User;
 use Auth;
 use Cache;
 use DB;
@@ -987,11 +987,16 @@ class UserController extends Controller
     public function getLoginLog(LoginLogRequest $request, int $user_id): array
     {
         // get a model
-        $logs = UserLoginLog::where('user_id', $user_id)->orderByDesc('id');
+        $logs = ActionLog::loginLog($user_id);
 
         // set search condition
+        $logs->whereBetween('created_at', [
+            Carbon::parse($request->input('start_date')),
+            Carbon::parse($request->input('end_date'))
+        ]);
+
         if ($request->input('by_manager')) {
-            $logs->whereNotNull('manager_id');
+            $logs->whereRaw('user_id <> loggable_id');
         }
 
         // set pagination information
@@ -999,6 +1004,11 @@ class UserController extends Controller
 
         // get data
         $data = $logs->skip($pagination['skip'])->take($pagination['perPage'])->get();
+        $data->each(function (&$item) {
+            $item['user_grade'] = $item['properties']['user_grade'];
+            $item['attemptedUser'] = $item['user'];
+            unset($item['properties'], $item['user']);
+        });
 
         // result
         return [
@@ -1151,20 +1161,17 @@ class UserController extends Controller
      * 기간내 등급별 로그인로그 통계
      *
      * @param LoginLogStatRequest $request
-     * @param UserLoginLog $log
      * @return Collection
      */
-    public function getCountLoginLogPerGrade(LoginLogStatRequest $request, UserLoginLog $log): Collection
+    public function getCountLoginLogPerGrade(LoginLogStatRequest $request): Collection
     {
-        return Cache::tags('backoffice')->remember('login_log_count_per_grade', config('cache.custom.expire.common'), function () use ($request, $log) {
+        return Cache::tags('backoffice')->remember('login_log_count_per_grade', config('cache.custom.expire.common'), function () use ($request) {
             $start = Carbon::parse($request->input('start_date'));
             $end = Carbon::parse($request->input('end_date'))->setTime(23, 59, 59);
 
-            return $log->selectRaw('user_grade as grade, count(id) as count')
-                ->whereBetween('created_at', [$start, $end])
-                ->groupBy('grade')
+            return ActionLog::loginLogStatistics($start, $end)
                 ->get()
-                ->makeHidden(['attempted_user']);
+                ->makeHidden(['user']);
         });
     }
 

@@ -15,7 +15,7 @@ use App\Models\AttachFile;
 use App\Models\Board;
 use App\Models\Post;
 use App\Models\Reply;
-use App\Models\User;
+use App\Models\Users\User;
 use App\Services\AttachService;
 use Auth;
 use DB;

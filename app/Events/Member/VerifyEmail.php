@@ -2,7 +2,7 @@
 
 namespace App\Events\Member;
 
-use App\Models\User;
+use App\Models\Users\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;

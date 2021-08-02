@@ -3,9 +3,8 @@
 namespace Database\Factories\Exhibitions;
 
 use App\Models\Exhibitions\Exhibition;
-use App\Models\User;
+use App\Models\Users\User;
 use Carbon\Carbon;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ExhibitionFactory extends Factory
@@ -36,5 +35,23 @@ class ExhibitionFactory extends Factory
             'started_at' => Carbon::now(),
             'ended_at' => Carbon::now()->addDays(15)
         ];
+    }
+
+    /**
+     * @param $targetOpt
+     * @return ExhibitionFactory
+     */
+    public function setTargetOpt($targetOpt)
+    {
+        return $this->state(function (array $attributes) use ($targetOpt) {
+            if(in_array($targetOpt, Exhibition::$targetOpt)) {
+                return [
+                    'target_opt' => $targetOpt,
+                    'target_grade' => $targetOpt == 'grade'? [User::$userGrade[array_rand(User::$userGrade)]]: null
+                ];
+            } else {
+                return [];
+            }
+        });
     }
 }

@@ -26,7 +26,7 @@ class PasswordResetRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email|exists:App\Models\User,email',
+            'email' => 'required|email|exists:App\Models\Users\User,email',
             'token' => 'required',
             'password' => 'required|string|min:8',
             'password_confirmation' => 'required|string|same:password'

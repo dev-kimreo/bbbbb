@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             EmailTemplateSeeder::class,
         ]);
 
-        // \App\Models\User::factory(10)->create();
+        // \App\Models\Users\User::factory(10)->create();
     }
 }
 

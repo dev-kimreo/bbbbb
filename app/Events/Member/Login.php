@@ -2,7 +2,7 @@
 
 namespace App\Events\Member;
 
-use App\Models\User;
+use App\Models\Users\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 
 class Login
 {
@@ -23,7 +24,8 @@ class Login
     public int $client_id;
     public ?string $ip;
     public string $title;
-    public ?array $properties = [];
+    public ?string $memo;
+    public Collection $properties;
 
     /**
      * Create a new event instance.
@@ -39,7 +41,13 @@ class Login
         $this->manager_id = $manager_id;
         $this->client_id = $client_id;
         $this->ip = $req->ip();
-        $this->title = ($this->manager_id? '관리자 ': '') . '로그인';
+        $this->title = '로그인';
+        $this->memo = ($this->manager_id? '관리자 ': '') . '로그인';
+
+        $this->properties = collect([
+            'user_grade' => $user_grade,
+            'manager_id' => $manager_id
+        ]);
     }
 
     /**

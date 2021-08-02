@@ -3,7 +3,7 @@
 namespace Database\Factories\Exhibitions;
 
 use App\Models\Exhibitions\ExhibitionTargetUser;
-use App\Models\User;
+use App\Models\Users\User;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

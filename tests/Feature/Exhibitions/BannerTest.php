@@ -7,7 +7,7 @@ use App\Models\Exhibitions\Exhibition;
 use App\Models\Exhibitions\ExhibitionCategory;
 use App\Models\Exhibitions\Banner;
 use App\Models\Exhibitions\BannerDeviceContent;
-use App\Models\User;
+use App\Models\Users\User;
 use App\Models\Users\UserPrivacyActive;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -90,23 +90,24 @@ class BannerTest extends TestCase
         ]
     ];
 
-    protected function getFactory(): Factory
+    protected function getFactory($targetOpt = null): Factory
     {
         return Banner::factory()
             ->has(
-                Exhibition::factory()->for(
-                    ExhibitionCategory::factory()->create(),
-                    'category'
-                )
-            )->for(User::factory()->has(
-                UserPrivacyActive::factory(), 'privacy'
-            )->create(), 'creator')
-            ->has(
+                Exhibition::factory()
+                    ->setTargetOpt($targetOpt)
+                    ->for(ExhibitionCategory::factory()->create(), 'category')
+            )->for(
+                User::factory()
+                    ->has(UserPrivacyActive::factory(), 'privacy')
+                    ->create(),
+                'creator'
+            )->has(
                 BannerDeviceContent::factory()->has(
                     AttachFile::factory()->for(
-                        User::factory()->has(
-                            UserPrivacyActive::factory(), 'privacy'
-                        )->create(),
+                        User::factory()
+                            ->has(UserPrivacyActive::factory(), 'privacy')
+                            ->create(),
                         'uploader'
                     ),
                     'attachFile'
@@ -151,8 +152,10 @@ class BannerTest extends TestCase
 
     protected function getResponseList()
     {
-        for ($i=0; $i<=3; $i++) {
-            $this->getFactory()->create();
+        foreach (Exhibition::$targetOpt as $targetOpt) {
+            for ($i = 0; $i <= 3; $i++) {
+                $this->getFactory($targetOpt)->create();
+             }
         }
 
         return $this->requestQpickApi('get', '/v1/exhibition/banner', []);

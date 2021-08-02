@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
+use App\Models\Users\User;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 

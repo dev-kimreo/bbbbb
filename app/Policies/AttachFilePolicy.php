@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\User;
+use App\Models\Users\User;
 use App\Models\AttachFile;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
