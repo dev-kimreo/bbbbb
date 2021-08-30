@@ -11,6 +11,7 @@ use App\Libraries\StringLibrary;
 use App\Models\Exhibitions\ExhibitionTargetUser;
 use App\Models\Exhibitions\Popup;
 use App\Models\Exhibitions\PopupDeviceContent;
+use App\Models\Users\User;
 use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -37,7 +38,7 @@ class PopupController extends Controller
      *              @OA\Property(property="startDate", type="date(Y-m-d)", example="2021-07-01", description="전시기간 검색 시작일"),
      *              @OA\Property(property="endDate", type="date(Y-m-d)", example="2021-07-01", description="전시기간 검색 종료일"),
      *              @OA\Property(property="device", type="string", example="both", description="디바이스 선택<br />both:양쪽 모두 선택된 팝업<br />pc:PC만 선택된 팝업<br />mobile:모바일만 선택된 팝업"),
-     *              @OA\Property(property="targetOpt", type="string", example="all", description="전시 타겟설정<br />all:모든 회원<br />grade:회원구분<br />designate:특정회원"),
+     *              @OA\Property(property="targetOpt[]", type="array of string", example="all", description="전시 타겟설정<br />all:모든 회원<br />grade:회원구분<br />designate:특정회원"),
      *              @OA\Property(property="visible", type="boolean", example=1, description="전시여부<br />1:보임으로 설정한 팝업만 검색<br />0:숨김으로 설정한 팝업만 검색"),
      *          ),
      *      ),
@@ -109,7 +110,7 @@ class PopupController extends Controller
             if (Auth::hasAccessRightsToBackoffice()) {
                 if (is_array($s = $request->input('target_opt'))) {
                     $popup->whereHas('exhibition', function ($q) use ($s) {
-                        $q->whereJsonContains('target_opt', $s);
+                        $q->whereIn('target_opt', $s);
                     });
                 }
 
@@ -122,7 +123,7 @@ class PopupController extends Controller
                 $popup->whereHas('exhibition', function ($q) {
                     $q->where('target_opt', 'all')
                         ->orWhere(function ($oq) {
-                            $oq->where('target_opt', 'grade')->whereJsonContains('target_grade', Auth::user()::$userGrade[Auth::user()->grade]);
+                            $oq->where('target_opt', 'grade')->whereJsonContains('target_grade', User::$userGrade[Auth::user()->grade]);
                         })
                         ->orWhere(function ($oq) {
                             $oq->where('target_opt', 'designate')->whereHas('targetUsers', function ($hq) {

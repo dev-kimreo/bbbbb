@@ -49,6 +49,7 @@ class CreateUsersTable extends Migration
             $table->string('name', 32)->nullable();
             $table->string('url', 256)->nullable();
             $table->string('solution', 16)->nullable();
+            $table->string('solution_user_id', 128)->nullable();
             $table->string('apikey', 512)->nullable();
             $table->timestamps();
             $table->softDeletes();
