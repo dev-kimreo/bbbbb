@@ -33,7 +33,7 @@ class PopupController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="page", type="integer", example=1, default=1, description="페이지"),
      *              @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
-     *              @OA\Property(property="category", type="string", example="헬프센터", description="카테고리 이름"),
+     *              @OA\Property(property="category", type="integer", example="372", description="전시관리카테고리 번호"),
      *              @OA\Property(property="title", type="string", example="7월", description="팝업 제목"),
      *              @OA\Property(property="startDate", type="date(Y-m-d)", example="2021-07-01", description="전시기간 검색 시작일"),
      *              @OA\Property(property="endDate", type="date(Y-m-d)", example="2021-07-01", description="전시기간 검색 종료일"),
