@@ -128,9 +128,12 @@ class Popup extends Model
     public function scopeWhereHasCategory($q, $v)
     {
         return $q->whereHas('exhibition', function(Builder $q) use ($v) {
+            $q->where('exhibition_category_id', $v);
+            /*
             $q->whereHas('category', function (Builder $q) use ($v) {
                 $q->where('name', 'like', '%' . StringLibrary::escapeSql($v) . '%');
             });
+            */
         });
     }
 
