@@ -295,10 +295,10 @@ Route::group([
     Route::patch('/widget/usage/{id}/sort', [WidgetUsageController::class, 'sort'])
         ->middleware('chkAccess:associate,backoffice');
     Route::resource('/widget', WidgetController::class, [
-        'only' => ['store', 'update', 'destroy', 'show']
+        'only' => ['store', 'update', 'destroy']
     ])->middleware('chkAccess:backoffice');
     Route::resource('/widget', WidgetController::class, [
-        'only' => ['index']
+        'only' => ['index', 'show']
     ]);
 
     /**

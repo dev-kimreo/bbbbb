@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static orderByDesc(string $string)
  * @method static create(array $array)
  * @method static orderBy(string $string)
+ * @method static inRandomOrder()
  */
 class WidgetUsage extends Model
 {

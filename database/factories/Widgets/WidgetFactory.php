@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Widgets;
 
+use App\Models\Users\User;
 use App\Models\Widgets\Widget;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,6 +23,7 @@ class WidgetFactory extends Factory
     public function definition()
     {
         return [
+            'user_id' => User::inRandomOrder()->first()->id,
             'name' => $this->faker->text(rand(8, 16)),
             'description' => $this->faker->text(rand(32, 120)),
             'enable' => $this->faker->boolean(),

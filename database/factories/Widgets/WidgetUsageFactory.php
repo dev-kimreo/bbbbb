@@ -2,6 +2,8 @@
 
 namespace Database\Factories\Widgets;
 
+use App\Models\Users\User;
+use App\Models\Widgets\Widget;
 use App\Models\Widgets\WidgetUsage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
