@@ -8,6 +8,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ *  @OA\Schema(
+ *      schema="WidgetUsage",
+ *      @OA\Property(property="id", type="integer", example=371, description="위젯 사용내역 고유번호" ),
+ *      @OA\Property(property="widgetId", type="integer", example=14, description="위젯 고유번호" ),
+ *      @OA\Property(property="sort", type="integer", example=2, description="위젯 표시순서" ),
+ *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록일자", readOnly="true"),
+ *      @OA\Property(property="widget", type="array", @OA\Items(ref="#/components/schemas/Widget")),
+ *  )
+ *
+ * @method static where(string $string, int|string|null $id)
+ * @method static findOrFail(int $id)
+ * @method static orderByDesc(string $string)
+ * @method static create(array $array)
+ * @method static orderBy(string $string)
+ */
 class WidgetUsage extends Model
 {
     use HasFactory, DateFormatISO8601;

@@ -21,6 +21,8 @@ use App\Http\Controllers\Users\ManagerController;
 use App\Http\Controllers\Users\UserAdvAgreeController;
 use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Users\UserSiteController;
+use App\Http\Controllers\Widgets\WidgetController;
+use App\Http\Controllers\Widgets\WidgetUsageController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -272,8 +274,9 @@ Route::group([
     });
 
     /**
-     * 이메일 템플릿
+     * 라이브러리 관리
      */
+    // 이메일 템플릿
     Route::group([
         'prefix' => 'email-template',
         'middleware' => 'chkAccess:backoffice'
@@ -284,6 +287,19 @@ Route::group([
         Route::patch('/{email_template_id}', [EmailTemplateController::class, 'update']);
         Route::delete('/{email_template_id}', [EmailTemplateController::class, 'destroy']);
     });
+
+    // 위젯관리
+    Route::resource('/widget/usage', WidgetUsageController::class, [
+        'only' => ['index', 'store', 'destroy', 'show']
+    ])->middleware('chkAccess:associate,backoffice');
+    Route::patch('/widget/usage/{id}/sort', [WidgetUsageController::class, 'sort'])
+        ->middleware('chkAccess:associate,backoffice');
+    Route::resource('/widget', WidgetController::class, [
+        'only' => ['store', 'update', 'destroy', 'show']
+    ])->middleware('chkAccess:backoffice');
+    Route::resource('/widget', WidgetController::class, [
+        'only' => ['index']
+    ]);
 
     /**
      * 통계

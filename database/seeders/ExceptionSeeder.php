@@ -252,6 +252,12 @@ class ExceptionSeeder extends Seeder
                 '전시 시작일이 지나 수정/삭제가 불가능 합니다.',
                 '전시 시작일이 지나 수정/삭제가 불가능 합니다.'
             ],
+            [
+                'exception',
+                'widget_usage.disable.writer_only',
+                '나의 소유가 아닌 위젯 사용내역은 수정할 수 없습니다.',
+                'Can\'t read because you are not writer.'
+            ],
         ];
 
         // Truncate tables
