@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             EmailTemplateSeeder::class,
             ExhibitionsSeeder::class,
             WidgetSeeder::class,
+            SolutionSeeder::class,
         ]);
 
         // \App\Models\Users\User::factory(10)->create();
