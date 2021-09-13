@@ -15,6 +15,7 @@ use App\Http\Controllers\BackofficeMenuController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
+use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\TermsOfUseController;
 use App\Http\Controllers\TooltipController;
 use App\Http\Controllers\Users\ManagerController;
@@ -300,6 +301,20 @@ Route::group([
     Route::resource('/widget', WidgetController::class, [
         'only' => ['index', 'show']
     ]);
+
+
+    /**
+     * Core Entity
+     */
+
+    // 솔루션
+    Route::resource('/solution', SolutionController::class, [
+        'only' => ['store', 'update', 'destroy']
+    ])->middleware('chkAccess:backoffice');
+    Route::resource('/solution', SolutionController::class, [
+        'only' => ['show', 'index']
+    ]);
+
 
     /**
      * 통계
