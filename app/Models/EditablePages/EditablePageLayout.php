@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\EditorPages;
+namespace App\Models\EditablePages;
 
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * )
  *
  */
-class EditorPageLayout extends Model
+class EditablePageLayout extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 

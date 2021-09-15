@@ -17,7 +17,7 @@ class CreateComponentUsablePagesTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('component_id')->constrained();
-            $table->foreignId('supported_editor_page_id')->constrained();
+            $table->foreignId('supported_editable_page_id')->constrained();
             $table->timestamps();
             $table->softDeletes();
         });

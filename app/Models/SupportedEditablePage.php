@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * )
  *
  */
-class SupportedEditorPage extends Model
+class SupportedEditablePage extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 

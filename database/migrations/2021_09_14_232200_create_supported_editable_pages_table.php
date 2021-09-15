@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateEditorPagesTable extends Migration
+class CreateSupportedEditablePagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreateEditorPagesTable extends Migration
      */
     public function up()
     {
-        Schema::create('editor_pages', function (Blueprint $table) {
+        Schema::create('supported_editable_pages', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
-            $table->foreignId('theme_id')->constrained();
-            $table->foreignId('supported_editor_page_id')->constrained();
+            $table->foreignId('solution_id')->constrained();
             $table->string('name', 64);
+            $table->string('file_name', 128);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -31,6 +31,6 @@ class CreateEditorPagesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('editor_pages');
+        Schema::dropIfExists('supported_editable_pages');
     }
 }
