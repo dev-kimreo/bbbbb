@@ -17,9 +17,9 @@ class CreateEditablePageLayoutsTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('editable_page_id')->constrained();
-            $table->foreignId('header_compoenent_group_id')->constrained('linked_component_groups');
-            $table->foreignId('content_compoenent_group_id')->constrained('linked_component_groups');
-            $table->foreignId('footer_compoenent_group_id')->constrained('linked_component_groups');
+            $table->foreignId('header_component_group_id')->constrained('linked_component_groups');
+            $table->foreignId('content_component_group_id')->constrained('linked_component_groups');
+            $table->foreignId('footer_component_group_id')->constrained('linked_component_groups');
             $table->timestamps();
             $table->softDeletes();
         });
