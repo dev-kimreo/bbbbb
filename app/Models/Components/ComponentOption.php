@@ -6,6 +6,7 @@ use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -30,5 +31,9 @@ class ComponentOption extends Model
     protected $hidden = [];
 
 
+    public function type(): belongsTo
+    {
+        return $this->belongsTo(ComponentType::class, 'component_type_id', 'id');
+    }
 }
 

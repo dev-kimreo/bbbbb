@@ -6,6 +6,7 @@ use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -30,5 +31,9 @@ class ComponentVersion extends Model
     protected $hidden = [];
 
 
+    public function option(): HasMany
+    {
+        return $this->hasMany(ComponentOption::class, 'component_version_id', 'id');
+    }
 }
 

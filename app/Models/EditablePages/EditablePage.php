@@ -2,10 +2,13 @@
 
 namespace App\Models\EditablePages;
 
+use App\Models\SupportedEditablePage;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -29,6 +32,16 @@ class EditablePage extends Model
      */
     protected $hidden = [];
 
+
+    public function supportedEditablePage(): BelongsTo
+    {
+        return $this->belongsTo(SupportedEditablePage::class, 'supported_editable_page_id');
+    }
+
+    public function editablePageLayout(): HasOne
+    {
+        return $this->hasOne(EditablePageLayout::class);
+    }
 
 }
 

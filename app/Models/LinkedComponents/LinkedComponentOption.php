@@ -2,10 +2,12 @@
 
 namespace App\Models\LinkedComponents;
 
+use App\Models\Components\ComponentOption;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -29,6 +31,10 @@ class LinkedComponentOption extends Model
      */
     protected $hidden = [];
 
+    public function componentOption(): BelongsTo
+    {
+        return $this->belongsTo(ComponentOption::class, 'component_option_id');
+    }
 
 }
 
