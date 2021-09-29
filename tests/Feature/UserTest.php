@@ -2,13 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\Users\User;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Feature\Traits\QpickTestBase;
 
@@ -32,6 +28,7 @@ class UserTest extends TestCase
             'registeredAt',
             'inactivatedAt',
             'lastAuthorizedAt',
+            'lastPasswordChangedAt',
             'createdAt',
             'updatedAt',
             'advAgree',

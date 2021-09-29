@@ -100,7 +100,7 @@ class AccessTokenController extends ATC
 
         $user = $this->user::status('active')->whereHas('privacy', function (Builder $q) use ($username) {
             $q->where('email', $username);
-        })->first();
+        })->firstOrFail();
 
         $checkInactive = $this->user::status('inactive')->whereHas('privacy', function (Builder $q) use ($username) {
             $q->where('email', $username);

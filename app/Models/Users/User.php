@@ -101,6 +101,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'registered_at' => 'datetime',
         'inactivated_at' => 'datetime',
         'last_authorized_at' => 'datetime',
+        'last_password_changed_at' => 'datetime',
     ];
     protected static string $statusMode = 'active';
 
