@@ -33,7 +33,7 @@ trait QpickTestBase
                 break;
 
             case 'backoffice':
-                $user = User::find(Manager::first()->user_id);
+                $user = User::find(Manager::offset(1)->first()->user_id);
                 break;
         }
 
