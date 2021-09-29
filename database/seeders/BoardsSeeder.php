@@ -23,7 +23,7 @@ class BoardsSeeder extends Seeder
         Board::unsetEventDispatcher();
         Post::unsetEventDispatcher();
 
-        $manager = Manager::limit(2)->get();
+        $manager = Manager::offset(1)->limit(2)->get();
 
         $insArrs = [
             [
