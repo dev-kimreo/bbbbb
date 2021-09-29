@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateThemeGoodsTable extends Migration
+class CreateThemeProductsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateThemeGoodsTable extends Migration
      */
     public function up()
     {
-        Schema::create('theme_goods', function (Blueprint $table) {
+        Schema::create('theme_products', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_partner_id')->constrained();
@@ -30,6 +30,6 @@ class CreateThemeGoodsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('theme_goods');
+        Schema::dropIfExists('theme_products');
     }
 }

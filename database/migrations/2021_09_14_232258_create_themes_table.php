@@ -16,7 +16,7 @@ class CreateThemesTable extends Migration
         Schema::create('themes', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
-            $table->foreignId('theme_good_id')->constrained();
+            $table->foreignId('theme_product_id')->constrained();
             $table->foreignId('solution_id')->constrained();
             $table->timestamps();
             $table->softDeletes();

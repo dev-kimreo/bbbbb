@@ -2,19 +2,19 @@
 
 namespace Database\Factories\Themes;
 
-use App\Models\Themes\ThemeGood;
+use App\Models\Themes\ThemeProduct;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Str;
 
-class ThemeGoodFactory extends Factory
+class ThemeProductFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = ThemeGood::class;
+    protected $model = ThemeProduct::class;
 
     /**
      * Define the model's default state.
