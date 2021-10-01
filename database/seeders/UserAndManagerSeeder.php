@@ -157,7 +157,12 @@ class UserAndManagerSeeder extends Seeder
             [
                 [
                     'user_id' => '1',
-                    'name' => '큐픽',
+                    'name' => '큐픽-본사계정',
+                    'created_at' => Carbon::now()
+                ],
+                [
+                    'user_id' => '2',
+                    'name' => '큐픽-일반파트너',
                     'created_at' => Carbon::now()
                 ]
             ]
