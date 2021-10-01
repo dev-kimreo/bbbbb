@@ -15,8 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *      @OA\Property(property="id", type="integer", example=1, description="솔루션 고유번호"),
  *      @OA\Property(property="name", type="string", example="메이크샵", description="솔루션 명"),
  *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자"),
- *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자"),
- *      @OA\Property(property="deletedAt", type="string", format="date-time", description="삭제 일자")
+ *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자")
  * )
  *
  * @method static create(array $all)

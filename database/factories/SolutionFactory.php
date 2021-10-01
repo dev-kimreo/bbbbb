@@ -25,7 +25,8 @@ class SolutionFactory extends Factory
     {
         return [
             'name' => $this->faker->realText(16),
-            'created_at' => Carbon::now()
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ];
     }
 }
