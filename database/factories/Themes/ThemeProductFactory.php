@@ -24,6 +24,7 @@ class ThemeProductFactory extends Factory
     public function definition()
     {
         return [
+            'name' => $this->faker->realText(16),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];
