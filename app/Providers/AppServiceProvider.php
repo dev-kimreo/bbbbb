@@ -14,10 +14,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        /*
         if ($this->app->isLocal()) {
-//            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
-//            $this->app->register(TelescopeServiceProvider::class);
+            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+            $this->app->register(TelescopeServiceProvider::class);
         }
+        */
     }
 
     /**
@@ -33,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
             'banner' => 'App\Models\Exhibitions\Banner',
             'banner_content' => 'App\Models\Exhibitions\BannerDeviceContent',
             'board' => 'App\Models\Board',
+            'component_upload_image' => '\App\Models\ComponentUploadImage',
             'email_template' => 'App\Models\EmailTemplate',
             'exception' => 'App\Models\Exception',
             'exhibition' => 'App\Models\Exhibitions\Exhibition',
