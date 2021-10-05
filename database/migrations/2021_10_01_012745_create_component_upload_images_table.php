@@ -20,6 +20,7 @@ class CreateComponentUploadImagesTable extends Migration
             $table->integer('width');
             $table->integer('height');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
