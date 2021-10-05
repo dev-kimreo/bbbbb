@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @method where(array $array)
  * @method findOrFail($theme_product_id)
+ * @method static create(array $array_merge)
  */
 class ThemeProduct extends Model
 {
@@ -33,7 +34,7 @@ class ThemeProduct extends Model
 
 
     protected $fillable = [
-        'name', 'all_usable', 'display', 'show_me_only'
+        'user_partner_id', 'name', 'all_usable', 'display', 'show_me_only'
     ];
 
     /**
