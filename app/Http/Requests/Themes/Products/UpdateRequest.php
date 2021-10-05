@@ -26,6 +26,7 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
+            'user_partner_id' => ['prohibited'],
             'name' => ['required', 'string', 'min:2', 'max:64'],
         ];
     }
