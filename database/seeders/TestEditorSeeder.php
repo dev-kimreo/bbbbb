@@ -125,7 +125,9 @@ class TestEditorSeeder extends Seeder
                             LinkedComponent::factory()->count(3)->for(
                                 $component,
                                 'component'
-                            )->has(
+                            )->state([
+                                'name' => '메인 배너'
+                            ])->has(
                                 // 연동 컴포넌트 옵션
                                 LinkedComponentOption::factory()->for(
                                     $component->version->first()->option->first(),
