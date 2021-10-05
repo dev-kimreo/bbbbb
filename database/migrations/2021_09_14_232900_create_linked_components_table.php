@@ -18,6 +18,7 @@ class CreateLinkedComponentsTable extends Migration
             $table->id();
             $table->foreignId('linked_component_group_id')->constrained();
             $table->foreignId('component_id')->constrained();
+            $table->string('name', 64);
             $table->integer('sort');
             $table->timestamps();
             $table->softDeletes();
