@@ -17,6 +17,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\TermsOfUseController;
+use App\Http\Controllers\Themes\ThemeProductController;
 use App\Http\Controllers\TooltipController;
 use App\Http\Controllers\Users\ManagerController;
 use App\Http\Controllers\Users\UserAdvAgreeController;
@@ -315,6 +316,8 @@ Route::group([
         'only' => ['show', 'index']
     ]);
 
+    // 테마 상품
+    Route::resource('/theme-product', ThemeProductController::class)->middleware('chkAccess:partner');
 
     /**
      * 통계
