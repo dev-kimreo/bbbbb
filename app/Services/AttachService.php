@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exceptions\QpickHttpException;
 use App\Models\AttachFile;
+use Auth;
 use Storage;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -144,7 +145,7 @@ class AttachService
         $uploadCount = $this->attach->where([
             'attachable_type' => $alias,
             'attachable_id' => $collect->id,
-            'user_id' => auth()->user()->id
+            'user_id' => Auth::id()
         ])->count();
 
         if ($collect->getAttachFileLimit() <= $uploadCount) {
