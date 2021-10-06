@@ -8,11 +8,10 @@ use Auth;
 use Storage;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use App\Services\BoardService;
 
 class AttachService
 {
-    private $attach, $boardService;
+    private AttachFile $attach;
 
     public $tempDir = 'temp';       // 임시 파일 저장 디렉토리
     private $hexLength = 9;          // hex 길이 16진수 9승 687억개 가능
@@ -24,12 +23,11 @@ class AttachService
 
     /**
      * PostService constructor.
-     * @param Post $post
+     * @param AttachFile $attach
      */
-    public function __construct(AttachFile $attach, BoardService $boardService)
+    public function __construct(AttachFile $attach)
     {
         $this->attach = $attach;
-        $this->boardService = $boardService;
     }
 
 
