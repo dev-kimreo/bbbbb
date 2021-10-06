@@ -68,10 +68,11 @@ class AttachService
                     }
 
                     // 이동
-                    Storage::disk($disk)->put($alias . '/' . implode('/', $this->path) . '/' . $pathInfo['basename'], $orgImg);
+                    $dir = $alias . '/' . implode('/', $this->path) . '/' . $pathInfo['basename'];
+                    Storage::disk($disk)->put($dir, $orgImg);
 
                     // 첨부파일 데이터 수정
-                    $url = Storage::disk($disk)->url($alias . '/' . implode('/', $this->path) . '/' . $pathInfo['basename']);
+                    $url = Storage::disk($disk)->url($dir);
                     $pathInfo = pathinfo($url);
                     $path = pathInfo(str_replace(config('filesystems.disks.' . $disk . '.url') . '/', '', $url))['dirname'];
 
@@ -96,9 +97,7 @@ class AttachService
     protected function funcGetServer()
     {
         $diskServer = config('filesystems.custom.servers');
-        $curServer = $diskServer[hexdec($this->path[0]) % count($diskServer)];
-
-        return $curServer;
+        return $diskServer[hexdec($this->path[0]) % count($diskServer)];
     }
 
     public function delete(array $no = []): bool
