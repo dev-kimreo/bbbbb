@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use App\Exceptions\QpickHttpException;
@@ -68,8 +67,7 @@ class AttachController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
-     */
-    /**
+     *
      * @param StoreRequest $request
      * @return JsonResponse
      */
@@ -121,9 +119,7 @@ class AttachController extends Controller
      *      @OA\Property(property="typeId", type="integer", example=1, description="사용처의 고유번호" ),
      *      @OA\Property(property="thumbnail", type="integer", example=1, default=0, description="섬네일로 사용 여부, 1:사용" )
      *  )
-     */
-
-    /**
+     *
      * @OA\Patch(
      *      path="/v1/attach/{id}",
      *      summary="첨부파일 수정",
@@ -160,6 +156,7 @@ class AttachController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
+     *
      * @param $id
      * @param UpdateRequest $request
      * @return JsonResponse
@@ -176,7 +173,6 @@ class AttachController extends Controller
         if (!auth()->user()->can('update', $attachCollect)) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
-
 
         // type check
         $typeModel = Relation::getMorphedModel($request->input('type'));
@@ -249,7 +245,6 @@ class AttachController extends Controller
         return response()->noContent();
     }
 
-
     public function test(Request $request)
     {
 ////        // temp 파일 리얼 type 쪽으로 이동
@@ -267,6 +262,4 @@ class AttachController extends Controller
 //        ]);
         //
     }
-
-
 }
