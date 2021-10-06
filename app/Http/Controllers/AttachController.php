@@ -73,41 +73,8 @@ class AttachController extends Controller
      */
     public function store(StoreRequest $request): JsonResponse
     {
-        $files = $request->file('files');
-        $uploadFiles = [];
-
-        $uploadFiles[] = [
-            'path' => Storage::disk('public')
-                ->putFileAs(
-                    $this->attachService->tempDir, $files,
-                    md5($files->getClientOriginalName() . microtime()) . "." . $files->getClientOriginalExtension()
-                ),
-            'orgName' => $files->getClientOriginalName()
-        ];
-
-        foreach ($uploadFiles as $f) {
-            $url = Storage::disk('public')->url($f['path']);
-            $pathInfo = pathinfo($url);
-            $path = pathInfo(str_replace(config('filesystems.disks.public.url') . '/', '', $url))['dirname'];
-
-            // 저장
-            $insertArr = [
-                'server' => 'public',
-                'attachable_type' => $this->attachService->tempDir,
-                'attachable_id' => 0,
-                'user_id' => Auth::user() ? Auth::id() : 0,
-                'url' => $url,
-                'path' => $path,
-                'name' => $pathInfo['basename'],
-                'org_name' => $f['orgName']
-            ];
-
-            $this->attach = $this->attach->create($insertArr);
-        }
-
-        $this->attach->refresh();
-
-        return response()->json(collect($this->attach), 201);
+        $attach = $this->attachService->create($request->file('files'))->refresh();
+        return response()->json(collect($attach), 201);
     }
 
 

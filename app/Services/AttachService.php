@@ -5,9 +5,8 @@ namespace App\Services;
 use App\Exceptions\QpickHttpException;
 use App\Models\AttachFile;
 use Auth;
+use Illuminate\Http\UploadedFile;
 use Storage;
-use Illuminate\Support\Collection;
-use Illuminate\Database\Eloquent\Relations\Relation;
 
 class AttachService
 {
@@ -28,6 +27,49 @@ class AttachService
         $this->attach = $attach;
     }
 
+    /**
+     * @param UploadedFile $file
+     * @return AttachFile
+     */
+    public function create(UploadedFile $file): AttachFile
+    {
+        return $this->createDbRecord($this->uploadFile($file), $file->getClientOriginalName());
+    }
+
+    /**
+     * @param UploadedFile $file
+     * @return string
+     */
+    protected function uploadFile(UploadedFile $file): string
+    {
+        $fileName = md5($file->getClientOriginalName() . microtime()) . "." . $file->getClientOriginalExtension();
+        return Storage::disk('public')->putFileAs($this->tempDir, $file, $fileName);
+    }
+
+    /**
+     * @param string $filepath
+     * @param string $orgName
+     * @return AttachFile
+     */
+    protected function createDbRecord(string $filepath, string $orgName): AttachFile
+    {
+        $url = Storage::disk('public')->url($filepath);
+        $name = pathinfo($url, PATHINFO_BASENAME);
+        $path = pathinfo(str_replace(config('filesystems.disks.public.url') . '/', '', $url), PATHINFO_DIRNAME);
+
+        return $this->attach->create(
+            [
+                'server' => 'public',
+                'attachable_type' => $this->tempDir,
+                'attachable_id' => 0,
+                'user_id' => Auth::user() ? Auth::id() : 0,
+                'url' => $url,
+                'path' => $path,
+                'name' => $name,
+                'org_name' => $orgName
+            ]
+        );
+    }
 
     public function move($collect, array $nos, $etc = []): bool
     {
