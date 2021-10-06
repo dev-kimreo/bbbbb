@@ -16,7 +16,6 @@ class AttachService
     public $tempDir = 'temp';       // 임시 파일 저장 디렉토리
     private $hexLength = 9;          // hex 길이 16진수 9승 687억개 가능
     private $levelDepth = 3;         // 폴더 구분 3자리씩 최대 16의 3승 4096개
-    private $hexName = null;         // hex
     private $path = [];
 
     protected $allowType = ['temp', 'board', 'post'];
@@ -42,10 +41,10 @@ class AttachService
             return false;
         }
 
-        $this->hexName = str_pad(dechex($alias), $this->hexLength, '0', STR_PAD_LEFT);
+        $hexName = str_pad(dechex($alias), $this->hexLength, '0', STR_PAD_LEFT);
 
         for ($i = -$this->levelDepth; abs($i) <= $this->hexLength; $i -= $this->levelDepth) {
-            $this->path[] = substr($this->hexName, $i, $this->levelDepth);
+            $this->path[] = substr($hexName, $i, $this->levelDepth);
         }
 
         $disk = $this->funcGetServer();
