@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Users\User;
-use App\Models\AttachFile;
+use App\Models\Attach\AttachFile;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class AttachFilePolicy

@@ -99,7 +99,7 @@ class Post extends Model
 
     public function attachFiles(): MorphMany
     {
-        return $this->morphMany('App\Models\AttachFile', 'attachable');
+        return $this->morphMany('App\Models\Attach\AttachFile', 'attachable');
     }
 
     public function thumbnail(): HasOne

@@ -2,7 +2,7 @@
 
 namespace App\Models\Exhibitions;
 
-use App\Models\AttachFile;
+use App\Models\Attach\AttachFile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
