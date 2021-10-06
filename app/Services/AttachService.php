@@ -31,7 +31,7 @@ class AttachService
     }
 
 
-    public function move($collect, array $nos, $etc = [])
+    public function move($collect, array $nos, $etc = []): bool
     {
         if (!$collect) {
             return false;
@@ -90,8 +90,9 @@ class AttachService
                 }
             }
         }
-    }
 
+        return true;
+    }
 
     protected function funcGetServer()
     {
@@ -101,7 +102,7 @@ class AttachService
         return $curServer;
     }
 
-    public function delete(array $no = [])
+    public function delete(array $no = []): bool
     {
         if (!count($no)) {
             return false;
@@ -121,6 +122,8 @@ class AttachService
             Storage::disk($attachFile->server)->delete($attachFile->path . '/' . $attachFile->name);
             $attachFile->delete();
         }
+
+        return true;
     }
 
     public function checkAttachableModel($collect): bool
