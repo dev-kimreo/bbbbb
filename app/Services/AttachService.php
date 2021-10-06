@@ -13,12 +13,11 @@ class AttachService
 {
     private AttachFile $attach;
 
-    public $tempDir = 'temp';       // 임시 파일 저장 디렉토리
-    private $hexLength = 9;          // hex 길이 16진수 9승 687억개 가능
-    private $levelDepth = 3;         // 폴더 구분 3자리씩 최대 16의 3승 4096개
-    private $path = [];
-
-    protected $allowType = ['temp', 'board', 'post'];
+    public string $tempDir = 'temp';    // 임시 파일 저장 디렉토리
+    private int $hexLength = 9;         // hex 길이 16진수 9승 687억개 가능
+    private int $levelDepth = 3;        // 폴더 구분 3자리씩 최대 16의 3승 4096개
+    private array $path = [];
+    protected array $allowType = ['temp', 'board', 'post'];
 
     /**
      * PostService constructor.
