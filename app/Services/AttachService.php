@@ -5,14 +5,18 @@ namespace App\Services;
 use App\Exceptions\QpickHttpException;
 use App\Models\Attach\AttachFile;
 use Auth;
+use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Storage;
+use Image;
 
 class AttachService
 {
     private AttachFile $attach;
 
     public string $tempDir = 'temp';    // 임시 파일 저장 디렉토리
+    public string $thumbDir = 'thumb';    // 썸네일 저장 디렉토리
     private int $hexLength = 9;         // hex 길이 16진수 9승 687억개 가능
     private int $levelDepth = 3;        // 폴더 구분 3자리씩 최대 16의 3승 4096개
     private array $path = [];
@@ -33,43 +37,103 @@ class AttachService
      */
     public function create(UploadedFile $file): AttachFile
     {
-        return $this->createDbRecord($this->uploadFile($file), $file->getClientOriginalName(), $file->getSize());
+        // Upload to storage
+        $fileName = $this->getFileNameByHash($file->getClientOriginalName(), $file->getClientOriginalExtension());
+        $filePath = Storage::disk('public')->putFileAs($this->tempDir, $file, $fileName);
+
+        // Make a record on database
+        $model = $this->createDbRecord($filePath, $file->getClientOriginalName(), $file->getSize());
+
+        // Make Thumbnail
+        $this->makeThumb($model, $file);
+
+        // Return
+        return $model->fresh();
     }
 
     /**
+     * @param AttachFile $parent
      * @param UploadedFile $file
+     * @return bool
+     */
+    protected function makeThumb(AttachFile $parent, UploadedFile $file, $fitSize = 300): bool
+    {
+        // Resize the uploaded image
+        $resizedImage = Image::make($file)->fit($fitSize)->encode('jpg', 40);
+        $encodedImage = $resizedImage->getEncoded();
+
+        // Upload to storage
+        $fileName = preg_replace('/\.(.*)$/', '.thumb.$1', $file->getClientOriginalName());
+        $hashName = $this->getFileNameByHash($fileName . '*', $file->getClientOriginalExtension());
+        $filePath = $this->thumbDir . '/' . $hashName;
+        Storage::disk('public')->put($filePath, $encodedImage);
+
+        // Make a record on database
+        $this->createDbRecord(
+            $filePath,
+            $fileName,
+            strlen($encodedImage),
+            collect(Relation::morphMap())->search(AttachFile::class),
+            $parent->getAttribute('id')
+        );
+
+        // Return
+        return true;
+    }
+
+    /**
+     * @param $fileName
+     * @param $ext
      * @return string
      */
-    protected function uploadFile(UploadedFile $file): string
+    protected function getFileNameByHash($fileName, $ext): string
     {
-        $fileName = md5($file->getClientOriginalName() . microtime()) . "." . $file->getClientOriginalExtension();
-        return Storage::disk('public')->putFileAs($this->tempDir, $file, $fileName);
+        return md5($fileName . microtime()) . "." . $ext;
+    }
+
+    /**
+     * @param string $path
+     * @param File|UploadedFile|string $file
+     * @param string $fileName
+     * @return string
+     */
+    protected function uploadFile(string $path, $file, string $fileName): string
+    {
+        return Storage::disk('public')->putFileAs($path, $file, $fileName);
     }
 
     /**
      * @param string $filepath
      * @param string $orgName
+     * @param int $size
+     * @param string $attachable_type
+     * @param int $attachable_id
      * @return AttachFile
      */
-    protected function createDbRecord(string $filepath, string $orgName, int $size): AttachFile
-    {
+    protected function createDbRecord(
+        string $filepath,
+        string $orgName,
+        int $size,
+        string $attachable_type = 'temp',
+        int $attachable_id = 0
+    ): AttachFile {
         $url = Storage::disk('public')->url($filepath);
         $name = pathinfo($url, PATHINFO_BASENAME);
         $path = pathinfo(str_replace(config('filesystems.disks.public.url') . '/', '', $url), PATHINFO_DIRNAME);
 
-        return $this->attach->create(
-            [
-                'server' => 'public',
-                'attachable_type' => $this->tempDir,
-                'attachable_id' => 0,
-                'user_id' => Auth::user() ? Auth::id() : 0,
-                'url' => $url,
-                'path' => $path,
-                'name' => $name,
-                'org_name' => $orgName,
-                'size' => $size
-            ]
-        );
+        $data = [
+            'server' => 'public',
+            'attachable_type' => $attachable_type,
+            'attachable_id' => $attachable_id,
+            'user_id' => Auth::user() ? Auth::id() : 0,
+            'url' => $url,
+            'path' => $path,
+            'name' => $name,
+            'org_name' => $orgName,
+            'size' => $size
+        ];
+
+        return $this->attach->create($data)->fresh();
     }
 
     public function move($collect, array $nos, $etc = []): bool
