@@ -29,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Relation::morphMap([
             'attach' => 'App\Models\Attach\AttachFile',
+            'attach_thumbnail' => 'App\Models\Attach\AttachThumb',
             'banner' => 'App\Models\Exhibitions\Banner',
             'banner_content' => 'App\Models\Exhibitions\BannerDeviceContent',
             'board' => 'App\Models\Board',
