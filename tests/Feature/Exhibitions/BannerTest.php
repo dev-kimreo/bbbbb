@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Exhibitions;
 
-use App\Models\AttachFile;
+use App\Models\Attach\AttachFile;
 use App\Models\Exhibitions\Exhibition;
 use App\Models\Exhibitions\ExhibitionCategory;
 use App\Models\Exhibitions\Banner;

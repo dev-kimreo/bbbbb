@@ -3,7 +3,7 @@
 namespace App\Models\Exhibitions;
 
 use App\Libraries\StringLibrary;
-use App\Models\AttachFile;
+use App\Models\Attach\AttachFile;
 use App\Models\ActionLog;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;

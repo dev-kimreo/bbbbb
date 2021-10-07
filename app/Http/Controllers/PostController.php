@@ -11,7 +11,7 @@ use App\Http\Requests\Posts\UpdateRequest;
 use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
-use App\Models\AttachFile;
+use App\Models\Attach\AttachFile;
 use App\Models\Board;
 use App\Models\Post;
 use App\Models\Reply;

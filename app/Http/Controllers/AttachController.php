@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\QpickHttpException;
 use App\Http\Requests\Attaches\StoreRequest;
 use App\Http\Requests\Attaches\UpdateRequest;
-use App\Models\AttachFile;
+use App\Models\Attach\AttachFile;
 use App\Services\AttachService;
 use Auth;
 use Illuminate\Database\Eloquent\Relations\Relation;

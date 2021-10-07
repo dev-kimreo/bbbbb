@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\QpickHttpException;
-use App\Models\AttachFile;
+use App\Models\Attach\AttachFile;
 use Auth;
 use Illuminate\Http\UploadedFile;
 use Storage;

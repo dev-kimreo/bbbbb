@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Relation::morphMap([
-            'attach' => 'App\Models\AttachFile',
+            'attach' => 'App\Models\Attach\AttachFile',
             'banner' => 'App\Models\Exhibitions\Banner',
             'banner_content' => 'App\Models\Exhibitions\BannerDeviceContent',
             'board' => 'App\Models\Board',

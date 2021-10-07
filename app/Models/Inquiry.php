@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Attach\AttachFile;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use App\Models\Users\User;
