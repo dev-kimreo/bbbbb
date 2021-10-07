@@ -23,6 +23,7 @@ class CreateAttachFilesTable extends Migration
             $table->string('path');
             $table->string('name', 128);
             $table->string('org_name', 128);
+            $table->bigInteger('size');
             $table->json('etc')->nullable();
             $table->timestamps();
             $table->softDeletes();

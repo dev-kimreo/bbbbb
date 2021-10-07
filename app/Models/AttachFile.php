@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
 /**
  *  @OA\Schema(
  *      @OA\Xml(name="이미지"),
@@ -41,7 +40,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class AttachFile extends Model
 {
-    use HasFactory, SoftDeletes, DateFormatISO8601;
+    use HasFactory;
+    use SoftDeletes;
+    use DateFormatISO8601;
 
     /**
      * The attributes that are mass assignable.
@@ -49,7 +50,7 @@ class AttachFile extends Model
      * @var array
      */
     protected $fillable = [
-        'server', 'attachable_type', 'attachable_id', 'user_id', 'url', 'path', 'name', 'org_name' ,'etc'
+        'server', 'attachable_type', 'attachable_id', 'user_id', 'url', 'path', 'name', 'org_name', 'etc', 'size'
     ];
 
     /**
