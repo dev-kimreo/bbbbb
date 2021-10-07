@@ -33,7 +33,7 @@ class AttachService
      */
     public function create(UploadedFile $file): AttachFile
     {
-        return $this->createDbRecord($this->uploadFile($file), $file->getClientOriginalName());
+        return $this->createDbRecord($this->uploadFile($file), $file->getClientOriginalName(), $file->getSize());
     }
 
     /**
@@ -51,7 +51,7 @@ class AttachService
      * @param string $orgName
      * @return AttachFile
      */
-    protected function createDbRecord(string $filepath, string $orgName): AttachFile
+    protected function createDbRecord(string $filepath, string $orgName, int $size): AttachFile
     {
         $url = Storage::disk('public')->url($filepath);
         $name = pathinfo($url, PATHINFO_BASENAME);
@@ -66,7 +66,8 @@ class AttachService
                 'url' => $url,
                 'path' => $path,
                 'name' => $name,
-                'org_name' => $orgName
+                'org_name' => $orgName,
+                'size' => $size
             ]
         );
     }
