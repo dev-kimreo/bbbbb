@@ -15,11 +15,11 @@ class CreateComponentUploadImagesTable extends Migration
     {
         Schema::create('component_upload_images', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained();
             $table->foreignId('attach_file_id')->constrained();
-            $table->string('url_thumb');
             $table->integer('width');
             $table->integer('height');
-            $table->timestamps();
+            $table->timestamp('created_at');
             $table->softDeletes();
         });
     }
