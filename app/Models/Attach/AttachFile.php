@@ -7,6 +7,7 @@ use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -44,32 +45,25 @@ class AttachFile extends Model
     use SoftDeletes;
     use DateFormatISO8601;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'server', 'attachable_type', 'attachable_id', 'user_id', 'url', 'path', 'name', 'org_name', 'etc', 'size'
     ];
+    protected $hidden = ['deleted_at'];
+    protected $casts = ['etc' => 'array'];
+    protected array $maps = [];
+    protected $appends = [];
+    protected $with = ['thumb'];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-    ];
+    public static function boot()
+    {
+        parent::boot();
 
-    protected $casts = [
-        'etc' => 'array'
-    ];
-
-    protected array $maps = [
-    ];
-
-    protected $appends = [
-    ];
+        static::deleting(function ($attach) {
+            $attach->thumb()->each(function ($o) {
+                $o->delete();
+            });
+        });
+    }
 
     public function scopeTempType($q)
     {
@@ -79,6 +73,11 @@ class AttachFile extends Model
     public function attachable(): MorphTo
     {
         return $this->morphTo(__FUNCTION__, 'attachable_type', 'attachable_id');
+    }
+
+    public function thumb(): MorphOne
+    {
+        return $this->morphOne(AttachThumb::class, 'attachable');
     }
 
     public function uploader(): BelongsTo
