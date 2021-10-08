@@ -54,6 +54,17 @@ class AttachFile extends Model
     protected $appends = [];
     protected $with = ['thumb'];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($attach) {
+            $attach->thumb()->each(function ($o) {
+                $o->delete();
+            });
+        });
+    }
+
     public function scopeTempType($q)
     {
         return $q->where('attachable_type', 'temp');
