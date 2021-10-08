@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
             'banner' => 'App\Models\Exhibitions\Banner',
             'banner_content' => 'App\Models\Exhibitions\BannerDeviceContent',
             'board' => 'App\Models\Board',
-            'component_upload_image' => '\App\Models\ComponentUploadImage',
+            'component_upload_image' => 'App\Models\Attach\ComponentUploadImage',
             'email_template' => 'App\Models\EmailTemplate',
             'exception' => 'App\Models\Exception',
             'exhibition' => 'App\Models\Exhibitions\Exhibition',

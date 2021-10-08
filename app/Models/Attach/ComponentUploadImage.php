@@ -9,11 +9,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
+/**
+ * @method static findOrFail(int $id)
+ */
 class ComponentUploadImage extends Model
 {
     use HasFactory;
     use DateFormatISO8601;
 
+    public $timestamps = false;
     protected $fillable = ['attach_file_id', 'user_id', 'width', 'height'];
     protected $hidden = ['created_at', 'deleted_at'];
     protected $casts = [];
@@ -29,7 +33,7 @@ class ComponentUploadImage extends Model
         });
 
         static::deleting(function ($model) {
-            $model->attachFile()->delete();
+            $model->attachFile->delete();
         });
     }
 
