@@ -15,12 +15,16 @@ use App\Http\Controllers\BackofficeMenuController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
+use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\TermsOfUseController;
+use App\Http\Controllers\Themes\ThemeProductController;
 use App\Http\Controllers\TooltipController;
 use App\Http\Controllers\Users\ManagerController;
 use App\Http\Controllers\Users\UserAdvAgreeController;
 use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Users\UserSiteController;
+use App\Http\Controllers\Widgets\WidgetController;
+use App\Http\Controllers\Widgets\WidgetUsageController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -272,8 +276,9 @@ Route::group([
     });
 
     /**
-     * 이메일 템플릿
+     * 라이브러리 관리
      */
+    // 이메일 템플릿
     Route::group([
         'prefix' => 'email-template',
         'middleware' => 'chkAccess:backoffice'
@@ -284,6 +289,35 @@ Route::group([
         Route::patch('/{email_template_id}', [EmailTemplateController::class, 'update']);
         Route::delete('/{email_template_id}', [EmailTemplateController::class, 'destroy']);
     });
+
+    // 위젯관리
+    Route::resource('/widget/usage', WidgetUsageController::class, [
+        'only' => ['index', 'store', 'destroy', 'show']
+    ])->middleware('chkAccess:associate,backoffice');
+    Route::patch('/widget/usage/{id}/sort', [WidgetUsageController::class, 'sort'])
+        ->middleware('chkAccess:associate,backoffice');
+    Route::resource('/widget', WidgetController::class, [
+        'only' => ['store', 'update', 'destroy']
+    ])->middleware('chkAccess:backoffice');
+    Route::resource('/widget', WidgetController::class, [
+        'only' => ['index', 'show']
+    ]);
+
+
+    /**
+     * Core Entity
+     */
+
+    // 솔루션
+    Route::resource('/solution', SolutionController::class, [
+        'only' => ['store', 'update', 'destroy']
+    ])->middleware('chkAccess:backoffice');
+    Route::resource('/solution', SolutionController::class, [
+        'only' => ['show', 'index']
+    ]);
+
+    // 테마 상품
+    Route::resource('/theme-product', ThemeProductController::class)->middleware('chkAccess:partner');
 
     /**
      * 통계

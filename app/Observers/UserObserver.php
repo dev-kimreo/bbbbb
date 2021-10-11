@@ -6,11 +6,12 @@ use App\Events\Backoffice\DataCreated;
 use App\Events\Backoffice\DataDeleted;
 use App\Events\Backoffice\DataUpdated;
 use App\Models\Users\User;
+use Carbon\Carbon;
 
 class UserObserver
 {
     /**
-     * Handle the Tooltip "created" event.
+     * Handle the User "created" event.
      *
      * @param User $user
      * @return void
@@ -21,7 +22,20 @@ class UserObserver
     }
 
     /**
-     * Handle the Tooltip "updated" event.
+     * Handle the User "saving" event.
+     *
+     * @param User $user
+     * @return void
+     */
+    public function saving(User $user)
+    {
+        if ($user->isDirty('password')) {
+            $user->setAttribute('last_password_changed_at', Carbon::now());
+        }
+    }
+
+    /**
+     * Handle the User "updated" event.
      *
      * @param User $user
      * @return void
@@ -42,7 +56,7 @@ class UserObserver
     }
 
     /**
-     * Handle the Tooltip "deleted" event.
+     * Handle the User "deleted" event.
      *
      * @param User $user
      * @return void
@@ -64,7 +78,7 @@ class UserObserver
     }
 
     /**
-     * Handle the Tooltip "force deleted" event.
+     * Handle the User "force deleted" event.
      *
      * @param User $user
      * @return void

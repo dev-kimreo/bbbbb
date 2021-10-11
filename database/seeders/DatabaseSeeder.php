@@ -21,6 +21,9 @@ class DatabaseSeeder extends Seeder
             ExceptionSeeder::class,
             BackofficeMenuSeeder::class,
             EmailTemplateSeeder::class,
+            ExhibitionsSeeder::class,
+            WidgetSeeder::class,
+            SolutionSeeder::class,
         ]);
 
         // \App\Models\Users\User::factory(10)->create();

@@ -80,6 +80,7 @@ use Laravel\Passport\HasApiTokens;
  * @method static updateOrCreate(array $array, array $array1)
  * @method static where(string $string, string $string1, Carbon $addDays)
  * @method static whereHas(string $string, Closure $param)
+ * @method static inRandomOrder()
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -100,6 +101,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'registered_at' => 'datetime',
         'inactivated_at' => 'datetime',
         'last_authorized_at' => 'datetime',
+        'last_password_changed_at' => 'datetime',
     ];
     protected static string $statusMode = 'active';
 

@@ -51,6 +51,6 @@ class PostThumbnail extends Model
 
     public function attachFiles(): MorphOne
     {
-        return $this->morphOne('App\Models\AttachFile', 'attachable');
+        return $this->morphOne('App\Models\Attach\AttachFile', 'attachable');
     }
 }

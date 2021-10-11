@@ -21,8 +21,8 @@ class UserAndManagerSeeder extends Seeder
             [
                 [
                     'id' => 1,
-                    'password' => Hash::make('password!1'),
-                    'grade' => 1,
+                    'password' => Hash::make('qlfej123!'),
+                    'grade' => 999,
                     'email_verified_at' => Carbon::now(),
                     'inactivated_at' => null,
                     'created_at' => Carbon::now(),
@@ -54,31 +54,45 @@ class UserAndManagerSeeder extends Seeder
                     'inactivated_at' => Carbon::now(),
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
+                ],
+                [
+                    'id' => 5,
+                    'password' => Hash::make('password!1'),
+                    'grade' => 0,
+                    'email_verified_at' => Carbon::now(),
+                    'inactivated_at' => Carbon::now(),
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
                 ]
             ]
         );
 
         DB::table('user_privacy_active')->insertOrIgnore([
-             [
-                 'user_id' => 1,
-                 'name' => '홍길동',
-                 'email' => 'honggildong@test.qpicki.com'
-             ],
-             [
-                 'user_id' => 2,
+            [
+                'user_id' => 1,
+                'name' => '큐픽어드민',
+                'email' => 'qpick@qpicki.com'
+            ],
+            [
+                'user_id' => 2,
+                'name' => '홍길동',
+                'email' => 'honggildong@test.qpicki.com'
+            ],
+            [
+                 'user_id' => 3,
                  'name' => '김삿갓',
                  'email' => 'kimsatgat@test.qpicki.com'
-             ],
-             [
-                 'user_id' => 3,
+            ],
+            [
+                 'user_id' => 4,
                  'name' => '신도림',
                  'email' => 'sindorim@test.qpicki.com'
-             ]
+            ]
         ]);
 
         DB::table('user_privacy_inactive')->insertOrIgnore([
             [
-                'user_id' => 4,
+                'user_id' => 5,
                 'name' => '비활성',
                 'email' => 'inactivated@test.qpicki.com'
             ]
@@ -92,6 +106,10 @@ class UserAndManagerSeeder extends Seeder
                 ],
                 [
                     'user_id' => '2',
+                    'created_at' => Carbon::now()
+                ],
+                [
+                    'user_id' => '3',
                     'created_at' => Carbon::now()
                 ]
             ]
@@ -123,7 +141,28 @@ class UserAndManagerSeeder extends Seeder
                 ],
                 [
                     'user_id' => '2',
+                    'authority_id' => '1',
+                    'created_at' => Carbon::now()
+                ],
+                [
+                    'user_id' => '3',
                     'authority_id' => '2',
+                    'created_at' => Carbon::now()
+                ]
+            ]
+        );
+
+        // partner
+        DB::table('user_partners')->insertOrIgnore(
+            [
+                [
+                    'user_id' => '1',
+                    'name' => '큐픽-본사계정',
+                    'created_at' => Carbon::now()
+                ],
+                [
+                    'user_id' => '2',
+                    'name' => '큐픽-일반파트너',
                     'created_at' => Carbon::now()
                 ]
             ]

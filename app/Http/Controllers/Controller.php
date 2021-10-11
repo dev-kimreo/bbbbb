@@ -28,6 +28,14 @@ use Illuminate\Routing\Controller as BaseController;
 
 /**
  * @OA\SecurityScheme(
+ *   securityScheme="partner_auth",
+ *   type="http",
+ *   scheme="bearer"
+ * )
+ */
+
+/**
+ * @OA\SecurityScheme(
  *   securityScheme="admin_auth",
  *   type="http",
  *   scheme="bearer"

@@ -1,8 +1,8 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Attach;
 
-use App\Models\AttachFile;
+use App\Models\Attach\AttachFile;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AttachFileFactory extends Factory

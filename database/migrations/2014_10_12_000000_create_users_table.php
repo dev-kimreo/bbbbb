@@ -25,6 +25,7 @@ class CreateUsersTable extends Migration
             $table->timestamp('registered_at')->nullable()->index();
             $table->timestamp('inactivated_at')->nullable();
             $table->timestamp('last_authorized_at')->nullable();
+            $table->timestamp('last_password_changed_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

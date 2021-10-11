@@ -624,7 +624,7 @@ class UserController extends Controller
      *      ),
      *      @OA\Response(
      *          response=204,
-     *          description="modified"
+     *          description="no content(modified)"
      *      ),
      *      @OA\Response(
      *          response=401,
@@ -649,22 +649,25 @@ class UserController extends Controller
      */
     public function modifyPassword(ModifyMemberPwdRequest $request): Response
     {
+        // 회원정보 가져오기
+        $user = User::find(Auth::id());
+
         // 현재 패스워드 체크
         if (!$this::chkPasswordMatched($request->input('password'))) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
         // 기존 비밀번호와 변경할 비밀번호가 같을 경우
-        if (hash::check($request->input('change_password'), Auth::user()->password)) {
+        if (hash::check($request->input('change_password'), $user->password)) {
             throw new QpickHttpException(422, 'user.password.reuse');
         }
 
         // 비밀번호 체크
-        $this->chkCorrectPasswordPattern($request->input('change_password'), Auth::user()->email);
+        $this->chkCorrectPasswordPattern($request->input('change_password'), $user->email);
 
-        $member = Auth::user();
-        $member->setAttribute('password', hash::make($request->input('change_password')));
-        $member->save();
+        // 업데이트
+        $user->setAttribute('password', hash::make($request->input('change_password')));
+        $user->save();
 
         return response()->noContent();
     }

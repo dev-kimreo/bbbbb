@@ -1,12 +1,11 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use App\Exceptions\QpickHttpException;
 use App\Http\Requests\Attaches\StoreRequest;
 use App\Http\Requests\Attaches\UpdateRequest;
-use App\Models\AttachFile;
+use App\Models\Attach\AttachFile;
 use App\Services\AttachService;
 use Auth;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -68,48 +67,14 @@ class AttachController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
-     */
-    /**
+     *
      * @param StoreRequest $request
      * @return JsonResponse
      */
     public function store(StoreRequest $request): JsonResponse
     {
-        $files = $request->file('files');
-        $uploadFiles = [];
-
-        $uploadFiles[] = [
-            'path' => Storage::disk('public')
-                ->putFileAs(
-                    $this->attachService->tempDir, $files,
-                    md5($files->getClientOriginalName() . microtime()) . "." . $files->getClientOriginalExtension()
-                ),
-            'orgName' => $files->getClientOriginalName()
-        ];
-
-        foreach ($uploadFiles as $f) {
-            $url = Storage::disk('public')->url($f['path']);
-            $pathInfo = pathinfo($url);
-            $path = pathInfo(str_replace(config('filesystems.disks.public.url') . '/', '', $url))['dirname'];
-
-            // 저장
-            $insertArr = [
-                'server' => 'public',
-                'attachable_type' => $this->attachService->tempDir,
-                'attachable_id' => 0,
-                'user_id' => Auth::user() ? Auth::id() : 0,
-                'url' => $url,
-                'path' => $path,
-                'name' => $pathInfo['basename'],
-                'org_name' => $f['orgName']
-            ];
-
-            $this->attach = $this->attach->create($insertArr);
-        }
-
-        $this->attach->refresh();
-
-        return response()->json(collect($this->attach), 201);
+        $attach = $this->attachService->create($request->file('files'))->refresh();
+        return response()->json(collect($attach), 201);
     }
 
 
@@ -121,9 +86,7 @@ class AttachController extends Controller
      *      @OA\Property(property="typeId", type="integer", example=1, description="사용처의 고유번호" ),
      *      @OA\Property(property="thumbnail", type="integer", example=1, default=0, description="섬네일로 사용 여부, 1:사용" )
      *  )
-     */
-
-    /**
+     *
      * @OA\Patch(
      *      path="/v1/attach/{id}",
      *      summary="첨부파일 수정",
@@ -160,6 +123,7 @@ class AttachController extends Controller
      *          "davinci_auth":{}
      *      }}
      *  )
+     *
      * @param $id
      * @param UpdateRequest $request
      * @return JsonResponse
@@ -176,7 +140,6 @@ class AttachController extends Controller
         if (!auth()->user()->can('update', $attachCollect)) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
-
 
         // type check
         $typeModel = Relation::getMorphedModel($request->input('type'));
@@ -249,7 +212,6 @@ class AttachController extends Controller
         return response()->noContent();
     }
 
-
     public function test(Request $request)
     {
 ////        // temp 파일 리얼 type 쪽으로 이동
@@ -267,6 +229,4 @@ class AttachController extends Controller
 //        ]);
         //
     }
-
-
 }
