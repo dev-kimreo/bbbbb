@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * )
  *
  * @method where(array $array)
+ * @method static findOrFail(int $theme_id)
  */
 class Theme extends Model
 {
