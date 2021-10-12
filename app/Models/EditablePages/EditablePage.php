@@ -14,8 +14,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  *
  * @OA\Schema(
+ *      @OA\Property(property="id", type="integer", example=1, description="고유번호"),
+ *      @OA\Property(property="theme_id", type="integer", example=1, description="테마 고유 번호"),
+ *      @OA\Property(property="supported_editable_page_id", type="integer", example=1, description="지원 가능한 에디터 지원 페이지 고유 번호"),
+ *      @OA\Property(property="name", type="string", example="에디터 지원 페이지 ", description="에디터 지원 페이지명"),
+ *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자"),
+ *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자")
  * )
  *
+ * @method static where(string $string, int $theme_id)
+ * @method static create(array|int[] $array_merge)
  */
 class EditablePage extends Model
 {
@@ -23,6 +31,7 @@ class EditablePage extends Model
 
 
     protected $fillable = [
+        'theme_id', 'supported_editable_page_id', 'name'
     ];
 
     /**

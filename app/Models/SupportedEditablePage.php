@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @OA\Schema(
  * )
  *
+ * @method static find(mixed $supportedEditablePageId)
  */
 class SupportedEditablePage extends Model
 {
