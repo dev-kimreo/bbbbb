@@ -17,6 +17,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\TermsOfUseController;
+use App\Http\Controllers\Themes\ThemeController;
 use App\Http\Controllers\Themes\ThemeProductController;
 use App\Http\Controllers\TooltipController;
 use App\Http\Controllers\Users\ManagerController;
@@ -115,7 +116,7 @@ Route::group([
      * 관리자 및 권한 관련
      */
     Route::group(['middleware' => 'chkAccess:backoffice'], function () {
-        Route::group(['prefix' => 'authority'], function(){
+        Route::group(['prefix' => 'authority'], function () {
             Route::post('', [AuthorityController::class, 'store']);
             Route::get('', [AuthorityController::class, 'index']);
             Route::get('/{id}', [AuthorityController::class, 'show'])->where(['id' => '[0-9]+']);
@@ -228,7 +229,7 @@ Route::group([
     Route::group([
         'prefix' => 'terms-of-use',
         'middleware' => 'chkAccess:backoffice'
-    ], function(){
+    ], function () {
         Route::post('', [TermsOfUseController::class, 'store']);
         Route::get('', [TermsOfUseController::class, 'index']);
         Route::get('/{terms_of_use_id}', [TermsOfUseController::class, 'show'])->where(['terms_of_use_id' => '[0-9]+'])->withoutmiddleware('chkAccess:backoffice');
@@ -317,7 +318,38 @@ Route::group([
     ]);
 
     // 테마 상품
-    Route::resource('/theme-product', ThemeProductController::class)->middleware('chkAccess:partner');
+    Route::group([
+        'prefix' => 'theme-product',
+        'middleware' => ['auth:api', 'chkAccess:partner']
+    ], function () {
+        Route::get('', [ThemeProductController::class, 'index']);
+        Route::get('/{theme_product_id}', [ThemeProductController::class, 'show']);
+        Route::post('', [ThemeProductController::class, 'store']);
+        Route::patch('/{theme_product_id}', [ThemeProductController::class, 'update']);
+        Route::delete('/{theme_product_id}', [ThemeProductController::class, 'destroy']);
+
+        // 테마
+        Route::get('/{theme_product_id}/theme', [ThemeController::class, 'index']);
+        Route::get('/{theme_product_id}/theme/{theme_id}', [ThemeController::class, 'show']);
+        Route::post('/{theme_product_id}/theme', [ThemeController::class, 'store']);
+        Route::patch('/{theme_product_id}/theme/{theme_id}', [ThemeController::class, 'update']);
+        Route::delete('/{theme_product_id}/theme/{theme_id}', [ThemeController::class, 'destroy']);
+    });
+
+    // 테마
+    Route::group([
+        'prefix' => 'theme',
+        'middleware' => ['auth:api', 'chkAccess:partner']
+    ], function(){
+        Route::get('', [ThemeController::class, 'index']);
+        Route::get('/{theme_id}', [ThemeController::class, 'show']);
+        Route::patch('/{theme_id}', [ThemeController::class, 'update']);
+        Route::delete('/{theme_id}', [ThemeController::class, 'destroy']);
+//        Route::post('', [ThemeProductController::class, 'store']);
+//        Route::patch('/{theme_product_id}', [ThemeProductController::class, 'update']);
+//        Route::delete('/{theme_product_id}', [ThemeProductController::class, 'destroy']);
+    });
+
 
     /**
      * 통계
@@ -332,5 +364,5 @@ Route::group([
 
         // Inquiry
         Route::get('inquiry/count-per-status', [InquiryController::class, 'getCountPerStatus']);
-	});
+    });
 });
