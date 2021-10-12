@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthorityController;
 use App\Http\Controllers\BackofficePermissionController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\Boards\OptionController;
+use App\Http\Controllers\EditablePages\EditablePageController;
 use App\Http\Controllers\Exhibitions\BannerController;
 use App\Http\Controllers\Exhibitions\CategoryController as ExhibitionCategoryController;
 use App\Http\Controllers\Exhibitions\PopupController;
@@ -340,16 +341,19 @@ Route::group([
     Route::group([
         'prefix' => 'theme',
         'middleware' => ['auth:api', 'chkAccess:partner']
-    ], function(){
+    ], function () {
         Route::get('', [ThemeController::class, 'index']);
         Route::get('/{theme_id}', [ThemeController::class, 'show']);
         Route::patch('/{theme_id}', [ThemeController::class, 'update']);
         Route::delete('/{theme_id}', [ThemeController::class, 'destroy']);
-//        Route::post('', [ThemeProductController::class, 'store']);
-//        Route::patch('/{theme_product_id}', [ThemeProductController::class, 'update']);
-//        Route::delete('/{theme_product_id}', [ThemeProductController::class, 'destroy']);
-    });
 
+        // 에디터 지원 페이지 목록
+        Route::get('/{theme_id}/editable-page', [EditablePageController::class, 'index']);
+        Route::get('/{theme_id}/editable-page/{editable_page_id}', [EditablePageController::class, 'show']);
+        Route::post('/{theme_id}/editable-page', [EditablePageController::class, 'store']);
+        Route::patch('/{theme_id}/editable-page/{editable_page_id}', [EditablePageController::class, 'update']);
+        Route::delete('/{theme_id}/editable-page/{editable_page_id}', [EditablePageController::class, 'destroy']);
+    });
 
     /**
      * 통계
