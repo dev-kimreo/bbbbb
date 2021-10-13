@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Attach;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Attaches\StoreRequest;
 use App\Libraries\PaginationLibrary;
 use App\Models\Attach\AttachFile;

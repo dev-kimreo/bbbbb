@@ -1,14 +1,14 @@
 <?php
 
 use App\Http\Controllers\AccessTokenController;
-use App\Http\Controllers\AttachController;
+use App\Http\Controllers\Attach\AttachController;
 use App\Http\Controllers\AuthorityController;
 use App\Http\Controllers\BackofficeMenuController;
 use App\Http\Controllers\BackofficePermissionController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\EditablePages\EditablePageController;
-use App\Http\Controllers\ComponentUploadImageController;
+use App\Http\Controllers\Attach\ComponentUploadImageController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\Exhibitions\BannerController;
 use App\Http\Controllers\Exhibitions\CategoryController as ExhibitionCategoryController;
