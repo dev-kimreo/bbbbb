@@ -10,6 +10,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
+ *  @OA\Schema(
+ *      schema="ComponentUploadImage",
+ *      @OA\Property(property="id", type="integer", example=1, description="컴포넌트 업로드 이미지 고유 번호" ),
+ *      @OA\Property(property="userId", type="integer", example=1, description="이미지를 업로드한 회원의 고유 번호" ),
+ *      @OA\Property(property="attachFileId", type="integer", example=1, description="해당하는 첨부파일 고유 번호" ),
+ *      @OA\Property(property="width", type="integer", example="1024", description="이미지 너비(pixel)" ),
+ *      @OA\Property(property="height", type="integer", example="768", description="이미지 높이(pixel)" )
+ *  )
+ *
  * @method static findOrFail(int $id)
  */
 class ComponentUploadImage extends Model
