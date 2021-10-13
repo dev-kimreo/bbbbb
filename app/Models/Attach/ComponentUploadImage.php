@@ -22,7 +22,7 @@ class ComponentUploadImage extends Model
     protected $hidden = ['created_at', 'deleted_at'];
     protected $casts = [];
     protected $appends = [];
-    protected $with = ['attachFile'];
+    protected $with = [];
 
     public static function boot()
     {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Attaches\StoreRequest;
 use App\Libraries\PaginationLibrary;
+use App\Models\Attach\AttachFile;
 use App\Models\Attach\ComponentUploadImage;
 use App\Services\AttachService;
 use Auth;
@@ -97,6 +98,9 @@ class ComponentUploadImageController extends Controller
 
     protected function getOne(int $id): Collection
     {
-        return collect(ComponentUploadImage::findOrFail($id));
+        $data = ComponentUploadImage::findOrFail($id);
+        $res = AttachFile::with(['thumb'])->findOrFail($data->attach_file_id);
+        $res->setAttribute('component_upload_image', $data);
+        return collect($res);
     }
 }
