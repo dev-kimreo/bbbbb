@@ -8,6 +8,7 @@ use App\Http\Controllers\BackofficePermissionController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\EditablePages\EditablePageController;
+use App\Http\Controllers\EditablePages\EditablePageLayoutController;
 use App\Http\Controllers\Attach\ComponentUploadImageController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\Exhibitions\BannerController;
@@ -29,6 +30,7 @@ use App\Http\Controllers\Users\UserSiteController;
 use App\Http\Controllers\Widgets\WidgetController;
 use App\Http\Controllers\Widgets\WidgetUsageController;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -205,6 +207,7 @@ Route::group([
 
         // 담당자 지정
         Route::patch('{inquiryId}/assignee/{assignee_id}', [InquiryController::class, 'assignee'])->middleware('chkAccess:backoffice');
+
     });
 
     // 답변 CRUD (Customized Router)
