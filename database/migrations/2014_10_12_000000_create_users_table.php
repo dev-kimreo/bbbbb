@@ -61,7 +61,7 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->boolean('agree');
-            $table->timestamp('created_at')->index();
+            $table->timestamp('created_at')->useCurrent()->index();
             $table->softDeletes();
         });
     }

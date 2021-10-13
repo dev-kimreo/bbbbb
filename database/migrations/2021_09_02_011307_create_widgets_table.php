@@ -31,7 +31,7 @@ class CreateWidgetsTable extends Migration
             $table->foreignId('user_id')->constrained();
             $table->foreignId('widget_id')->constrained();
             $table->unsignedTinyInteger('sort')->default(0);
-            $table->timestamp('created_at');
+            $table->timestamp('created_at')->useCurrent();
             $table->unique(['user_id', 'widget_id']);
         });
     }

@@ -27,7 +27,7 @@ class CreateActionLogsTable extends Migration
             $table->string('title', 16)->nullable();
             $table->string('memo', 512)->nullable();
             $table->json('properties')->nullable();
-            $table->timestamp('created_at');
+            $table->timestamp('created_at')->useCurrent();
             $table->primary(['id', 'created_at']);
             $table->index(['created_at', 'loggable_type', 'loggable_id']);
         });
