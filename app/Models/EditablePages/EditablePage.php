@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @method static where(string $string, int $theme_id)
  * @method static create(array|int[] $array_merge)
+ * @method static findOrFail($editablePageId)
  */
 class EditablePage extends Model
 {
