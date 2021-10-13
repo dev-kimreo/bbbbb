@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Attach;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Attaches\StoreRequest;
+use App\Http\Resources\Attach\ComponentUploadImageResource;
 use App\Libraries\PaginationLibrary;
-use App\Models\Attach\AttachFile;
 use App\Models\Attach\ComponentUploadImage;
 use App\Services\AttachService;
 use Auth;
@@ -26,18 +26,18 @@ class ComponentUploadImageController extends Controller
     public function index(Request $request): Collection
     {
         // init model
-        $model = ComponentUploadImage::orderByDesc('id');
+        $model = ComponentUploadImage::query()->orderByDesc('id');
 
         // set pagination information
         $pagination = PaginationLibrary::set($request->input('page'), $model->count(), $request->input('per_page'));
 
-        // get data from DB
+        // get ids from DB
         $data = $model->skip($pagination['skip'])->take($pagination['perPage'])->get();
 
         // result
         $result = [
             'header' => $pagination ?? [],
-            'list' => $data ?? []
+            'list' => ComponentUploadImageResource::collection($data) ?? []
         ];
 
         return collect($result);
@@ -70,7 +70,7 @@ class ComponentUploadImageController extends Controller
         $attachService->move($res, [$attach->getAttribute('id')]);
 
         // Response
-        return response()->json(collect($this->getOne($res->getAttribute('id'))), 201);
+        return response()->json($this->getOne($res->getAttribute('id')), 201);
     }
 
     /**
@@ -96,12 +96,8 @@ class ComponentUploadImageController extends Controller
         return response()->noContent();
     }
 
-
     protected function getOne(int $id): Collection
     {
-        $data = ComponentUploadImage::findOrFail($id);
-        $res = AttachFile::with(['thumb'])->findOrFail($data->attach_file_id);
-        $res->setAttribute('component_upload_image', $data);
-        return collect($res);
+        return collect(ComponentUploadImageResource::make(ComponentUploadImage::findOrFail($id)));
     }
 }
