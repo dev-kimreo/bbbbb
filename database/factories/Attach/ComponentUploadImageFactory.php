@@ -1,9 +1,8 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Attach;
 
-use App\Models\ComponentUploadImage;
-use Carbon\Carbon;
+use App\Models\Attach\ComponentUploadImage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ComponentUploadImageFactory extends Factory
@@ -23,11 +22,8 @@ class ComponentUploadImageFactory extends Factory
     public function definition(): array
     {
         return [
-            'url_thumb' => $this->faker->url,
             'width' => $this->faker->numberBetween(128, 1280),
-            'height' => $this->faker->numberBetween(128, 1280),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'height' => $this->faker->numberBetween(128, 1280)
         ];
     }
 }
