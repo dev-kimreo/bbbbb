@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  *      schema="ComponentUploadImage",
  *      @OA\Property(property="id", type="integer", example=1, description="컴포넌트 업로드 이미지 고유 번호" ),
  *      @OA\Property(property="userId", type="integer", example=1, description="이미지를 업로드한 회원의 고유 번호" ),
- *      @OA\Property(property="attachFileId", type="integer", example=1, description="해당하는 첨부파일 고유 번호" ),
  *      @OA\Property(property="width", type="integer", example="1024", description="이미지 너비(pixel)" ),
  *      @OA\Property(property="height", type="integer", example="768", description="이미지 높이(pixel)" )
  *  )
@@ -27,7 +26,7 @@ class ComponentUploadImage extends Model
     use DateFormatISO8601;
 
     public $timestamps = false;
-    protected $fillable = ['attach_file_id', 'user_id', 'width', 'height'];
+    protected $fillable = ['user_id', 'width', 'height'];
     protected $hidden = ['created_at', 'deleted_at'];
     protected $casts = [];
     protected $appends = [];
@@ -53,6 +52,6 @@ class ComponentUploadImage extends Model
 
     public function attachFile(): MorphOne
     {
-        return $this->morphOne(AttachFile::class, 'attachable', 'attachable_type', 'attachable_id');
+        return $this->morphOne(AttachFile::class, 'attachable');
     }
 }

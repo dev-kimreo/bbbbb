@@ -137,7 +137,6 @@ class ComponentUploadImageController extends Controller
         $attach = $attachService->create($request->file('files'))->refresh();
         $res = ComponentUploadImage::query()->create(
             [
-                'attach_file_id' => $attach->getAttribute('id'),
                 'user_id' => Auth::id(),
                 'width' => $image->getWidth(),
                 'height' => $image->getHeight()
