@@ -258,6 +258,24 @@ class ExceptionSeeder extends Seeder
                 '나의 소유가 아닌 위젯 사용내역은 수정할 수 없습니다.',
                 'Can\'t read because you are not writer.'
             ],
+            [
+                'exception',
+                'theme.disable.already_exists',
+                '이미 해당 솔루션 테마가 존재하여 추가할 수 없습니다.',
+                '이미 해당 솔루션 테마가 존재하여 추가할 수 없습니다.'
+            ],
+            [
+                'exception',
+                'supported_editable_page.disable.already_exists',
+                '이미 해당 에디터 지원 페이지가 존재하여 추가할 수 없습니다.',
+                '이미 해당 에디터 지원 페이지가 존재하여 추가할 수 없습니다.'
+            ],
+            [
+                'exception',
+                'supported_editable_page.disable.add_to_selected_theme',
+                '해당 에디터 지원 페이지는 선택한 테마에 추가할 수 없습니다.',
+                '해당 에디터 지원 페이지는 선택한 테마에 추가할 수 없습니다.'
+            ],
         ];
 
         // Truncate tables

@@ -13,7 +13,8 @@ use Image;
 
 class AttachService
 {
-    private AttachFile $attach;
+    protected AttachFile $attach;
+    protected static string $storageDisk = 'public';
 
     public string $tempDir = 'temp';    // 임시 파일 저장 디렉토리
     public string $thumbDir = 'thumb';    // 썸네일 저장 디렉토리
@@ -31,6 +32,11 @@ class AttachService
         $this->attach = $attach;
     }
 
+    public static function setStorageDisk(string $storageDisk = 'public')
+    {
+        self::$storageDisk = $storageDisk;
+    }
+
     /**
      * @param UploadedFile $file
      * @return AttachFile
@@ -39,7 +45,7 @@ class AttachService
     {
         // Upload to storage
         $fileName = $this->getFileNameByHash($file->getClientOriginalName(), $file->getClientOriginalExtension());
-        $filePath = Storage::disk('public')->putFileAs($this->tempDir, $file, $fileName);
+        $filePath = Storage::disk(self::$storageDisk)->putFileAs($this->tempDir, $file, $fileName);
 
         // Make a record on database
         $model = $this->createDbRecord($filePath, $file->getClientOriginalName(), $file->getSize());
@@ -54,9 +60,10 @@ class AttachService
     /**
      * @param AttachFile $parent
      * @param UploadedFile $file
+     * @param int $fitSize
      * @return bool
      */
-    protected function makeThumb(AttachFile $parent, UploadedFile $file, $fitSize = 300): bool
+    protected function makeThumb(AttachFile $parent, UploadedFile $file, int $fitSize = 300): bool
     {
         // Resize the uploaded image
         $resizedImage = Image::make($file)->fit($fitSize)->encode('jpg', 40);
@@ -66,7 +73,7 @@ class AttachService
         $fileName = preg_replace('/\.(.*)$/', '.thumb.$1', $file->getClientOriginalName());
         $hashName = $this->getFileNameByHash($fileName . '*', $file->getClientOriginalExtension());
         $filePath = $this->thumbDir . '/' . $hashName;
-        Storage::disk('public')->put($filePath, $encodedImage);
+        Storage::disk(self::$storageDisk)->put($filePath, $encodedImage);
 
         // Make a record on database
         $this->createDbRecord(
@@ -99,7 +106,7 @@ class AttachService
      */
     protected function uploadFile(string $path, $file, string $fileName): string
     {
-        return Storage::disk('public')->putFileAs($path, $file, $fileName);
+        return Storage::disk(self::$storageDisk)->putFileAs($path, $file, $fileName);
     }
 
     /**
@@ -117,17 +124,16 @@ class AttachService
         string $attachable_type = 'temp',
         int $attachable_id = 0
     ): AttachFile {
-        $url = Storage::disk('public')->url($filepath);
+        $url = Storage::disk(self::$storageDisk)->url($filepath);
         $name = pathinfo($url, PATHINFO_BASENAME);
-        $path = pathinfo(str_replace(config('filesystems.disks.public.url') . '/', '', $url), PATHINFO_DIRNAME);
 
         $data = [
-            'server' => 'public',
+            'server' => self::$storageDisk,
             'attachable_type' => $attachable_type,
             'attachable_id' => $attachable_id,
             'user_id' => Auth::user() ? Auth::id() : 0,
             'url' => $url,
-            'path' => $path,
+            'path' => $filepath,
             'name' => $name,
             'org_name' => $orgName,
             'size' => $size
@@ -142,68 +148,49 @@ class AttachService
             return false;
         }
 
-        $alias = $collect->getMorphClass();
-        if (!$alias) {
+        if (!$alias = $collect->getMorphClass()) {
             return false;
         }
 
+        // 저장경로
         $hexName = str_pad(dechex($alias), $this->hexLength, '0', STR_PAD_LEFT);
 
         for ($i = -$this->levelDepth; abs($i) <= $this->hexLength; $i -= $this->levelDepth) {
             $this->path[] = substr($hexName, $i, $this->levelDepth);
         }
 
-        $disk = $this->funcGetServer();
+        $dir = $alias . '/' . implode('/', $this->path);
 
-        if (is_array($nos) && count($nos)) {
-            $attach = $this->attach->tempType()->whereIn('id', $nos)->get();
+        // 저장경로 디렉토리 생성
+        Storage::disk(self::$storageDisk)->makeDirectory($dir);
 
-            if ($attach) {
-                foreach ($attach as $arr) {
-                    $pathInfo = pathinfo($arr->url);
-
-                    if (!Storage::disk('public')->exists($this->tempDir . '/' . $pathInfo['basename'])) {
-                        continue;
-                    }
-
-                    $orgImg = Storage::disk('public')->get($this->tempDir . '/' . $pathInfo['basename']);
-
-                    // 폴더 존재여부
-                    if (!Storage::disk($disk)->exists($alias . '/' . implode('/', $this->path))) {
-                        Storage::disk($disk)->makeDirectory($alias . '/' . implode('/', $this->path));
-                    }
-
-                    // 이동
-                    $dir = $alias . '/' . implode('/', $this->path) . '/' . $pathInfo['basename'];
-                    Storage::disk($disk)->put($dir, $orgImg);
-
-                    // 첨부파일 데이터 수정
-                    $url = Storage::disk($disk)->url($dir);
-                    $pathInfo = pathinfo($url);
-                    $path = pathInfo(str_replace(config('filesystems.disks.' . $disk . '.url') . '/', '', $url))['dirname'];
-
-                    $attachModel = $arr;
-                    $attachModel->server = $disk;
-                    $attachModel->attachable_type = $alias;
-                    $attachModel->attachable_id = $collect->id;
-                    $attachModel->url = $url;
-                    $attachModel->path = $path;
-                    $attachModel->etc = $etc;
-                    $attachModel->update();
-
-                    // 원본 삭제
-                    Storage::disk('public')->delete($this->tempDir . '/' . $pathInfo['basename']);
+        // 파일 이동
+        if ($attach = $this->attach->tempType()->whereIn('id', $nos)->get()) {
+            foreach ($attach as $v) {
+                if (!Storage::disk(self::$storageDisk)->exists($v->path)) {
+                    continue;
                 }
+
+                $path = $dir . '/' . $v->name;
+                $orgImg = Storage::disk(self::$storageDisk)->get($v->path);
+                Storage::disk(self::$storageDisk)->put($path, $orgImg);
+
+                // 첨부파일 데이터 수정
+                $attachModel = clone $v;
+                $attachModel->server = self::$storageDisk;
+                $attachModel->attachable_type = $alias;
+                $attachModel->attachable_id = $collect->id;
+                $attachModel->url = Storage::disk(self::$storageDisk)->url($path);
+                $attachModel->path = $path;
+                $attachModel->etc = $etc;
+                $attachModel->update();
+
+                // 원본 삭제
+                Storage::disk(self::$storageDisk)->delete($v->path);
             }
         }
 
         return true;
-    }
-
-    protected function funcGetServer()
-    {
-        $diskServer = config('filesystems.custom.servers');
-        return $diskServer[hexdec($this->path[0]) % count($diskServer)];
     }
 
     public function delete(array $no = []): bool

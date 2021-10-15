@@ -1,22 +1,25 @@
 <?php
 
 use App\Http\Controllers\AccessTokenController;
-use App\Http\Controllers\AttachController;
+use App\Http\Controllers\Attach\AttachController;
 use App\Http\Controllers\AuthorityController;
+use App\Http\Controllers\BackofficeMenuController;
 use App\Http\Controllers\BackofficePermissionController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\Boards\OptionController;
+use App\Http\Controllers\EditablePages\EditablePageController;
+use App\Http\Controllers\Attach\ComponentUploadImageController;
+use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\Exhibitions\BannerController;
 use App\Http\Controllers\Exhibitions\CategoryController as ExhibitionCategoryController;
 use App\Http\Controllers\Exhibitions\PopupController;
 use App\Http\Controllers\InquiryAnswerController;
 use App\Http\Controllers\InquiryController;
-use App\Http\Controllers\BackofficeMenuController;
-use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\TermsOfUseController;
+use App\Http\Controllers\Themes\ThemeController;
 use App\Http\Controllers\Themes\ThemeProductController;
 use App\Http\Controllers\TooltipController;
 use App\Http\Controllers\Users\ManagerController;
@@ -26,7 +29,6 @@ use App\Http\Controllers\Users\UserSiteController;
 use App\Http\Controllers\Widgets\WidgetController;
 use App\Http\Controllers\Widgets\WidgetUsageController;
 use Illuminate\Support\Facades\Route;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -115,7 +117,7 @@ Route::group([
      * 관리자 및 권한 관련
      */
     Route::group(['middleware' => 'chkAccess:backoffice'], function () {
-        Route::group(['prefix' => 'authority'], function(){
+        Route::group(['prefix' => 'authority'], function () {
             Route::post('', [AuthorityController::class, 'store']);
             Route::get('', [AuthorityController::class, 'index']);
             Route::get('/{id}', [AuthorityController::class, 'show'])->where(['id' => '[0-9]+']);
@@ -203,7 +205,6 @@ Route::group([
 
         // 담당자 지정
         Route::patch('{inquiryId}/assignee/{assignee_id}', [InquiryController::class, 'assignee'])->middleware('chkAccess:backoffice');
-
     });
 
     // 답변 CRUD (Customized Router)
@@ -224,11 +225,25 @@ Route::group([
         Route::delete('/{id}', [AttachController::class, 'delete']);    // 파일 삭제
     });
 
+    // 컴포넌트 업로드 이미지
+    Route::group(
+        [
+            'prefix' => 'component-upload-image',
+            'middleware' => 'chkAccess:associate,backoffice'
+        ],
+        function () {
+            Route::get('', [ComponentUploadImageController::class, 'index']);
+            Route::get('/{id}', [ComponentUploadImageController::class, 'show']);
+            Route::post('', [ComponentUploadImageController::class, 'store']);
+            Route::delete('/{id}', [ComponentUploadImageController::class, 'destroy']);
+        }
+    );
+
     // 이용약관 & 개인정보 처리 방침
     Route::group([
         'prefix' => 'terms-of-use',
         'middleware' => 'chkAccess:backoffice'
-    ], function(){
+    ], function () {
         Route::post('', [TermsOfUseController::class, 'store']);
         Route::get('', [TermsOfUseController::class, 'index']);
         Route::get('/{terms_of_use_id}', [TermsOfUseController::class, 'show'])->where(['terms_of_use_id' => '[0-9]+'])->withoutmiddleware('chkAccess:backoffice');
@@ -317,7 +332,41 @@ Route::group([
     ]);
 
     // 테마 상품
-    Route::resource('/theme-product', ThemeProductController::class)->middleware('chkAccess:partner');
+    Route::group([
+        'prefix' => 'theme-product',
+        'middleware' => ['auth:api', 'chkAccess:partner']
+    ], function () {
+        Route::get('', [ThemeProductController::class, 'index']);
+        Route::get('/{theme_product_id}', [ThemeProductController::class, 'show']);
+        Route::post('', [ThemeProductController::class, 'store']);
+        Route::patch('/{theme_product_id}', [ThemeProductController::class, 'update']);
+        Route::delete('/{theme_product_id}', [ThemeProductController::class, 'destroy']);
+
+        // 테마
+        Route::get('/{theme_product_id}/theme', [ThemeController::class, 'index']);
+        Route::get('/{theme_product_id}/theme/{theme_id}', [ThemeController::class, 'show']);
+        Route::post('/{theme_product_id}/theme', [ThemeController::class, 'store']);
+        Route::patch('/{theme_product_id}/theme/{theme_id}', [ThemeController::class, 'update']);
+        Route::delete('/{theme_product_id}/theme/{theme_id}', [ThemeController::class, 'destroy']);
+    });
+
+    // 테마
+    Route::group([
+        'prefix' => 'theme',
+        'middleware' => ['auth:api', 'chkAccess:partner']
+    ], function () {
+        Route::get('', [ThemeController::class, 'index']);
+        Route::get('/{theme_id}', [ThemeController::class, 'show']);
+        Route::patch('/{theme_id}', [ThemeController::class, 'update']);
+        Route::delete('/{theme_id}', [ThemeController::class, 'destroy']);
+
+        // 에디터 지원 페이지 목록
+        Route::get('/{theme_id}/editable-page', [EditablePageController::class, 'index']);
+        Route::get('/{theme_id}/editable-page/{editable_page_id}', [EditablePageController::class, 'show']);
+        Route::post('/{theme_id}/editable-page', [EditablePageController::class, 'store']);
+        Route::patch('/{theme_id}/editable-page/{editable_page_id}', [EditablePageController::class, 'update']);
+        Route::delete('/{theme_id}/editable-page/{editable_page_id}', [EditablePageController::class, 'destroy']);
+    });
 
     /**
      * 통계
@@ -332,5 +381,5 @@ Route::group([
 
         // Inquiry
         Route::get('inquiry/count-per-status', [InquiryController::class, 'getCountPerStatus']);
-	});
+    });
 });
