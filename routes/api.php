@@ -1,19 +1,20 @@
 <?php
 
 use App\Http\Controllers\AccessTokenController;
-use App\Http\Controllers\AttachController;
+use App\Http\Controllers\Attach\AttachController;
 use App\Http\Controllers\AuthorityController;
+use App\Http\Controllers\BackofficeMenuController;
 use App\Http\Controllers\BackofficePermissionController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\EditablePages\EditablePageController;
+use App\Http\Controllers\Attach\ComponentUploadImageController;
+use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\Exhibitions\BannerController;
 use App\Http\Controllers\Exhibitions\CategoryController as ExhibitionCategoryController;
 use App\Http\Controllers\Exhibitions\PopupController;
 use App\Http\Controllers\InquiryAnswerController;
 use App\Http\Controllers\InquiryController;
-use App\Http\Controllers\BackofficeMenuController;
-use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\SolutionController;
@@ -28,7 +29,6 @@ use App\Http\Controllers\Users\UserSiteController;
 use App\Http\Controllers\Widgets\WidgetController;
 use App\Http\Controllers\Widgets\WidgetUsageController;
 use Illuminate\Support\Facades\Route;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -205,7 +205,6 @@ Route::group([
 
         // 담당자 지정
         Route::patch('{inquiryId}/assignee/{assignee_id}', [InquiryController::class, 'assignee'])->middleware('chkAccess:backoffice');
-
     });
 
     // 답변 CRUD (Customized Router)
@@ -225,6 +224,20 @@ Route::group([
         Route::patch('/{id}', [AttachController::class, 'update']);     // 파일 이동
         Route::delete('/{id}', [AttachController::class, 'delete']);    // 파일 삭제
     });
+
+    // 컴포넌트 업로드 이미지
+    Route::group(
+        [
+            'prefix' => 'component-upload-image',
+            'middleware' => 'chkAccess:associate,backoffice'
+        ],
+        function () {
+            Route::get('', [ComponentUploadImageController::class, 'index']);
+            Route::get('/{id}', [ComponentUploadImageController::class, 'show']);
+            Route::post('', [ComponentUploadImageController::class, 'store']);
+            Route::delete('/{id}', [ComponentUploadImageController::class, 'destroy']);
+        }
+    );
 
     // 이용약관 & 개인정보 처리 방침
     Route::group([
