@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Attach;
 
+use App\Exceptions\QpickHttpException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Attaches\StoreRequest;
 use App\Http\Resources\Attach\ComponentUploadImageResource;
@@ -216,8 +217,17 @@ class ComponentUploadImageController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * @throws QpickHttpException
+     */
     protected function getOne(int $id): Collection
     {
-        return collect(ComponentUploadImageResource::make(ComponentUploadImage::findOrFail($id)));
+        $res = ComponentUploadImage::findOrFail($id);
+
+        if (!Auth::isLoggedForBackoffice() && $res->getAttribute('user_id') != Auth::id()) {
+            throw new QpickHttpException(403, 'common.unauthorized');
+        }
+
+        return collect(ComponentUploadImageResource::make($res));
     }
 }
