@@ -10,6 +10,7 @@ use App\Libraries\PaginationLibrary;
 use App\Models\Attach\ComponentUploadImage;
 use App\Services\AttachService;
 use Auth;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -128,6 +129,7 @@ class ComponentUploadImageController extends Controller
      * @param StoreRequest $request
      * @param AttachService $attachService
      * @return JsonResponse
+     * @throws QpickHttpException
      */
     public function store(StoreRequest $request, AttachService $attachService): JsonResponse
     {
@@ -148,7 +150,7 @@ class ComponentUploadImageController extends Controller
         $attachService->move($res, [$attach->getAttribute('id')]);
 
         // Response
-        return response()->json($this->getOne($res->getAttribute('id')), 201);
+        return response()->json($this->getOneResponse($res->getAttribute('id')), 201);
     }
 
     /**
@@ -176,10 +178,11 @@ class ComponentUploadImageController extends Controller
      *
      * @param $id
      * @return Collection
+     * @throws QpickHttpException
      */
     public function show($id): Collection
     {
-        return $this->getOne($id);
+        return $this->getOneResponse($id);
     }
 
     /**
@@ -208,19 +211,22 @@ class ComponentUploadImageController extends Controller
      *
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return Response
+     * @throws QpickHttpException
      */
     public function destroy(int $id): Response
     {
-        ComponentUploadImage::findOrFail($id)->delete();
+        $this->getOneModel($id)->delete();
         return response()->noContent();
     }
 
     /**
+     * @param int $id
+     * @return Model
      * @throws QpickHttpException
      */
-    protected function getOne(int $id): Collection
+    protected function getOneModel(int $id): Model
     {
         $res = ComponentUploadImage::findOrFail($id);
 
@@ -228,6 +234,16 @@ class ComponentUploadImageController extends Controller
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        return collect(ComponentUploadImageResource::make($res));
+        return $res;
+    }
+
+    /**
+     * @param int $id
+     * @return Collection
+     * @throws QpickHttpException
+     */
+    protected function getOneResponse(int $id): Collection
+    {
+        return collect(ComponentUploadImageResource::make($this->getOneModel($id)));
     }
 }
