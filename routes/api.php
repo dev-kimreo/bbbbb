@@ -16,6 +16,7 @@ use App\Http\Controllers\Exhibitions\CategoryController as ExhibitionCategoryCon
 use App\Http\Controllers\Exhibitions\PopupController;
 use App\Http\Controllers\InquiryAnswerController;
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\LinkedComponents\LinkedComponentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\SolutionController;
@@ -369,6 +370,16 @@ Route::group([
         Route::post('/{theme_id}/editable-page', [EditablePageController::class, 'store']);
         Route::patch('/{theme_id}/editable-page/{editable_page_id}', [EditablePageController::class, 'update']);
         Route::delete('/{theme_id}/editable-page/{editable_page_id}', [EditablePageController::class, 'destroy']);
+
+        // 에디터 지원 페이지 레이아웃 목록
+        Route::get('/{theme_id}/editable-page/{editable_page_id}/layout', [EditablePageLayoutController::class, 'index']);
+        Route::get('/{theme_id}/editable-page/{editable_page_id}/layout/{layout_id}', [EditablePageLayoutController::class, 'show']);
+        Route::post('/{theme_id}/editable-page/{editable_page_id}/layout', [EditablePageLayoutController::class, 'store']);
+        Route::patch('/{theme_id}/editable-page/{editable_page_id}/layout/{layout_id}', [EditablePageLayoutController::class, 'update']);
+        Route::delete('/{theme_id}/editable-page/{editable_page_id}/layout/{layout_id}', [EditablePageLayoutController::class, 'destroy']);
+
+        // 연동 컴포넌트
+        Route::get('/{theme_id}/editable-page/{editable_page_id}/linked-component', [LinkedComponentController::class, 'index']);
     });
 
     /**
