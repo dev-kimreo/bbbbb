@@ -21,6 +21,7 @@ class CreateComponentOptionsTable extends Migration
             $table->string('name', 64);
             $table->string('key', 64);
             $table->string('default', 64);
+            $table->text('help')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
