@@ -49,7 +49,7 @@ class LinkedComponentGroup extends Model
 
     public function linkedComponent(): HasMany
     {
-        return $this->hasMany(LinkedComponent::class, 'linked_component_group_id', 'id');
+        return $this->hasMany(LinkedComponent::class, 'linked_component_group_id', 'id')->orderBy('sort', 'asc');
     }
 }
 
