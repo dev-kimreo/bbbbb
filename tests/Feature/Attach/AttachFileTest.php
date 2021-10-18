@@ -3,10 +3,11 @@
 namespace Tests\Feature\Attach;
 
 use App\Models\Attach\AttachFile;
-use App\Models\Attach\ComponentUploadImage;
+use App\Models\Inquiry;
 use App\Models\Users\User;
 use App\Services\AttachService;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -16,7 +17,7 @@ use Storage;
 use Tests\Feature\Traits\QpickTestBase;
 use Tests\TestCase;
 
-class ComponentUploadImageTest extends TestCase
+class AttachFileTest extends TestCase
 {
     use WithFaker;
     use QpickTestBase;
@@ -24,6 +25,7 @@ class ComponentUploadImageTest extends TestCase
 
     protected string $storagePath = 'test';
     protected UploadedFile $fakeFile;
+
 
     public array $structureShow = [
         'id',
@@ -47,12 +49,6 @@ class ComponentUploadImageTest extends TestCase
             'orgName',
             'size',
             'etc'
-        ],
-        'componentUploadImage' => [
-            'id',
-            'userId',
-            'width',
-            'height'
         ]
     ];
 
@@ -92,12 +88,6 @@ class ComponentUploadImageTest extends TestCase
                     'orgName',
                     'size',
                     'etc'
-                ],
-                'componentUploadImage' => [
-                    'id',
-                    'userId',
-                    'width',
-                    'height'
                 ]
             ]
         ]
@@ -110,13 +100,9 @@ class ComponentUploadImageTest extends TestCase
         AttachService::setStorageDisk($this->storagePath);
     }
 
-    protected function getFactory(?User $user = null): Factory
+    protected function getFactory(User $user): Factory
     {
-        $user = $user ?? User::factory()->create();
-
-        return ComponentUploadImage::factory()
-            ->for($user, 'uploader')
-            ->has(AttachFile::factory()->for($user, 'uploader'), 'attachFile');
+        return AttachFile::factory()->for($user, 'uploader');
     }
 
     /**
@@ -126,18 +112,18 @@ class ComponentUploadImageTest extends TestCase
     {
         $this->fakeFile = UploadedFile::fake()->image('photo.jpg');
 
-        return $this->requestQpickApi('post', '/v1/component-upload-image', [
+        return $this->requestQpickApi('post', '/v1/attach', [
             'files' => $this->fakeFile
         ]);
     }
 
-    public function testCreateComponentUploadImageByGuest()
+    public function testCreateAttachFileByGuest()
     {
         $response = $this->getResponseCreate();
         $response->assertUnauthorized();
     }
 
-    public function testCreateComponentUploadImageByAssociate()
+    public function testCreateAttachFileByAssociate()
     {
         $this->actingAsQpickUser('associate');
 
@@ -147,7 +133,7 @@ class ComponentUploadImageTest extends TestCase
         Storage::disk($this->storagePath)->assertExists($response->json('path'));
     }
 
-    public function testCreateComponentUploadImageByRegular()
+    public function testCreateAttachFileByRegular()
     {
         $this->actingAsQpickUser('regular');
 
@@ -157,7 +143,7 @@ class ComponentUploadImageTest extends TestCase
         Storage::disk($this->storagePath)->assertExists($response->json('path'));
     }
 
-    public function testCreateComponentUploadImageByBackoffice()
+    public function testCreateAttachFileByBackoffice()
     {
         $this->actingAsQpickUser('backoffice');
 
@@ -168,161 +154,131 @@ class ComponentUploadImageTest extends TestCase
     }
 
     /**
-     * Index
+     * Update
      */
-    protected function getResponseList(): TestResponse
+    protected function getResponseUpdate(?User $user, bool $owned): TestResponse
     {
-        return $this->requestQpickApi('get', '/v1/component-upload-image', []);
+        if (!$owned) {
+            $user = User::factory()->create();
+        }
+
+        $id = $this->getFactory($user)->create()->getAttribute('id');
+        $inquiryId = Inquiry::factory()->for($user, 'user')->create();
+        $inquiryId = $inquiryId->getAttribute('id');
+
+        return $this->requestQpickApi('patch', '/v1/attach/' . $id, [
+            'type' => 'inquiry',
+            'typeId' => $inquiryId
+        ]);
     }
 
-    public function testListComponentUploadImageByGuest()
+    public function testUpdateAttachFileByGuest()
     {
-        $response = $this->getResponseList();
+        $response = $this->getResponseUpdate(null, false);
         $response->assertUnauthorized();
     }
 
-    public function testListComponentUploadImageByAssociate()
+    public function testUpdateOwnedAttachFileByAssociate()
     {
         $user = $this->actingAsQpickUser('associate');
-        $this->getFactory($user)->create();
-
-        $response = $this->getResponseList();
-        $response->assertOk();
-        $response->assertJsonStructure($this->structureList);
+        $response = $this->getResponseUpdate($user, true);
+        $response->assertCreated();
+        $response->assertJsonStructure($this->structureShow);
     }
 
-    public function testListComponentUploadImageByRegular()
+    public function testUpdateOwnedAttachFileByRegular()
     {
         $user = $this->actingAsQpickUser('regular');
-        $this->getFactory($user)->create();
-
-        $response = $this->getResponseList();
-        $response->assertOk();
-        $response->assertJsonStructure($this->structureList);
+        $response = $this->getResponseUpdate($user, true);
+        $response->assertCreated();
+        $response->assertJsonStructure($this->structureShow);
     }
 
-    public function testListComponentUploadImageByBackoffice()
+    public function testUpdateOwnedAttachFileByBackoffice()
     {
         $user = $this->actingAsQpickUser('backoffice');
-        $this->getFactory($user)->create();
-
-        $response = $this->getResponseList();
-        $response->assertOk();
-        $response->assertJsonStructure($this->structureList);
+        $response = $this->getResponseUpdate($user, true);
+        $response->assertCreated();
+        $response->assertJsonStructure($this->structureShow);
     }
 
-    /**
-     * Show
-     */
-    protected function getResponseShow(?User $user = null, bool $owned = true): TestResponse
-    {
-        $id = $this->getFactory($owned ? $user : null)->create()->getAttribute('id');
-        return $this->requestQpickApi('get', '/v1/component-upload-image/' . $id, []);
-    }
-
-    public function testShowComponentUploadImageByGuest()
-    {
-        $response = $this->getResponseShow();
-        $response->assertUnauthorized();
-    }
-
-    public function testShowOwnedComponentUploadImageByAssociate()
+    public function testUpdateOtherAttachFileByAssociate()
     {
         $user = $this->actingAsQpickUser('associate');
-        $response = $this->getResponseShow($user);
-        $response->assertOk();
-        $response->assertJsonStructure($this->structureShow);
-    }
-
-    public function testShowOwnedComponentUploadImageByRegular()
-    {
-        $user = $this->actingAsQpickUser('regular');
-        $response = $this->getResponseShow($user);
-        $response->assertOk();
-        $response->assertJsonStructure($this->structureShow);
-    }
-
-    public function testShowOwnedComponentUploadImageByBackoffice()
-    {
-        $user = $this->actingAsQpickUser('backoffice');
-        $response = $this->getResponseShow($user);
-        $response->assertOk();
-        $response->assertJsonStructure($this->structureShow);
-    }
-
-    public function testShowOtherComponentUploadImageByAssociate()
-    {
-        $user = $this->actingAsQpickUser('associate');
-        $response = $this->getResponseShow($user, false);
+        $response = $this->getResponseUpdate($user, false);
         $response->assertForbidden();
     }
 
-    public function testShowOtherComponentUploadImageByRegular()
+    public function testUpdateOtherAttachFileByRegular()
     {
         $user = $this->actingAsQpickUser('regular');
-        $response = $this->getResponseShow($user, false);
+        $response = $this->getResponseUpdate($user, false);
         $response->assertForbidden();
     }
 
-    public function testShowOtherComponentUploadImageByBackoffice()
+    public function testUpdateOtherAttachFileByBackoffice()
     {
         $user = $this->actingAsQpickUser('backoffice');
-        $response = $this->getResponseShow($user, false);
-        $response->assertOk();
+        $response = $this->getResponseUpdate($user, false);
+        $response->assertCreated();
         $response->assertJsonStructure($this->structureShow);
     }
 
     /**
      * Delete
      */
-    protected function getResponseDelete(?User $user = null, bool $owned = true): TestResponse
+    protected function getResponseDelete(?User $user, bool $owned): TestResponse
     {
-        $id = $this->getFactory($owned ? $user : null)->create()->getAttribute('id');
-        return $this->requestQpickApi('delete', '/v1/component-upload-image/' . $id, []);
+        if (!$owned) {
+            $user = User::factory()->create();
+        }
+
+        $id = $this->getFactory($user)->create()->getAttribute('id');
+        return $this->requestQpickApi('delete', '/v1/attach/' . $id, []);
     }
 
-    public function testDeleteComponentUploadImageByGuest()
+    public function testDeleteAttachFileByGuest()
     {
-        $response = $this->getResponseDelete();
+        $response = $this->getResponseDelete(null, false);
         $response->assertUnauthorized();
     }
 
-    public function testDeleteOwnedComponentUploadImageByAssociate()
+    public function testDeleteOwnedAttachFileByAssociate()
     {
         $user = $this->actingAsQpickUser('associate');
-        $response = $this->getResponseDelete($user);
+        $response = $this->getResponseDelete($user, true);
         $response->assertNoContent();
     }
 
-    public function testDeleteOwnedComponentUploadImageByRegular()
+    public function testDeleteOwnedAttachFileByRegular()
     {
         $user = $this->actingAsQpickUser('regular');
-        $response = $this->getResponseDelete($user);
+        $response = $this->getResponseDelete($user, true);
         $response->assertNoContent();
     }
 
-    public function testDeleteOwnedComponentUploadImageByBackoffice()
+    public function testDeleteOwnedAttachFileByBackoffice()
     {
         $user = $this->actingAsQpickUser('backoffice');
-        $response = $this->getResponseDelete($user);
+        $response = $this->getResponseDelete($user, true);
         $response->assertNoContent();
     }
 
-    public function testDeleteOtherComponentUploadImageByAssociate()
+    public function testDeleteOtherAttachFileByAssociate()
     {
         $user = $this->actingAsQpickUser('associate');
         $response = $this->getResponseDelete($user, false);
         $response->assertForbidden();
     }
 
-    public function testDeleteOtherComponentUploadImageByRegular()
+    public function testDeleteOtherAttachFileByRegular()
     {
         $user = $this->actingAsQpickUser('regular');
         $response = $this->getResponseDelete($user, false);
         $response->assertForbidden();
     }
 
-    public function testDeleteOtherComponentUploadImageByBackoffice()
+    public function testDeleteOtherAttachFileByBackoffice()
     {
         $user = $this->actingAsQpickUser('backoffice');
         $response = $this->getResponseDelete($user, false);

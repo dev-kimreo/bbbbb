@@ -133,7 +133,7 @@ class AttachController extends Controller
         // Attach find
         $attachCollect = $this->attach->where(['id' => $id, 'attachable_type' => 'temp'])->first();
         if (!$attachCollect) {
-            throw new QpickHttpException(422, 'common.not_found');
+            throw new QpickHttpException(404, 'common.not_found');
         }
 
         if (!auth()->user()->can('update', $attachCollect)) {
