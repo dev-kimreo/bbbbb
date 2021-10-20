@@ -8,21 +8,15 @@ use App\Http\Requests\Posts\GetListRequest;
 use App\Http\Requests\Posts\IndexRequest;
 use App\Http\Requests\Posts\StoreRequest;
 use App\Http\Requests\Posts\UpdateRequest;
-use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
-use App\Libraries\StringLibrary;
-use App\Models\Attach\AttachFile;
 use App\Models\Board;
 use App\Models\Post;
-use App\Models\Reply;
-use App\Models\Users\User;
 use App\Services\AttachService;
+use App\Services\Boards\PostListService;
 use Auth;
-use DB;
 use Gate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
@@ -302,61 +296,33 @@ class PostController extends Controller
      */
     public function index(IndexRequest $request, $boardId): Collection
     {
-        $res = [];
-        $res['header'] = [];
-        $res['list'] = [];
-
         // 리소스 접근 권한 체크
         if (!Gate::allows('viewAny', [$this->post, $this->board->find($boardId)])) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        // 게시글 목록
-        $postModel = $this->post->where('board_id', $boardId);
+        // Where
+        $where = ['board_id' => $boardId];
 
-        // Backoffice login
         if (!Auth::isLoggedForBackoffice()) {
-            $postModel->where('hidden', 0);
+            $where['hidden'] = 0;
         }
 
-        // Sort By
-        if ($s = $request->input('sort_by')) {
-            $sortCollect = CollectionLibrary::getBySort($s, ['id', 'sort']);
-            $sortCollect->each(function ($item) use ($postModel) {
-                $postModel->orderBy($item['key'], $item['value']);
-            });
-        }
+        // Query
+        $query = PostListService::query()
+            ->where($where)
+            ->sort($request->input('sort_by'));
 
-        // pagination
-        $pagination = PaginationLibrary::set($request->page, $postModel->count(), $request->per_page);
+        // Pagination
+        $pagination = PaginationLibrary::set($request->input('page'), $query->count(), $request->input('per_page'));
 
-        if ($request->page <= $pagination['totalPage']) {
-            $postModel->with('user')->withCount('replies');
-            $postModel->with('thumbnail.attachFiles');
-
-            $postModel
-                ->groupBy('posts.id')
-                ->skip($pagination['skip'])
-                ->take($pagination['perPage']);
-
-            $post = $postModel->get();
-
-            // 데이터 가공
-            $post->each(function (&$v) {
-                $attachFiles = $v->thumbnail->attachFiles ?? null;
-                unset($v->thumbnail);
-                $v->thumbnail = $attachFiles;
-            });
-
-
-        }
-
-        $data = $post ?? [];
-
-        $res['header'] = $pagination;
-        $res['list'] = $data;
-
-        return collect($res);
+        // Return
+        return collect(
+            [
+                'header' => $pagination,
+                'list' => $query->skip($pagination['skip'])->take($pagination['perPage'])->get('onBoard')
+            ]
+        );
     }
 
 
@@ -453,102 +419,21 @@ class PostController extends Controller
      */
     public function getList(GetListRequest $request): Collection
     {
-        //
-        $res = [];
+        // Query
+        $query = PostListService::query()
+            ->where($request->all())
+            ->sort($request->input('sort_by'));
 
-        // Query Build
-        $postModel = DB::table('posts')->select('posts.*')->whereNull('posts.deleted_at');
+        // Pagination
+        $pagination = PaginationLibrary::set($request->input('page'), $query->count(), $request->input('per_page'));
 
-        // 회원정보
-        $postModel->join('users', 'users.id', '=', 'posts.user_id');
-        $postModel->leftJoin('user_privacy_active', 'user_privacy_active.user_id', '=', 'posts.user_id');
-
-        // 게시판 정보
-        $postModel->join('boards', 'boards.id', '=', 'posts.board_id');
-
-        /**
-         * Where
-         */
-        if ($s = $request->input('board_id')) {
-            $postModel->where('posts.board_id', $s);
-        }
-
-        if (is_array($s = $request->input('hidden')) && !in_array(null, $s) ) {
-            $postModel->whereIn('posts.hidden', $s);
-        }
-
-        if ($s = $request->input('email')) {
-            $postModel->where('user_privacy_active.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-        }
-
-        if ($s = $request->input('name')) {
-            $postModel->where('user_privacy_active.name', $s);
-        }
-
-        if ($s = $request->input('post_id')) {
-            $postModel->where('posts.id', $s);
-        }
-
-        if ($s = $request->input('title')) {
-            $postModel->where('posts.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-        }
-
-        if ($s = $request->input('start_created_date')) {
-            $s = Carbon::parse($s);
-            $postModel->where('posts.created_at', '>=', $s);
-        }
-
-        if ($s = $request->input('end_created_date')) {
-            $s = Carbon::parse($s)->setTime(23, 59, 59);
-            $postModel->where('posts.created_at', '<=', $s);
-        }
-
-        // 통합 검색
-        if ($s = $request->input('multi_search')) {
-            $postModel->where(function ($q) use ($s) {
-                $q->orWhere('user_privacy_active.name', $s);
-
-                if (is_numeric($s)) {
-                    $q->orWhere('posts.id', $s);
-                }
-            });
-        }
-
-        // Sort By
-        if ($s = $request->input('sort_by')) {
-            $sortCollect = CollectionLibrary::getBySort($s, ['id', 'sort']);
-            $sortCollect->each(function ($item) use ($postModel) {
-                $postModel->orderBy($item['key'], $item['value']);
-            });
-        }
-
-
-        // 게시글
-        // pagination
-        $pagination = PaginationLibrary::set($request->input('page'), $postModel->count(), $request->input('per_page'));
-
-        $postModel->skip($pagination['skip'])
-            ->take($pagination['perPage'])
-            ->groupBy('posts.id');
-
-        $postModel = $postModel->get();
-
-        $postModel->each(function (&$item) {
-            static $users = [];
-            static $boards = [];
-
-            $item->user = $users[$item->user_id] ?? ($users[$item->user_id] = User::find($item->user_id));
-            $item->board = $boards[$item->board_id] ?? ($boards[$item->board_id] = Board::find($item->board_id));
-
-            $item->repliesCount = Reply::where('post_id', $item->id)->count();
-            $item->attachFilesCount = AttachFile::where(['attachable_type' => 'post', 'attachable_id' => $item->id])->count();
-        });
-
-
-        $res['header'] = $pagination;
-        $res['list'] = $postModel;
-
-        return collect($res);
+        // Return
+        return collect(
+            [
+                'header' => $pagination,
+                'list' => $query->skip($pagination['skip'])->take($pagination['perPage'])->get('total')
+            ]
+        );
     }
 
     protected function getOne(int $post_id)
