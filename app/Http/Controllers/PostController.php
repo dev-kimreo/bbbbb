@@ -316,11 +316,20 @@ class PostController extends Controller
         // Pagination
         $pagination = PaginationLibrary::set($request->input('page'), $query->count(), $request->input('per_page'));
 
+        // List
+        $data = $query->skip($pagination['skip'])->take($pagination['perPage'])->get('total');
+        $data = $data->each(function (&$v) {
+            $thumbnail = $v->thumbnail->attachFiles ?? null;
+            unset($v->thumbnail);
+            $v->thumbnail = $thumbnail;
+        });
+
+
         // Return
         return collect(
             [
                 'header' => $pagination,
-                'list' => $query->skip($pagination['skip'])->take($pagination['perPage'])->get('onBoard')
+                'list' => $data
             ]
         );
     }
