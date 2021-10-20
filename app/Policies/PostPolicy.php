@@ -35,7 +35,7 @@ class PostPolicy
         $viewAnyPolicy = Gate::allows('viewAny', [$post, $board]);
 
         if ($viewAnyPolicy) {
-            if (Auth::hasAccessRightsToBackoffice()) {
+            if (Auth::isLoggedForBackoffice()) {
                 return true;
             } else {
                 return $post->hidden ? false : true;
@@ -47,7 +47,7 @@ class PostPolicy
 
     public function create(User $user, Post $post, Board $board)
     {
-        if (Auth::hasAccessRightsToBackoffice()) {
+        if (Auth::isLoggedForBackoffice()) {
             return true;
         } else {
 //            if ($board->options['board'] != 'manager') {
@@ -60,7 +60,7 @@ class PostPolicy
 
     public function update(User $user, Post $post)
     {
-        if (Auth::hasAccessRightsToBackoffice()) {
+        if (Auth::isLoggedForBackoffice()) {
             return $user->id === $post->user_id;
         } else {
             return false;
@@ -69,7 +69,7 @@ class PostPolicy
 
     public function delete(User $user, Post $post)
     {
-        if (Auth::hasAccessRightsToBackoffice()) {
+        if (Auth::isLoggedForBackoffice()) {
             return $user->id === $post->user_id;
         } else {
             return false;

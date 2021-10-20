@@ -27,7 +27,7 @@ class BoardPolicy
 
     public function viewAny(?User $user)
     {
-        if (Auth::hasAccessRightsToBackoffice()) {
+        if (Auth::isLoggedForBackoffice()) {
             return true;
         } else {
             return true;
@@ -36,7 +36,7 @@ class BoardPolicy
 
     public function view(?User $user, Board $board)
     {
-        if (Auth::hasAccessRightsToBackoffice()) {
+        if (Auth::isLoggedForBackoffice()) {
             return true;
         } else {
             return $board->enable ? true : false;
@@ -49,7 +49,7 @@ class BoardPolicy
      */
     public function create(User $user, Board $board)
     {
-        if (Auth::hasAccessRightsToBackoffice()) {
+        if (Auth::isLoggedForBackoffice()) {
             return true;
         } else {
             return false;

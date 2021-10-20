@@ -315,7 +315,7 @@ class PostController extends Controller
         $postModel = $this->post->where('board_id', $boardId);
 
         // Backoffice login
-        if (!Auth::hasAccessRightsToBackoffice()) {
+        if (!Auth::isLoggedForBackoffice()) {
             $postModel->where('hidden', 0);
         }
 
