@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -19,7 +19,10 @@ class CreateLinkedComponentsTable extends Migration
             $table->foreignId('linked_component_group_id')->constrained();
             $table->foreignId('component_id')->constrained();
             $table->string('name', 64);
-            $table->integer('sort');
+            $table->text('etc')->nullable();
+            $table->boolean('pcDisplay')->default(false);
+            $table->boolean('mobileDisplay')->default(false);
+            $table->integer('sort')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

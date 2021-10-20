@@ -14,6 +14,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  *
  * @OA\Schema(
+ *      @OA\Property(property="id", type="integer", example=1, description="고유번호"),
+ *      @OA\Property(property="linked_component_group_id", type="integer", example=1, description="연동 컴포넌트 그룹 고유 번호"),
+ *      @OA\Property(property="component_id", type="integer", example=1, description="컴포넌트 고유 번호"),
+ *      @OA\Property(property="name", type="string", example="메인배너 컴포넌트", description="연동 컴포넌트 명"),
+ *      @OA\Property(property="sort", type="integer", example=1, description="연동 컴포넌트 정렬 순서"),
+ *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자"),
+ *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자")
  * )
  *
  */
@@ -23,6 +30,7 @@ class LinkedComponent extends Model
 
 
     protected $fillable = [
+        'linked_component_group_id', 'component_id', 'name', 'sort'
     ];
 
     /**

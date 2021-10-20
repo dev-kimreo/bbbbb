@@ -37,16 +37,21 @@ class TestEditorSeeder extends Seeder
     {
 //        $this->setUpFaker();
 
-
         // 지원 가능한 에디터 지원 페이지 추가
         if (!count(Solution::first()->supportedEditablePage)) {
-            Solution::first()->supportedEditablePage()->createMany([
-                'name' => '메인',
-                'file_name' => 'main.html'
-            ], [
-                'name' => '목록',
-                'file_name' => 'list.html'
-            ]);
+            Solution::first()->supportedEditablePage()->createMany(
+                [
+                    [
+                        'name' => '메인',
+                        'file_name' => 'main.html'
+                    ],
+                    [
+
+                        'name' => '목록',
+                        'file_name' => 'list.html'
+                    ],
+                ]
+            );
         }
 
         // 컴포넌트 텍스트 유형 추가
