@@ -2,19 +2,19 @@
 
 namespace App\Services;
 
-use Cache;
+use App\Exceptions\QpickHttpException;
 use App\Models\Post;
-use Illuminate\Support\Collection;
-
-use App\Services\BoardService;
+use Cache;
 
 class PostService
 {
-    private $post, $boardService;
+    protected Post $post;
+    protected BoardService $boardService;
 
     /**
      * PostService constructor.
      * @param Post $post
+     * @param BoardService $boardService
      */
     public function __construct(Post $post, BoardService $boardService)
     {
@@ -25,7 +25,7 @@ class PostService
     /**
      * @param $postId
      * @return Post
-     * @throws \Exception
+     * @throws QpickHttpException
      */
     public function getInfo($postId): Post
     {
