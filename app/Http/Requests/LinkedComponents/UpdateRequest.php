@@ -4,7 +4,7 @@ namespace App\Http\Requests\LinkedComponents;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class IndexRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,10 @@ class IndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'filter' => ['sometimes', 'array'],
-            'filter.*' => ['nullable', 'in:header,footer,content'],
+            'linked_component_group_id' => ['prohibited'],
+            'component_id' => ['prohibited'],
+            'name' => ['required_without_all:sort', 'string'],
+            'sort' => ['required_without_all:name', 'integer', 'min:1'],
         ];
     }
 }

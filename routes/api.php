@@ -380,6 +380,10 @@ Route::group([
 
         // 연동 컴포넌트
         Route::get('/{theme_id}/editable-page/{editable_page_id}/linked-component', [LinkedComponentController::class, 'index']);
+        Route::get('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}', [LinkedComponentController::class, 'show']);
+        Route::post('/{theme_id}/editable-page/{editable_page_id}/linked-component', [LinkedComponentController::class, 'store']);
+        Route::patch('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}', [LinkedComponentController::class, 'update']);
+        Route::delete('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}', [LinkedComponentController::class, 'destroy']);
     });
 
     /**
