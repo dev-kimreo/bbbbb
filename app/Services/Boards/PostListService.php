@@ -12,6 +12,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class PostListService extends CommonListService
 {
+    protected string $tableName = 'posts';
     protected array $sortableColumns = ['id', 'sort'];
 
     public function initQuery(): QueryBuilder

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exceptions\QpickHttpException;
 use App\Libraries\CollectionLibrary;
+use DB;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Collection;
@@ -11,9 +12,11 @@ use Illuminate\Support\Collection;
 /**
  * @method skip(mixed $skip)
  * @method take(mixed $take)
+ * @method groupBy(string $string)
  */
 abstract class CommonListService
 {
+    protected string $tableName;
     protected QueryBuilder $query;
     protected EloquentBuilder $model;
     protected array $dataStructure = [];
@@ -73,6 +76,41 @@ abstract class CommonListService
     public function count(): int
     {
         return $this->query->count();
+    }
+
+    public function select(string ...$field): CommonListService
+    {
+        $field = $this->appendTableNameToFieldName($field);
+        $this->query->select($field);
+
+        return $this;
+    }
+
+    /**
+     * @param string ...$field
+     * @return Collection
+     */
+    public function groupCount(string ...$field): Collection
+    {
+        $groupBy = $this->appendTableNameToFieldName($field);
+        $select = array_merge($groupBy, [DB::raw('count(*) as groupCount')]);
+
+        return $this->query->select($select)->groupBy($groupBy)->get();
+    }
+
+    /**
+     * @param array $arr
+     * @return array
+     */
+    protected function appendTableNameToFieldName(array $arr): array
+    {
+        foreach ($arr as &$v) {
+            if (strpos($v, '.') === false) {
+                $v = $this->tableName . '.' . $v;
+            }
+        }
+
+        return $arr;
     }
 
     /**
