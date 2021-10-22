@@ -1,8 +1,8 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Boards;
 
-use App\Models\Board;
+use App\Models\Boards\Board;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class BoardFactory extends Factory

@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Users\User;
-use App\Models\Board;
+use App\Models\Boards\Board;
 use Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 

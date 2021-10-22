@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Board;
-use App\Models\Reply;
+use App\Models\Boards\Board;
+use App\Models\Boards\Reply;
 use Arr;
 use Str;
 use Tests\Feature\Traits\QpickTestBase;

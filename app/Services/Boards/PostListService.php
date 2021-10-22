@@ -3,7 +3,7 @@
 namespace App\Services\Boards;
 
 use App\Libraries\StringLibrary;
-use App\Models\Post;
+use App\Models\Boards\Post;
 use App\Services\CommonListService;
 use Carbon\Carbon;
 use DB;

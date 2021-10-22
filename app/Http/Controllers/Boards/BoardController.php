@@ -10,7 +10,7 @@ use App\Http\Requests\Boards\StoreRequest;
 use App\Http\Requests\Boards\UpdateBoardSortRequest;
 use App\Http\Requests\Boards\UpdateRequest;
 use App\Libraries\CollectionLibrary;
-use App\Models\Board;
+use App\Models\Boards\Board;
 use App\Services\Boards\PostListService;
 use App\Services\BoardService;
 use Auth;

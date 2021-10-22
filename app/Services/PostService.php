@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\QpickHttpException;
-use App\Models\Post;
+use App\Models\Boards\Post;
 use Cache;
 
 class PostService

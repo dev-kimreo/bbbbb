@@ -3,8 +3,8 @@
 namespace App\Policies;
 
 use App\Models\Users\User;
-use App\Models\Board;
-use App\Models\Post;
+use App\Models\Boards\Board;
+use App\Models\Boards\Post;
 use Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Gate;

@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\Board;
+use App\Models\Boards\Board;
 use Cache;
 use Gate;
-use App\Models\Reply;
+use App\Models\Boards\Reply;
 use Illuminate\Support\Collection;
 
 use App\Exceptions\QpickHttpException;

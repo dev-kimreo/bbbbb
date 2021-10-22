@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\QpickHttpException;
-use App\Models\Board;
+use App\Models\Boards\Board;
 use App\Models\BoardOption;
 use Cache;
 use Illuminate\Support\Collection;
