@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Boards;
 
 use App\Exceptions\QpickHttpException;
 use App\Models\Boards\Post;
@@ -12,7 +12,6 @@ class PostService
     protected BoardService $boardService;
 
     /**
-     * PostService constructor.
      * @param Post $post
      * @param BoardService $boardService
      */

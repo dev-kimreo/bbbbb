@@ -12,7 +12,7 @@ use App\Http\Requests\Boards\UpdateRequest;
 use App\Libraries\CollectionLibrary;
 use App\Models\Boards\Board;
 use App\Services\Boards\PostListService;
-use App\Services\BoardService;
+use App\Services\Boards\BoardService;
 use Auth;
 use Gate;
 use Illuminate\Http\JsonResponse;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Boards;
 
 use App\Exceptions\QpickHttpException;
 use App\Models\Boards\Board;

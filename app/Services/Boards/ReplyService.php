@@ -1,24 +1,15 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Boards;
 
-use App\Models\Boards\Board;
-use Cache;
-use Gate;
 use App\Models\Boards\Reply;
-use Illuminate\Support\Collection;
-
 use App\Exceptions\QpickHttpException;
-
-use App\Services\BoardService;
-use App\Services\PostService;
 
 class ReplyService
 {
     private $reply, $boardService, $postService;
 
     /**
-     * PostService constructor.
      * @param Post $post
      */
     public function __construct(Reply $reply, BoardService $boardService, PostService $postService)
