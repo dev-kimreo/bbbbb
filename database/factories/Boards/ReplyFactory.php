@@ -1,11 +1,10 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Boards;
 
-use App\Models\Reply;
+use App\Models\Boards\Reply;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Str;
 
 class ReplyFactory extends Factory
 {

@@ -5,7 +5,7 @@ namespace App\Observers;
 use App\Events\Backoffice\DataCreated;
 use App\Events\Backoffice\DataDeleted;
 use App\Events\Backoffice\DataUpdated;
-use App\Models\Post;
+use App\Models\Boards\Post;
 
 class PostObserver
 {

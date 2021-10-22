@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Boards;
 
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
@@ -29,7 +29,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Reply extends Model
 {
-    use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
+    use HasFactory;
+    use SoftDeletes;
+    use DateFormatISO8601;
+    use CheckUpdatedAt;
 
     /**
      * The attributes that are mass assignable.

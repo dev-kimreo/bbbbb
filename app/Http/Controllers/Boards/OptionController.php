@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Boards;
 
 use App\Http\Controllers\Controller;
 use App\Libraries\CollectionLibrary;
-use App\Services\BoardService;
+use App\Services\Boards\BoardService;
 use Illuminate\Support\Collection;
 
 class OptionController extends Controller

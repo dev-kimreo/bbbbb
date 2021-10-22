@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Board;
-use App\Models\Post;
+use App\Models\Boards\Board;
+use App\Models\Boards\Post;
 use Arr;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Str;

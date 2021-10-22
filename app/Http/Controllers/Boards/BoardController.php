@@ -1,20 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Boards;
 
 use App\Exceptions\QpickHttpException;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Boards\DestroyRequest;
 use App\Http\Requests\Boards\GetPostsCountRequest;
 use App\Http\Requests\Boards\StoreRequest;
 use App\Http\Requests\Boards\UpdateBoardSortRequest;
 use App\Http\Requests\Boards\UpdateRequest;
 use App\Libraries\CollectionLibrary;
-use App\Libraries\StringLibrary;
-use App\Models\Board;
-use App\Models\Post;
-use App\Services\BoardService;
+use App\Models\Boards\Board;
+use App\Services\Boards\PostListService;
+use App\Services\Boards\BoardService;
 use Auth;
-use DB;
 use Gate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,20 +23,16 @@ use Illuminate\Support\Collection;
 class BoardController extends Controller
 {
     private Board $board;
-    private Post $post;
     private BoardService $boardService;
 
     /**
      * @param Board $board
-     * @param Post $post
      * @param BoardService $boardService
      */
 
-
-    public function __construct(Board $board, Post $post, BoardService $boardService)
+    public function __construct(Board $board, BoardService $boardService)
     {
         $this->board = $board;
-        $this->post = $post;
         $this->boardService = $boardService;
     }
 
@@ -177,7 +172,7 @@ class BoardController extends Controller
 
             // 옵션 데이터에 선택할 수 없는 값이 들어간 경우의 오류처리
             $requestKey = 'options[' . $type . ']';
-            $data = $this->boardService->getOptiontByType($type, $requestKey)->getAttribute('options');
+            $data = $this->boardService->getOptionByType($type, $requestKey)->getAttribute('options');
 
             // 옵션 값 체크
             switch ($type) {
@@ -317,7 +312,7 @@ class BoardController extends Controller
 
                 // 옵션 데이터
                 $requestKey = 'options[' . $type . ']';
-                $data = $this->boardService->getOptiontByType($type, $requestKey)->options;
+                $data = $this->boardService->getOptionByType($type, $requestKey)->options;
 
                 // 옵션 값 체크
                 switch ($type) {
@@ -450,44 +445,12 @@ class BoardController extends Controller
         data_fill($collect, '*.posts_count', 0);
 
         // 게시판의 글 수
-        $postModel = DB::table('posts')->selectRaw('posts.board_id, count(posts.id) as posts_count')->groupBy('board_id');
-        $postModel->join('users', 'posts.user_id', '=', 'users.id');
-        $postModel->leftjoin('user_privacy_active', 'user_privacy_active.user_id', '=', 'users.id');
-
-        // Where
-        if ($s = $request->input('email')) {
-            $postModel->where('user_privacy_active.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-        }
-
-        if ($s = $request->input('name')) {
-            $postModel->where('user_privacy_active.name', $s);
-        }
-
-        if ($s = $request->input('post_id')) {
-            $postModel->where('posts.id', $s);
-        }
-
-        if ($s = $request->input('title')) {
-            $postModel->where('posts.title', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-        }
-
-        // 통합 검색
-        if ($s = $request->input('multi_search')) {
-            $postModel->where(function ($q) use ($s) {
-                $q->orWhere('users.name', $s);
-
-                if (is_numeric($s)) {
-                    $q->orWhere('posts.id', $s);
-                }
+        PostListService::query()
+            ->where($request->all())
+            ->groupCount('board_id')
+            ->each(function ($v) use (&$collect) {
+                $collect->get($v->board_id)->posts_count = $v->groupCount ?? 0;
             });
-        }
-
-        $postModel = $postModel->get();
-
-        // 데이터 가공
-        $postModel->each(function ($v) use (&$collect) {
-            $collect->get($v->board_id)->posts_count = $v->posts_count ?? 0;
-        });
 
         // 전체 글 수
         $collect->prepend(collect(['id' => null, 'name' => '전체', 'posts_count' => $collect->sum('posts_count')]));
