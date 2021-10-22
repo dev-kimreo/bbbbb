@@ -2,38 +2,45 @@
 
 namespace App\Services\Boards;
 
-use App\Exceptions\QpickHttpException;
-use App\Libraries\CollectionLibrary;
 use App\Libraries\StringLibrary;
 use App\Models\Post;
+use App\Services\CommonListService;
 use Carbon\Carbon;
 use DB;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
-class PostListService
+class PostListService extends CommonListService
 {
-    protected Builder $query;
     protected array $sortableColumns = ['id', 'sort'];
 
-    public function __construct()
+    public function initQuery(): QueryBuilder
     {
-        $this->query = DB::table('posts')
+        return DB::table('posts')
             ->select('posts.id')
             ->whereNull('posts.deleted_at')
             ->leftJoin('user_privacy_active', 'user_privacy_active.user_id', '=', 'posts.user_id');
     }
 
-    /*
-    public function __call(string $name, array $arguments)
+    public function initModel(): EloquentBuilder
     {
-        $this->query->$name(...$arguments);
+        return Post::query();
     }
-    */
 
-    public static function query(): PostListService
+    public function initDataStructure(): array
     {
-        return new static();
+        return [
+            'onBoard' => [
+                'with' => ['user', 'thumbnail.attachFiles'],
+                'withCount' => ['replies'],
+                'append' => []
+            ],
+            'total' => [
+                'with' => ['user', 'board'],
+                'withCount' => ['replies', 'attachFiles'],
+                'append' => []
+            ]
+        ];
     }
 
     /**
@@ -102,94 +109,5 @@ class PostListService
             });
 
         return $this;
-    }
-
-    /**
-     * @param Collection|string $sort
-     * @return $this
-     * @throws QpickHttpException
-     */
-    public function sort($sort): PostListService
-    {
-        if (is_string($sort)) {
-            $sort = CollectionLibrary::getBySort($sort, $this->sortableColumns);
-        } elseif (is_array($sort)) {
-            $sort = collect(array_intersect_key($sort, array_flip($this->sortableColumns)));
-        } else {
-            $sort = collect([]);
-        }
-
-        if ($sort->isNotEmpty()) {
-            $sort->each(function ($v) {
-                $this->query->orderBy($v['key'], $v['value']);
-            });
-        } else {
-            $this->query->orderByDesc('id');
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param int $length
-     * @return PostListService
-     */
-    public function skip(int $length): PostListService
-    {
-        $this->query->skip($length);
-        return $this;
-    }
-
-    /**
-     * @param int $length
-     * @return PostListService
-     */
-    public function take(int $length): PostListService
-    {
-        $this->query->take($length);
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function count(): int
-    {
-        return $this->query->count();
-    }
-
-    /**
-     * @param string $mode
-     * @return Collection
-     */
-    public function get(string $mode): Collection
-    {
-        switch ($mode) {
-            default:
-            case 'onBoard':
-                $with = ['user', 'thumbnail.attachFiles'];
-                $withCount = ['replies'];
-                $append = [];
-                break;
-
-            case 'total':
-                $with = ['user', 'board'];
-                $withCount = ['replies', 'attachFiles'];
-                $append = [];
-                break;
-        }
-
-        $keys = $this->query->get()->pluck('id');
-
-        return Post::query()
-            ->with($with)
-            ->withCount($withCount)
-            ->whereIn('id', $keys)
-            ->get()
-            ->append($append)
-            ->sortBy(function ($v) use ($keys) {
-                return $keys->search($v->id);
-            })
-            ->values();
     }
 }
