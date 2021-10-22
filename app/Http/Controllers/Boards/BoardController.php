@@ -172,7 +172,7 @@ class BoardController extends Controller
 
             // 옵션 데이터에 선택할 수 없는 값이 들어간 경우의 오류처리
             $requestKey = 'options[' . $type . ']';
-            $data = $this->boardService->getOptiontByType($type, $requestKey)->getAttribute('options');
+            $data = $this->boardService->getOptionByType($type, $requestKey)->getAttribute('options');
 
             // 옵션 값 체크
             switch ($type) {
@@ -312,7 +312,7 @@ class BoardController extends Controller
 
                 // 옵션 데이터
                 $requestKey = 'options[' . $type . ']';
-                $data = $this->boardService->getOptiontByType($type, $requestKey)->options;
+                $data = $this->boardService->getOptionByType($type, $requestKey)->options;
 
                 // 옵션 값 체크
                 switch ($type) {
