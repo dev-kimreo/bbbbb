@@ -1,21 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Boards;
 
 use App\Exceptions\QpickHttpException;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Boards\DestroyRequest;
 use App\Http\Requests\Boards\GetPostsCountRequest;
 use App\Http\Requests\Boards\StoreRequest;
 use App\Http\Requests\Boards\UpdateBoardSortRequest;
 use App\Http\Requests\Boards\UpdateRequest;
 use App\Libraries\CollectionLibrary;
-use App\Libraries\StringLibrary;
 use App\Models\Board;
-use App\Models\Post;
 use App\Services\Boards\PostListService;
 use App\Services\BoardService;
 use Auth;
-use DB;
 use Gate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,20 +23,16 @@ use Illuminate\Support\Collection;
 class BoardController extends Controller
 {
     private Board $board;
-    private Post $post;
     private BoardService $boardService;
 
     /**
      * @param Board $board
-     * @param Post $post
      * @param BoardService $boardService
      */
 
-
-    public function __construct(Board $board, Post $post, BoardService $boardService)
+    public function __construct(Board $board, BoardService $boardService)
     {
         $this->board = $board;
-        $this->post = $post;
         $this->boardService = $boardService;
     }
 

@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Boards;
 
 use App\Exceptions\QpickHttpException;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Posts\DestroyRequest;
 use App\Http\Requests\Posts\GetListRequest;
 use App\Http\Requests\Posts\IndexRequest;
