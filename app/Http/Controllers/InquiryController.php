@@ -124,7 +124,7 @@ class InquiryController extends Controller
      *              @OA\Property(property="userName", type="string", example=1, description="문의를 작성한 사용자의 이름"),
      *              @OA\Property(property="assigneeId", type="integer", example=1, description="처리담당자의 고유번호(PK)"),
      *              @OA\Property(property="assigneeName", type="string", example=1, description="처리담당자의 이름"),
-     *              @OA\Property(property="answerId", type="integer", example=1, description="답변한 관리자의 고유번호(PK)"),
+     *              @OA\Property(property="answerId", type="integer", example=1, description="답변한 관리자의 고유번호(PK)"),n
      *          ),
      *      ),
      *      @OA\Response(

@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Boards;
 
+use App\Models\ActionLog;
+use App\Models\Attach\AttachFile;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use App\Models\Users\User;
@@ -13,9 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
 /**
- *
  *  @OA\Schema(
  *      schema="Post",
  *      @OA\Property(property="id", type="integer", example=1, description="게시글 고유번호" ),
@@ -39,11 +39,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Class Post
  *
+ * @property mixed board
  * @method static where(string $string, $boardId)
  */
 class Post extends Model
 {
-    use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
+    use HasFactory;
+    use SoftDeletes;
+    use DateFormatISO8601;
+    use CheckUpdatedAt;
 
     /**
      * The attributes that are mass assignable.
@@ -56,7 +60,6 @@ class Post extends Model
         'title',
         'content',
     ];
-
 
     /**
      * The attributes that should be hidden for arrays.
@@ -94,22 +97,22 @@ class Post extends Model
 
     public function replies(): HasMany
     {
-        return $this->hasMany('App\Models\Reply');
+        return $this->hasMany(Reply::class);
     }
 
     public function attachFiles(): MorphMany
     {
-        return $this->morphMany('App\Models\Attach\AttachFile', 'attachable');
+        return $this->morphMany(AttachFile::class, 'attachable');
     }
 
     public function thumbnail(): HasOne
     {
-        return $this->hasOne('App\Models\PostThumbnail');
+        return $this->hasOne(PostThumbnail::class);
     }
 
     public function board(): BelongsTo
     {
-        return $this->belongsTo('App\Models\Board', 'board_id', 'id');
+        return $this->belongsTo(Board::class, 'board_id', 'id');
     }
 
     public function backofficeLogs(): MorphMany

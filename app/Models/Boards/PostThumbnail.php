@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Boards;
 
+use App\Models\Attach\AttachFile;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,10 +11,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
 class PostThumbnail extends Model
 {
-    use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
+    use HasFactory;
+    use SoftDeletes;
+    use DateFormatISO8601;
+    use CheckUpdatedAt;
 
     /**
      * The attributes that are mass assignable.
@@ -40,7 +43,7 @@ class PostThumbnail extends Model
 
     public function post(): BelongsTo
     {
-        return $this->belongsTo('App\Models\Post');
+        return $this->belongsTo(Post::class);
     }
 
     // 파일 첨부 갯수 제한
@@ -51,6 +54,6 @@ class PostThumbnail extends Model
 
     public function attachFiles(): MorphOne
     {
-        return $this->morphOne('App\Models\Attach\AttachFile', 'attachable');
+        return $this->morphOne(AttachFile::class, 'attachable');
     }
 }

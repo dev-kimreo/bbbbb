@@ -13,12 +13,20 @@ use App\Libraries\PaginationLibrary;
 use App\Models\EditablePages\EditablePage;
 use App\Models\SupportedEditablePage;
 use App\Models\Themes\Theme;
+use App\Services\ThemeService;
 use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
 class EditablePageController extends Controller
 {
+    private ThemeService $themeService;
+
+    public function __construct(ThemeService $themeService)
+    {
+        $this->themeService = $themeService;
+    }
+
 
     /**
      * @OA\Get (
@@ -134,7 +142,7 @@ class EditablePageController extends Controller
         $theme = Theme::findOrFail($theme_id);
 
         // check policy
-        if (!$this->usableAuthor($theme)) {
+        if (!$this->themeService->usableAuthor($theme)) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
@@ -195,7 +203,7 @@ class EditablePageController extends Controller
     public function update(UpdateRequest $request, int $theme_id, int $editable_page_id): JsonResponse
     {
         // check policy
-        if (!$this->usableAuthor(Theme::findOrFail($theme_id))) {
+        if (!$this->themeService->usableAuthor(Theme::findOrFail($theme_id))) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
@@ -231,7 +239,7 @@ class EditablePageController extends Controller
     public function destroy(int $theme_id, int $editable_page_id): Response
     {
         // check policy
-        if (!$this->usableAuthor(Theme::findOrFail($theme_id))) {
+        if (!$this->themeService->usableAuthor(Theme::findOrFail($theme_id))) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
@@ -240,12 +248,5 @@ class EditablePageController extends Controller
 
         return response()->noContent();
     }
-
-    protected function usableAuthor(Theme $theme)
-    {
-        // check policy
-        return Auth::user()->can('authorize', $theme);
-    }
-
 
 }

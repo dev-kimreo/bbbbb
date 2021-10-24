@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Users\User;
 use App\Models\Attach\AttachFile;
+use Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class AttachFilePolicy
@@ -34,12 +35,12 @@ class AttachFilePolicy
 
     public function update(User $user, AttachFile $attachFile)
     {
-        return $user->id === $attachFile->user_id;
+        return $user->id === $attachFile->user_id || Auth::isLoggedForBackoffice();
     }
 
     public function delete(User $user, AttachFile $attachFile)
     {
-        return $user->id === $attachFile->user_id;
+        return $user->id === $attachFile->user_id || Auth::isLoggedForBackoffice();
     }
 
 

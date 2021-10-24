@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Boards;
 
+use App\Models\ActionLog;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use App\Models\Users\User;
@@ -10,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
 
 /**
  *  @OA\Schema(
@@ -64,7 +64,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Board extends Model
 {
-    use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
+    use HasFactory;
+    use SoftDeletes;
+    use DateFormatISO8601;
+    use CheckUpdatedAt;
 
 
     /**

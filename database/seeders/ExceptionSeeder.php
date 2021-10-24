@@ -276,6 +276,12 @@ class ExceptionSeeder extends Seeder
                 '해당 에디터 지원 페이지는 선택한 테마에 추가할 수 없습니다.',
                 '해당 에디터 지원 페이지는 선택한 테마에 추가할 수 없습니다.'
             ],
+            [
+                'exception',
+                'editable_page_layout.disable.already_exists',
+                '이미 해당 에디터 지원 페이지 레이아웃이 존재하여 추가할 수 없습니다.',
+                '이미 해당 에디터 지원 페이지 레이아웃이 존재하여 추가할 수 없습니다.'
+            ],
         ];
 
         // Truncate tables

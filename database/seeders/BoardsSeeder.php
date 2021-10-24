@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Board;
+use App\Models\Boards\Board;
 use App\Models\Manager;
-use App\Models\Post;
-use App\Models\Reply;
+use App\Models\Boards\Post;
+use App\Models\Boards\Reply;
 use App\Models\Users\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;

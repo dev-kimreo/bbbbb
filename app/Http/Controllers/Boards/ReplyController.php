@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Boards;
 
 use App\Exceptions\QpickHttpException;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Replies\DestroyRequest;
 use App\Http\Requests\Replies\IndexRequest;
 use App\Http\Requests\Replies\StoreRequest;
 use App\Http\Requests\Replies\UpdateRequest;
 use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
-use App\Models\Post;
-use App\Models\Reply;
+use App\Models\Boards\Post;
+use App\Models\Boards\Reply;
 use Auth;
 use Gate;
 use Illuminate\Http\JsonResponse;

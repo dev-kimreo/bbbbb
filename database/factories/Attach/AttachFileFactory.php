@@ -23,6 +23,8 @@ class AttachFileFactory extends Factory
     {
         return [
             'server' => 'public',
+            'attachable_type' => 'temp',
+            'attachable_id' => 0,
             'url' => $this->faker->url,
             'path' => 'banner_content/'
                 . substr('000' . rand(0, 99), -3) . '/'

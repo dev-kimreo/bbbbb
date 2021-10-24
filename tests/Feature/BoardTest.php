@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Libraries\CollectionLibrary;
-use App\Models\Board;
+use App\Models\Boards\Board;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\Feature\Traits\QpickTestBase;
 use Tests\TestCase;

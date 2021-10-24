@@ -1,8 +1,8 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Boards;
 
-use App\Models\Post;
+use App\Models\Boards\Post;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Str;

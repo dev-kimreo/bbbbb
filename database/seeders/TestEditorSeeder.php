@@ -37,13 +37,21 @@ class TestEditorSeeder extends Seeder
     {
 //        $this->setUpFaker();
 
-
         // 지원 가능한 에디터 지원 페이지 추가
         if (!count(Solution::first()->supportedEditablePage)) {
-            Solution::first()->supportedEditablePage()->create([
-                'name' => '메인',
-                'file_name' => 'main.html'
-            ]);
+            Solution::first()->supportedEditablePage()->createMany(
+                [
+                    [
+                        'name' => '메인',
+                        'file_name' => 'main.html'
+                    ],
+                    [
+
+                        'name' => '목록',
+                        'file_name' => 'list.html'
+                    ],
+                ]
+            );
         }
 
         // 컴포넌트 텍스트 유형 추가
@@ -102,33 +110,33 @@ class TestEditorSeeder extends Seeder
             ThemeProductInformation::factory(),
             'themeInformation'
         )->has(
-            // 테마
+        // 테마
             Theme::factory()->for(
                 Solution::first(),
                 'solution'
             )->has(
-                // 에디터 지원 페이지
+            // 에디터 지원 페이지
                 EditablePage::factory()->state([
                     'name' => '메인'
                 ])->for(
                     Solution::first()->supportedEditablePage()->first(),
                     'supportedEditablePage'
                 )->has(
-                    // 에디터 지원 페이지 레이아웃
+                // 에디터 지원 페이지 레이아웃
                     EditablePageLayout::factory()->for(
                         LinkedComponentGroup::factory(),
                         'linkedHeaderComponentGroup'
                     )->for(
-                        // 연동 컴포넌트 그룹
+                    // 연동 컴포넌트 그룹
                         LinkedComponentGroup::factory()->has(
-                            // 연동 컴포넌트
+                        // 연동 컴포넌트
                             LinkedComponent::factory()->count(3)->for(
                                 $component,
                                 'component'
                             )->state([
                                 'name' => '메인 배너'
                             ])->has(
-                                // 연동 컴포넌트 옵션
+                            // 연동 컴포넌트 옵션
                                 LinkedComponentOption::factory()->for(
                                     $component->version->first()->option->first(),
                                     'componentOption'
