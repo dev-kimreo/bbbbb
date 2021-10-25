@@ -4,7 +4,7 @@ namespace App\Models\Users;
 
 use App\Exceptions\QpickHttpException;
 use App\Models\ActionLog;
-use App\Models\Inquiry;
+use App\Models\Inquiries\Inquiry;
 use App\Models\Manager;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;

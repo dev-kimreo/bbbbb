@@ -16,7 +16,7 @@ use App\Models\Exhibitions\ExhibitionCategory;
 use App\Models\Exhibitions\ExhibitionTargetUser;
 use App\Models\Exhibitions\Popup;
 use App\Models\Exhibitions\PopupDeviceContent;
-use App\Models\InquiryAnswer;
+use App\Models\Inquiries\InquiryAnswer;
 use App\Models\EmailTemplate;
 use App\Models\Boards\Post;
 use App\Models\TermsOfUse;

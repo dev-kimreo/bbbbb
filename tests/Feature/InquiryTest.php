@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Inquiry;
+use App\Models\Inquiries\Inquiry;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;

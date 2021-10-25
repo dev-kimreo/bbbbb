@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Users\User;
-use App\Models\Inquiry;
+use App\Models\Inquiries\Inquiry;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class InquiryPolicy

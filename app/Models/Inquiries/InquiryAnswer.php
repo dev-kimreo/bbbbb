@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Inquiries;
 
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
@@ -16,7 +16,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @OA\Property(property="id", type="integer", readOnly="true", example="1"),
  * @OA\Property(property="userId", type="integer", readOnly="true", description="사용자의 고유번호(PK)", example="1"),
  * @OA\Property(property="inquiryId", type="integer", readOnly="true", description="1:1상담 문의 고유번호(PK)", example="1"),
- * @OA\Property(property="answer", type="string", readOnly="true", description="답변내용", example="더 좋은 큐픽 서비스가 될 수 있도록 최선을 다하겠습니다."),
+ * @OA\Property(
+ *     property="answer", type="string", readOnly="true", description="답변내용",
+ *     example="더 좋은 큐픽 서비스가 될 수 있도록 최선을 다하겠습니다."
+ * ),
  * @OA\Property(
  *     property="createdAt", type="string", readOnly="true", format="date-time",
  *     ref="#/components/schemas/Base/properties/created_at", example="2021-02-25 12:59:20"
@@ -35,7 +38,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class InquiryAnswer extends Model
 {
-    use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
+    use HasFactory;
+    use SoftDeletes;
+    use DateFormatISO8601;
+    use CheckUpdatedAt;
 
     /**
      * The attributes that are mass assignable.
