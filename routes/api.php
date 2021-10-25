@@ -389,6 +389,7 @@ Route::group([
         Route::get('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'show']);
         Route::post('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option', [LinkedComponentOptionController::class, 'store']);
         Route::patch('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'update']);
+        Route::delete('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'destroy']);
     });
 
     /**
