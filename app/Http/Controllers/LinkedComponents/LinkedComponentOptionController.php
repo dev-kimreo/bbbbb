@@ -25,7 +25,7 @@ class LinkedComponentOptionController extends Controller
     /**
      * @OA\Get (
      *      path="/v1/theme/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option",
-     *      summary="연동 컴포넌트 옵션목록",
+     *      summary="연동 컴포넌트 옵션 목록",
      *      description="연동 컴포넌트 옵션 목록",
      *      operationId="LinkedComponentOptionIndex",
      *      tags={"연동 컴포넌트 옵션"},
