@@ -19,6 +19,7 @@ use App\Http\Controllers\Exhibitions\PopupController;
 use App\Http\Controllers\InquiryAnswerController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\LinkedComponents\LinkedComponentController;
+use App\Http\Controllers\LinkedComponents\LinkedComponentOptionController;
 use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\TermsOfUseController;
 use App\Http\Controllers\Themes\ThemeController;
@@ -382,6 +383,12 @@ Route::group([
         Route::post('/{theme_id}/editable-page/{editable_page_id}/linked-component', [LinkedComponentController::class, 'store']);
         Route::patch('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}', [LinkedComponentController::class, 'update']);
         Route::delete('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}', [LinkedComponentController::class, 'destroy']);
+
+        // 연동 컴포넌트 옵션
+        Route::get('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option', [LinkedComponentOptionController::class, 'index']);
+        Route::get('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'show']);
+        Route::post('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option', [LinkedComponentOptionController::class, 'store']);
+        Route::patch('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'update']);
     });
 
     /**
