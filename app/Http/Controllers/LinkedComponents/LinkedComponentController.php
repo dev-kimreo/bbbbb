@@ -87,7 +87,7 @@ class LinkedComponentController extends Controller
 
     /**
      * @OA\Get (
-     *      path="/v1/theme/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked-component-id}",
+     *      path="/v1/theme/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}",
      *      summary="연동 컴포넌트 상세",
      *      description="연동 컴포넌트 상세정보",
      *      operationId="LinkedComponentShow",
@@ -262,6 +262,7 @@ class LinkedComponentController extends Controller
         }
 
         $linkedComponent->delete();
+
 
         return response()->noContent();
     }
