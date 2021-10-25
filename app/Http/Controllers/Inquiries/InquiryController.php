@@ -1,10 +1,11 @@
 <?php
 
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Inquiries;
 
 use App\Events\Backoffice\DataUpdated;
 use App\Exceptions\QpickHttpException;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Inquiries\AssignRequest;
 use App\Http\Requests\Inquiries\CreateRequest;
 use App\Http\Requests\Inquiries\DestroyRequest;

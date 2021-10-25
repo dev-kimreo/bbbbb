@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Inquiries;
 
 use App\Exceptions\QpickHttpException;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Inquiries\Answers\DestroyRequest;
 use App\Http\Requests\Inquiries\Answers\ShowRequest;
 use App\Http\Requests\Inquiries\Answers\StoreRequest;
@@ -13,7 +14,6 @@ use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
-
 
 class InquiryAnswerController extends Controller
 {
@@ -70,7 +70,7 @@ class InquiryAnswerController extends Controller
         Inquiry::findOrFail($inquiryId);
 
         // check duplicated
-        if(InquiryAnswer::where('inquiry_id', $inquiryId)->first()) {
+        if (InquiryAnswer::where('inquiry_id', $inquiryId)->first()) {
             throw new QpickHttpException(409, 'inquiry.answer.disable.already_exists');
         }
 
@@ -247,7 +247,7 @@ class InquiryAnswerController extends Controller
         InquiryAnswer::findOrFail(@$answer->id)->destroy($answer->id);
 
         // change status
-        $inquiry->status = $inquiry->assignee_id? Inquiry::$status['answering']: Inquiry::$status['waiting'];
+        $inquiry->status = $inquiry->assignee_id ? Inquiry::$status['answering'] : Inquiry::$status['waiting'];
         $inquiry->save();
 
         // response
