@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Inquiry;
-use App\Models\InquiryAnswer;
+use App\Models\Inquiries\Inquiry;
+use App\Models\Inquiries\InquiryAnswer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;

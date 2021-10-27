@@ -1,10 +1,11 @@
 <?php
 
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Inquiries;
 
 use App\Events\Backoffice\DataUpdated;
 use App\Exceptions\QpickHttpException;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Inquiries\AssignRequest;
 use App\Http\Requests\Inquiries\CreateRequest;
 use App\Http\Requests\Inquiries\DestroyRequest;
@@ -13,8 +14,8 @@ use App\Http\Requests\Inquiries\ShowRequest;
 use App\Http\Requests\Inquiries\UpdateRequest;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
-use App\Models\Inquiry;
-use App\Models\InquiryAnswer;
+use App\Models\Inquiries\Inquiry;
+use App\Models\Inquiries\InquiryAnswer;
 use App\Models\Users\User;
 use App\Services\AttachService;
 use Auth;

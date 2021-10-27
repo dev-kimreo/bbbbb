@@ -3,7 +3,7 @@
 namespace Tests\Feature\Attach;
 
 use App\Models\Attach\AttachFile;
-use App\Models\Inquiry;
+use App\Models\Inquiries\Inquiry;
 use App\Models\Users\User;
 use App\Services\AttachService;
 use Illuminate\Database\Eloquent\Factories\Factory;

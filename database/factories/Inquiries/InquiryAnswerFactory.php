@@ -1,11 +1,10 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Inquiries;
 
-use App\Models\InquiryAnswer;
+use App\Models\Inquiries\InquiryAnswer;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Str;
 
 class InquiryAnswerFactory extends Factory
 {
@@ -21,12 +20,12 @@ class InquiryAnswerFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'user_id' => 0,
             'inquiry_id' => 0,
-            'answer' => $this->faker->text(200),
+            'answer' => $this->faker->text(),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];

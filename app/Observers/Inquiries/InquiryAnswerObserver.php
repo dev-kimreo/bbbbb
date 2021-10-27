@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Observers;
+namespace App\Observers\Inquiries;
 
 use App\Events\Backoffice\DataCreated;
 use App\Events\Backoffice\DataDeleted;
 use App\Events\Backoffice\DataUpdated;
-use App\Models\InquiryAnswer;
+use App\Models\Inquiries\InquiryAnswer;
 use Illuminate\Support\Carbon;
 
 class InquiryAnswerObserver
