@@ -122,7 +122,7 @@ class Post extends Model
 
     public function getAttachFileLimit(): int
     {
-        return intval($this->board->options['attach_limit']);
+        return intval($this->board->options['attachLimit']);
     }
 
     public function checkAttachableModel(): bool
