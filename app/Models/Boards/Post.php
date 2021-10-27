@@ -69,7 +69,7 @@ class Post extends Model
      */
     protected $hidden = ['deleted_at'];
 
-    protected $appends = ['thumbnail'];
+    protected $appends = [];
 
     protected $casts = [
         'etc' => 'array'
@@ -127,6 +127,6 @@ class Post extends Model
 
     public function getThumbnailAttribute()
     {
-        return $this->attachFiles->first()->thumb ?? null;
+        return $this->attachFiles()->first()->thumbSimplify ?? null;
     }
 }

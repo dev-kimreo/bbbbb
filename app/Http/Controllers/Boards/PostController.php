@@ -318,7 +318,7 @@ class PostController extends Controller
         $pagination = PaginationLibrary::set($request->input('page'), $query->count(), $request->input('per_page'));
 
         // List
-        $data = $query->skip($pagination['skip'])->take($pagination['perPage'])->get('total');
+        $data = $query->skip($pagination['skip'])->take($pagination['perPage'])->get('onBoard');
 
         // Return
         return collect(
