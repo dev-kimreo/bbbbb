@@ -319,12 +319,6 @@ class PostController extends Controller
 
         // List
         $data = $query->skip($pagination['skip'])->take($pagination['perPage'])->get('total');
-        $data = $data->each(function (&$v) {
-            $thumbnail = $v->thumbnail->attachFiles ?? null;
-            unset($v->thumbnail);
-            $v->thumbnail = $thumbnail;
-        });
-
 
         // Return
         return collect(
@@ -449,19 +443,16 @@ class PostController extends Controller
     protected function getOne(int $post_id)
     {
         // set relations
-        $with = ['user', 'attachFiles', 'thumbnail.attachFiles', 'board'];
+        $with = ['user', 'attachFiles', 'board'];
 
         if (Auth::hasAccessRightsToBackoffice()) {
             $with[] = 'backofficeLogs';
         }
 
         // query
-        $data = Post::with($with)->findOrFail($post_id);
-
-        // 데이터 가공
-        $thumbnail = $data->thumbnail->attachFiles ?? null;
-        unset($data->thumbnail);
-        $data->thumbnail = $thumbnail;
+        $data = Post::query()
+            ->with($with)
+            ->findOrFail($post_id);
 
         // return
         return $data;

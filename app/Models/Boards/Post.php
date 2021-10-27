@@ -4,6 +4,7 @@ namespace App\Models\Boards;
 
 use App\Models\ActionLog;
 use App\Models\Attach\AttachFile;
+use App\Models\Attach\AttachThumb;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use App\Models\Users\User;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -68,8 +69,7 @@ class Post extends Model
      */
     protected $hidden = ['deleted_at'];
 
-    protected $appends = [
-    ];
+    protected $appends = ['thumbnail'];
 
     protected $casts = [
         'etc' => 'array'
@@ -105,11 +105,6 @@ class Post extends Model
         return $this->morphMany(AttachFile::class, 'attachable');
     }
 
-    public function thumbnail(): HasOne
-    {
-        return $this->hasOne(PostThumbnail::class);
-    }
-
     public function board(): BelongsTo
     {
         return $this->belongsTo(Board::class, 'board_id', 'id');
@@ -128,5 +123,10 @@ class Post extends Model
     public function checkAttachableModel(): bool
     {
         return boolval(intval($this->board->options['attach']));
+    }
+
+    public function getThumbnailAttribute()
+    {
+        return $this->attachFiles->first()->thumb ?? null;
     }
 }
