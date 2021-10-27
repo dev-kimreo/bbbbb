@@ -29,7 +29,7 @@ use App\Observers\Exhibitions\BannerObserver;
 use App\Observers\Exhibitions\ExhibitionObserver;
 use App\Observers\Exhibitions\ExhibitionCategoryObserver;
 use App\Observers\Exhibitions\PopupObserver;
-use App\Observers\InquiryAnswerObserver;
+use App\Observers\Inquiries\InquiryAnswerObserver;
 use App\Observers\EmailTemplateObserver;
 use App\Observers\PostObserver;
 use App\Observers\TermsOfUseObserver;

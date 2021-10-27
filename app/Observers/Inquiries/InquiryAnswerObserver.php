@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Observers;
+namespace App\Observers\Inquiries;
 
 use App\Events\Backoffice\DataCreated;
 use App\Events\Backoffice\DataDeleted;
