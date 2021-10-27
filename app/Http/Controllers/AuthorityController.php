@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 
+use function PHPUnit\Framework\isInstanceOf;
+
 class AuthorityController extends Controller
 {
     /**
@@ -288,7 +290,11 @@ class AuthorityController extends Controller
 
     public function addPermissionAtMenu($item, $key, $permissions)
     {
-        if(!$item->last && count($item->children)){
+        if (!$item) {
+            return;
+        }
+
+        if (!$item->last && count($item->children)) {
             array_walk_recursive($item->children, [$this, 'addPermissionAtMenu'], $permissions);
         }
 
