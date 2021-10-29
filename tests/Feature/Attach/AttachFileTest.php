@@ -3,6 +3,8 @@
 namespace Tests\Feature\Attach;
 
 use App\Models\Attach\AttachFile;
+use App\Models\Boards\Board;
+use App\Models\Boards\Post;
 use App\Models\Inquiries\Inquiry;
 use App\Models\Users\User;
 use App\Services\AttachService;
@@ -156,7 +158,7 @@ class AttachFileTest extends TestCase
     /**
      * Update
      */
-    protected function getResponseUpdate(?User $user, bool $owned): TestResponse
+    protected function getResponseUpdateForInquiry(?User $user, bool $owned): TestResponse
     {
         if (!$owned) {
             $user = User::factory()->create();
@@ -172,16 +174,43 @@ class AttachFileTest extends TestCase
         ]);
     }
 
+    protected function getResponseUpdateForPost(?User $user, bool $owned): TestResponse
+    {
+        if (!$owned) {
+            $user = User::factory()->create();
+        }
+
+        $id = $this->getFactory($user)->create()->getAttribute('id');
+        $postId = Post::factory()
+            ->for($user, 'user')
+            ->for(Board::factory()->for($user, 'user')->create())
+            ->create()
+            ->getAttribute('id');
+
+        return $this->requestQpickApi('patch', '/v1/attach/' . $id, [
+            'type' => 'post',
+            'typeId' => $postId
+        ]);
+    }
+
     public function testUpdateAttachFileByGuest()
     {
-        $response = $this->getResponseUpdate(null, false);
+        $response = $this->getResponseUpdateForInquiry(null, false);
+        $response->assertUnauthorized();
+
+        $response = $this->getResponseUpdateForPost(null, false);
         $response->assertUnauthorized();
     }
 
     public function testUpdateOwnedAttachFileByAssociate()
     {
         $user = $this->actingAsQpickUser('associate');
-        $response = $this->getResponseUpdate($user, true);
+
+        $response = $this->getResponseUpdateForInquiry($user, true);
+        $response->assertCreated();
+        $response->assertJsonStructure($this->structureShow);
+
+        $response = $this->getResponseUpdateForPost($user, true);
         $response->assertCreated();
         $response->assertJsonStructure($this->structureShow);
     }
@@ -189,7 +218,12 @@ class AttachFileTest extends TestCase
     public function testUpdateOwnedAttachFileByRegular()
     {
         $user = $this->actingAsQpickUser('regular');
-        $response = $this->getResponseUpdate($user, true);
+
+        $response = $this->getResponseUpdateForInquiry($user, true);
+        $response->assertCreated();
+        $response->assertJsonStructure($this->structureShow);
+
+        $response = $this->getResponseUpdateForPost($user, true);
         $response->assertCreated();
         $response->assertJsonStructure($this->structureShow);
     }
@@ -197,7 +231,12 @@ class AttachFileTest extends TestCase
     public function testUpdateOwnedAttachFileByBackoffice()
     {
         $user = $this->actingAsQpickUser('backoffice');
-        $response = $this->getResponseUpdate($user, true);
+
+        $response = $this->getResponseUpdateForInquiry($user, true);
+        $response->assertCreated();
+        $response->assertJsonStructure($this->structureShow);
+
+        $response = $this->getResponseUpdateForPost($user, true);
         $response->assertCreated();
         $response->assertJsonStructure($this->structureShow);
     }
@@ -205,21 +244,34 @@ class AttachFileTest extends TestCase
     public function testUpdateOtherAttachFileByAssociate()
     {
         $user = $this->actingAsQpickUser('associate');
-        $response = $this->getResponseUpdate($user, false);
+
+        $response = $this->getResponseUpdateForInquiry($user, false);
+        $response->assertForbidden();
+
+        $response = $this->getResponseUpdateForPost($user, false);
         $response->assertForbidden();
     }
 
     public function testUpdateOtherAttachFileByRegular()
     {
         $user = $this->actingAsQpickUser('regular');
-        $response = $this->getResponseUpdate($user, false);
+
+        $response = $this->getResponseUpdateForInquiry($user, false);
+        $response->assertForbidden();
+
+        $response = $this->getResponseUpdateForPost($user, false);
         $response->assertForbidden();
     }
 
     public function testUpdateOtherAttachFileByBackoffice()
     {
         $user = $this->actingAsQpickUser('backoffice');
-        $response = $this->getResponseUpdate($user, false);
+
+        $response = $this->getResponseUpdateForInquiry($user, false);
+        $response->assertCreated();
+        $response->assertJsonStructure($this->structureShow);
+
+        $response = $this->getResponseUpdateForPost($user, false);
         $response->assertCreated();
         $response->assertJsonStructure($this->structureShow);
     }
