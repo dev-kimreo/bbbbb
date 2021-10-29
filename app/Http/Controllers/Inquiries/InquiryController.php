@@ -1,10 +1,11 @@
 <?php
 
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Inquiries;
 
 use App\Events\Backoffice\DataUpdated;
 use App\Exceptions\QpickHttpException;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Inquiries\AssignRequest;
 use App\Http\Requests\Inquiries\CreateRequest;
 use App\Http\Requests\Inquiries\DestroyRequest;
@@ -13,8 +14,8 @@ use App\Http\Requests\Inquiries\ShowRequest;
 use App\Http\Requests\Inquiries\UpdateRequest;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
-use App\Models\Inquiry;
-use App\Models\InquiryAnswer;
+use App\Models\Inquiries\Inquiry;
+use App\Models\Inquiries\InquiryAnswer;
 use App\Models\Users\User;
 use App\Services\AttachService;
 use Auth;
@@ -124,7 +125,7 @@ class InquiryController extends Controller
      *              @OA\Property(property="userName", type="string", example=1, description="문의를 작성한 사용자의 이름"),
      *              @OA\Property(property="assigneeId", type="integer", example=1, description="처리담당자의 고유번호(PK)"),
      *              @OA\Property(property="assigneeName", type="string", example=1, description="처리담당자의 이름"),
-     *              @OA\Property(property="answerId", type="integer", example=1, description="답변한 관리자의 고유번호(PK)"),n
+     *              @OA\Property(property="answerId", type="integer", example=1, description="답변한 관리자의 고유번호(PK)"),
      *          ),
      *      ),
      *      @OA\Response(

@@ -18,7 +18,7 @@ class CreateLinkedComponentOptionsTable extends Migration
             $table->id();
             $table->foreignId('component_option_id')->constrained();
             $table->foreignId('linked_component_id')->constrained();
-            $table->text('value');
+            $table->text('value')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

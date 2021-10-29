@@ -113,23 +113,31 @@ abstract class CommonListService
         return $arr;
     }
 
+    protected function getQuery(string $structureKey, $keys): EloquentBuilder
+    {
+        $with = $this->dataStructure[$structureKey]['with'] ?? [];
+        $withCount = $this->dataStructure[$structureKey]['withCount'] ?? [];
+
+        return $this->model
+            ->with($with)
+            ->withCount($withCount)
+            ->whereIn('id', $keys);
+    }
+
     /**
      * @param string $structureKey
      * @return Collection
      */
     public function get(string $structureKey): Collection
     {
-        $with = $this->dataStructure[$structureKey]['with'] ?? [];
-        $withCount = $this->dataStructure[$structureKey]['withCount'] ?? [];
-        $append = $this->dataStructure[$structureKey]['append'] ?? [];
         $keys = $this->query->get()->pluck('id');
+        $append = $this->dataStructure[$structureKey]['append'] ?? [];
+        $hidden = $this->dataStructure[$structureKey]['hidden'] ?? [];
 
-        return $this->model
-            ->with($with)
-            ->withCount($withCount)
-            ->whereIn('id', $keys)
+        return $this->getQuery($structureKey, $keys)
             ->get()
             ->append($append)
+            ->makeHidden($hidden)
             ->sortBy(function ($v) use ($keys) {
                 return $keys->search($v->id);
             })

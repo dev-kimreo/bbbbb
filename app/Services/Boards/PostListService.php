@@ -32,14 +32,16 @@ class PostListService extends CommonListService
     {
         return [
             'onBoard' => [
-                'with' => ['user', 'thumbnail.attachFiles'],
+                'with' => ['user'],
                 'withCount' => ['replies'],
-                'append' => []
+                'append' => ['thumbnail'],
+                'hidden' => ['content', 'hidden', 'sort']
             ],
             'total' => [
-                'with' => ['user', 'board'],
+                'with' => ['user', 'board', 'attachFiles', 'backofficeLogs'],
                 'withCount' => ['replies', 'attachFiles'],
-                'append' => []
+                'append' => ['thumbnail'],
+                'hidden' => []
             ]
         ];
     }
