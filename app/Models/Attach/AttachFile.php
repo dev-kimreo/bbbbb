@@ -93,6 +93,11 @@ class AttachFile extends Model
         return $this->morphOne(AttachThumb::class, 'attachable');
     }
 
+    public function thumbSimplify(): MorphOne
+    {
+        return $this->morphOne(AttachThumb::class, 'attachable')->simplify();
+    }
+
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

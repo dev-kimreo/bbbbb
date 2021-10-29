@@ -45,7 +45,6 @@ class AppServiceProvider extends ServiceProvider
             'popup' => 'App\Models\Exhibitions\Popup',
             'popup_content' => 'App\Models\Exhibitions\PopupDeviceContent',
             'post' => 'App\Models\Boards\Post',
-            'post_thumbnail' => 'App\Models\Boards\PostThumbnail',
             'terms_of_use' => 'App\Models\TermsOfUse',
             'tooltip' => 'App\Models\Tooltip',
             'user' => 'App\Models\Users\User',
