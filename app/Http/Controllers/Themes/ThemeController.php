@@ -11,19 +11,28 @@ use App\Http\Requests\Themes\StoreRequest;
 use App\Http\Requests\Themes\UpdateRequest;
 use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
+use App\Models\EditablePages\EditablePage;
+use App\Models\EditablePages\EditablePageLayout;
+use App\Models\LinkedComponents\LinkedComponentGroup;
+use App\Models\SupportedEditablePage;
 use App\Models\Themes\Theme;
 use App\Models\Themes\ThemeProduct;
+use App\Services\EditorService;
 use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Request;
 
 class ThemeController extends Controller
 {
     protected Theme $theme;
+    private EditorService $editorService;
 
-    public function __construct(Theme $theme)
+    public function __construct(Theme $theme, EditorService $editorService)
     {
         $this->theme = $theme;
+        $this->editorService = $editorService;
     }
 
     /**
@@ -141,38 +150,10 @@ class ThemeController extends Controller
      *
      * @throws QpickHttpException
      */
-    public function store(StoreRequest $request, int $theme_product_id): JsonResponse
+    public function store(StoreRequest $request): JsonResponse
     {
-        $themeProduct = ThemeProduct::findOrFail($theme_product_id);
-
-        // 이미 존재 하는지 여부 체크
-        $existsTheme = Theme::where([
-            'solution_id' => $request->input('solution_id'),
-            'theme_product_id' => $theme_product_id
-        ])->exists();
-
-        if ($existsTheme) {
-            throw new QpickHttpException(422, 'theme.disable.already_exists');
-        }
-
-        // check create policy
-        if (!Auth::user()->can('update', $themeProduct)) {
-            throw new QpickHttpException(403, 'common.unauthorized');
-        }
-
-        $theme = Theme::create(
-            array_merge(
-                $request->all(),
-                [
-                    'theme_product_id' => $theme_product_id,
-                    'solution_id' => $request->input('solution_id')
-                ]
-            )
-        );
-
-        return response()->json(collect($theme), 201);
+        return response()->json(collect($this->createTheme($request)), 201);
     }
-
 
     /**
      * @OA\Patch (
@@ -184,6 +165,7 @@ class ThemeController extends Controller
      *      @OA\RequestBody(
      *          description="",
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="status", ref="#/components/schemas/Theme/properties/status"),
      *              @OA\Property(property="display", ref="#/components/schemas/Theme/properties/display")
      *          )
@@ -270,6 +252,62 @@ class ThemeController extends Controller
         $theme->delete();
 
         return response()->noContent();
+    }
+
+
+    /**
+     * @throws QpickHttpException
+     */
+    public function relationalStore(StoreRequest $request, int $theme_product_id): JsonResponse
+    {
+        // 테마 생성
+        $theme = $this->createTheme($request);
+
+        // 솔루션 테마에 사용되는 에디터 지원페이지 생성
+        $this->editorService->createEditablePageForTheme($theme);
+
+        //
+        $theme->editablePage->each(function($ep){
+            $ep->editablePageLayout;
+        });
+
+        return response()->json($theme, 201);
+    }
+
+
+
+
+    /**
+     * @throws QpickHttpException
+     */
+    protected function createTheme(StoreRequest $request)
+    {
+        $themeProduct = ThemeProduct::findOrFail($request->route('theme_product_id'));
+
+        // 이미 존재 하는지 여부 체크
+        $existsTheme = Theme::where([
+            'solution_id' => $request->input('solution_id'),
+            'theme_product_id' => $request->route('theme_product_id')
+        ])->exists();
+
+//        if ($existsTheme) {
+//            throw new QpickHttpException(422, 'theme.disable.already_exists');
+//        }
+
+        // check create policy
+        if (!Auth::user()->can('update', $themeProduct)) {
+            throw new QpickHttpException(403, 'common.unauthorized');
+        }
+
+        return Theme::create(
+            array_merge(
+                $request->all(),
+                [
+                    'theme_product_id' => $request->route('theme_product_id'),
+                    'solution_id' => $request->input('solution_id')
+                ]
+            )
+        );
     }
 
 
