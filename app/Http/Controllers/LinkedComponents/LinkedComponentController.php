@@ -10,6 +10,7 @@ use App\Http\Requests\LinkedComponents\UpdateRequest;
 use App\Models\Components\Component;
 use App\Models\EditablePages\EditablePageLayout;
 use App\Models\LinkedComponents\LinkedComponent;
+use App\Models\LinkedComponents\LinkedComponentOption;
 use App\Models\Themes\Theme;
 use App\Services\ThemeService;
 use Auth;
@@ -171,6 +172,14 @@ class LinkedComponentController extends Controller
             )
         )->refresh();
 
+
+        // Linked Component Option 자동생성
+        $component->usableVersion->first()->option->each(function ($item) use ($linkedComponent) {
+            LinkedComponentOption::create([
+                'component_option_id' => $item->getAttribute('id'),
+                'linked_component_id' => $linkedComponent->getAttribute('id')
+            ]);
+        });
 
         return response()->json(collect($linkedComponent), 201);
     }
