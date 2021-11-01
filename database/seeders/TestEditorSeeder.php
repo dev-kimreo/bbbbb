@@ -39,19 +39,22 @@ class TestEditorSeeder extends Seeder
 
         // 지원 가능한 에디터 지원 페이지 추가
         if (!count(Solution::first()->supportedEditablePage)) {
-            Solution::first()->supportedEditablePage()->createMany(
-                [
+            Solution::all()->each(function ($item) {
+                $item->supportedEditablePage()->createMany(
                     [
-                        'name' => '메인',
-                        'file_name' => 'main.html'
-                    ],
-                    [
+                        [
+                            'name' => '메인',
+                            'file_name' => 'main.html'
+                        ],
+                        [
 
-                        'name' => '목록',
-                        'file_name' => 'list.html'
-                    ],
-                ]
-            );
+                            'name' => '목록',
+                            'file_name' => 'list.html'
+                        ],
+                    ]
+                );
+            });
+
         }
 
         // 컴포넌트 텍스트 유형 추가
@@ -83,6 +86,7 @@ class TestEditorSeeder extends Seeder
             'solution'
         )->has(
             ComponentVersion::factory()->state([
+                'usable' => true,
                 'template' => '<div><h2><!--data.title--></h2></div>',
                 'style' => '',
                 'script' => '<script>alert(data.title);</script>',
