@@ -11,18 +11,12 @@ use App\Http\Requests\Themes\StoreRequest;
 use App\Http\Requests\Themes\UpdateRequest;
 use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
-use App\Models\EditablePages\EditablePage;
-use App\Models\EditablePages\EditablePageLayout;
-use App\Models\LinkedComponents\LinkedComponentGroup;
-use App\Models\SupportedEditablePage;
 use App\Models\Themes\Theme;
 use App\Models\Themes\ThemeProduct;
 use App\Services\EditorService;
 use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Request;
 
 class ThemeController extends Controller
 {
@@ -266,7 +260,7 @@ class ThemeController extends Controller
         // 솔루션 테마에 사용되는 에디터 지원페이지 생성
         $this->editorService->createEditablePageForTheme($theme);
 
-        //
+        // 하위 Entity 추가
         $theme->editablePage->each(function($ep){
             $ep->editablePageLayout;
         });

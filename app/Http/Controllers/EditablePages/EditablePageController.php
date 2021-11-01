@@ -11,7 +11,6 @@ use App\Http\Requests\EditablePages\UpdateRequest;
 use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
 use App\Models\EditablePages\EditablePage;
-use App\Models\SupportedEditablePage;
 use App\Models\Themes\Theme;
 use App\Services\EditorService;
 use App\Services\ThemeService;

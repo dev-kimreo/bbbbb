@@ -9,7 +9,6 @@ use App\Http\Requests\EditablePages\Layouts\StoreRequest;
 use App\Http\Requests\EditablePages\Layouts\UpdateRequest;
 use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
-use App\Models\EditablePages\EditablePage;
 use App\Models\EditablePages\EditablePageLayout;
 use App\Models\Themes\Theme;
 use App\Services\EditorService;
