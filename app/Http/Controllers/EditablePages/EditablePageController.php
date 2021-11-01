@@ -13,6 +13,7 @@ use App\Libraries\PaginationLibrary;
 use App\Models\EditablePages\EditablePage;
 use App\Models\SupportedEditablePage;
 use App\Models\Themes\Theme;
+use App\Services\EditorService;
 use App\Services\ThemeService;
 use Auth;
 use Illuminate\Http\JsonResponse;
@@ -21,10 +22,12 @@ use Illuminate\Http\Response;
 class EditablePageController extends Controller
 {
     private ThemeService $themeService;
+    private EditorService $editorService;
 
-    public function __construct(ThemeService $themeService)
+    public function __construct(ThemeService $themeService, EditorService $editorService)
     {
         $this->themeService = $themeService;
+        $this->editorService = $editorService;
     }
 
 
@@ -138,36 +141,14 @@ class EditablePageController extends Controller
      */
     public function store(StoreRequest $request, int $theme_id): JsonResponse
     {
-        $supportedEditablePageId = $request->input('supported_editable_page_id');
-        $theme = Theme::findOrFail($theme_id);
-
-        // check policy
-        if (!$this->themeService->usableAuthor($theme)) {
-            throw new QpickHttpException(403, 'common.unauthorized');
-        }
-
-        // exists supported page
-        if (EditablePage::where(['theme_id' => $theme_id, 'supported_editable_page_id' => $supportedEditablePageId])->exists()) {
-            throw new QpickHttpException(422, 'supported_editable_page.disable.already_exists');
-        }
-
-        // check solution
-        $supportedEditablePage = SupportedEditablePage::find($supportedEditablePageId);
-        if ($theme->getAttribute('solution_id') != $supportedEditablePage->getAttribute('solution_id')) {
-            throw new QpickHttpException(422, 'supported_editable_page.disable.add_to_selected_theme');
-        }
-
-        $editablePage = EditablePage::create(
-            array_merge(
-                $request->all(),
-                [
-                    'theme_id' => $theme_id,
-                    'supported_editable_page_id' => $supportedEditablePageId
-                ]
-            )
-        )->refresh();
-
-        return response()->json(collect($editablePage), 201);
+        return response()->json(
+            collect(
+                $this->editorService->createEditablePage(
+                    Theme::findOrFail($theme_id),
+                    $request->input('supported_editable_page_id'),
+                    $request->input('name')
+                )
+            ), 201);
     }
 
 
