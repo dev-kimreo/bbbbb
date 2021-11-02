@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             ExhibitionsSeeder::class,
             WidgetSeeder::class,
             SolutionSeeder::class,
+            TestEditorSeeder::class,
         ]);
 
         // \App\Models\Users\User::factory(10)->create();
