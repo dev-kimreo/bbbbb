@@ -179,7 +179,7 @@ class ThemeController extends Controller
      *  )
      * @throws QpickHttpException
      */
-    public function update(UpdateRequest $request)
+    public function update(UpdateRequest $request): JsonResponse
     {
         $themeProductId = $request->route('theme_product_id');
         $themeId = $request->route('theme_id');
@@ -250,6 +250,36 @@ class ThemeController extends Controller
 
 
     /**
+     * @OA\Post (
+     *      path="/v1/theme-product/{theme_product_id}/relational-theme",
+     *      summary="테마 관계형 등록",
+     *      description="테마를 등록하고 하위 관계 요소들을 자동 생성합니다.",
+     *      operationId="relationalThemeCreate",
+     *      tags={"테마"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={"solution_id"},
+     *              @OA\Property(property="solution_id", ref="#/components/schemas/Theme/properties/solution_id"),
+     *              @OA\Property(property="status", ref="#/components/schemas/Theme/properties/status"),
+     *              @OA\Property(property="display", ref="#/components/schemas/Theme/properties/display")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/Theme")
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "partner_auth":{}
+     *      }}
+     *  )
+     *
      * @throws QpickHttpException
      */
     public function relationalStore(StoreRequest $request, int $theme_product_id): JsonResponse
@@ -284,9 +314,9 @@ class ThemeController extends Controller
             'theme_product_id' => $request->route('theme_product_id')
         ])->exists();
 
-//        if ($existsTheme) {
-//            throw new QpickHttpException(422, 'theme.disable.already_exists');
-//        }
+        if ($existsTheme) {
+            throw new QpickHttpException(422, 'theme.disable.already_exists');
+        }
 
         // check create policy
         if (!Auth::user()->can('update', $themeProduct)) {
