@@ -9,9 +9,9 @@ use App\Http\Requests\EditablePages\Layouts\StoreRequest;
 use App\Http\Requests\EditablePages\Layouts\UpdateRequest;
 use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
-use App\Models\EditablePages\EditablePage;
 use App\Models\EditablePages\EditablePageLayout;
 use App\Models\Themes\Theme;
+use App\Services\EditorService;
 use App\Services\ThemeService;
 use Auth;
 use Illuminate\Http\JsonResponse;
@@ -20,10 +20,12 @@ use Illuminate\Http\Response;
 class EditablePageLayoutController extends Controller
 {
     private ThemeService $themeService;
+    private EditorService $editorService;
 
-    public function __construct(ThemeService $themeService)
+    public function __construct(ThemeService $themeService, EditorService $editorService)
     {
         $this->themeService = $themeService;
+        $this->editorService = $editorService;
     }
 
     /**
@@ -131,22 +133,7 @@ class EditablePageLayoutController extends Controller
      */
     public function store(StoreRequest $request, int $themeId, int $editablePageId): JsonResponse
     {
-        EditablePage::findOrFail($editablePageId);
-
-        if (EditablePageLayout::where('editable_page_id', $editablePageId)->exists()) {
-            throw new QpickHttpException(403, 'editable_page_layout.disable.already_exists');
-        }
-
-        if (!$this->themeService->usableAuthor(Theme::findOrFail($themeId))) {
-            throw new QpickHttpException(403, 'common.unauthorized');
-        }
-
-        $layout = EditablePageLayout::create(array_merge(
-            $request->all(),
-            [
-                'editable_page_id' => $editablePageId
-            ]
-        ))->refresh();
+        $layout = $this->editorService->createEditablePageLayout(Theme::findOrFail($themeId), $editablePageId, $request->all());
 
         return response()->json(collect($layout), 201);
     }

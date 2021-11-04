@@ -43,6 +43,11 @@ class Component extends Model
         return $this->belongsTo(Solution::class, 'solution_id');
     }
 
+    public function usableVersion()
+    {
+        return $this->version()->where('usable', true);
+    }
+
     public function version(): HasMany
     {
         return $this->hasMany(ComponentVersion::class);

@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자")
  * )
  *
- * @method static where(string $string, int $theme_id)
+ * @method static where(mixed $param)
  * @method static create(array|int[] $array_merge)
  * @method static findOrFail($editablePageId)
  */

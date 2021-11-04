@@ -17,6 +17,7 @@ class CreateComponentVersionsTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('component_id')->constrained();
+            $table->boolean('usable')->default(false);
             $table->text('template');
             $table->text('style');
             $table->text('script');

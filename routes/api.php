@@ -351,6 +351,9 @@ Route::group([
         Route::post('/{theme_product_id}/theme', [ThemeController::class, 'store']);
         Route::patch('/{theme_product_id}/theme/{theme_id}', [ThemeController::class, 'update']);
         Route::delete('/{theme_product_id}/theme/{theme_id}', [ThemeController::class, 'destroy']);
+
+        // 관계형 테마 (Non-CRUD)
+        Route::post('/{theme_product_id}/relational-theme', [ThemeController::class, 'relationalStore']);
     });
 
     // 테마
