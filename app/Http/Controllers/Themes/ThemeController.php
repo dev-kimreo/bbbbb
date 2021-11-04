@@ -31,7 +31,7 @@ class ThemeController extends Controller
 
     /**
      * @OA\Get (
-     *      path="/v1/theme",
+     *      path="/v1/theme-product/{theme_product_id}/theme",
      *      summary="테마 목록",
      *      description="테마 목록",
      *      operationId="themeIndex",
@@ -54,12 +54,12 @@ class ThemeController extends Controller
      *  )
      * @throws QpickHttpException
      */
-    public function index(IndexRequest $request, int $theme_product_id)
+    public function index(IndexRequest $request)
     {
         $theme = Theme::query();
 
-        if ($theme_product_id) {
-            $theme->where(['theme_product_id' => $theme_product_id]);
+        if ($i = $request->route('theme_product_id')) {
+            $theme->where(['theme_product_id' => $i]);
         }
 
         // Sort By
