@@ -386,6 +386,7 @@ Route::group([
         Route::post('/{theme_id}/editable-page/{editable_page_id}/linked-component', [LinkedComponentController::class, 'store']);
         Route::patch('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}', [LinkedComponentController::class, 'update']);
         Route::delete('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}', [LinkedComponentController::class, 'destroy']);
+        Route::post('/{theme_id}/editable-page/{editable_page_id}/relational-linked-component', [LinkedComponentController::class, 'relationalLinkedComponent']);
 
         // 연동 컴포넌트 옵션
         Route::get('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option', [LinkedComponentOptionController::class, 'index']);
