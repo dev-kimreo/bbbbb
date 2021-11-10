@@ -42,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
             'exhibition_category' => 'App\Models\Exhibitions\ExhibitionCategory',
             'exhibition_target_user' => 'App\Models\Exhibitions\ExhibitionTargetUser',
             'inquiry' => 'App\Models\Inquiries\Inquiry',
+            'linked_component' => 'App\Models\LinkedComponents\LinkedComponent',
             'popup' => 'App\Models\Exhibitions\Popup',
             'popup_content' => 'App\Models\Exhibitions\PopupDeviceContent',
             'post' => 'App\Models\Boards\Post',

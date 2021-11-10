@@ -20,6 +20,7 @@ use App\Http\Controllers\Inquiries\InquiryAnswerController;
 use App\Http\Controllers\Inquiries\InquiryController;
 use App\Http\Controllers\LinkedComponents\LinkedComponentController;
 use App\Http\Controllers\LinkedComponents\LinkedComponentOptionController;
+use App\Http\Controllers\LinkedComponents\ScriptRequestController;
 use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\TermsOfUseController;
 use App\Http\Controllers\Themes\ThemeController;
@@ -31,6 +32,7 @@ use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Users\UserSiteController;
 use App\Http\Controllers\Widgets\WidgetController;
 use App\Http\Controllers\Widgets\WidgetUsageController;
+use App\Http\Middleware\ConvertResponseToCamelCase;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -395,6 +397,12 @@ Route::group([
         Route::patch('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'update']);
         Route::delete('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'destroy']);
     });
+
+    /**
+     * 컴포넌트 Script Request API
+     */
+    Route::get('/component/script/{hash}', [ScriptRequestController::class, 'show'])
+        ->withoutMiddleware([ConvertResponseToCamelCase::class]);
 
     /**
      * 통계

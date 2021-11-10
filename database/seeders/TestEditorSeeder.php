@@ -87,7 +87,7 @@ class TestEditorSeeder extends Seeder
         ';
         $css = '
             ul {
-                display:gird; 
+                display:gird;
                 grid-template-columns:2;
                 grid-template-rows:2;
                 width:100%;
@@ -103,10 +103,10 @@ class TestEditorSeeder extends Seeder
         ';
         $script = '
             let anchors = document.querySelectorAll("a");
-            
+
             for(let i=0; i<anchors.length; i++) {
-                anchors[i].href = compOpt.["url" + i];
-                anchors[i].querySelector("img").src = compOpt.["img" + i];
+                anchors[i].href = compOpt["url" + i];
+                anchors[i].querySelector("img").src = compOpt["img" + i];
             }
         ';
 

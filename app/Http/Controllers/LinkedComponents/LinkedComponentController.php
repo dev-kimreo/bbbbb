@@ -12,6 +12,7 @@ use App\Models\EditablePages\EditablePageLayout;
 use App\Models\LinkedComponents\LinkedComponent;
 use App\Models\LinkedComponents\LinkedComponentOption;
 use App\Models\Themes\Theme;
+use App\Services\ComponentRenderingService;
 use App\Services\ThemeService;
 use Auth;
 use Illuminate\Http\JsonResponse;
@@ -93,10 +94,45 @@ class LinkedComponentController extends Controller
      *      description="연동 컴포넌트 상세정보",
      *      operationId="LinkedComponentShow",
      *      tags={"연동 컴포넌트"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={"linked_component_group_id", "component_id"},
+     *              @OA\Property(
+     *                  property="forRender",
+     *                  type="boolean",
+     *                  example="1",
+     *                  description="1일 경우, Template, Stylesheet 소스코드와 Script Request URL을 함께 반환"
+     *              ),
+     *          )
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/LinkedComponent")
+     *          @OA\JsonContent(
+     *              allOf={@OA\Schema(ref="#/components/schemas/LinkedComponent")},
+     *              @OA\Property(property="renderData", type="object",
+     *                  @OA\Property(
+     *                      property="template",
+     *                      type="string",
+     *                      example="<div></div>",
+     *                      description="컴포넌트의 HTML 소스코드"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="style",
+     *                      type="string",
+     *                      example="div{width:100%}",
+     *                      description="컴포넌트의 CSS 소스코드"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="script",
+     *                      type="url",
+     *                      example="http://local-api.qpikci.com/script",
+     *                      description="Script Request URL"
+     *                  )
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -109,7 +145,13 @@ class LinkedComponentController extends Controller
      */
     public function show(int $linkedComponentId)
     {
-        return LinkedComponent::findOrFail($linkedComponentId);
+        $res = LinkedComponent::query()->findOrFail($linkedComponentId);
+
+        if (request()->input('for_render')) {
+            $res = $res->setAppends(['renderData']);
+        }
+
+        return $res;
     }
 
     /**
@@ -307,13 +349,12 @@ class LinkedComponentController extends Controller
 
         // Linked Component 생성
         return LinkedComponent::create(array_merge(
-                [
-                    'name' => $component->getAttribute('name'),
-                    'sort' => $maxSort
-                ],
-                $request->all()
-            )
-        )->refresh();
+            [
+                'name' => $component->getAttribute('name'),
+                'sort' => $maxSort
+            ],
+            $request->all()
+        ))->refresh();
     }
 
     protected function createLinkedComponentOptionForComponent(LinkedComponent $linkedComponent)
@@ -330,4 +371,7 @@ class LinkedComponentController extends Controller
         });
     }
 
+    public function scriptRequest()
+    {
+    }
 }
