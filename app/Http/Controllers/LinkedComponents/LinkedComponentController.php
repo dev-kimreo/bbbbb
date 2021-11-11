@@ -10,7 +10,9 @@ use App\Http\Requests\LinkedComponents\UpdateRequest;
 use App\Models\Components\Component;
 use App\Models\EditablePages\EditablePageLayout;
 use App\Models\LinkedComponents\LinkedComponent;
+use App\Models\LinkedComponents\LinkedComponentOption;
 use App\Models\Themes\Theme;
+use App\Services\ComponentRenderingService;
 use App\Services\ThemeService;
 use Auth;
 use Illuminate\Http\JsonResponse;
@@ -92,10 +94,45 @@ class LinkedComponentController extends Controller
      *      description="연동 컴포넌트 상세정보",
      *      operationId="LinkedComponentShow",
      *      tags={"연동 컴포넌트"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={"linked_component_group_id", "component_id"},
+     *              @OA\Property(
+     *                  property="withRenderData",
+     *                  type="boolean",
+     *                  example="1",
+     *                  description="1일 경우, Template, Stylesheet 소스코드와 Script Request URL을 함께 반환"
+     *              ),
+     *          )
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/LinkedComponent")
+     *          @OA\JsonContent(
+     *              allOf={@OA\Schema(ref="#/components/schemas/LinkedComponent")},
+     *              @OA\Property(property="renderData", type="object",
+     *                  @OA\Property(
+     *                      property="template",
+     *                      type="string",
+     *                      example="<div></div>",
+     *                      description="컴포넌트의 HTML 소스코드"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="style",
+     *                      type="string",
+     *                      example="div{width:100%}",
+     *                      description="컴포넌트의 CSS 소스코드"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="script",
+     *                      type="url",
+     *                      example="http://local-api.qpikci.com/script",
+     *                      description="Script Request URL"
+     *                  )
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -108,7 +145,13 @@ class LinkedComponentController extends Controller
      */
     public function show(int $linkedComponentId)
     {
-        return LinkedComponent::findOrFail($linkedComponentId);
+        $res = LinkedComponent::query()->findOrFail($linkedComponentId);
+
+        if (request()->input('with_render_data')) {
+            $res = $res->setAppends(['renderData']);
+        }
+
+        return $res;
     }
 
     /**
@@ -147,30 +190,7 @@ class LinkedComponentController extends Controller
      */
     public function store(StoreRequest $request, int $themeId, int $editablePageId): JsonResponse
     {
-        // 테마 작성자 확인
-        if (!$this->themeService->usableAuthor(Theme::findOrFail($themeId))) {
-            throw new QpickHttpException(403, 'common.forbidden');
-        }
-
-        // 컴포넌트 작성자 확인
-        if (!Auth::user()->can('authorize', $component = Component::findOrFail($request->input('component_id')))) {
-            throw new QpickHttpException(403, 'common.forbidden');
-        }
-
-        // Sort 값 설정
-        $maxSortLinkedComponent = LinkedComponent::selectRaw('max(sort) as sort')->first();
-        $maxSort = $maxSortLinkedComponent ? $maxSortLinkedComponent->getAttribute('sort') + 1 : 1;
-
-        // Linked Component 생성
-        $linkedComponent = LinkedComponent::create(array_merge(
-                [
-                    'name' => $component->getAttribute('name'),
-                    'sort' => $maxSort
-                ],
-                $request->all()
-            )
-        )->refresh();
-
+        $linkedComponent = $this->createLinkedComponent(Theme::findOrFail($themeId), $request);
 
         return response()->json(collect($linkedComponent), 201);
     }
@@ -267,5 +287,91 @@ class LinkedComponentController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * @OA\Post (
+     *      path="/v1/theme/{theme_id}/editable-page/{editable_page_id}/relational-linked-component",
+     *      summary="연동 컴포넌트 관계형 등록",
+     *      description="연동 컴포넌트 등록 / 관계형 옵션을 등록합니다.",
+     *      operationId="RelationalLinkedComponentCreate",
+     *      tags={"연동 컴포넌트"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={"linked_component_group_id", "component_id"},
+     *              @OA\Property(property="linked_component_group_id", ref="#/components/schemas/LinkedComponent/properties/linked_component_group_id"),
+     *              @OA\Property(property="component_id", ref="#/components/schemas/LinkedComponent/properties/component_id"),
+     *              @OA\Property(property="name", ref="#/components/schemas/LinkedComponent/properties/name"),
+     *              @OA\Property(property="sort", ref="#/components/schemas/LinkedComponent/properties/sort"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="successfully"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "partner_auth":{}
+     *      }}
+     *  )
+     *
+     * @throws QpickHttpException
+     */
+    public function relationalLinkedComponent(StoreRequest $request, int $themeId, int $editablePageId)
+    {
+        $linkedComponent = $this->createLinkedComponent(Theme::findOrFail($themeId), $request);
 
+        // 컴포넌트에 적용된 옵션 연동 컴포넌트 옵션으로 추가
+        $this->createLinkedComponentOptionForComponent($linkedComponent);
+    }
+
+    /**
+     * @throws QpickHttpException
+     */
+    protected function createLinkedComponent(Theme $theme, StoreRequest $request)
+    {
+        // 테마 작성자 확인
+        if (!$this->themeService->usableAuthor($theme)) {
+            throw new QpickHttpException(403, 'common.forbidden');
+        }
+
+        // 컴포넌트 작성자 확인
+        if (!Auth::user()->can('authorize', $component = Component::findOrFail($request->input('component_id')))) {
+            throw new QpickHttpException(403, 'common.forbidden');
+        }
+
+        // Sort 값 설정
+        $maxSortLinkedComponent = LinkedComponent::selectRaw('max(sort) as sort')->first();
+        $maxSort = $maxSortLinkedComponent ? $maxSortLinkedComponent->getAttribute('sort') + 1 : 1;
+
+        // Linked Component 생성
+        return LinkedComponent::create(array_merge(
+            [
+                'name' => $component->getAttribute('name'),
+                'sort' => $maxSort
+            ],
+            $request->all()
+        ))->refresh();
+    }
+
+    protected function createLinkedComponentOptionForComponent(LinkedComponent $linkedComponent)
+    {
+        $linkedComponent->component()->each(function ($c) use ($linkedComponent) {
+            $c->usableVersion()->each(function ($uv) use ($linkedComponent) {
+                $uv->option->each(function ($item) use ($linkedComponent) {
+                    LinkedComponentOption::create([
+                        'component_option_id' => $item->getAttribute('id'),
+                        'linked_component_id' => $linkedComponent->getAttribute('id')
+                    ]);
+                });
+            });
+        });
+    }
+
+    public function scriptRequest()
+    {
+    }
 }

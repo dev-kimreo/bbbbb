@@ -3,12 +3,15 @@
 namespace App\Models\LinkedComponents;
 
 use App\Models\Components\Component;
+use App\Models\ScriptRequest;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
+use App\Services\ComponentRenderingService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -49,6 +52,22 @@ class LinkedComponent extends Model
     public function linkedOption(): HasMany
     {
         return $this->hasMany(LinkedComponentOption::class, 'linked_component_id', 'id');
+    }
+
+    public function scriptRequest(): MorphOne
+    {
+        return $this->morphOne(ScriptRequest::class, 'requestable');
+    }
+
+    public function getRenderDataAttribute(): array
+    {
+        $rawSource = $this->component()->first()->usableVersion()->first();
+
+        return [
+            'template' => ComponentRenderingService::procTemplate($rawSource->template),
+            'style' => ComponentRenderingService::procStyle($rawSource->style),
+            'script' => ComponentRenderingService::generateUrl($this)
+        ];
     }
 }
 
