@@ -100,7 +100,7 @@ class LinkedComponentController extends Controller
      *          @OA\JsonContent(
      *              required={"linked_component_group_id", "component_id"},
      *              @OA\Property(
-     *                  property="forRender",
+     *                  property="withRenderData",
      *                  type="boolean",
      *                  example="1",
      *                  description="1일 경우, Template, Stylesheet 소스코드와 Script Request URL을 함께 반환"
@@ -147,7 +147,7 @@ class LinkedComponentController extends Controller
     {
         $res = LinkedComponent::query()->findOrFail($linkedComponentId);
 
-        if (request()->input('for_render')) {
+        if (request()->input('with_render_data')) {
             $res = $res->setAppends(['renderData']);
         }
 

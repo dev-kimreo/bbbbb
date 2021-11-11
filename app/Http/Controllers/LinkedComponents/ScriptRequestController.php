@@ -10,9 +10,7 @@ class ScriptRequestController extends Controller
 {
     public function show(Request $req, string $hash)
     {
-        return response(
-            ComponentRenderingService::getScript($req->input('func_name'), $hash),
-            200
-        )->header('Content-Type', 'application/javascript');
+        return response(ComponentRenderingService::getScript($hash), 200)
+            ->header('Content-Type', 'application/javascript');
     }
 }

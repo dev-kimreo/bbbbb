@@ -9,40 +9,25 @@ use Str;
 
 final class ComponentRenderingService
 {
-    public static function getScript(string $funcName, string $hash): string
+    public static function procTemplate(string $s): string
+    {
+        return self::removeSpace($s);
+    }
+
+    public static function procStyle(string $s): string
+    {
+        return self::removeSpace($s);
+    }
+
+    public static function getScript(string $hash): string
     {
         $data = ScriptRequest::query()->where('hash', $hash)->firstOrFail();
 
-        $scr = $funcName . '=function(componentOptionData){
-            (function(document, compOpt){
-                ' . $data->component->usableVersion()->first()->script . '
-            })(
-                document.querySelector("#qpick_component_27963").attachShadow({mode:"closed"}),
-                componentOptionData
-	        );
-        };
-        ' . $funcName . '({});';
-        // TODO - componentOptionData 자료구조 입력
+        $scr = 'export function render(document, compOpt) {
+            ' . $data->component->usableVersion()->first()->script . '
+        };';
 
-        $scr = preg_replace('/[\r\n]+/', '', $scr);
-        $scr = preg_replace('/[\s]+/', ' ', $scr);
-        return preg_replace('/[\s]{2,}/', ' ', $scr);
-    }
-
-    public static function procTemplate(string $template): string
-    {
-        return '<div id="qpick_component_27963">' . self::removeSpace($template) . '</div>';
-    }
-
-    public static function procStyle(string $style): string
-    {
-        return self::removeSpace(
-            preg_replace(
-                '/(}?)([^{}]+){/',
-                '$1' . '#qpick_component_27963 ' . '$2{',
-                $style
-            )
-        );
+        return self::removeSpace($scr);
     }
 
     public static function generateUrl(Model $component): string
