@@ -282,6 +282,24 @@ class ExceptionSeeder extends Seeder
                 '이미 해당 에디터 지원 페이지 레이아웃이 존재하여 추가할 수 없습니다.',
                 '이미 해당 에디터 지원 페이지 레이아웃이 존재하여 추가할 수 없습니다.'
             ],
+            [
+                'exception',
+                'component.disable.selected_pages_for_common_solution',
+                '공통 솔루션 선택 시 사용 페이지 옵션의 페이지 선택은 사용 할 수 없습니다.',
+                '공통 솔루션 선택 시 사용 페이지 옵션의 페이지 선택은 사용 할 수 없습니다.'
+            ],
+            [
+                'exception',
+                'component.disable.modify.registered',
+                '등록완료된 컴포넌트는 수정 할 수 없습니다.',
+                '등록완료된 컴포넌트는 수정 할 수 없습니다.'
+            ],
+            [
+                'exception',
+                'component.disable.destroy.registered',
+                '등록완료된 컴포넌트는 삭제 할 수 없습니다.',
+                '등록완료된 컴포넌트는 삭제 할 수 없습니다.'
+            ],
         ];
 
         // Truncate tables
