@@ -12,7 +12,6 @@ use App\Models\EditablePages\EditablePageLayout;
 use App\Models\LinkedComponents\LinkedComponent;
 use App\Models\LinkedComponents\LinkedComponentOption;
 use App\Models\Themes\Theme;
-use App\Services\ComponentRenderingService;
 use App\Services\ThemeService;
 use Auth;
 use Illuminate\Http\JsonResponse;

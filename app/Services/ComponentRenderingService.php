@@ -23,8 +23,22 @@ final class ComponentRenderingService
     {
         $data = ScriptRequest::query()->where('hash', $hash)->firstOrFail();
 
-        $scr = 'export function render(document, compOpt) {
-            ' . $data->component->usableVersion()->first()->script . '
+        $scr = 'export function render(shadowRoot, compOpt) {
+            let arrMethod = [
+                "createElement",
+                "createTextNode",
+                "createDocumentFragment"
+            ];
+                        
+            for(const fn of arrMethod) {
+                shadowRoot[fn] = function(v = null){
+                    return document[fn](v)
+                };
+            }
+            
+            (function(document) {        
+                ' . $data->component->usableVersion()->first()->script . '
+            })(shadowRoot);
         };';
 
         return self::removeSpace($scr);
