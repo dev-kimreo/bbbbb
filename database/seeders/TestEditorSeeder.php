@@ -214,7 +214,8 @@ class TestEditorSeeder extends Seeder
             ),
             'version'
         )->state([
-            'name' => $componentName
+            'name' => $componentName,
+            'first_category' => 'design'
         ])->create();
 
         // 테마 상품 생성
@@ -227,7 +228,7 @@ class TestEditorSeeder extends Seeder
         )->has(
         // 테마
             Theme::factory()->for(
-                Solution::first(),
+                Solution::offset(1)->first(),
                 'solution'
             )->has(
             // 에디터 지원 페이지

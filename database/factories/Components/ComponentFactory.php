@@ -25,7 +25,7 @@ class ComponentFactory extends Factory
     {
         return [
             'use_all_page' => 1,
-            'exposed' => 1,
+            'display' => 1,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];

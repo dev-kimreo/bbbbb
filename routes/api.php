@@ -10,6 +10,7 @@ use App\Http\Controllers\Boards\BoardController;
 use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\Boards\PostController;
 use App\Http\Controllers\Boards\ReplyController;
+use App\Http\Controllers\Components\ComponentController;
 use App\Http\Controllers\EditablePages\EditablePageController;
 use App\Http\Controllers\EditablePages\EditablePageLayoutController;
 use App\Http\Controllers\EmailTemplateController;
@@ -397,6 +398,21 @@ Route::group([
         Route::patch('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'update']);
         Route::delete('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'destroy']);
     });
+
+    /**
+     * 컴포넌트
+     */
+    Route::group([
+        'prefix' => 'component',
+        'middleware' => ['auth:api', 'chkAccess:partner']
+    ], function () {
+        Route::get('', [ComponentController::class, 'index']);
+        Route::get('/{component_id}', [ComponentController::class, 'show']);
+        Route::post('', [ComponentController::class, 'store']);
+        Route::patch('/{component_id}', [ComponentController::class, 'update']);
+        Route::delete('/{component_id}', [ComponentController::class, 'destroy']);
+    });
+
 
     /**
      * 컴포넌트 Script Request API

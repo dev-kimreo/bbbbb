@@ -1,0 +1,291 @@
+<?php
+
+namespace App\Http\Controllers\Components;
+
+use App\Exceptions\QpickHttpException;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Components\IndexRequest;
+use App\Http\Requests\Components\ShowRequest;
+use App\Http\Requests\Components\StoreRequest;
+use App\Http\Requests\Components\UpdateRequest;
+use App\Libraries\CollectionLibrary;
+use App\Libraries\PaginationLibrary;
+use App\Models\Components\Component;
+use Auth;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
+
+class ComponentController extends Controller
+{
+
+    public function __construct()
+    {
+
+    }
+
+    /**
+     *
+     * @OA\Get (
+     *      path="/v1/component",
+     *      summary="컴포넌트 목록",
+     *      description="컴포넌트 목록",
+     *      operationId="ComponentIndex",
+     *      tags={"컴포넌트"},
+     *      @OA\RequestBody(
+     *          description="",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="solution_id", ref="#/components/schemas/Component/properties/solution_id"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              type="array",
+     *              @OA\Items(ref="#/components/schemas/Component")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "partner_auth":{}
+     *      }}
+     *  )
+     *
+     * @param IndexRequest $request
+     * @return Collection
+     * @throws QpickHttpException
+     */
+    public function index(IndexRequest $request): Collection
+    {
+        $componentBuilder = Component::query();
+        $componentBuilder->where('user_partner_id', Auth::user()->partner->id);
+
+        // Sort By
+        if ($s = $request->input('sort_by')) {
+            $sortCollect = CollectionLibrary::getBySort($s, ['id']);
+            $sortCollect->each(function ($item) use ($componentBuilder) {
+                $componentBuilder->orderBy($item['key'], $item['value']);
+            });
+        }
+
+        // set pagination information
+        $pagination = PaginationLibrary::set($request->input('page'), $componentBuilder->count(), $request->input('per_page'));
+
+        // get data
+        return collect($componentBuilder->skip($pagination['skip'])->take($pagination['perPage'])->get());
+    }
+
+    /**
+     *
+     * @OA\Get (
+     *      path="/v1/component/{component_id}",
+     *      summary="컴포넌트 상세",
+     *      description="컴포넌트 상세정보",
+     *      operationId="ComponentShow",
+     *      tags={"컴포넌트"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/Component")
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "partner_auth":{}
+     *      }}
+     *  )
+     * @param ShowRequest $request
+     * @param int $componentId
+     * @return Collection
+     * @throws QpickHttpException
+     */
+    public function show(ShowRequest $request, int $componentId): Collection
+    {
+        $componentBuilder = Component::query();
+        $res = $componentBuilder->findOrFail($componentId);
+
+        // 컴포넌트 보기 권한 확인
+        if (!Auth::user()->can('authorize', $res)) {
+            throw new QpickHttpException(403, 'common.forbidden');
+        }
+
+        return collect($res);
+    }
+
+    /**
+     * @OA\Post (
+     *      path="/v1/component",
+     *      summary="컴포넌트 등록",
+     *      description="새로운 컴포넌트를 등록합니다.",
+     *      operationId="ComponentCreate",
+     *      tags={"컴포넌트"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={"solution_id", "name", "first_category", "use_blank", "use_all_page", "display", "status"},
+     *              ref="#/components/schemas/ComponentModifyPossible"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/EditablePage")
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "partner_auth":{}
+     *      }}
+     *  )
+     * @param StoreRequest $request
+     * @return JsonResponse
+     */
+    public function store(StoreRequest $request): JsonResponse
+    {
+        // 컴포넌트 유형에 따른 값 설정
+        $requestData = $this->setValueAccordingToComponentType($request);
+
+        // 생성 및 response
+        return response()->json(
+            collect(
+                Component::create(array_merge(
+                    $requestData,
+                    [
+                        'user_partner_id' => Auth::user()->partner->id
+                    ]
+                ))->refresh()
+            )
+        );
+    }
+
+    /**
+     *
+     * @OA\Patch (
+     *      path="/v1/component/{component_id}",
+     *      summary="컴포넌트 수정",
+     *      description="컴포넌트를 수정합니다.",
+     *      operationId="ComponentUpdate",
+     *      tags={"컴포넌트"},
+     *      @OA\RequestBody(
+     *          description="",
+     *          @OA\JsonContent(
+     *              ref="#/components/schemas/ComponentModifyPossible"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/Component")
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "partner_auth":{}
+     *      }}
+     *  )
+     *
+     * @param UpdateRequest $request
+     * @param int $componentId
+     * @return JsonResponse
+     * @throws QpickHttpException
+     */
+    public function update(UpdateRequest $request, int $componentId): JsonResponse
+    {
+        $component = Component::findOrFail($componentId);
+
+        // 컴포넌트 작성자 확인
+        if (!Auth::user()->can('authorize', $component)) {
+            throw new QpickHttpException(403, 'common.forbidden');
+        }
+
+        // 컴포넌트 상태가 등록완료시 수정 불가
+        if ($component->getAttribute('status') == 'registered') {
+            throw new QpickHttpException(422, 'component.disable.modify.registered');
+        }
+
+        // 컴포넌트 유형에 따른 값 설정
+        $requestData = $this->setValueAccordingToComponentType($request);
+
+        // 수정
+        $component->update($requestData);
+
+        return response()->json(collect($component), 201);
+    }
+
+
+    /**
+     * @OA\Delete (
+     *      path="/v1/component/{component_id}",
+     *      summary="컴포넌트 삭제",
+     *      description="컴포넌트를 삭제합니다",
+     *      operationId="componentDestroy",
+     *      tags={"컴포넌트"},
+     *      @OA\Response(
+     *          response=204,
+     *          description="successfully",
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "partner_auth":{}
+     *      }}
+     *  )
+     * @param int $componentId
+     * @return Response
+     * @throws QpickHttpException
+     */
+    public function destroy(int $componentId): Response
+    {
+        $component = Component::findOrFail($componentId);
+
+        // 컴포넌트 작성자 확인
+        if (!Auth::user()->can('authorize', $component)) {
+            throw new QpickHttpException(403, 'common.forbidden');
+        }
+
+        // 컴포넌트 상태가 등록완료시 삭제 불가
+        if ($component->getAttribute('status') == 'registered') {
+            throw new QpickHttpException(422, 'component.disable.destroy.registered');
+        }
+
+        $component->delete();
+
+        return response()->noContent();
+    }
+
+
+    // 컴포넌트 유형에 따른 값 설정
+    protected function setValueAccordingToComponentType($request)
+    {
+        $res = $request->all();
+
+        /**
+         * 컴포넌트 유형에 따른 값 설정
+         */
+        // 본사 컴포넌트 유형일 경우
+        if (isset($res['first_category'])) {
+            if (in_array($res['first_category'], Component::$onlyQpickCategory)) {
+                $res['use_other_than_maker'] = true;
+            } else {
+                $res['second_category'] = null;
+                $res['use_other_than_maker'] = false;
+            }
+        }
+
+        return $res;
+    }
+
+}
