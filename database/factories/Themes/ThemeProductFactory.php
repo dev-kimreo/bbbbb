@@ -23,10 +23,19 @@ class ThemeProductFactory extends Factory
      */
     public function definition()
     {
-        return [
-            'name' => $this->faker->realText(16),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ];
+        if (app()->environment() == 'production') {
+            return [
+                'name' => $this->faker->realText(16),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ];
+        } else {
+            return [
+                'name' => $this->faker->realText(16),
+                'display' => rand(0, 1),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ];
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Themes;
 
+use App\Models\Solution;
 use App\Models\Themes\Theme;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -15,6 +16,7 @@ class ThemeFactory extends Factory
      * @var string
      */
     protected $model = Theme::class;
+    public array $status = ['registering', 'registered'];
 
     /**
      * Define the model's default state.
@@ -23,9 +25,20 @@ class ThemeFactory extends Factory
      */
     public function definition()
     {
-        return [
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ];
+        if (app()->environment() == 'production') {
+            return [
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ];
+        } else {
+            return [
+                'solution_id' => Solution::query()->inRandomOrder()->first()->getAttribute('id'),
+                'status' => $this->status[array_rand($this->status)],
+                'display' => rand(0, 1),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ];
+        }
+
     }
 }
