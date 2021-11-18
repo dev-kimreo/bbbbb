@@ -20,7 +20,6 @@ class CreateThemeProductsTable extends Migration
             $table->string('name', 64);
             $table->boolean('all_usable')->default(false);
             $table->boolean('display')->default(false);
-            $table->boolean('show_me_only')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });
