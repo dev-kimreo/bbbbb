@@ -33,7 +33,7 @@ class ThemeProduct extends Model
 
 
     protected $fillable = [
-        'user_partner_id', 'name', 'all_usable', 'display', 'show_me_only'
+        'user_partner_id', 'name', 'all_usable', 'display'
     ];
 
     /**
