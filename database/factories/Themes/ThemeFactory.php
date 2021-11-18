@@ -16,7 +16,6 @@ class ThemeFactory extends Factory
      * @var string
      */
     protected $model = Theme::class;
-    public array $status = ['registering', 'registered'];
 
     /**
      * Define the model's default state.
@@ -33,7 +32,7 @@ class ThemeFactory extends Factory
         } else {
             return [
                 'solution_id' => Solution::query()->inRandomOrder()->first()->getAttribute('id'),
-                'status' => $this->status[array_rand($this->status)],
+                'status' => Theme::$status[array_rand(Theme::$status)],
                 'display' => rand(0, 1),
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
