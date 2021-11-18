@@ -31,6 +31,9 @@ class ComponentVersion extends Model
      */
     protected $hidden = [];
 
+    // 컴포넌트 아이콘
+    public static array $icon = [];
+
     public function component(): BelongsTo
     {
         return $this->belongsTo(Component::class);
