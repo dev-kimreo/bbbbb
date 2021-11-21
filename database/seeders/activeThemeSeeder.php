@@ -39,8 +39,6 @@ class activeThemeSeeder extends Seeder
         ini_set('memory_limit','-1');
 //        $this->setUpFaker();
         // 테마 상품 생성
-        $status = ['registering', 'registered'];
-
         ThemeProduct::factory()->for(
             UserPartner::query()->inRandomOrder()->first(),
             'creator'

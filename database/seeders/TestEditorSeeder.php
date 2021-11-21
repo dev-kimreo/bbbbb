@@ -123,6 +123,7 @@ class TestEditorSeeder extends Seeder
                 'template' => $html,
                 'style' => $css,
                 'script' => $script,
+                'iconv' => 'image'
             ])->has(
                 ComponentOption::factory()
                     ->state(
