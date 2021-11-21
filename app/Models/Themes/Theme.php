@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *      @OA\Property(property="id", type="integer", example=1, description="고유번호"),
  *      @OA\Property(property="theme_product_id", type="integer", example=1, description="테마 상품 고유 번호"),
  *      @OA\Property(property="solution_id", type="integer", example=1, description="솔루션 고유 번호"),
- *      @OA\Property(property="status", type="string", example="making", description="테마 상태"),
+ *      @OA\Property(property="status", type="string", example="making", description="테마 상태<br/>making: 제작 중, underReview: 심사 중, reviewCompleted: 심사 완료"),
  *      @OA\Property(property="display", type="boolean", example=false, default=false, description="노출 여부"),
  *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자"),
  *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자")
