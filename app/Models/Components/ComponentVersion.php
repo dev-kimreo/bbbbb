@@ -31,18 +31,6 @@ class ComponentVersion extends Model
      */
     protected $hidden = [];
 
-    // 컴포넌트 아이콘
-    public static array $icon = [
-        'header' => '헤더',
-        'footer' => '푸터',
-        'category' => '카테고리',
-        'image' => '이미지',
-        'product' => '상품',
-        'text' => '텍스트',
-        'plugin' => '플러그인',
-        'solution' => '솔루션'
-    ];
-
     public function component(): BelongsTo
     {
         return $this->belongsTo(Component::class);
