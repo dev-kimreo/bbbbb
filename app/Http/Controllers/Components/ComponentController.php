@@ -11,6 +11,7 @@ use App\Http\Requests\Components\UpdateRequest;
 use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
 use App\Models\Components\Component;
+use App\Services\ComponentService;
 use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -110,10 +111,8 @@ class ComponentController extends Controller
         $componentBuilder = Component::query();
         $res = $componentBuilder->findOrFail($componentId);
 
-        // 컴포넌트 보기 권한 확인
-        if (!Auth::user()->can('authorize', $res)) {
-            throw new QpickHttpException(403, 'common.forbidden');
-        }
+        // 컴포넌트 권한 확인
+        ComponentService::checkRegistrant($res);
 
         return collect($res);
     }
@@ -129,7 +128,7 @@ class ComponentController extends Controller
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              required={"solution_id", "name", "first_category", "use_blank", "use_all_page", "display", "status"},
+     *              required={"solution_id", "name", "first_category", "use_blank", "use_all_page", "display", "status", "icon"},
      *              ref="#/components/schemas/ComponentModifyPossible"
      *          )
      *      ),
@@ -204,10 +203,8 @@ class ComponentController extends Controller
     {
         $component = Component::findOrFail($componentId);
 
-        // 컴포넌트 작성자 확인
-        if (!Auth::user()->can('authorize', $component)) {
-            throw new QpickHttpException(403, 'common.forbidden');
-        }
+        // 컴포넌트 권한 확인
+        ComponentService::checkRegistrant($component);
 
         // 컴포넌트 상태가 등록완료시 수정 불가
         if ($component->getAttribute('status') == 'registered') {
@@ -229,7 +226,7 @@ class ComponentController extends Controller
      *      path="/v1/component/{component_id}",
      *      summary="컴포넌트 삭제",
      *      description="컴포넌트를 삭제합니다",
-     *      operationId="componentDestroy",
+     *      operationId="ComponentDestroy",
      *      tags={"컴포넌트"},
      *      @OA\Response(
      *          response=204,
@@ -251,10 +248,8 @@ class ComponentController extends Controller
     {
         $component = Component::findOrFail($componentId);
 
-        // 컴포넌트 작성자 확인
-        if (!Auth::user()->can('authorize', $component)) {
-            throw new QpickHttpException(403, 'common.forbidden');
-        }
+        // 컴포넌트 권한 확인
+        ComponentService::checkRegistrant($component);
 
         // 컴포넌트 상태가 등록완료시 삭제 불가
         if ($component->getAttribute('status') == 'registered') {
