@@ -21,7 +21,6 @@ class CreateComponentVersionsTable extends Migration
             $table->text('template');
             $table->text('style');
             $table->text('script');
-            $table->string('icon', 64);
             $table->timestamps();
             $table->softDeletes();
         });
