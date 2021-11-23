@@ -122,8 +122,7 @@ class TestEditorSeeder extends Seeder
                 'usable' => true,
                 'template' => $html,
                 'style' => $css,
-                'script' => $script,
-                'iconv' => 'image'
+                'script' => $script
             ])->has(
                 ComponentOption::factory()
                     ->state(
@@ -216,7 +215,8 @@ class TestEditorSeeder extends Seeder
             'version'
         )->state([
             'name' => $componentName,
-            'first_category' => 'design'
+            'first_category' => 'design',
+            'iconv' => 'image'
         ])->create();
 
         // 테마 상품 생성

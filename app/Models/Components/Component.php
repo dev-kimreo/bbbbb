@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *      @OA\Property(property="second_category", type="string", example="", description="컴포넌트 유형 두번째 카테고리<br/>첫번째 카테고리가 본사 유형 일 경우 필수"),
  *      @OA\Property(property="use_blank", type="boolean", example=true, description="여백 옵션 사용여부"),
  *      @OA\Property(property="use_all_page", type="boolean", example=true, description="전체 페이지 사용 (true일 경우 전체사용, false 일 경우 선택사용)"),
+ *      @OA\Property(property="icon", type="string", example="header", description="컴포넌트 아이콘<br/>(header, footer, category, image, product, text, plugin, solution)"),
  *      @OA\Property(property="display", type="boolean", example=true, description="노출 여부"),
  *      @OA\Property(property="status", type="string", example="registering", description="상태 구분 (등록중, 등록완료)"),
  *      @OA\Property(property="manager_memo", type="string", example="registering", description="관리자 메모"),
@@ -40,6 +41,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *      @OA\Property(property="second_category", type="string", example="", description="컴포넌트 유형 두번째 카테고리<br/>첫번째 카테고리가 본사 유형 일 경우 필수"),
  *      @OA\Property(property="use_blank", type="boolean", example=true, description="여백 옵션 사용여부"),
  *      @OA\Property(property="use_all_page", type="boolean", example=true, description="전체 페이지 사용 (true일 경우 전체사용, false 일 경우 선택사용)"),
+ *      @OA\Property(property="icon", type="string", example="header", description="컴포넌트 아이콘<br/>(header, footer, category, image, product, text, plugin, solution)"),
  *      @OA\Property(property="display", type="boolean", example=true, description="노출 여부"),
  *      @OA\Property(property="status", type="string", example="registering", description="상태 구분 (등록중, 등록완료)"),
  *      @OA\Property(property="manager_memo", type="string", example="registering", description="관리자 메모"),
@@ -61,6 +63,7 @@ class Component extends Model
         'second_category',
         'use_blank',
         'use_all_page',
+        'icon',
         'display',
         'status',
         'manager_memo',
@@ -92,6 +95,18 @@ class Component extends Model
     public static array $status = [
         'registering' => '등록중',
         'registered' => '등록완료'
+    ];
+
+    // 컴포넌트 아이콘
+    public static array $icon = [
+        'header' => '헤더',
+        'footer' => '푸터',
+        'category' => '카테고리',
+        'image' => '이미지',
+        'product' => '상품',
+        'text' => '텍스트',
+        'plugin' => '플러그인',
+        'solution' => '솔루션'
     ];
 
     public function creator(): BelongsTo
