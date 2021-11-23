@@ -34,6 +34,7 @@ class UpdateRequest extends FormRequest
             'second_category' => ['exclude_unless:first_category,design,product,solution,', 'required', 'string', Rule::in(array_keys(Component::$secondCategory))],
             'use_blank' => ['sometimes', 'boolean'],
             'use_all_page' => ['sometimes', 'boolean', new ComponentUsagePageBySolution],
+            'icon' => ['required', Rule::in(array_keys(Component::$icon))],
             'display' => ['sometimes', 'boolean'],
             'status' => ['sometimes', 'string', Rule::in(array_keys(Component::$status))],
             'manager_memo' => ['sometimes', 'string'],

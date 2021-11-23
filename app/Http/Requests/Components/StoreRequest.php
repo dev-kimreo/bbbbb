@@ -34,6 +34,7 @@ class StoreRequest extends FormRequest
             'second_category' => ['exclude_if:first_category,theme_component', 'required', 'string', Rule::in(array_keys(Component::$secondCategory))],
             'use_blank' => ['required', 'boolean'],
             'use_all_page' => ['required', 'boolean', new ComponentUsagePageBySolution],
+            'icon' => ['required', Rule::in(array_keys(Component::$icon))],
             'display' => ['required', 'boolean'],
             'status' => ['required', 'string', Rule::in(array_keys(Component::$status))],
             'manager_memo' => ['sometimes', 'string'],
