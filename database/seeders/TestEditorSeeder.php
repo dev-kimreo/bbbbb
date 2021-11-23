@@ -216,7 +216,7 @@ class TestEditorSeeder extends Seeder
         )->state([
             'name' => $componentName,
             'first_category' => 'design',
-            'iconv' => 'image'
+            'icon' => 'image'
         ])->create();
 
         // 테마 상품 생성
