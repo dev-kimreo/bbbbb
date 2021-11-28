@@ -32,7 +32,6 @@ class ThemeProductFactory extends Factory
         } else {
             return [
                 'name' => $this->faker->realText(16),
-                'display' => rand(0, 1),
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ];

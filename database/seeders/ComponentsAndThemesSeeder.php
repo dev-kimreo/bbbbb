@@ -668,8 +668,7 @@ document.querySelector("ul li").className = "selected";
             [
                 'user_partner_id' => $userPartner->id,
                 'name' => '패션/어패럴 화이트 테마',
-                'all_usable' => 1,
-                'display' => 1
+                'all_usable' => 1
             ]
         );
 
