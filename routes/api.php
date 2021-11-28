@@ -11,6 +11,7 @@ use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\Boards\PostController;
 use App\Http\Controllers\Boards\ReplyController;
 use App\Http\Controllers\Components\ComponentController;
+use App\Http\Controllers\Components\ComponentVersionController;
 use App\Http\Controllers\EditablePages\EditablePageController;
 use App\Http\Controllers\EditablePages\EditablePageLayoutController;
 use App\Http\Controllers\EmailTemplateController;
@@ -411,6 +412,15 @@ Route::group([
         Route::post('', [ComponentController::class, 'store']);
         Route::patch('/{component_id}', [ComponentController::class, 'update']);
         Route::delete('/{component_id}', [ComponentController::class, 'destroy']);
+
+        // 컴포넌트 버전
+        Route::get('/{component_id}/version', [ComponentVersionController::class, 'index']);
+        Route::get('/{component_id}/version/{version_id}', [ComponentVersionController::class, 'show']);
+        Route::post('/{component_id}/version', [ComponentVersionController::class, 'store']);
+        Route::patch('/{component_id}/version/{version_id}', [ComponentVersionController::class, 'update']);
+        Route::delete('/{component_id}/version/{version_id}', [ComponentVersionController::class, 'destroy']);
+
+        Route::patch('/{component_id}/activate-version/{version_id}', [ComponentVersionController::class, 'activate']);
     });
 
 

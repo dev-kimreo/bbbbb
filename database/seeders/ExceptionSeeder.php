@@ -291,14 +291,26 @@ class ExceptionSeeder extends Seeder
             [
                 'exception',
                 'component.disable.modify.registered',
-                '등록완료된 컴포넌트는 수정 할 수 없습니다.',
-                '등록완료된 컴포넌트는 수정 할 수 없습니다.'
+                '등록 완료 된 컴포넌트는 수정 할 수 없습니다.',
+                '등록 완료 된 컴포넌트는 수정 할 수 없습니다.'
             ],
             [
                 'exception',
                 'component.disable.destroy.registered',
-                '등록완료된 컴포넌트는 삭제 할 수 없습니다.',
-                '등록완료된 컴포넌트는 삭제 할 수 없습니다.'
+                '등록 완료 된 컴포넌트는 삭제 할 수 없습니다.',
+                '등록 완료 된 컴포넌트는 삭제 할 수 없습니다.'
+            ],
+            [
+                'exception',
+                'component_version.disable.create.limited_count_over',
+                '등록 가능한 컴포넌트 버전의 갯수를 초과하였습니다.',
+                '등록 가능한 컴포넌트 버전의 갯수를 초과하였습니다.'
+            ],
+            [
+                'exception',
+                'component_version.disable.destroy.in_use',
+                '사용 중인 컴포넌트 버전은 삭제 할 수 없습니다.',
+                '사용 중인 컴포넌트 버전은 삭제 할 수 없습니다.'
             ],
         ];
 
