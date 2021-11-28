@@ -19,7 +19,6 @@ class CreateThemeProductsTable extends Migration
             $table->foreignId('user_partner_id')->constrained();
             $table->string('name', 64);
             $table->boolean('all_usable')->default(false);
-            $table->boolean('display')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });
