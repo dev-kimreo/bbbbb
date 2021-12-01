@@ -25,9 +25,8 @@ class UserSiteFactory extends Factory
             'type' => $this->faker->text(12),
             'name' => $this->faker->text(16),
             'url' => $this->faker->url,
-            'solution' => $this->faker->text(16),
-            'solution_user_id' => $this->faker->text(16),
-            'apikey' => $this->faker->text(16),
+            'solution_user_id' => $this->faker->firstName(),
+            'apikey' => substr($this->faker->sha1(), 0, 32)
         ];
     }
 }

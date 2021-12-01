@@ -2,11 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\Solution;
+use App\Models\Users\User;
+use App\Models\Users\UserSite;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class UserAndManagerSeeder extends Seeder
 {
@@ -167,5 +169,16 @@ class UserAndManagerSeeder extends Seeder
                 ]
             ]
         );
+
+        // User Site
+        for ($i = 0; $i < 7; $i++) {
+            $user = User::skip(rand(1, User::count()) - 1)->first();
+            $solution = Solution::skip(rand(1, Solution::count()) - 1)->first();
+
+            UserSite::factory()
+                ->for($user, 'user')
+                ->for($solution, 'solution')
+                ->create();
+        }
     }
 }

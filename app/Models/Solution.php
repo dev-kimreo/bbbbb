@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
+use App\Models\Users\UserSite;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -38,14 +39,14 @@ class Solution extends Model
      */
     protected $hidden = ['deleted_at'];
 
-
     public function supportedEditablePage(): HasMany
     {
         return $this->hasMany(SupportedEditablePage::class);
     }
 
-
-
-
+    public function userSites(): HasMany
+    {
+        return $this->hasMany(UserSite::class);
+    }
 }
 
