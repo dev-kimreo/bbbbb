@@ -22,6 +22,7 @@ class UserSiteController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
+     *              @OA\Property(property="solutionId", type="integer", example=3, description="솔루션 고유번호" ),
      *              @OA\Property(property="type", type="string", maxLength=16, description="쇼핑몰 분류", example="남성의류"),
      *              @OA\Property(property="name", type="string", maxLength=32, description="사이트명", example="J맨즈 컬렉션"),
      *              @OA\Property(property="url", type="string", maxLength=256, description="사이트 URL", example="https://jmans.co.kr"),
@@ -70,6 +71,7 @@ class UserSiteController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
+     *              @OA\Property(property="solutionId", type="integer", example=3, description="솔루션 고유번호" ),
      *              @OA\Property(property="type", type="string", maxLength=16, description="쇼핑몰 분류", example="남성의류"),
      *              @OA\Property(property="name", type="string", maxLength=32, description="사이트명", example="J맨즈 컬렉션"),
      *              @OA\Property(property="url", type="string", maxLength=256, description="사이트 URL", example="https://jmans.co.kr"),

@@ -2,14 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Solution;
 use App\Models\Users\User;
-use App\Models\Users\UserPrivacyActive;
 use App\Models\Users\UserSite;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
 use Tests\Feature\Traits\QpickTestBase;
 use Tests\TestCase;
 
@@ -27,6 +24,7 @@ class UserSiteTest extends TestCase
         parent::setUp();
 
         $this->createResource = $this->updateResource = [
+            'solution_id' => Solution::factory()->create()->id,
             'type' => '남성의류',
             'name' => $this->faker->text(16),
             'url' => $this->faker->url,
@@ -39,7 +37,9 @@ class UserSiteTest extends TestCase
 
     protected function getFactory()
     {
-        return UserSite::factory();
+        return UserSite::factory()
+            ->for(User::factory()->create(), 'user')
+            ->for(Solution::factory()->create(), 'solution');
     }
 
     /**

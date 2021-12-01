@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests\Users;
 
-use Auth;
+use App\Models\Solution;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SiteRequest extends FormRequest
 {
@@ -22,6 +23,7 @@ class SiteRequest extends FormRequest
     {
         return [
             'user_id' => ['prohibited'],
+            'solution_id' => [Rule::exists(Solution::class, 'id')],
             'type' => ['string', 'max:16'],
             'name' => ['string', 'max:32'],
             'url' => ['url', 'max:256'],
