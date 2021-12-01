@@ -27,7 +27,6 @@ class SiteRequest extends FormRequest
             'type' => ['string', 'max:16'],
             'name' => ['string', 'max:32'],
             'url' => ['url', 'max:256'],
-            'solution' => ['string', 'max:16'],
             'apikey' => ['string', 'max:512'],
         ];
     }

@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *   @OA\Property(property="type", type="string", maxLength=16, description="쇼핑몰 분류", example="남성의류"),
  *   @OA\Property(property="name", type="string", maxLength=32, description="사이트명", example="J맨즈 컬렉션"),
  *   @OA\Property(property="url", type="string", maxLength=256, description="사이트 URL", example="https://jmans.co.kr"),
- *   @OA\Property(property="solution", type="string", maxLength=16, description="연동된 솔루션명", example="마이소호"),
+ *   @OA\Property(property="solutionName", type="string", maxLength=16, description="연동된 솔루션명", example="마이소호"),
  *   @OA\Property(property="solutionUserId", type="string", maxLength=128, description="연동된 솔루션 회원 ID", example="honggildong"),
  *   @OA\Property(property="apikey", type="string", maxLength=512, description="연동된 솔루션의 API Key", example="apikey31f7sdg6bsd73"),
  *   @OA\Property(property="createdAt", ref="#/components/schemas/Base/properties/created_at"),
@@ -40,8 +40,9 @@ class UserSite extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
-    protected $fillable = ['user_id', 'solution_id', 'type', 'name', 'url', 'solution', 'solution_user_id', 'apikey'];
+    protected $fillable = ['user_id', 'solution_id', 'type', 'name', 'url', 'solution_user_id', 'apikey'];
     protected $hidden = ['deleted_at'];
+    protected $appends = ['solution_name'];
 
     public function user(): BelongsTo
     {
@@ -56,5 +57,10 @@ class UserSite extends Model
     public function actionLogs(): MorphMany
     {
         return $this->morphMany(ActionLog::class, 'loggable');
+    }
+
+    public function getSolutionNameAttribute()
+    {
+        return $this->solution()->first()->name;
     }
 }

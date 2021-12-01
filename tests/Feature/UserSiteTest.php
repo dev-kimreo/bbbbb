@@ -28,7 +28,6 @@ class UserSiteTest extends TestCase
             'type' => '남성의류',
             'name' => $this->faker->text(16),
             'url' => $this->faker->url,
-            'solution' => $this->faker->text(16),
             'solutionUserId' => $this->faker->text(16),
             'apikey' => $this->faker->text(16),
         ];
