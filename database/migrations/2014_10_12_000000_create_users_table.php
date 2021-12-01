@@ -46,6 +46,7 @@ class CreateUsersTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_id')->constrained();
+            $table->foreignId('solution_id')->constrained();
             $table->string('type', 16)->nullable();
             $table->string('name', 32)->nullable();
             $table->string('url', 256)->nullable();
