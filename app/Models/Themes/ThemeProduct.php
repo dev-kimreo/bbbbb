@@ -18,8 +18,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *      @OA\Property(property="user_partner_id", type="integer", example=1, description="파트너 회원 고유 번호"),
  *      @OA\Property(property="name", type="string", example="테마 상품", description="테마 상품명"),
  *      @OA\Property(property="all_usable", type="boolean", example=false, default=false, description="모든 사용자에게 제공 여부"),
- *      @OA\Property(property="display", type="boolean", example=false, default=false, description="전시 여부"),
- *      @OA\Property(property="show_me_only", type="boolean", example=true, default=false, description="본인에게만 노출 여부"),
  *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자"),
  *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자")
  * )
@@ -34,7 +32,7 @@ class ThemeProduct extends Model
 
 
     protected $fillable = [
-        'user_partner_id', 'name', 'all_usable', 'display', 'show_me_only'
+        'user_partner_id', 'name', 'all_usable'
     ];
 
     /**

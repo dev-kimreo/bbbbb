@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Themes;
 
+use App\Models\Solution;
 use App\Models\Themes\Theme;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,9 +24,20 @@ class ThemeFactory extends Factory
      */
     public function definition()
     {
-        return [
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ];
+        if (app()->environment() == 'production') {
+            return [
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ];
+        } else {
+            return [
+                'solution_id' => Solution::query()->inRandomOrder()->first()->getAttribute('id'),
+                'status' => Theme::$status[array_rand(Theme::$status)],
+                'display' => rand(0, 1),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ];
+        }
+
     }
 }

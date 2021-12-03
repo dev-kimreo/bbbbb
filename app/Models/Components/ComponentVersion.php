@@ -13,15 +13,24 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  *
  * @OA\Schema(
+ *      @OA\Property(property="id", type="integer", example=1, description="고유번호"),
+ *      @OA\Property(property="component_id", type="integer", example=1, description="컴포넌트 고유 번호"),
+ *      @OA\Property(property="usable", type="boolean", example=false, default=false, description="컴포넌트 버전 사용 여부"),
+ *      @OA\Property(property="template", type="string", description="컴포넌트 버전의 template 코드"),
+ *      @OA\Property(property="script", type="string", description="컴포넌트 버전의 script 코드"),
+ *      @OA\Property(property="style", type="string", description="컴포넌트 버전의 style 코드"),
+ *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자"),
+ *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자")
  * )
  *
  */
 class ComponentVersion extends Model
 {
-    use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
+    use HasFactory, SoftDeletes, DateFormatISO8601;
 
 
     protected $fillable = [
+        'template', 'style', 'script', 'component_id', 'usable'
     ];
 
     /**
@@ -30,6 +39,9 @@ class ComponentVersion extends Model
      * @var array
      */
     protected $hidden = [];
+
+    // 컴포넌트 버전 갯수 제한
+    public static int $limitCount = 3;
 
     public function component(): BelongsTo
     {

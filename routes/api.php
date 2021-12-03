@@ -10,6 +10,8 @@ use App\Http\Controllers\Boards\BoardController;
 use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\Boards\PostController;
 use App\Http\Controllers\Boards\ReplyController;
+use App\Http\Controllers\Components\ComponentController;
+use App\Http\Controllers\Components\ComponentVersionController;
 use App\Http\Controllers\EditablePages\EditablePageController;
 use App\Http\Controllers\EditablePages\EditablePageLayoutController;
 use App\Http\Controllers\EmailTemplateController;
@@ -72,6 +74,7 @@ Route::group([
             Route::patch('/{user_id}', [UserController::class, 'update'])->where(['user_id' => '[0-9]+']);
             Route::delete('/{user_id}', [UserController::class, 'destroy'])->where(['user_id' => '[0-9]+']);
             Route::get('/{user_id}/login-log', [UserController::class, 'getLoginLog'])->where(['user_id' => '[0-9]+']);
+            Route::get('/{user_id}/action-log', [UserController::class, 'getActionLog'])->where(['user_id' => '[0-9]+']);
         });
 
         // 회원 세션 CRUD
@@ -397,6 +400,30 @@ Route::group([
         Route::patch('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'update']);
         Route::delete('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'destroy']);
     });
+
+    /**
+     * 컴포넌트
+     */
+    Route::group([
+        'prefix' => 'component',
+        'middleware' => ['auth:api', 'chkAccess:partner']
+    ], function () {
+        Route::get('', [ComponentController::class, 'index']);
+        Route::get('/{component_id}', [ComponentController::class, 'show']);
+        Route::post('', [ComponentController::class, 'store']);
+        Route::patch('/{component_id}', [ComponentController::class, 'update']);
+        Route::delete('/{component_id}', [ComponentController::class, 'destroy']);
+
+        // 컴포넌트 버전
+        Route::get('/{component_id}/version', [ComponentVersionController::class, 'index']);
+        Route::get('/{component_id}/version/{version_id}', [ComponentVersionController::class, 'show']);
+        Route::post('/{component_id}/version', [ComponentVersionController::class, 'store']);
+        Route::patch('/{component_id}/version/{version_id}', [ComponentVersionController::class, 'update']);
+        Route::delete('/{component_id}/version/{version_id}', [ComponentVersionController::class, 'destroy']);
+
+        Route::patch('/{component_id}/activate-version/{version_id}', [ComponentVersionController::class, 'activate']);
+    });
+
 
     /**
      * 컴포넌트 Script Request API

@@ -19,6 +19,7 @@ class CreateComponentTypesTable extends Migration
             $table->string('name', 64);
             $table->string('code', 64);
             $table->boolean('isPlural');
+            $table->unsignedInteger('maxCount')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -18,7 +18,7 @@ class CreateThemesTable extends Migration
             $table->id();
             $table->foreignId('theme_product_id')->constrained();
             $table->foreignId('solution_id')->constrained();
-            $table->enum('status', ['registering', 'registered'])->default('registering');
+            $table->enum('status', ['making', 'underReview', 'reviewCompleted'])->default('making');
             $table->boolean('display')->default(false);
             $table->timestamps();
             $table->softDeletes();
