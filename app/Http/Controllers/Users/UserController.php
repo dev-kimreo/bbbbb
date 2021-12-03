@@ -17,6 +17,7 @@ use App\Http\Requests\Members\PasswordResetSendLinkRequest;
 use App\Http\Requests\Members\ShowRequest;
 use App\Http\Requests\Members\StoreRequest;
 use App\Http\Requests\Members\UpdateRequest;
+use App\Http\Requests\Users\ActionLogRequest;
 use App\Http\Requests\Users\LoginLogRequest;
 use App\Http\Requests\Users\LoginLogStatRequest;
 use App\Libraries\PaginationLibrary;
@@ -940,6 +941,84 @@ class UserController extends Controller
         LoginEvent::dispatch($request, $id, $this->user->grade, 1, Auth::id());
 
         return collect($res);
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/v1/user/{user_id}/action-log",
+     *      summary="사용자 로그",
+     *      description="특정 회원의 사용자 로그 조회",
+     *      operationId="userActionLog",
+     *      tags={"회원관련"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={"email", "token", "password", "passwordConfirmation"},
+     *              @OA\Property(property="startDate", type="date", example="2021-12-01 00:00:00", description="검색 시작일"),
+     *              @OA\Property(property="endDate", type="date", example="2021-12-31 23:59:59", description="검색 종료일"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination"),
+     *              @OA\Property(property="list", type="array",
+     *                  @OA\Items(type="object",
+     *                      @OA\Property(property="id", type="integer", example="7", description="로그 고유번호"),
+     *                      @OA\Property(property="title", type="string", example="솔루션 연동완료", description="이벤트명"),
+     *                      @OA\Property(property="ip", type="string(ipv4)", example="10.0.1.9", description="처리자 IP"),
+     *                      @OA\Property(
+     *                          property="createdAt", type="date", readOnly="true", format="date-time",
+     *                          ref="#/components/schemas/Base/properties/created_at", example="2021-02-25 12:59:20",
+     *                          description="처리일시"
+     *                      ),
+     *                      @OA\Property(property="changes", type="array of values", example="['name', 'memo']", description="처리내용"),
+     *                      @OA\Property(property="user", type="object", ref="#/components/schemas/UserSimply", description="처리자 정보")
+     *                  )
+     *              ),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      )
+     * )
+     */
+    public function getActionLog(ActionLogRequest $request, int $user_id): array
+    {
+        $logs = ActionLog::query()->select(['id', 'title', 'user_id', 'properties', 'created_at', 'ip']);
+
+        // set search condition
+        $logs->where('user_id', $user_id);
+
+        $logs->whereBetween('created_at', [
+            Carbon::parse($request->input('start_date')),
+            Carbon::parse($request->input('end_date'))
+        ]);
+
+        // set pagination information
+        $pg = PaginationLibrary::set($request->input('page'), $logs->count(), $request->input('per_page'));
+
+        // get data
+        $data = $logs->skip($pg['skip'])->take($pg['perPage'])->get();
+
+        // Post Processing
+        $data->each(function (&$item) {
+            $item['changes'] = $item['properties']['changes'];
+            unset($item['properties']);
+        });
+
+        // result
+        return [
+            'header' => $pagination ?? [],
+            'list' => $data ?? []
+        ];
     }
 
     /**
