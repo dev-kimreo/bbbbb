@@ -138,7 +138,7 @@ class TestEditorSeeder extends Seeder
                     )->state([
                         'key' => 'img',
                         'name' => '이미지',
-                        'initialValue' => 'https://블라블라~'
+                        'initial_value' => 'https://블라블라~'
                     ]),
                     'selectedOption'
                 )->has(
@@ -148,7 +148,7 @@ class TestEditorSeeder extends Seeder
                     )->state([
                         'key' => 'alt',
                         'name' => '이미지 alt',
-                        'initialValue' => 'https://블라블라~'
+                        'initial_value' => 'https://블라블라~'
                     ]),
                     'selectedOption'
                 )->has(
@@ -158,7 +158,7 @@ class TestEditorSeeder extends Seeder
                     )->state([
                         'key' => 'url',
                         'name' => '연결 url',
-                        'initialValue' => 'https://블라블라로이동'
+                        'initial_value' => 'https://블라블라로이동'
                     ]),
                     'selectedOption'
                 ),

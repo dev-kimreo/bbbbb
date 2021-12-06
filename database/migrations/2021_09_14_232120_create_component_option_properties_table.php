@@ -22,7 +22,7 @@ class CreateComponentOptionPropertiesTable extends Migration
             $table->foreign('component_type_property_id', 'cosbp_ctpi_foreign')->references('id')->on('component_type_properties');
             $table->string('key');
             $table->string('name');
-            $table->text('initialValue')->nullable();
+            $table->text('initial_value')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
