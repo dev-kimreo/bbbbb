@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * )
  *
  */
-class ComponentOptionSelectedByPartner extends Model
+class ComponentOptionProperty extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601;
 

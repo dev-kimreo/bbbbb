@@ -39,7 +39,7 @@ class ComponentOption extends Model
 
     public function selectedOption(): hasMany
     {
-        return $this->hasMany(ComponentOptionSelectedByPartner::class, 'component_option_id', 'id');
+        return $this->hasMany(ComponentOptionProperty::class, 'component_option_id', 'id');
     }
 }
 
