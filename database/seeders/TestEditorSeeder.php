@@ -57,16 +57,6 @@ class TestEditorSeeder extends Seeder
             });
         }
 
-//        // 컴포넌트 텍스트 유형 추가
-//        $componentType = ComponentType::firstOrCreate(
-//            [
-//                'name' => '텍스트형',
-//                'isPlural' => false,
-//                'hasOption' => false,
-//                'hasDefault' => false,
-//            ]
-//        );
-
 //        // 컴포넌트 텍스트 옵션 유형 속성 추가
 //        ComponentTypeProperty::firstOrCreate(
 //            ['component_type_id' => $componentType->id],
