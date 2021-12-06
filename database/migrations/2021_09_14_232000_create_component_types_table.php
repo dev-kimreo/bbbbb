@@ -18,6 +18,8 @@ class CreateComponentTypesTable extends Migration
             $table->id();
             $table->string('name', 64);
             $table->boolean('isPlural');
+            $table->boolean('hasOption');
+            $table->boolean('hasDefault');
             $table->unsignedInteger('maxCount')->default(1);
             $table->text('attributes')->nullable();
             $table->timestamps();
