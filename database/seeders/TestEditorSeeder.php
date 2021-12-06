@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Components\Component;
 use App\Models\Components\ComponentOption;
+use App\Models\Components\ComponentOptionSelectedByPartner;
 use App\Models\Components\ComponentType;
 use App\Models\Components\ComponentTypeProperty;
 use App\Models\Components\ComponentVersion;
@@ -56,25 +57,23 @@ class TestEditorSeeder extends Seeder
             });
         }
 
-        // 컴포넌트 텍스트 유형 추가
-        $componentType = ComponentType::firstOrCreate(
-            ['code' => 'text'],
-            [
-                'name' => '텍스트형',
-                'isPlural' => false
-            ]
-        );
+//        // 컴포넌트 텍스트 유형 추가
+//        $componentType = ComponentType::firstOrCreate(
+//            [
+//                'name' => '텍스트형',
+//                'isPlural' => false,
+//                'hasOption' => false,
+//                'hasDefault' => false,
+//            ]
+//        );
 
-        // 컴포넌트 텍스트 옵션 유형 속성 추가
-        ComponentTypeProperty::firstOrCreate(
-            ['component_type_id' => $componentType->id],
-            [
-                'type' => 'text',
-                'hasOption' => false,
-                'hasDefault' => true,
-                'default' => '텍스트필드'
-            ]
-        );
+//        // 컴포넌트 텍스트 옵션 유형 속성 추가
+//        ComponentTypeProperty::firstOrCreate(
+//            ['component_type_id' => $componentType->id],
+//            [
+//                'type' => 'text',
+//            ]
+//        );
 
         $componentName = '4단 배너';
         $html = '
@@ -124,92 +123,45 @@ class TestEditorSeeder extends Seeder
                 'style' => $css,
                 'script' => $script
             ])->has(
-                ComponentOption::factory()
-                    ->state(
-                        [
-                            'name' => '1번째 링크 URL',
-                            'key' => 'url0',
-                            'help' => '1번째 이미지를 클릭했을 때 표시될 링크입니다.',
-                            'default' => 'https://en.wikipedia.org/wiki/Strawberry'
-                        ]
-                    )->for(ComponentType::first(), 'type'),
-                'option'
-            )->has(
-                ComponentOption::factory()
-                    ->state(
-                        [
-                            'name' => '1번째 이미지 URL',
-                            'key' => 'img0',
-                            'help' => '1번째 이미지의 URL입니다.',
-                            'default' => 'https://static.libertyprim.com/files/familles/fraise-large.jpg?1569271765'
-                        ]
-                    )->for(ComponentType::first(), 'type'),
-                'option'
-            )->has(
-                ComponentOption::factory()
-                    ->state(
-                        [
-                            'name' => '2번째 링크 URL',
-                            'key' => 'url1',
-                            'help' => '첫 번째 이미지를 클릭했을 때 표시될 링크입니다.',
-                            'default' => 'https://en.wikipedia.org/wiki/Melon'
-                        ]
-                    )->for(ComponentType::first(), 'type'),
-                'option'
-            )->has(
-                ComponentOption::factory()
-                    ->state(
-                        [
-                            'name' => '2번째 이미지 URL',
-                            'key' => 'img1',
-                            'help' => '2번째 이미지의 URL입니다.',
-                            'default' => 'https://english.ibarakiguide.org/wp-content/uploads/2020/06/melonseason2.jpg',
-                        ]
-                    )->for(ComponentType::first(), 'type'),
-                'option'
-            )->has(
-                ComponentOption::factory()
-                    ->state(
-                        [
-                            'name' => '3번째 링크 URL',
-                            'key' => 'url2',
-                            'help' => '3번째 이미지를 클릭했을 때 표시될 링크입니다.',
-                            'default' => 'https://en.wikipedia.org/wiki/Grape'
-                        ]
-                    )->for(ComponentType::first(), 'type'),
-                'option'
-            )->has(
-                ComponentOption::factory()
-                    ->state(
-                        [
-                            'name' => '3번째 이미지 URL',
-                            'key' => 'img2',
-                            'help' => '3번째 이미지의 URL입니다.',
-                            'default' => 'https://vcdn-vnexpress.vnecdn.net/2017/04/27/grape-4660-1493287310.jpg'
-                        ]
-                    )->for(ComponentType::first(), 'type'),
-                'option'
-            )->has(
-                ComponentOption::factory()
-                    ->state(
-                        [
-                            'name' => '4번째 링크 URL',
-                            'key' => 'url3',
-                            'help' => '4번째 이미지를 클릭했을 때 표시될 링크입니다.',
-                            'default' => 'https://en.wikipedia.org/wiki/Peach'
-                        ]
-                    )->for(ComponentType::first(), 'type'),
-                'option'
-            )->has(
-                ComponentOption::factory()
-                    ->state(
-                        [
-                            'name' => '4번째 이미지 URL',
-                            'key' => 'img3',
-                            'help' => '4번째 이미지의 URL입니다.',
-                            'default' => 'https://www.gardeningknowhow.com/wp-content/uploads/2021/07/peach-with-half-and-leaves-400x300.jpg'
-                        ]
-                    )->for(ComponentType::first(), 'type'),
+                ComponentOption::factory()->state([
+                    'name' => '빅 배너',
+                    'key' => 'BigBanner',
+                    'help' => '빅 배너 입니다.',
+//                            'default' => 'https://en.wikipedia.org/wiki/Strawberry'
+                ])->for(
+                    ComponentType::where('name', 'Image URL Display')->first()
+                    , 'type'
+                )->has(
+                    ComponentOptionSelectedByPartner::factory()->for(
+                        ComponentType::where('name', 'Image URL Display')->first()->properties->skip(0)->first(),
+                        'property'
+                    )->state([
+                        'key' => 'img',
+                        'name' => '이미지',
+                        'initialValue' => 'https://블라블라~'
+                    ]),
+                    'selectedOption'
+                )->has(
+                    ComponentOptionSelectedByPartner::factory()->for(
+                        ComponentType::where('name', 'Image URL Display')->first()->properties->skip(1)->first(),
+                        'property'
+                    )->state([
+                        'key' => 'alt',
+                        'name' => '이미지 alt',
+                        'initialValue' => 'https://블라블라~'
+                    ]),
+                    'selectedOption'
+                )->has(
+                    ComponentOptionSelectedByPartner::factory()->for(
+                        ComponentType::where('name', 'Image URL Display')->first()->properties->skip(2)->first(),
+                        'property'
+                    )->state([
+                        'key' => 'url',
+                        'name' => '연결 url',
+                        'initialValue' => 'https://블라블라로이동'
+                    ]),
+                    'selectedOption'
+                ),
                 'option'
             ),
             'version'
@@ -247,7 +199,7 @@ class TestEditorSeeder extends Seeder
                     // 연동 컴포넌트 그룹
                         LinkedComponentGroup::factory()->has(
                         // 연동 컴포넌트
-                            LinkedComponent::factory()->count(3)->for(
+                            LinkedComponent::factory()->count(1)->for(
                                 $component,
                                 'component'
                             )->state([
@@ -257,49 +209,9 @@ class TestEditorSeeder extends Seeder
                                 LinkedComponentOption::factory()->for(
                                     $component->version->first()->option->skip(0)->first(),
                                     'componentOption'
-                                ),
-                                'linkedOption'
-                            )->has(
-                                LinkedComponentOption::factory()->for(
-                                    $component->version->first()->option->skip(1)->first(),
-                                    'componentOption'
-                                ),
-                                'linkedOption'
-                            )->has(
-                                LinkedComponentOption::factory()->for(
-                                    $component->version->first()->option->skip(2)->first(),
-                                    'componentOption'
-                                ),
-                                'linkedOption'
-                            )->has(
-                                LinkedComponentOption::factory()->for(
-                                    $component->version->first()->option->skip(3)->first(),
-                                    'componentOption'
-                                ),
-                                'linkedOption'
-                            )->has(
-                                LinkedComponentOption::factory()->for(
-                                    $component->version->first()->option->skip(4)->first(),
-                                    'componentOption'
-                                ),
-                                'linkedOption'
-                            )->has(
-                                LinkedComponentOption::factory()->for(
-                                    $component->version->first()->option->skip(5)->first(),
-                                    'componentOption'
-                                ),
-                                'linkedOption'
-                            )->has(
-                                LinkedComponentOption::factory()->for(
-                                    $component->version->first()->option->skip(6)->first(),
-                                    'componentOption'
-                                ),
-                                'linkedOption'
-                            )->has(
-                                LinkedComponentOption::factory()->for(
-                                    $component->version->first()->option->skip(7)->first(),
-                                    'componentOption'
-                                ),
+                                )->state([
+                                    'value' => '{"img":"https://블라블라~", "alt":"이미지거든", "url":"https://샬라샬라~"}'
+                                ]),
                                 'linkedOption'
                             ),
                             'linkedComponent'
