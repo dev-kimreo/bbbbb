@@ -20,6 +20,7 @@ class ComponentTypeProperty extends Model
 
 
     protected $fillable = [
+        'componnt_type_id', 'type'
     ];
 
     /**
