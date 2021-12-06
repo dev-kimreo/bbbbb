@@ -21,7 +21,7 @@ class ComponentType extends Model
 
 
     protected $fillable = [
-        'name', 'isPlural', 'hasOption', 'maxCount', 'attributes'
+        'name', 'is_plural', 'has_option', 'max_count', 'attributes'
     ];
 
     /**

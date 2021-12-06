@@ -57,16 +57,6 @@ class TestEditorSeeder extends Seeder
             });
         }
 
-//        // 컴포넌트 텍스트 유형 추가
-//        $componentType = ComponentType::firstOrCreate(
-//            [
-//                'name' => '텍스트형',
-//                'isPlural' => false,
-//                'hasOption' => false,
-//                'hasDefault' => false,
-//            ]
-//        );
-
 //        // 컴포넌트 텍스트 옵션 유형 속성 추가
 //        ComponentTypeProperty::firstOrCreate(
 //            ['component_type_id' => $componentType->id],
@@ -138,7 +128,7 @@ class TestEditorSeeder extends Seeder
                     )->state([
                         'key' => 'img',
                         'name' => '이미지',
-                        'initialValue' => 'https://블라블라~'
+                        'initial_value' => 'https://블라블라~'
                     ]),
                     'selectedOption'
                 )->has(
@@ -148,7 +138,7 @@ class TestEditorSeeder extends Seeder
                     )->state([
                         'key' => 'alt',
                         'name' => '이미지 alt',
-                        'initialValue' => 'https://블라블라~'
+                        'initial_value' => 'https://블라블라~'
                     ]),
                     'selectedOption'
                 )->has(
@@ -158,7 +148,7 @@ class TestEditorSeeder extends Seeder
                     )->state([
                         'key' => 'url',
                         'name' => '연결 url',
-                        'initialValue' => 'https://블라블라로이동'
+                        'initial_value' => 'https://블라블라로이동'
                     ]),
                     'selectedOption'
                 ),
