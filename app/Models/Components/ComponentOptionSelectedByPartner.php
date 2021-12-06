@@ -6,6 +6,7 @@ use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -14,13 +15,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * )
  *
  */
-class ComponentTypeProperty extends Model
+class ComponentOptionSelectedByPartner extends Model
 {
-    use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
+    use HasFactory, SoftDeletes, DateFormatISO8601;
 
 
     protected $fillable = [
-        'componnt_type_id', 'type'
     ];
 
     /**
@@ -30,6 +30,11 @@ class ComponentTypeProperty extends Model
      */
     protected $hidden = [];
 
+
+    public function property(): belongsTo
+    {
+        return $this->belongsTo(ComponentTypeProperty::class, 'component_type_property_id', 'id');
+    }
 
 }
 

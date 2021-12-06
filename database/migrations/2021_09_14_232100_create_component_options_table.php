@@ -20,7 +20,9 @@ class CreateComponentOptionsTable extends Migration
             $table->foreignId('component_type_id')->constrained();
             $table->string('name', 64);
             $table->string('key', 64);
-            $table->string('default', 64);
+            $table->string('device', 64);
+            $table->boolean('hideable');
+            $table->text('attributes')->nullable();
             $table->text('help')->nullable();
             $table->timestamps();
             $table->softDeletes();

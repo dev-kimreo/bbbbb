@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
                 ExhibitionsSeeder::class,
                 WidgetSeeder::class,
                 TestEditorSeeder::class,
-                ComponentsAndThemesSeeder::class
+//                ComponentsAndThemesSeeder::class
             ]
         );
 
