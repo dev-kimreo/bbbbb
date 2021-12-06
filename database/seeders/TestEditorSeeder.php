@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Components\Component;
 use App\Models\Components\ComponentOption;
-use App\Models\Components\ComponentOptionSelectedByPartner;
+use App\Models\Components\ComponentOptionProperty;
 use App\Models\Components\ComponentType;
 use App\Models\Components\ComponentTypeProperty;
 use App\Models\Components\ComponentVersion;
@@ -132,7 +132,7 @@ class TestEditorSeeder extends Seeder
                     ComponentType::where('name', 'Image URL Display')->first()
                     , 'type'
                 )->has(
-                    ComponentOptionSelectedByPartner::factory()->for(
+                    ComponentOptionProperty::factory()->for(
                         ComponentType::where('name', 'Image URL Display')->first()->properties->skip(0)->first(),
                         'property'
                     )->state([
@@ -142,7 +142,7 @@ class TestEditorSeeder extends Seeder
                     ]),
                     'selectedOption'
                 )->has(
-                    ComponentOptionSelectedByPartner::factory()->for(
+                    ComponentOptionProperty::factory()->for(
                         ComponentType::where('name', 'Image URL Display')->first()->properties->skip(1)->first(),
                         'property'
                     )->state([
@@ -152,7 +152,7 @@ class TestEditorSeeder extends Seeder
                     ]),
                     'selectedOption'
                 )->has(
-                    ComponentOptionSelectedByPartner::factory()->for(
+                    ComponentOptionProperty::factory()->for(
                         ComponentType::where('name', 'Image URL Display')->first()->properties->skip(2)->first(),
                         'property'
                     )->state([

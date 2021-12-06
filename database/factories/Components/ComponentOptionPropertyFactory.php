@@ -2,19 +2,19 @@
 
 namespace Database\Factories\Components;
 
-use App\Models\Components\ComponentOptionSelectedByPartner;
+use App\Models\Components\ComponentOptionProperty;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Str;
 
-class ComponentOptionSelectedByPartnerFactory extends Factory
+class ComponentOptionPropertyFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = ComponentOptionSelectedByPartner::class;
+    protected $model = ComponentOptionProperty::class;
 
     /**
      * Define the model's default state.
