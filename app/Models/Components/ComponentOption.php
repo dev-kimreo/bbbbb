@@ -7,6 +7,7 @@ use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -34,6 +35,11 @@ class ComponentOption extends Model
     public function type(): belongsTo
     {
         return $this->belongsTo(ComponentType::class, 'component_type_id', 'id');
+    }
+
+    public function selectedOption(): hasMany
+    {
+        return $this->hasMany(ComponentOptionSelectedByPartner::class, 'component_option_id', 'id');
     }
 }
 
