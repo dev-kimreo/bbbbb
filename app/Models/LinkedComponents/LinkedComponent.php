@@ -21,6 +21,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *      @OA\Property(property="linked_component_group_id", type="integer", example=1, description="연동 컴포넌트 그룹 고유 번호"),
  *      @OA\Property(property="component_id", type="integer", example=1, description="컴포넌트 고유 번호"),
  *      @OA\Property(property="name", type="string", example="메인배너 컴포넌트", description="연동 컴포넌트 명"),
+ *      @OA\Property(property="etc", type="string", example="", description="기타 정보(여백,등)"),
+ *      @OA\Property(property="display_on_pc", type="boolean", example=true, description="PC 노출 여부"),
+ *      @OA\Property(property="display_on_mobile", type="boolean", example=false, description="Mobile 노출 여부"),
  *      @OA\Property(property="sort", type="integer", example=1, description="연동 컴포넌트 정렬 순서"),
  *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자"),
  *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자")
@@ -33,7 +36,7 @@ class LinkedComponent extends Model
 
 
     protected $fillable = [
-        'linked_component_group_id', 'component_id', 'name', 'sort'
+        'linked_component_group_id', 'component_id', 'name', 'sort', 'etc', 'display_on_pc', 'display_on_mobile'
     ];
 
     /**
