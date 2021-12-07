@@ -11,6 +11,7 @@ use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\Boards\PostController;
 use App\Http\Controllers\Boards\ReplyController;
 use App\Http\Controllers\Components\ComponentController;
+use App\Http\Controllers\Components\ComponentOptionController;
 use App\Http\Controllers\Components\ComponentVersionController;
 use App\Http\Controllers\EditablePages\EditablePageController;
 use App\Http\Controllers\EditablePages\EditablePageLayoutController;
@@ -422,6 +423,13 @@ Route::group([
         Route::delete('/{component_id}/version/{version_id}', [ComponentVersionController::class, 'destroy']);
 
         Route::patch('/{component_id}/activate-version/{version_id}', [ComponentVersionController::class, 'activate']);
+
+        // 컴포넌트 옵션
+        Route::get('/{component_id}/version/{version_id}/option', [ComponentOptionController::class, 'index']);
+        Route::get('/{component_id}/version/{version_id}/option/{option_id}', [ComponentOptionController::class, 'show']);
+        Route::post('/{component_id}/version/{version_id}/option', [ComponentOptionController::class, 'store']);
+        Route::patch('/{component_id}/version/{version_id}/option/{option_id}', [ComponentOptionController::class, 'update']);
+        Route::delete('/{component_id}/version/{version_id}/option/{option_id}', [ComponentOptionController::class, 'destroy']);
     });
 
 
