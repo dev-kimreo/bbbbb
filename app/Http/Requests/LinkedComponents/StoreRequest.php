@@ -26,6 +26,8 @@ class StoreRequest extends FormRequest
         return [
             'linked_component_group_id' => ['required', 'integer', 'exists:App\Models\LinkedComponents\LinkedComponentGroup,id'],
             'component_id' => ['required', 'integer', 'exists:App\Models\Components\Component,id'],
+            'display_on_pc' => ['sometimes', 'boolean'],
+            'display_on_mobile' => ['sometimes', 'boolean'],
             'name' => ['sometimes', 'string'],
             'sort' => ['sometimes', 'integer', 'min:1'],
         ];
