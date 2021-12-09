@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Components\Component;
 use App\Models\Components\ComponentOption;
+use App\Models\Components\ComponentOptionProperty;
 use App\Models\Components\ComponentType;
 use App\Models\Components\ComponentVersion;
 use App\Models\EditablePages\EditablePage;
@@ -15,9 +16,7 @@ use App\Models\Solution;
 use App\Models\SupportedEditablePage;
 use App\Models\Themes\Theme;
 use App\Models\Themes\ThemeProduct;
-use App\Models\Themes\ThemeProductInformation;
 use App\Models\Users\UserPartner;
-use Composer\Package\Link;
 use Illuminate\Database\Seeder;
 
 class ComponentsAndThemesSeeder extends Seeder
@@ -212,7 +211,7 @@ for(let i=0; i < menuList.length; i+=2) {
             'options' => [
                 [
                     'name' => '메뉴목록',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'menu',
                     'help' => '메뉴명과 URL을 쉼표(,)로 구분하여 번갈아가며 입력합니다.',
                     'default' => '구글,https://google.com,네이버,https://naver.com'
@@ -265,28 +264,28 @@ document.querySelector("ul li").className = "selected";
             'options' => [
                 [
                     'name' => '좌측배너 링크 URL',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'url1',
                     'help' => '좌측배너를 클릭했을 때 표시될 링크입니다.',
                     'default' => 'https://en.wikipedia.org/wiki/Strawberry'
                 ],
                 [
                     'name' => '좌측배너 이미지',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'img1',
                     'help' => '좌측배너에 표시할 이미지의 주소입니다.',
                     'default' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Garden_strawberry_%28Fragaria_%C3%97_ananassa%29_single.jpg/750px-Garden_strawberry_%28Fragaria_%C3%97_ananassa%29_single.jpg'
                 ],
                 [
                     'name' => '우측배너 링크 URL',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'url2',
                     'help' => '우측배너를 클릭했을 때 표시될 링크입니다.',
                     'default' => 'https://en.wikipedia.org/wiki/Cucumis_melo'
                 ],
                 [
                     'name' => '우측배너 이미지',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'img2',
                     'help' => '우측배너에 표시할 이미지의 주소입니다.',
                     'default' => 'https://upload.wikimedia.org/wikipedia/commons/b/b0/03-05-JPN202.jpg'
@@ -341,56 +340,56 @@ for(let i=1; i<=8; i++) {
             'options' => [
                 [
                     'name' => '1번째 카테고리',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'data1',
                     'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
                     'default' => '#,티셔츠'
                 ],
                 [
                     'name' => '2번째 카테고리',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'data2',
                     'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
                     'default' => '#,셔츠/블라우스'
                 ],
                 [
                     'name' => '3번째 카테고리',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'data3',
                     'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
                     'default' => '#,니트/가디건'
                 ],
                 [
                     'name' => '4번째 카테고리',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'data4',
                     'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
                     'default' => '#,원피스'
                 ],
                 [
                     'name' => '5번째 카테고리',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'data5',
                     'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
                     'default' => '#,커트/팬츠'
                 ],
                 [
                     'name' => '6번째 카테고리',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'data6',
                     'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
                     'default' => '#,아우터'
                 ],
                 [
                     'name' => '7번째 카테고리',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'data7',
                     'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
                     'default' => '#,슈즈'
                 ],
                 [
                     'name' => '8번째 카테고리',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'data8',
                     'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
                     'default' => '#,가방/지갑'
@@ -560,35 +559,35 @@ document.querySelector("ul li").className = "selected";
             'options' => [
                 [
                     'name' => '1번째 상품 데이터',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'data1',
                     'help' => '텍스트 입력란 테스트 중에는 이 란은 JSON으로 입력합니다.',
                     'default' => '{img:"/images/img_best50_1.png", url:"#", price:40000, soldQty:1294, title:"옐로우 크롬 후드 세트", catchphrase:"힙한 느낌 물씬 크롭 후드+조커팬츠", bedge:[]}'
                 ],
                 [
                     'name' => '2번째 상품 데이터',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'data2',
                     'help' => '텍스트 입력란 테스트 중에는 이 란은 JSON으로 입력합니다.',
                     'default' => '{img:"/images/img_best50_2.png", url:"#", price:12000, soldQty:1069, title:"민트 시스루 크롭 나시", catchphrase:"선글라스도 함께 드려요", bedge:["BEST"]}'
                 ],
                 [
                     'name' => '3번째 상품 데이터',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'data3',
                     'help' => '텍스트 입력란 테스트 중에는 이 란은 JSON으로 입력합니다.',
                     'default' => '{img:"/images/img_best50_3.png", url:"#", price:24000, soldQty:873, title:"블랙 피스 나시티", catchphrase:"힙한 강렬함", bedge:["HIP"]}'
                 ],
                 [
                     'name' => '4번째 상품 데이터',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'data4',
                     'help' => '텍스트 입력란 테스트 중에는 이 란은 JSON으로 입력합니다.',
                     'default' => '{img:"/images/img_best50_4.png", url:"#", price:26000, soldQty:789, title:"레이스 나시 롱 원피스", catchphrase:"힙여성스러움과 섹시함이 함께", bedge:["BEST", "NEW"]}'
                 ],
                 [
                     'name' => '5번째 상품 데이터',
-                    'type' => 'text',
+                    'type' => 'Text Field',
                     'key' => 'data5',
                     'help' => '텍스트 입력란 테스트 중에는 이 란은 JSON으로 입력합니다.',
                     'default' => '{img:"/images/img_best50_5.png", url:"#", price:9900, soldQty:18, title:"브이넥 나시 점프수트", catchphrase:"힙한 느낌 물씬 크롭 후드+조커팬츠", bedge:["NEW"]}'
@@ -650,14 +649,24 @@ document.querySelector("ul li").className = "selected";
 
             // 컴포넌트 옵션
             foreach ($v['options'] as $opt) {
-                ComponentOption::query()->create(
+                $typeId = ComponentType::query()->where('name', $opt['type'])->first()->id;
+                $compOpt = ComponentOption::query()->create(
                     [
                         'component_version_id' => $version->id,
-                        'component_type_id' => ComponentType::query()->where('code', $opt['type'])->first()->id,
+                        'component_type_id' => $typeId,
                         'name' => $opt['name'],
                         'key' => $opt['key'],
-                        'default' => $opt['default'],
                         'help' => $opt['help']
+                    ]
+                );
+
+                ComponentOptionProperty::query()->create(
+                    [
+                        'component_option_id' => $compOpt->id,
+                        'component_type_property_id' => $typeId,
+                        'key' => 'text',
+                        'name' => '입력란',
+                        'initial_value' => $opt['default']
                     ]
                 );
             }
@@ -720,8 +729,8 @@ document.querySelector("ul li").className = "selected";
                     'linked_component_group_id' => $groupId,
                     'component_id' => $v->id,
                     'name' => $v->name,
-                    'pcDisplay' => 1,
-                    'mobileDisplay' => 1,
+                    'display_on_pc' => 1,
+                    'display_on_mobile' => 1,
                     'sort' => 999
                 ]
             );

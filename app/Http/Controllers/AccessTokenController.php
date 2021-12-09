@@ -71,6 +71,10 @@ class AccessTokenController extends ATC
      *          description="Client authentication failed"
      *      ),
      *      @OA\Response(
+     *          response=404,
+     *          description="Not found(입력한 정보에 해당하는 회원이 없음)"
+     *      ),
+     *      @OA\Response(
      *          response=422,
      *          description="failed login"
      *      )
