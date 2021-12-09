@@ -12,6 +12,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  *
  * @OA\Schema(
+ *      @OA\Property(property="id", type="integer", example=1, description="고유번호"),
+ *      @OA\Property(property="name", type="string", example="Toggle", description="컴포넌트 유형 명"),
+ *      @OA\Property(property="is_plural", type="boolean", example=false, description="데이터의 복수 여부"),
+ *      @OA\Property(property="has_option", type="boolean", example=false, description="선택지 설정 여부"),
+ *      @OA\Property(property="has_default", type="boolean", example=false, description="기본 값 설정 여부"),
+ *      @OA\Property(property="max_count", type="integer", example=1, description="최대 항목 수"),
+ *      @OA\Property(property="attributes", type="string", description="컴포넌트 유형의 상세 설정 옵션 값"),
+ *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자"),
+ *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자")
  * )
  *
  */
@@ -21,7 +30,7 @@ class ComponentType extends Model
 
 
     protected $fillable = [
-        'name', 'is_plural', 'has_option', 'max_count', 'attributes'
+        'name', 'is_plural', 'has_option', 'has_default', 'max_count', 'attributes'
     ];
 
     /**

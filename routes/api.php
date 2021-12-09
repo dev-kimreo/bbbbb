@@ -12,6 +12,7 @@ use App\Http\Controllers\Boards\PostController;
 use App\Http\Controllers\Boards\ReplyController;
 use App\Http\Controllers\Components\ComponentController;
 use App\Http\Controllers\Components\ComponentOptionController;
+use App\Http\Controllers\Components\ComponentTypeController;
 use App\Http\Controllers\Components\ComponentVersionController;
 use App\Http\Controllers\EditablePages\EditablePageController;
 use App\Http\Controllers\EditablePages\EditablePageLayoutController;
@@ -430,6 +431,19 @@ Route::group([
         Route::post('/{component_id}/version/{version_id}/option', [ComponentOptionController::class, 'store']);
         Route::patch('/{component_id}/version/{version_id}/option/{option_id}', [ComponentOptionController::class, 'update']);
         Route::delete('/{component_id}/version/{version_id}/option/{option_id}', [ComponentOptionController::class, 'destroy']);
+
+    });
+
+    // 컴포넌트 옵션 유형
+    Route::group([
+        'prefix' => 'component-type',
+        'middleware' => ['auth:api', 'chkAccess:partner']
+    ], function () {
+        Route::get('', [ComponentTypeController::class, 'index']);
+        Route::get('/{type_id}', [ComponentTypeController::class, 'show']);
+        Route::post('', [ComponentTypeController::class, 'store']);
+        Route::patch('/{type_id}', [ComponentTypeController::class, 'update']);
+        Route::delete('/{type_id}', [ComponentTypeController::class, 'destroy']);
     });
 
 

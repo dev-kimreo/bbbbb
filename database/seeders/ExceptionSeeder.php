@@ -312,6 +312,12 @@ class ExceptionSeeder extends Seeder
                 '사용 중인 컴포넌트 버전은 삭제 할 수 없습니다.',
                 '사용 중인 컴포넌트 버전은 삭제 할 수 없습니다.'
             ],
+            [
+                'exception',
+                'component_type.disable.destroy.in_use',
+                '사용 중인 컴포넌트 유형은 삭제 할 수 없습니다.',
+                '사용 중인 컴포넌트 유형은 삭제 할 수 없습니다.'
+            ],
         ];
 
         // Truncate tables
