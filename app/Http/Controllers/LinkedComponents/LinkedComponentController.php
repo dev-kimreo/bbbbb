@@ -142,7 +142,7 @@ class LinkedComponentController extends Controller
      *      }}
      *  )
      */
-    public function show(int $linkedComponentId)
+    public function show(int $themeId, int $editablePageId, int $linkedComponentId)
     {
         $res = LinkedComponent::query()->findOrFail($linkedComponentId);
 
