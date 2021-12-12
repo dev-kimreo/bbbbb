@@ -10,7 +10,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  *
- * @OA\Schema(
+ * @OA\Schema
+ *      @OA\Property(property="id", type="integer", example=1, description="고유번호"),
+ *      @OA\Property(property="component_type_id", type="integer", example=1, description="컴포넌트 옵션 유형 고유번호"),
+ *      @OA\Property(property="type", type="string", example="text", description="유형 type<br/>text, integer, boolean, file, alt, url"),
+ *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자"),
+ *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자")
  * )
  *
  */
@@ -20,7 +25,7 @@ class ComponentTypeProperty extends Model
 
 
     protected $fillable = [
-        'componnt_type_id', 'type'
+        'component_type_id', 'type'
     ];
 
     /**
@@ -29,6 +34,8 @@ class ComponentTypeProperty extends Model
      * @var array
      */
     protected $hidden = [];
+
+    public static array $types = ['boolean', 'integer', 'file', 'alt', 'url', 'text'];
 
 
 }
