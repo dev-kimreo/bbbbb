@@ -36,29 +36,35 @@ class ComponentsAndThemesSeeder extends Seeder
 <header>
   <div id="lHeaderWrap">
     <h1><a href="/">LOGO</a></h1>
-    <ul id="lHeaderTopMenu">
-      <li><a href="#">로그인</a></li>
-      <li><a href="#">회원가입</a></li>
-      <li><a href="#">고객센터</a></li>
-    </ul>
+    <div id="lHeaderTopMenu">
+      <span data-qpick-element="user-name"></span>
+      <a data-qpick-element="login">로그인</a>
+      <a data-qpick-element="user-reg">회원가입</a>
+      <a data-qpick-element="user-info">회원정보수정</a>
+      <a data-qpick-element="logout">로그아웃</a>
+      <a href="#">고객센터</a>
+    </div>
     <ul id="lHeaderRightMenu">
-      <li class="cart"><a href="#">장바구니</a></li>
+      <li class="cart"><a href="order/basket.html">장바구니</a><span data-qpick-element="cart-count"></span></li>
       <li class="menu"><a href="#">메뉴</a></li>
     </ul>
     <ul id="lHeaderMainMenu"></ul>
-    <form>
-      <input type="text" name="kw" value="" />
+    <form data-qpick-form="search">
+      <input type="text" data-qpick-input="search-keyword" />
       <input type="submit" value="검색" />
     </form>
   </div>
 </header>
             ',
             'css' => '
+/* Desktop Device */
+@media (min-width: 1025px) {
   header {
     height: 188px;
     margin: 0;
     padding: 0;
     border-bottom: 1px solid #e0e0e0;
+    font-family: sans-serif;
   }
   #lHeaderWrap {
     position: relative;
@@ -87,25 +93,28 @@ class ComponentsAndThemesSeeder extends Seeder
     right: 0;
     height: 12px;
     margin: 0;
-    padding: 0;
+    padding: 0;      
   }
-  #lHeaderTopMenu li {
+  #lHeaderTopMenu a,    
+  #lHeaderTopMenu span {
     display: inline-block;
     height: 10px;
     padding: 0 16px;
     border-right: 1px solid #e0e0e0;
     font-size: 12px;
     line-height: 12px;
+    text-decoration: none;
   }
-  #lHeaderTopMenu li:last-of-type {
+  #lHeaderTopMenu span {
+    color: #333;
+    font-weight: 700;
+  }
+  #lHeaderTopMenu a {
+    color: #959595;
+  }
+  #lHeaderTopMenu a:last-of-type {
     padding-right: 0;
     border-right: 0;
-  }
-  #lHeaderTopMenu li a {
-    position: relative;
-    top: -2px;
-    color: #959595;
-    text-decoration: none;
   }
   #lHeaderRightMenu {
     position: absolute;
@@ -116,6 +125,7 @@ class ComponentsAndThemesSeeder extends Seeder
     padding: 0;
   }
   #lHeaderRightMenu li {
+    position: relative;
     display: inline-block;
     height: 24px;
     width: 24px;
@@ -124,10 +134,10 @@ class ComponentsAndThemesSeeder extends Seeder
     background-size: 24px 24px;
   }
   #lHeaderRightMenu li:first-of-type {
-    background-image: url("/images/ico_cart.png");
+    background-image: url("/qpick/images/ico_cart.png");
   }
   #lHeaderRightMenu li:last-of-type {
-    background-image: url("/images/ico_menu.png");
+    background-image: url("/qpick/images/ico_menu.png");
   }
   #lHeaderRightMenu li a {
     overflow: hidden;
@@ -135,6 +145,20 @@ class ComponentsAndThemesSeeder extends Seeder
     height: 24px;
     width: 24px;
     text-indent: -5000px;
+  }
+  #lHeaderRightMenu li span {
+    position: absolute;
+    top: -4px;
+    right: -2px;
+    display: inline-block;
+    height: 10px;
+    padding: 2px 3px;
+    background-color: #e74c3c;
+    font-size: 10px;
+    color: #fff;
+    font-weight: 700;
+    line-height: 10px;
+    border-radius: 3px;      
   }
   #lHeaderMainMenu {
     position: absolute;
@@ -159,7 +183,7 @@ class ComponentsAndThemesSeeder extends Seeder
   form {
     position: absolute;
     top: 70px;
-    left: 740px;
+    left: 740px;  
     width: 400px;
     height: 48px;
   }
@@ -182,416 +206,919 @@ class ComponentsAndThemesSeeder extends Seeder
     height: 24px;
     border: 0;
     background-color: #f5f5f5;
-    background-image: url("/images/ico_search.png");
+    background-image: url("/qpick/images/ico_search.png");
     background-size: 24px 24px;
     text-indent: -5000px;
     cursor: pointer;
   }
+}
+/* Mobile Device */
+@media (max-width: 1024px) {
+  header {
+    position: relative;
+    height: 100px;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+  }
+  h1 {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    margin: 0;
+    padding: 0;
+    font-size: 21px;
+    line-height: 21px;
+    letter-spacing: -0.03em;
+  }
+  h1 a {
+    color: #000000;
+    text-decoration: none;
+  }
+  ul {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0;
+    font-size: 15px;
+  }
+  ul li {
+    display: inline-block;
+    padding: 14px 12px;
+  }
+  #lHeaderTopMenu {
+    display: none;
+    position: absolute;
+    left: 100%;
+    bottom: 0;
+    width: 450px;
+    background: #fff;
+    margin: 0;
+    padding: 0;      
+  }
+  #lHeaderRightMenu {
+    position: absolute;
+    top: 17px;
+    right: 10px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    text-align: right;
+  }
+  #lHeaderRightMenu li {
+    position: relative;
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    margin-left: 20px;
+    padding: 0;
+    background-color: none;
+    background-size: 20px 20px;
+    background-position: center center;
+    background-repeat: no-repeat;
+  }
+  #lHeaderRightMenu li:first-of-type {
+    background-image: url("/qpick/images/ico_cart.png");
+  }
+  #lHeaderRightMenu li:last-of-type {
+    background-image: url("/qpick/images/ico_menu.png");
+  }
+  #lHeaderRightMenu li a {
+    display: block;        
+    overflow: hidden;
+    position: absolute;    
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: 24px;
+    width: 24px;
+    text-indent: 5000px;
+  }
+  #lHeaderRightMenu li span {
+    position: absolute;
+    top: -4px;
+    right: -2px;
+    display: inline-block;
+    height: 10px;
+    padding: 2px 3px;
+    background-color: #e74c3c;
+    font-size: 10px;
+    color: #fff;
+    font-weight: 700;
+    line-height: 10px;
+    border-radius: 3px;      
+  }
+  #lHeaderMainMenu {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    margin: 0;
+    padding: 0 8px;
+  }
+  #lHeaderMainMenu li {
+    display: inline-block;
+    height: 16px;
+    padding: 12px 12px;
+    font-size: 15px;
+    line-height: 16px;
+  }
+  #lHeaderMainMenu li a {
+    color: #2f2f2f;
+    text-decoration: none;
+  }
+  form {
+    position: absolute;
+    top: 12px;
+    left: 117px;
+    right: 95px;
+    height: 32px;
+  }
+  form input[type="text"] {
+    position: absolute;
+    width: 100%;
+    height: 32px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 16px;
+    box-sizing: border-box;
+    background-color: #f5f5f5;
+    font-size: 16px;
+    line-height: 16px;
+  }
+  form input[type="submit"] {
+    overflow: hidden;
+    position: absolute;
+    right: 8px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    border: 0;
+    background-color: transparent;
+    background-image: url("/qpick/images/ico_search.png");
+    background-size: 20px 20px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    text-indent: -5000px;
+    cursor: pointer;
+  }
+}
             ',
             'script' => '
 // Main Menu
 let ul = document.querySelector("#lHeaderMainMenu");
-let menuList = compOpt["menu"].split(",");
 
-for(let i=0; i < menuList.length; i+=2) {
+for(const v of compOpt["menu"]) {
   let li = document.createElement("li");
   let anchor = document.createElement("a");
 
-  anchor.href = v[i+1];
-  anchor.appendChild(document.createTextNode(v[i]));
+  anchor.href = v["url"];
+  anchor.appendChild(document.createTextNode(v["title"]));
 
   li.appendChild(anchor);
   ul.appendChild(li);
 
-  // Search Keyword
+  // Search Form
+  document.querySelector("[data-qpick-form=\'search\']").setAttribute("action", "/product/search.html");
+  document.querySelector("[data-qpick-input="search-keyword"]").setAttribute("name", "keyword");
+
+  // Link logged on user
+  QpickTunnel.customer().then((res) => {
+    document.querySelector("[data-qpick-element="user-name"]").innerText = res.name;
+    document.querySelector("[data-qpick-element="login"]").style.display = "none";
+    document.querySelector("[data-qpick-element="user-reg"]").style.display = "none";
+    document.querySelector("[data-qpick-element="user-info"]").setAttribute("href", "/member/modify.html");
+    document.querySelector("[data-qpick-element="logout"]").setAttribute("href", "/exec/front/Member/logout/");
+  }).catch((err) => {
+    document.querySelector("[data-qpick-element="user-name"]").style.display = "none";
+    document.querySelector("[data-qpick-element="login"]").setAttribute("href", "/member/login.html");
+    document.querySelector("[data-qpick-element="user-reg"]").setAttribute("href", "/member/join.html");
+    document.querySelector("[data-qpick-element="user-info"]").style.display = "none";
+    document.querySelector("[data-qpick-element="logout"]").style.display = "none";
+  });
+
+  // Cart count
+  QpickTunnel.cartCount().then((res) => {
+    let o = document.querySelector("[data-qpick-element=\'cart-count\']");
+    (res > 0)? (o.innerText = res): (o.style.visibility = "hidden");
+  }).catch((err) => {
+    let o = document.querySelector("[data-qpick-element=\'cart-count\']");
+    o.style.visibility = "hidden";
+  });
+
+  // Search Keyword 
   // TODO - 템플릿 언어 등으로 개선 필요
-  document.querySelector("input[type=text]").value = getParameterFromUrl("kw");
+  document.querySelector("input[type=text]").value = QpickLibraries.getParameterFromUrl("kw");
 }
             ',
             'options' => [
-                [
-                    'name' => '메뉴목록',
-                    'type' => 'Text Field',
-                    'key' => 'menu',
-                    'help' => '메뉴명과 URL을 쉼표(,)로 구분하여 번갈아가며 입력합니다.',
-                    'default' => '구글,https://google.com,네이버,https://naver.com'
+                "menu" => [
+                    ["title" => '신상NEW', "url" => '/'],
+                    ["title" => 'BEST50', "url" => '/'],
+                    ["title" => '자체제작', "url" => '/'],
+                    ["title" => '콜라보레이션', "url" => '/']
                 ]
             ]
         ];
 
         $rawSourceCodes[] = [
             'name' => '2단 대배너',
-            'html' => '
-<ul id="banners"></ul>
-            ',
+            'html' => '<ul id="banners"></ul>',
             'css' => '
-ul {
-  width: 1248px;
-  margin: 16px auto;
-  padding: 0;
-  font-size: 0;
+/* Desktop Device */
+@media (min-width: 1025px) {
+  ul {
+    width: 1248px;
+    margin: 16px auto;
+    padding: 0;
+    font-size: 0;
+    font-family: sans-serif;
+  }
+  li {
+    display: inline-block;
+    margin-right: 16px;
+  }
+  li:last-of-type {
+    margin-right: 0;
+  }
+  img {
+    width: 616px;
+    height: 461px;
+    border-radius: 16px;
+  }
 }
-li {
-  display: inline-block;
-  margin-right: 16px;
-}
-li:last-of-type {
-  margin-right: 0;
-}
-img {
-  width: 616px;
-  height: 461px;
+/* Mobile Device */
+@media (max-width: 1024px) {
+  ul {
+    overflow: hidden;
+    width: 100%;
+    padding: 0;
+    font-size: 0;
+    font-family: sans-serif;
+  }
+  li { 
+    display: none;
+  }
+  li:first-child { 
+    display: list-item;
+  }
+  img {
+    width: 100%;
+  }
 }
             ',
             'script' => '
 let ul = document.getElementById("banners");
 
-for(let i=1; i<=2; i++) {
+for(const v of compOpt["banners"]) {
   let img = new Image();
   let li = document.createElement("li");
   let anchor = document.createElement("a");
 
-  anchor.href = v["url" + i];
-  img.src = v["img" + i];
+  anchor.href = v["url"];
+  img.src = v["img"];
 
   anchor.appendChild(img);
   li.appendChild(anchor);
   ul.appendChild(li);
 }
-
-document.querySelector("ul li").className = "selected";
             ',
             'options' => [
-                [
-                    'name' => '좌측배너 링크 URL',
-                    'type' => 'Text Field',
-                    'key' => 'url1',
-                    'help' => '좌측배너를 클릭했을 때 표시될 링크입니다.',
-                    'default' => 'https://en.wikipedia.org/wiki/Strawberry'
-                ],
-                [
-                    'name' => '좌측배너 이미지',
-                    'type' => 'Text Field',
-                    'key' => 'img1',
-                    'help' => '좌측배너에 표시할 이미지의 주소입니다.',
-                    'default' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Garden_strawberry_%28Fragaria_%C3%97_ananassa%29_single.jpg/750px-Garden_strawberry_%28Fragaria_%C3%97_ananassa%29_single.jpg'
-                ],
-                [
-                    'name' => '우측배너 링크 URL',
-                    'type' => 'Text Field',
-                    'key' => 'url2',
-                    'help' => '우측배너를 클릭했을 때 표시될 링크입니다.',
-                    'default' => 'https://en.wikipedia.org/wiki/Cucumis_melo'
-                ],
-                [
-                    'name' => '우측배너 이미지',
-                    'type' => 'Text Field',
-                    'key' => 'img2',
-                    'help' => '우측배너에 표시할 이미지의 주소입니다.',
-                    'default' => 'https://upload.wikimedia.org/wikipedia/commons/b/b0/03-05-JPN202.jpg'
+                'banners' => [
+                    [
+                        'img' => '/qpick/images/img_mainbnr_1.png',
+                        'url' => '/product.html'
+                    ],
+                    [
+                        'img' => '/qpick/images/img_mainbnr_2.png',
+                        'url' => '/product.html'
+                    ]
                 ]
             ]
         ];
 
         $rawSourceCodes[] = [
             'name' => '카테고리 네비게이션 바',
-            'html' => '
-<div id="wCategories"><ul></ul></div>
-            ',
+            'html' => '<div id="wCategories"><ul></ul></div>',
             'css' => '
-#wCategories {
-  height: 48px;
-  border-top: 1px solid #e0e0e0;
-  border-bottom: 1px solid #e0e0e0;
+/* Desktop Device */
+@media (min-width: 1025px) {
+  #wCategories {
+    height: 48px;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    font-family: sans-serif;
+  }
+  ul {
+    width: 1248px;
+    margin: 16px auto;
+    padding: 0;
+    font-size: 0;
+    text-align: center;
+  }
+  li {
+    display: inline-block;
+    margin: 0 22px;
+    font-size: 15px;
+    line-height: 16px;    
+  }
+  li a {
+    color: #606060;
+    text-decoration: none;
+  }
 }
-ul {
-  width: 1248px;
-  margin: 16px auto;
-  padding: 0;
-  font-size: 0;
-  text-align: center;
-}
-li {
-  display: inline-block;
-  margin: 0 22px;
-  font-size: 15px;
-  line-height: 16px;
-}
-li a {
-  color: #606060;
-  text-decoration: none;
+/* Mobile Device */
+@media (max-width: 1024px) {
+  #wCategories {
+    background-color: #ececec;
+    padding: 24px 17px;
+    font-family: sans-serif;
+  }
+  ul {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+
+  }
+  li {
+    display: inline-block;
+    padding: 0;
+    background-color: #fff;
+    text-align: center;
+  }
+  li a {
+    display: inline-block;
+    height: 15px;
+    padding: 12px;
+    color: #606060;
+    font-size: 15px;
+    text-decoration: none;
+    line-height: 15px;
+  }
 }
             ',
             'script' => '
 let ul = document.querySelector("ul");
 
-for(let i=1; i<=8; i++) {
-  let data = v["data" + i].split(",");
-  let li = document.createElement("li");
-  let anchor = document.createElement("a");
+QpickTunnel.categories().then((res) => {   
+  for(const v of res) {
+    let li = document.createElement("li");
+    let anchor = document.createElement("a");
 
-  anchor.href = data[1];
-  anchor.appendChild(document.createTextNode(data[0]));
+    anchor.href = v.url;
+    anchor.appendChild(document.createTextNode(v.name));
 
-  li.appendChild(anchor);
-  ul.appendChild(li);
+    li.appendChild(anchor);
+    ul.appendChild(li);
+  }
+});
+            ',
+            'options' => []
+        ];
+
+        $rawSourceCodes[] = [
+            'name' => 'MD`s Pick',
+            'html' => '<div id="wBest"><h2></h2><ul></ul></div>',
+            'css' => '
+/* Desktop Device */
+@media (min-width: 1025px) {
+  #wBest {
+    width: 1248px;
+    margin: 48px auto 0 auto;
+    font-family: sans-serif;
+  }
+  h2 {
+    height: 22px;
+    margin: 0;
+    padding: 24px 0;
+    font-size: 22px;
+    font-weight: bold;
+    line-height: 22px;
+    text-align: center;
+  }
+  ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 357px;
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    position: relative;
+    display: inline-block;
+    width: 240px;
+    height: 357px;
+  }
+  li h3 {
+    overflow: hidden;
+    position: absolute;
+    top: 282px;
+    left: 0;
+    right: 0;
+    height: 16px;
+    margin: 0;
+    padding: 0;      
+    color: #000000;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 16px;
+  }
+  li img {
+    width: 240px;
+    height: 240px;
+  }
+  li a {
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    text-indent: -5000px;
+  }
+  li .price {      
+    position: absolute;
+    top: 308px;
+    left: 0;
+    right: 0;
+    height: 16px;
+    color: #000000;
+    font-size: 16px;
+    line-height: 16px;
+  }
+  li .soldQty {    
+    position: absolute;
+    top: 338px;
+    left: 0;
+    right: 0;
+    height: 13px;
+    color: #959595;
+    font-size: 13px;
+    line-height: 13px;
+  }
+  li .catchphrase {
+    position: absolute;
+    top: 256px;
+    left: 0;
+    right: 0;
+    height: 13px;
+    color: #959595;
+    font-size: 13px;
+    line-height: 13px;
+    letter-spacing: -1px;
+  }
+  li .catchphrase b,
+  li .catchphrase i {
+    display: inline-block;
+    height: 10px;
+    padding: 3px 8px;
+    margin-right: 4px;
+    font-size: 9px;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 10px;
+    letter-spacing: 0;
+  }
+  li .catchphrase b {
+    color: #F55555;
+    border: 1px solid #F55555;
+  }
+  li .catchphrase i {      
+    color: #ffffff;
+    border: 1px solid #43C7FF;
+    background-color: #43C7FF;
+  }
+}
+/* Mobile Device */
+@media (max-width: 1024px) {
+  #wBest {
+    width: 100%;
+    font-family: sans-serif;
+    overflow-x: scroll;
+    overflow-y: hidden;
+  }
+  h2 {
+    height: 22px;
+    margin: 0;
+    padding: 24px 0;
+    font-size: 22px;
+    font-weight: bold;
+    line-height: 22px;
+    text-align: center;
+  }
+  ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: calc(200vw + 48px);
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    position: relative;
+    display: inline-block;
+    width: 40vw;
+  }
+  li a {
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    text-indent: -5000px;
+  }
+  li img {
+    width: 100%;
+    margin-bottom: 103px;
+  }
+  li h3 {
+    position: absolute;
+    bottom: 48px;
+    left: 0;
+    right: 0;
+    height: 14px;
+    margin: 0;
+    padding: 0;      
+    color: #000000;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 14px;
+    letter-spacing: -1px;
+    word-spacing: -1px;
+  }
+  li .price {  
+    position: absolute;
+    bottom: 24px;
+    left: 0;
+    right: 0;
+    height: 14px;
+    color: #000000;
+    font-size: 14px;
+    line-height: 14px;
+  }
+  li .soldQty {    
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 12px;
+    color: #959595;
+    font-size: 12px;
+    line-height: 12px;
+  }
+  li .catchphrase {
+    overflow: hidden;
+    position: absolute;
+    bottom: 71px;
+    left: 0;
+    right: 0;
+    height: 11px;
+    color: #959595;
+    font-size: 11px;
+    line-height: 11px;
+    letter-spacing: -1px;
+  }
+  li .catchphrase b,
+  li .catchphrase i {
+    display: inline-block;
+    height: 10px;
+    padding: 3px 8px;
+    margin-right: 4px;
+    font-size: 9px;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 10px;
+    letter-spacing: 0;
+  }
+  li .catchphrase b {
+    color: #F55555;
+    border: 1px solid #F55555;
+  }
+  li .catchphrase i {      
+    color: #ffffff;
+    border: 1px solid #43C7FF;
+    background-color: #43C7FF;
+  }
 }
             ',
+            'script' => '
+let ul = document.querySelector("ul");
+
+document.querySelector("h2").innerText = compOpt.title;
+
+QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {  
+  for(const v of res) {
+    let li = document.createElement("li");
+    let img = new Image();
+    let h3Title = document.createElement("h3");
+    let divPrice = document.createElement("div");
+    let divOrgPrice = document.createElement("div");
+    let divSellPrice = document.createElement("div");
+    let divPhrase = document.createElement("div");
+    let anchor = document.createElement("a");
+
+    img.src = v.image;
+    img.setAttribute("alt", v.name);
+    
+    h3Title.appendChild(document.createTextNode(v.name));
+    
+    divPrice.className = "price";
+
+    if(v.orgPrice) {
+      divOrgPrice.className = "orgPrice";
+      divOrgPrice.appendChild(document.createElement("b").appendChild(document.createTextNode(v.orgPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))))
+      divOrgPrice.appendChild(document.createTextNode("원"));
+    }
+
+    divSellPrice.className = "sellPrice";
+    divSellPrice.appendChild(document.createElement("b").appendChild(document.createTextNode(v.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))))
+    divSellPrice.appendChild(document.createTextNode("원"));
+
+    divPhrase.className = "catchphrase";
+    divPhrase.appendChild(document.createTextNode(v.catchphrase));
+
+    anchor.href = v.url;
+    anchor.appendChild(document.createTextNode("상품보기"));
+
+    li.appendChild(img);
+    li.appendChild(h3Title);
+    divPrice.appendChild(divSellPrice);
+    divPrice.appendChild(divOrgPrice);
+    li.appendChild(divPrice);
+    li.appendChild(divPhrase);
+    li.appendChild(anchor);
+    ul.appendChild(li);
+  }
+});
+            ',
             'options' => [
-                [
-                    'name' => '1번째 카테고리',
-                    'type' => 'Text Field',
-                    'key' => 'data1',
-                    'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
-                    'default' => '#,티셔츠'
-                ],
-                [
-                    'name' => '2번째 카테고리',
-                    'type' => 'Text Field',
-                    'key' => 'data2',
-                    'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
-                    'default' => '#,셔츠/블라우스'
-                ],
-                [
-                    'name' => '3번째 카테고리',
-                    'type' => 'Text Field',
-                    'key' => 'data3',
-                    'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
-                    'default' => '#,니트/가디건'
-                ],
-                [
-                    'name' => '4번째 카테고리',
-                    'type' => 'Text Field',
-                    'key' => 'data4',
-                    'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
-                    'default' => '#,원피스'
-                ],
-                [
-                    'name' => '5번째 카테고리',
-                    'type' => 'Text Field',
-                    'key' => 'data5',
-                    'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
-                    'default' => '#,커트/팬츠'
-                ],
-                [
-                    'name' => '6번째 카테고리',
-                    'type' => 'Text Field',
-                    'key' => 'data6',
-                    'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
-                    'default' => '#,아우터'
-                ],
-                [
-                    'name' => '7번째 카테고리',
-                    'type' => 'Text Field',
-                    'key' => 'data7',
-                    'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
-                    'default' => '#,슈즈'
-                ],
-                [
-                    'name' => '8번째 카테고리',
-                    'type' => 'Text Field',
-                    'key' => 'data8',
-                    'help' => '카테고리명과 URL을 쉼표(,)로 구분하여 입력합니다.',
-                    'default' => '#,가방/지갑'
-                ]
+                'title' => 'MD`s PICK',
+                'groupNo' => 2
             ]
         ];
 
         $rawSourceCodes[] = [
-            'name' => 'BEST 5',
-            'html' => '
-<div id="wBest">
-  <h2>BEST 5</h2>
-  <ul></ul>
-</div>
-            ',
+            'name' => '4단 배너구성',
+            'html' => '<div id="wNewDeal"><h2></h2><ul></ul></div>',
             'css' => '
-#wBest {
-  width: 1248px;
-  margin: 48px auto 0 auto;
+/* Desktop Device */
+@media (min-width: 1025px) {
+  #wNewDeal {
+    width: 1248px;
+    margin: 48px auto 0 auto;
+    font-family: sans-serif;
+  }
+  h2 {
+    height: 22px;
+    margin: 0;
+    padding: 24px 0;
+    font-size: 22px;
+    font-weight: bold;
+    line-height: 22px;
+    text-align: center;
+  }
+  ul {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    justify-items: stretch;
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    position: relative;
+    display: inline-block;
+    width: 312;
+    height: 540px;
+  }
+  li h3 {
+    position: absolute;
+    top: 458px;
+    left: 0;
+    right: 0;
+    height: 16px;
+    margin: 0;
+    padding: 0;      
+    color: #000000;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 16px;
+  }
+  li img {
+    width: 312px;
+    height: 415px;
+  }
+  li a {
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    text-indent: -5000px;
+  }
+  li .price {      
+    position: absolute;
+    top: 487px;
+    left: 0;
+    right: 0;
+    height: 16px;
+  }
+  li .price div {
+    display: inline-block;
+  }
+  li .price .sellPrice {
+    margin-right: 12px;
+    color: #000000;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 16px;
+    letter-spacing: -1px;
+  }
+  li .price .orgPrice
+  {
+    color: #AAAAAA;
+    font-weight: bold;
+    font-size: 13px;
+    text-decoration: line-through; 
+    line-height: 15px;
+    letter-spacing: -1px;;
+  }
+  li .catchphrase {
+    position: absolute;
+    top: 430px;
+    left: 0;
+    right: 0;
+    height: 13px;
+    color: #959595;
+    font-size: 13px;
+    line-height: 13px;
+    letter-spacing: -1px;
+  }
+  li .catchphrase b,
+  li .catchphrase i {
+    display: inline-block;
+    height: 10px;
+    padding: 3px 8px;
+    margin-right: 4px;
+    font-size: 9px;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 10px;
+    letter-spacing: 0;
+  }
+  li .catchphrase b {
+    color: #F55555;
+    border: 1px solid #F55555;
+  }
+  li .catchphrase i {      
+    color: #ffffff;
+    border: 1px solid #43C7FF;
+    background-color: #43C7FF;
+  }
 }
-h2 {
-  height: 22px;
-  margin: 0;
-  padding: 24px 0;
-  font-size: 22px;
-  font-weight: bold;
-  line-height: 22px;
-  text-align: center;
-}
-ul {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  height: 436px;
-  margin: 0;
-  padding: 0;
-}
-li {
-  position: relative;
-  display: inline-block;
-  width: 240px;
-  height: 436px;
-}
-li h3 {
-  position: absolute;
-  top: 361px;
-  left: 0;
-  right: 0;
-  height: 16px;
-  margin: 0;
-  padding: 0;
-  color: #000000;
-  font-size: 16px;
-  font-weight: bold;
-  line-height: 16px;
-}
-li img {
-  width: 240px;
-  height: 319px;
-}
-li a {
-  overflow: hidden;
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  text-indent: -5000px;
-}
-li .price {
-  position: absolute;
-  top: 387px;
-  left: 0;
-  right: 0;
-  height: 16px;
-  color: #000000;
-  font-size: 16px;
-  line-height: 16px;
-}
-li .soldQty {
-  position: absolute;
-  top: 417px;
-  left: 0;
-  right: 0;
-  height: 13px;
-  color: #959595;
-  font-size: 13px;
-  line-height: 13px;
-}
-li .catchphrase {
-  position: absolute;
-  top: 335px;
-  left: 0;
-  right: 0;
-  height: 13px;
-  color: #959595;
-  font-size: 13px;
-  line-height: 13px;
-  letter-spacing: -1px;
-}
-li .catchphrase b,
-li .catchphrase i {
-  display: inline-block;
-  height: 10px;
-  padding: 3px 8px;
-  margin-right: 4px;
-  font-size: 9px;
-  font-style: normal;
-  font-weight: normal;
-  line-height: 10px;
-  letter-spacing: 0;
-}
-li .catchphrase b {
-  color: #F55555;
-  border: 1px solid #F55555;
-}
-li .catchphrase i {
-  color: #ffffff;
-  border: 1px solid #43C7FF;
-  background-color: #43C7FF;
+/* Mobile Device */
+@media (max-width: 1024px) {
+  h2 {
+    height: 22px;
+    margin: 0;
+    padding: 30px 0;
+    font-size: 22px;
+    font-weight: bold;
+    line-height: 22px;
+    text-align: center;
+  }
+  ul {
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    position: relative;
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    width: 50%;
+  }
+  li a {
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    text-indent: -5000px;
+  }
+  li img {
+    width: 100%;
+    margin-bottom: 127px;
+  }
+  li h3 {
+    position: absolute; 
+    left: 16px;
+    right: 16px;
+    bottom: 56px;
+    height: 32px;
+    margin: 0;
+    padding: 0;      
+    color: #000000;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 14px;
+    letter-spacing: -1px;
+  }
+  li .price {
+    position: absolute; 
+    left: 16px;
+    right: 16px;
+    bottom: 32px;
+    height: 14px;
+  }
+  li .sellPrice {
+    display: inline;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 14px;
+    letter-spacing: -1px;
+  }
+  li .orgPrice {
+    display: inline;
+    margin-left: 6px;
+    color: #AAAAAA;
+    font-size: 13px;
+    text-decoration: line-through; 
+    line-height: 15px;
+    letter-spacing: -1px;;
+  }
+  li .catchphrase {
+    position: absolute; 
+    left: 16px;
+    right: 16px;
+    bottom: 95px;
+    height :11px;
+    color: #959595;
+    font-size: 11px;
+    line-height: 11px;
+    letter-spacing: -1px;
+  }
 }
             ',
             'script' => '
+
 let ul = document.querySelector("ul");
 
-for(let i=1; i<=5; i++) {
-  let v = JSON.parse(compOpt["data" + i);
+document.querySelector("h2").innerText = compOpt.title;
 
+for(const no of compOpt.items) {      
   let li = document.createElement("li");
-  let img = new Image();
-  let h3Title = document.createElement("h3");
-  let divPrice = document.createElement("div");
-  let divQty = document.createElement("div");
-  let divPhrase = document.createElement("div");
-  let anchor = document.createElement("a");
-
-  img.src = v["img"];
-  img.setAttribute("alt", v["title"]);
-
-  h3Title.appendChild(document.createTextNode(v["title"]));
-
-  divPrice.className = "price";
-  divPrice.appendChild(document.createElement("b").appendChild(document.createTextNode(v["price"].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))))
-  divPrice.appendChild(document.createTextNode("원"));
-
-  divQty.className = "soldQty";
-  divQty.appendChild(document.createElement("b").appendChild(document.createTextNode(v["soldQty"].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))))
-  divQty.appendChild(document.createTextNode("개 구매"));
-
-  divPhrase.className = "catchphrase";
-  divPhrase.appendChild(document.createTextNode(v["catchphrase"]));
-
-  anchor.href = v["url"];
-  anchor.appendChild(document.createTextNode("상품보기"));
-
-  li.appendChild(img);
-  li.appendChild(h3Title);
-  li.appendChild(divPrice);
-  li.appendChild(divQty);
-  li.appendChild(divPhrase);
-  li.appendChild(anchor);
   ul.appendChild(li);
-}
 
-document.querySelector("ul li").className = "selected";
+  QpickTunnel.product(no).then((res) => {      
+    let img = new Image();
+    let h3Title = document.createElement("h3");
+    let divPrice = document.createElement("div");
+    //let divQty = document.createElement("div");
+    let divPhrase = document.createElement("div");
+    let anchor = document.createElement("a");
+    
+    img.src = res.image;
+    img.setAttribute("alt", res.name);
+    
+    h3Title.appendChild(document.createTextNode(res.name));
+
+    let price_formatted = parseInt(res.price).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    divPrice.className = "price";
+    divPrice.appendChild(document.createElement("b").appendChild(document.createTextNode(price_formatted)))
+    divPrice.appendChild(document.createTextNode("원"));
+
+    //divQty.className = "soldQty";
+    //divQty.appendChild(document.createElement("b").appendChild(document.createTextNode(res.soldQty.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))))
+    //divQty.appendChild(document.createTextNode("개 구매"));
+
+    divPhrase.className = "catchphrase";
+    divPhrase.appendChild(document.createTextNode(res.catchphrase));
+
+    anchor.href = res.url;
+    anchor.appendChild(document.createTextNode("상품보기"));
+
+    li.appendChild(img);
+    li.appendChild(h3Title);
+    li.appendChild(divPrice);
+    //li.appendChild(divQty);
+    li.appendChild(divPhrase);
+    li.appendChild(anchor);
+  });
+}
             ',
             'options' => [
-                [
-                    'name' => '1번째 상품 데이터',
-                    'type' => 'Text Field',
-                    'key' => 'data1',
-                    'help' => '텍스트 입력란 테스트 중에는 이 란은 JSON으로 입력합니다.',
-                    'default' => '{img:"/images/img_best50_1.png", url:"#", price:40000, soldQty:1294, title:"옐로우 크롬 후드 세트", catchphrase:"힙한 느낌 물씬 크롭 후드+조커팬츠", bedge:[]}'
-                ],
-                [
-                    'name' => '2번째 상품 데이터',
-                    'type' => 'Text Field',
-                    'key' => 'data2',
-                    'help' => '텍스트 입력란 테스트 중에는 이 란은 JSON으로 입력합니다.',
-                    'default' => '{img:"/images/img_best50_2.png", url:"#", price:12000, soldQty:1069, title:"민트 시스루 크롭 나시", catchphrase:"선글라스도 함께 드려요", bedge:["BEST"]}'
-                ],
-                [
-                    'name' => '3번째 상품 데이터',
-                    'type' => 'Text Field',
-                    'key' => 'data3',
-                    'help' => '텍스트 입력란 테스트 중에는 이 란은 JSON으로 입력합니다.',
-                    'default' => '{img:"/images/img_best50_3.png", url:"#", price:24000, soldQty:873, title:"블랙 피스 나시티", catchphrase:"힙한 강렬함", bedge:["HIP"]}'
-                ],
-                [
-                    'name' => '4번째 상품 데이터',
-                    'type' => 'Text Field',
-                    'key' => 'data4',
-                    'help' => '텍스트 입력란 테스트 중에는 이 란은 JSON으로 입력합니다.',
-                    'default' => '{img:"/images/img_best50_4.png", url:"#", price:26000, soldQty:789, title:"레이스 나시 롱 원피스", catchphrase:"힙여성스러움과 섹시함이 함께", bedge:["BEST", "NEW"]}'
-                ],
-                [
-                    'name' => '5번째 상품 데이터',
-                    'type' => 'Text Field',
-                    'key' => 'data5',
-                    'help' => '텍스트 입력란 테스트 중에는 이 란은 JSON으로 입력합니다.',
-                    'default' => '{img:"/images/img_best50_5.png", url:"#", price:9900, soldQty:18, title:"브이넥 나시 점프수트", catchphrase:"힙한 느낌 물씬 크롭 후드+조커팬츠", bedge:["NEW"]}'
-                ]
+                'title' => 'NEW DEAL',
+                'items' => [9, 10, 11, 12, 13]
             ]
         ];
 
@@ -616,7 +1143,7 @@ document.querySelector("ul li").className = "selected";
         $userPartner = UserPartner::query()->first();
 
         // 솔루션
-        $solution = Solution::query()->first();
+        $solution = Solution::query()->where('name', '카페24')->first();
 
         // 컴포넌트
         $component = [];
