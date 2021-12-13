@@ -92,39 +92,75 @@ class ComponentTypeSeeder extends Seeder
         $propertiesArrs = [
             // Toggle
             [
-                ['type' => 'boolean']
+                [
+                    'type' => 'boolean',
+                    'prefix' => 'toggle'
+                ]
             ],
             // TextField
             [
-                ['type' => 'text']
+                [
+                    'type' => 'text',
+                    'prefix' => 'text'
+                ]
             ],
             // Textarea
             [
-                ['type' => 'text']
+                [
+                    'type' => 'text',
+                    'prefix' => 'textarea'
+                ]
             ],
             // Radio
             [
-                ['type' => 'boolean']
+                [
+                    'type' => 'text',
+                    'prefix' => 'radio'
+                ]
             ],
             // Checkbox
             [
-                ['type' => 'text']
+                [
+                    'type' => 'text',
+                    'prefix' => 'checkbox'
+                ]
             ],
             // Image Display
             [
-                ['type' => 'file'],
-                ['type' => 'alt'],
+                [
+                    'type' => 'file',
+                    'prefix' => 'image'
+                ],
+                [
+                    'type' => 'alt',
+                    'prefix' => 'alt'
+                ],
             ],
             // Image URL Display
             [
-                ['type' => 'file'],
-                ['type' => 'alt'],
-                ['type' => 'url'],
+                [
+                    'type' => 'file',
+                    'prefix' => 'image'
+                ],
+                [
+                    'type' => 'alt',
+                    'prefix' => 'alt'
+                ],
+                [
+                    'type' => 'url',
+                    'prefix' => 'url'
+                ],
             ],
             // Text + URL Display
             [
-                ['type' => 'text'],
-                ['type' => 'url'],
+                [
+                    'type' => 'text',
+                    'prefix' => 'text'
+                ],
+                [
+                    'type' => 'url',
+                    'prefix' => 'url'
+                ],
             ],
         ];
 
