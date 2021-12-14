@@ -21,6 +21,7 @@ class ComponentOptionProperty extends Model
 
 
     protected $fillable = [
+        'component_option_id', 'component_type_property_id', 'key', 'name', 'initial_value'
     ];
 
     /**

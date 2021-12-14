@@ -433,6 +433,8 @@ Route::group([
         Route::patch('/{component_id}/version/{version_id}/option/{option_id}', [ComponentOptionController::class, 'update']);
         Route::delete('/{component_id}/version/{version_id}/option/{option_id}', [ComponentOptionController::class, 'destroy']);
 
+        Route::post('/{component_id}/version/{version_id}/relational-option', [ComponentOptionController::class, 'relationalStore']);
+
     });
 
     // 컴포넌트 옵션 유형

@@ -21,7 +21,7 @@ class CreateComponentOptionPropertiesTable extends Migration
             $table->unsignedBigInteger('component_type_property_id');
             $table->foreign('component_type_property_id', 'cosbp_ctpi_foreign')->references('id')->on('component_type_properties');
             $table->string('key');
-            $table->string('name');
+            $table->string('name')->nullable();
             $table->text('initial_value')->nullable();
             $table->timestamps();
             $table->softDeletes();

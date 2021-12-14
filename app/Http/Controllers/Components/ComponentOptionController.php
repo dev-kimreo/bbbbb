@@ -10,6 +10,7 @@ use App\Http\Requests\Components\Options\StoreRequest;
 use App\Http\Requests\Components\Options\UpdateRequest;
 use App\Models\Components\Component;
 use App\Models\Components\ComponentOption;
+use App\Models\Components\ComponentOptionProperty;
 use App\Models\Components\ComponentType;
 use App\Models\Components\ComponentVersion;
 use App\Services\ComponentService;
@@ -73,6 +74,13 @@ class ComponentOptionController extends Controller
      *      description="컴포넌트 옵션 상세정보",
      *      operationId="ComponentOptionShow",
      *      tags={"컴포넌트 옵션"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="with_option_properties", type="boolean", example=1, description="컴포넌트 옵션 속성 데이터 포함 여부" ),
+     *          )
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
@@ -95,7 +103,13 @@ class ComponentOptionController extends Controller
      */
     public function show(ShowRequest $request, int $componentId, int $versionId, int $optionId): Collection
     {
-        return collect(ComponentOption::findOrFail($optionId));
+        $res = ComponentOption::findOrFail($optionId);
+
+        if ($request->input('with_option_properties')) {
+            $res->selectedOption;
+        }
+
+        return collect($res);
     }
 
     /**
@@ -147,22 +161,21 @@ class ComponentOptionController extends Controller
         // 컴포넌트 권한 확인
         ComponentService::checkRegistrant(Component::findOrFail($componentId));
 
+        // 컴포넌트 유형 확인
         $componentType = ComponentType::findOrFail($request->input('component_type_id'));
 
         // TODO Component type 의 Attribute 의 데이터 로직이 추가 되야함
 
         // 생성 및 response
-        return response()->json(
-            collect(
-                ComponentOption::create(array_merge(
-                    $request->all(),
-                    [
-                        'component_version_id' => $versionId,
-                        'component_type_id' => $componentType->getAttribute('id'),
-                    ]
-                ))->refresh()
-            )
+        $data = array_merge(
+            $request->all(),
+            [
+                'component_version_id' => $versionId,
+                'component_type_id' => $componentType->getAttribute('id'),
+            ]
         );
+
+        return response()->json($this->createOption($data));
     }
 
     /**
@@ -255,5 +268,97 @@ class ComponentOptionController extends Controller
 
         return response()->noContent();
     }
+
+
+    /**
+     * @OA\Post (
+     *      path="/v1/component/{component_id}/version/{version_id}/relational-option",
+     *      summary="컴포넌트 옵션 관계형 등록",
+     *      description="새로운 관계형 컴포넌트 옵션을 등록합니다.",
+     *      operationId="RelationalComponentOptionCreate",
+     *      tags={"컴포넌트 옵션"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={"component_type_id", "name", "key"},
+     *              @OA\Property(property="component_type_id", ref="#/components/schemas/ComponentOption/properties/component_type_id"),
+     *              @OA\Property(property="name", ref="#/components/schemas/ComponentOption/properties/name"),
+     *              @OA\Property(property="key", ref="#/components/schemas/ComponentOption/properties/key"),
+     *              @OA\Property(property="display_on_pc", ref="#/components/schemas/ComponentOption/properties/display_on_pc"),
+     *              @OA\Property(property="display_on_mobile", ref="#/components/schemas/ComponentOption/properties/display_on_mobile"),
+     *              @OA\Property(property="hideable", ref="#/components/schemas/ComponentOption/properties/hideable"),
+     *              @OA\Property(property="attributes", ref="#/components/schemas/ComponentOption/properties/attributes"),
+     *              @OA\Property(property="help", ref="#/components/schemas/ComponentOption/properties/help"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/ComponentOption")
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "partner_auth":{}
+     *      }}
+     *  )
+     *
+     * @param StoreRequest $request
+     * @param int $componentId
+     * @param int $versionId
+     * @return JsonResponse
+     * @throws QpickHttpException
+     */
+    public function relationalStore(StoreRequest $request, int $componentId, int $versionId): JsonResponse
+    {
+        ComponentVersion::findOrFail($versionId);
+
+        // 컴포넌트 권한 확인
+        ComponentService::checkRegistrant(Component::findOrFail($componentId));
+
+        // 컴포넌트 유형 확인
+        $componentType = ComponentType::findOrFail($request->input('component_type_id'));
+
+        // 생성 및 response
+        $data = array_merge(
+            $request->all(),
+            [
+                'component_version_id' => $versionId,
+                'component_type_id' => $componentType->getAttribute('id'),
+            ]
+        );
+
+        // option 생성
+        $option = $this->createOption($data);
+
+        // 컴포넌트 옵션 속성 생성
+        $componentType->properties->each(function ($property) use ($option) {
+            ComponentOptionProperty::create([
+                'component_option_id' => $option->getAttribute('id'),
+                'component_type_property_id' => $property->getAttribute('id'),
+                'key' => $property->getAttribute('preset'),
+            ]);
+        });
+
+        // 연동 컴포넌트 옵션 속성 추가
+        $option->selectedOption;
+
+        return response()->json($option, 201);
+    }
+
+    /**
+     * Create Component Option function
+     * @param array $dataArray
+     * @return mixed
+     */
+    protected function createOption(array $dataArray)
+    {
+        return ComponentOption::create($dataArray)->refresh();
+    }
+
+
 
 }
