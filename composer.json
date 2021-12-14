@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.4|^8.0",
+        "ext-json": "*",
         "darkaonline/l5-swagger": "^8.0",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
@@ -19,7 +20,7 @@
         "laravel/passport": "^10.1",
         "laravel/telescope": "^4.4",
         "laravel/tinker": "^2.5",
-        "ext-json": "*"
+        "maennchen/zipstream-php": "^2.1"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.10",

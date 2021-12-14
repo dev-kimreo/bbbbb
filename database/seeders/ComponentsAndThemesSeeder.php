@@ -416,12 +416,24 @@ for(const v of compOpt["menu"]) {
 }
             ',
             'options' => [
-                "menu" => [
-                    ["title" => '신상NEW', "url" => '/'],
-                    ["title" => 'BEST50', "url" => '/'],
-                    ["title" => '자체제작', "url" => '/'],
-                    ["title" => '콜라보레이션', "url" => '/']
-                ]
+                [
+                    'name' => '메뉴목록',
+                    'type' => 'Text Field',
+                    'key' => 'menu',
+                    'help' => '다음과 같은 형식의 JSON 배열로 입력합니다: [{title:"", url:""},{title:"", url:""}]',
+                    'default' => '[]'
+                ],
+                /*
+                 *  데이터 형태
+                 *  {
+                 *      "menu":[
+                 *          {"title":'신상NEW',"url":'/'},
+                 *          {"title":'BEST50',"url":'/'},
+                 *          {"title":'자체제작',"url":'/'},
+                 *          {"title":'썸머바캉스',"url":'/'}
+                 *      ]
+                 *  }
+                 */
             ]
         ];
 
@@ -488,16 +500,22 @@ for(const v of compOpt["banners"]) {
 }
             ',
             'options' => [
-                'banners' => [
-                    [
-                        'img' => '/qpick/images/img_mainbnr_1.png',
-                        'url' => '/product.html'
-                    ],
-                    [
-                        'img' => '/qpick/images/img_mainbnr_2.png',
-                        'url' => '/product.html'
-                    ]
-                ]
+                [
+                    'name' => '배너정보',
+                    'type' => 'Text Field',
+                    'key' => 'title',
+                    'help' => '다음과 같은 형식의 JSON 배열로 2개의 배너를 입력합니다: [{img:"", url:""},{img:"", url:""}]',
+                    'default' => '[]'
+                ],
+                /*
+                 *  데이터 형태
+                 *  {
+                 *  "banners":[
+                 *      {"img":'/qpick/images/img_mainbnr_1.png',"url":'/product.html'},
+                 *      {"img":'/qpick/images/img_mainbnr_2.png',"url":'/product.html'}
+                 *  ]
+                 *  }
+                */
             ]
         ];
 
@@ -860,8 +878,27 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
 });
             ',
             'options' => [
-                'title' => 'MD`s PICK',
-                'groupNo' => 2
+                [
+                    'name' => '타이틀',
+                    'type' => 'Text Field',
+                    'key' => 'title',
+                    'help' => '영역 상단에 표시될 타이틀입니다.',
+                    'default' => 'MD`s PICK'
+                ],
+                [
+                    'name' => '메인진열분류번호',
+                    'type' => 'Text Field',
+                    'key' => 'groupNo',
+                    'help' => '노출할 메인진열분류의 번호를 입력합니다. 1개만 입력할 수 있습니다.',
+                    'default' => '2'
+                ]
+                /*
+                 *  데이터 형태
+                 *  {
+                 *      "title": "MD`s PICK",
+                 *      "groupNo": 2
+                 *  }
+                */
             ]
         ];
 
@@ -1117,8 +1154,27 @@ for(const no of compOpt.items) {
 }
             ',
             'options' => [
-                'title' => 'NEW DEAL',
-                'items' => [9, 10, 11, 12, 13]
+                [
+                    'name' => '타이틀',
+                    'type' => 'Text Field',
+                    'key' => 'title',
+                    'help' => '영역 상단에 표시될 타이틀입니다.',
+                    'default' => 'NEW DEAL'
+                ],
+                [
+                    'name' => '상품번호',
+                    'type' => 'Text Field',
+                    'key' => 'items',
+                    'help' => '노출할 상품번호를 입력합니다. 여러 개를 입력할 경우 쉼표(,)로 연결하여 입력합니다.',
+                    'default' => 'NEW DEAL'
+                ]
+                /*
+                 *  데이터 형태
+                 *  {
+                 *      "title": "NEW DEAL",
+                 *      "items": [9, 10, 11, 12, 13]
+                 *  }
+                */
             ]
         ];
 
@@ -1131,6 +1187,7 @@ for(const no of compOpt.items) {
             'options' => [
                 [
                     'name' => '1번째 링크 URL',
+                    'type' => 'Text Field',
                     'key' => 'url0',
                     'help' => '1번째 이미지를 클릭했을 때 표시될 링크입니다.',
                     'default' => 'https://en.wikipedia.org/wiki/Strawberry'
@@ -1183,7 +1240,11 @@ for(const no of compOpt.items) {
                         'component_type_id' => $typeId,
                         'name' => $opt['name'],
                         'key' => $opt['key'],
-                        'help' => $opt['help']
+                        'help' => $opt['help'],
+                        'display_on_pc' => true,
+                        'display_on_mobile' => true,
+                        'hideable' => false,
+                        'attributes' => '["textMaxLength"]'
                     ]
                 );
 
@@ -1192,7 +1253,7 @@ for(const no of compOpt.items) {
                         'component_option_id' => $compOpt->id,
                         'component_type_property_id' => $typeId,
                         'key' => 'text',
-                        'name' => '입력란',
+                        'name' => $opt['name'],
                         'initial_value' => $opt['default']
                     ]
                 );
