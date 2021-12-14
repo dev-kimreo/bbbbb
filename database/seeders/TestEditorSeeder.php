@@ -126,7 +126,7 @@ class TestEditorSeeder extends Seeder
                         ComponentType::where('name', 'Image URL Display')->first()->properties->skip(0)->first(),
                         'property'
                     )->state([
-                        'key' => 'img',
+                        'key' => 'image',
                         'name' => '이미지',
                         'initial_value' => 'https://블라블라~'
                     ]),
@@ -200,7 +200,7 @@ class TestEditorSeeder extends Seeder
                                     $component->version->first()->option->skip(0)->first(),
                                     'componentOption'
                                 )->state([
-                                    'value' => '{"img":"https://블라블라~", "alt":"이미지거든", "url":"https://샬라샬라~"}'
+                                    'value' => '{"image":"https://블라블라~", "alt":"이미지거든", "url":"https://샬라샬라~"}'
                                 ]),
                                 'linkedOption'
                             ),
