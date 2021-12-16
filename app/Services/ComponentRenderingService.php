@@ -47,7 +47,7 @@ final class ComponentRenderingService
     public static function generateUrl(Model $component): string
     {
         $hash = Str::random(64);
-        $url = request()->root() . '/v1/component/script/' . $hash;
+        $url = request()->root() . '/v1/component/script/' . $hash . '.js';
 
         $model = ScriptRequest::create(
             [

@@ -459,7 +459,7 @@ Route::group([
     /**
      * 컴포넌트 Script Request API
      */
-    Route::get('/component/script/{hash}', [ScriptRequestController::class, 'show'])
+    Route::get('/component/script/{hash}.js', [ScriptRequestController::class, 'show'])
         ->withoutMiddleware([ConvertResponseToCamelCase::class]);
 
     /**
