@@ -23,7 +23,7 @@ final class ComponentRenderingService
     {
         $data = ScriptRequest::query()->where('hash', $hash)->firstOrFail();
 
-        $scr = 'export function render(shadowRoot, compOpt) {
+        $scr = 'export default function render(shadowRoot, compOpt) {
             let arrMethod = [
                 "createElement",
                 "createTextNode",
