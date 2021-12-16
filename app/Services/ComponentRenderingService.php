@@ -67,7 +67,8 @@ final class ComponentRenderingService
         });
         ';
 
-        return self::removeSpace($scr);
+        //return self::removeSpace($scr);
+        return $scr;
     }
 
     public static function generateUrl(Model $component): string
