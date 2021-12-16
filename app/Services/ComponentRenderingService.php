@@ -44,6 +44,32 @@ final class ComponentRenderingService
         return self::removeSpace($scr);
     }
 
+    public static function getJsonp(string $hash, string $callback): string
+    {
+        $data = ScriptRequest::query()->where('hash', $hash)->firstOrFail();
+
+        $scr = $callback . '(function(shadowRoot, compOpt) {
+            let arrMethod = [
+                "createElement",
+                "createTextNode",
+                "createDocumentFragment"
+            ];
+                        
+            for(const fn of arrMethod) {
+                shadowRoot[fn] = function(v = null){
+                    return document[fn](v)
+                };
+            }
+            
+            (function(document) {        
+                ' . $data->component->usableVersion()->first()->script . '
+            })(shadowRoot);
+        });
+        ';
+
+        return self::removeSpace($scr);
+    }
+
     public static function generateUrl(Model $component): string
     {
         $hash = Str::random(64);
