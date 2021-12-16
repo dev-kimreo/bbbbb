@@ -384,21 +384,21 @@ for(const v of compOpt["menu"]) {
 
   // Search Form
   document.querySelector("[data-qpick-form=\'search\']").setAttribute("action", "/product/search.html");
-  document.querySelector("[data-qpick-input="search-keyword"]").setAttribute("name", "keyword");
+  document.querySelector("[data-qpick-input=\'search-keyword\']").setAttribute("name", "keyword");
 
   // Link logged on user
   QpickTunnel.customer().then((res) => {
-    document.querySelector("[data-qpick-element="user-name"]").innerText = res.name;
-    document.querySelector("[data-qpick-element="login"]").style.display = "none";
-    document.querySelector("[data-qpick-element="user-reg"]").style.display = "none";
-    document.querySelector("[data-qpick-element="user-info"]").setAttribute("href", "/member/modify.html");
-    document.querySelector("[data-qpick-element="logout"]").setAttribute("href", "/exec/front/Member/logout/");
+    document.querySelector("[data-qpick-element=\'user-name\']").innerText = res.name;
+    document.querySelector("[data-qpick-element=\'login\']").style.display = "none";
+    document.querySelector("[data-qpick-element=\'user-reg\']").style.display = "none";
+    document.querySelector("[data-qpick-element=\'user-info\']").setAttribute("href", "/member/modify.html");
+    document.querySelector("[data-qpick-element=\'logout\']").setAttribute("href", "/exec/front/Member/logout/");
   }).catch((err) => {
-    document.querySelector("[data-qpick-element="user-name"]").style.display = "none";
-    document.querySelector("[data-qpick-element="login"]").setAttribute("href", "/member/login.html");
-    document.querySelector("[data-qpick-element="user-reg"]").setAttribute("href", "/member/join.html");
-    document.querySelector("[data-qpick-element="user-info"]").style.display = "none";
-    document.querySelector("[data-qpick-element="logout"]").style.display = "none";
+    document.querySelector("[data-qpick-element=\'user-name\']").style.display = "none";
+    document.querySelector("[data-qpick-element=\'login\']").setAttribute("href", "/member/login.html");
+    document.querySelector("[data-qpick-element=\'user-reg\']").setAttribute("href", "/member/join.html");
+    document.querySelector("[data-qpick-element=\'user-info\']").style.display = "none";
+    document.querySelector("[data-qpick-element=\'logout\']").style.display = "none";
   });
 
   // Cart count
