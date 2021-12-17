@@ -93,9 +93,9 @@ class ComponentsAndThemesSeeder extends Seeder
     right: 0;
     height: 12px;
     margin: 0;
-    padding: 0;      
+    padding: 0;
   }
-  #lHeaderTopMenu a,    
+  #lHeaderTopMenu a,
   #lHeaderTopMenu span {
     display: inline-block;
     height: 10px;
@@ -158,7 +158,7 @@ class ComponentsAndThemesSeeder extends Seeder
     color: #fff;
     font-weight: 700;
     line-height: 10px;
-    border-radius: 3px;      
+    border-radius: 3px;
   }
   #lHeaderMainMenu {
     position: absolute;
@@ -183,7 +183,7 @@ class ComponentsAndThemesSeeder extends Seeder
   form {
     position: absolute;
     top: 70px;
-    left: 740px;  
+    left: 740px;
     width: 400px;
     height: 48px;
   }
@@ -255,7 +255,7 @@ class ComponentsAndThemesSeeder extends Seeder
     width: 450px;
     background: #fff;
     margin: 0;
-    padding: 0;      
+    padding: 0;
   }
   #lHeaderRightMenu {
     position: absolute;
@@ -285,9 +285,9 @@ class ComponentsAndThemesSeeder extends Seeder
     background-image: url("https://raphanus.cafe24.com/qpick/images/ico_menu.png");
   }
   #lHeaderRightMenu li a {
-    display: block;        
+    display: block;
     overflow: hidden;
-    position: absolute;    
+    position: absolute;
     top: 0;
     left: 0;
     bottom: 0;
@@ -308,7 +308,7 @@ class ComponentsAndThemesSeeder extends Seeder
     color: #fff;
     font-weight: 700;
     line-height: 10px;
-    border-radius: 3px;      
+    border-radius: 3px;
   }
   #lHeaderMainMenu {
     position: absolute;
@@ -410,7 +410,7 @@ for(const v of compOpt["menu"]) {
     o.style.visibility = "hidden";
   });
 
-  // Search Keyword 
+  // Search Keyword
   // TODO - 템플릿 언어 등으로 개선 필요
   document.querySelector("input[type=text]").value = QpickLibraries.getParameterFromUrl("kw");
 }
@@ -472,10 +472,10 @@ for(const v of compOpt["menu"]) {
     font-size: 0;
     font-family: sans-serif;
   }
-  li { 
+  li {
     display: none;
   }
-  li:first-child { 
+  li:first-child {
     display: list-item;
   }
   img {
@@ -542,7 +542,7 @@ for(const v of compOpt["banners"]) {
     display: inline-block;
     margin: 0 22px;
     font-size: 15px;
-    line-height: 16px;    
+    line-height: 16px;
   }
   li a {
     color: #606060;
@@ -584,7 +584,7 @@ for(const v of compOpt["banners"]) {
             'script' => '
 let ul = document.querySelector("ul");
 
-QpickTunnel.categories().then((res) => {   
+QpickTunnel.categories().then((res) => {
   for(const v of res) {
     let li = document.createElement("li");
     let anchor = document.createElement("a");
@@ -642,7 +642,7 @@ QpickTunnel.categories().then((res) => {
     right: 0;
     height: 16px;
     margin: 0;
-    padding: 0;      
+    padding: 0;
     color: #000000;
     font-size: 16px;
     font-weight: bold;
@@ -661,7 +661,7 @@ QpickTunnel.categories().then((res) => {
     right: 0;
     text-indent: -5000px;
   }
-  li .price {      
+  li .price {
     position: absolute;
     top: 308px;
     left: 0;
@@ -671,7 +671,7 @@ QpickTunnel.categories().then((res) => {
     font-size: 16px;
     line-height: 16px;
   }
-  li .soldQty {    
+  li .soldQty {
     position: absolute;
     top: 338px;
     left: 0;
@@ -708,7 +708,7 @@ QpickTunnel.categories().then((res) => {
     color: #F55555;
     border: 1px solid #F55555;
   }
-  li .catchphrase i {      
+  li .catchphrase i {
     color: #ffffff;
     border: 1px solid #43C7FF;
     background-color: #43C7FF;
@@ -764,7 +764,7 @@ QpickTunnel.categories().then((res) => {
     right: 0;
     height: 14px;
     margin: 0;
-    padding: 0;      
+    padding: 0;
     color: #000000;
     font-size: 14px;
     font-weight: bold;
@@ -772,7 +772,7 @@ QpickTunnel.categories().then((res) => {
     letter-spacing: -1px;
     word-spacing: -1px;
   }
-  li .price {  
+  li .price {
     position: absolute;
     bottom: 24px;
     left: 0;
@@ -782,7 +782,7 @@ QpickTunnel.categories().then((res) => {
     font-size: 14px;
     line-height: 14px;
   }
-  li .soldQty {    
+  li .soldQty {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -820,7 +820,7 @@ QpickTunnel.categories().then((res) => {
     color: #F55555;
     border: 1px solid #F55555;
   }
-  li .catchphrase i {      
+  li .catchphrase i {
     color: #ffffff;
     border: 1px solid #43C7FF;
     background-color: #43C7FF;
@@ -832,7 +832,7 @@ let ul = document.querySelector("ul");
 
 document.querySelector("h2").innerText = compOpt.title;
 
-QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {  
+QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
   for(const v of res) {
     let li = document.createElement("li");
     let img = new Image();
@@ -845,9 +845,9 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
 
     img.src = v.image;
     img.setAttribute("alt", v.name);
-    
+
     h3Title.appendChild(document.createTextNode(v.name));
-    
+
     divPrice.className = "price";
 
     if(v.orgPrice) {
@@ -942,7 +942,7 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     right: 0;
     height: 16px;
     margin: 0;
-    padding: 0;      
+    padding: 0;
     color: #000000;
     font-size: 16px;
     font-weight: bold;
@@ -961,7 +961,7 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     right: 0;
     text-indent: -5000px;
   }
-  li .price {      
+  li .price {
     position: absolute;
     top: 487px;
     left: 0;
@@ -984,7 +984,7 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     color: #AAAAAA;
     font-weight: bold;
     font-size: 13px;
-    text-decoration: line-through; 
+    text-decoration: line-through;
     line-height: 15px;
     letter-spacing: -1px;;
   }
@@ -1015,7 +1015,7 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     color: #F55555;
     border: 1px solid #F55555;
   }
-  li .catchphrase i {      
+  li .catchphrase i {
     color: #ffffff;
     border: 1px solid #43C7FF;
     background-color: #43C7FF;
@@ -1057,13 +1057,13 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     margin-bottom: 127px;
   }
   li h3 {
-    position: absolute; 
+    position: absolute;
     left: 16px;
     right: 16px;
     bottom: 56px;
     height: 32px;
     margin: 0;
-    padding: 0;      
+    padding: 0;
     color: #000000;
     font-size: 14px;
     font-weight: bold;
@@ -1071,7 +1071,7 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     letter-spacing: -1px;
   }
   li .price {
-    position: absolute; 
+    position: absolute;
     left: 16px;
     right: 16px;
     bottom: 32px;
@@ -1089,12 +1089,12 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     margin-left: 6px;
     color: #AAAAAA;
     font-size: 13px;
-    text-decoration: line-through; 
+    text-decoration: line-through;
     line-height: 15px;
     letter-spacing: -1px;;
   }
   li .catchphrase {
-    position: absolute; 
+    position: absolute;
     left: 16px;
     right: 16px;
     bottom: 95px;
@@ -1112,21 +1112,21 @@ let ul = document.querySelector("ul");
 
 document.querySelector("h2").innerText = compOpt.title;
 
-for(const no of compOpt.items) {      
+for(const no of compOpt.items) {
   let li = document.createElement("li");
   ul.appendChild(li);
 
-  QpickTunnel.product(no).then((res) => {      
+  QpickTunnel.product(no).then((res) => {
     let img = new Image();
     let h3Title = document.createElement("h3");
     let divPrice = document.createElement("div");
     //let divQty = document.createElement("div");
     let divPhrase = document.createElement("div");
     let anchor = document.createElement("a");
-    
+
     img.src = res.image;
     img.setAttribute("alt", res.name);
-    
+
     h3Title.appendChild(document.createTextNode(res.name));
 
     let price_formatted = parseInt(res.price).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
