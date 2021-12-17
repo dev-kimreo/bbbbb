@@ -369,6 +369,12 @@ class ComponentsAndThemesSeeder extends Seeder
 }
             ',
             'script' => '
+// Data postprocessing for the theme editor
+compOpt[\'menu\'] = JSON.parse(compOpt[\'menu\']);
+if(typeof(compOpt[\'menu\']) != \'array\') {
+  compOpt[\'menu\'] = [];
+}
+
 // Main Menu
 let ul = document.querySelector("#lHeaderMainMenu");
 
@@ -484,6 +490,12 @@ for(const v of compOpt["menu"]) {
 }
             ',
             'script' => '
+// Data postprocessing for the theme editor
+compOpt[\'banners\'] = JSON.parse(compOpt[\'banners\']);
+if(typeof(compOpt[\'banners\']) != \'array\') {
+  compOpt[\'banners\'] = [];
+}
+
 let ul = document.getElementById("banners");
 
 for(const v of compOpt["banners"]) {
@@ -1107,6 +1119,11 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
 }
             ',
             'script' => '
+// Data postprocessing for the theme editor
+compOpt[\'items\'] = JSON.parse(\'[\' + compOpt[\'items\'] + \']\');
+if(typeof(compOpt[\'items\']) != \'array\') {
+  compOpt[\'items\'] = [];
+}
 
 let ul = document.querySelector("ul");
 
