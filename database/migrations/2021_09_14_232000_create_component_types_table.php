@@ -17,9 +17,11 @@ class CreateComponentTypesTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->string('name', 64);
-            $table->string('code', 64);
-            $table->boolean('isPlural');
-            $table->unsignedInteger('maxCount')->default(1);
+            $table->boolean('is_plural')->default(false);
+            $table->boolean('has_option')->default(false);
+            $table->boolean('has_default')->default(false);
+            $table->unsignedInteger('max_count')->default(1);
+            $table->text('attributes')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

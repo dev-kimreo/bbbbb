@@ -28,6 +28,10 @@ class SolutionSeeder extends Seeder
             [
                 'name' => '마이소호',
                 'created_at' => Carbon::now()
+            ],
+            [
+                'name' => '카페24',
+                'created_at' => Carbon::now()
             ]
         ]);
     }

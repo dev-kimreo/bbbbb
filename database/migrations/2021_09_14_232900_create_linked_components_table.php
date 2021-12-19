@@ -20,8 +20,8 @@ class CreateLinkedComponentsTable extends Migration
             $table->foreignId('component_id')->constrained();
             $table->string('name', 64);
             $table->text('etc')->nullable();
-            $table->boolean('pcDisplay')->default(false);
-            $table->boolean('mobileDisplay')->default(false);
+            $table->boolean('display_on_pc')->default(false);
+            $table->boolean('display_on_mobile')->default(false);
             $table->integer('sort')->default(1);
             $table->timestamps();
             $table->softDeletes();

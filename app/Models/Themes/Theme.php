@@ -52,7 +52,7 @@ class Theme extends Model
         return $this->belongsTo(Solution::class, 'solution_id');
     }
 
-    public function editablePage(): HasMany
+    public function editablePages(): HasMany
     {
         return $this->hasMany(EditablePage::class);
     }

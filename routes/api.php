@@ -11,6 +11,9 @@ use App\Http\Controllers\Boards\OptionController;
 use App\Http\Controllers\Boards\PostController;
 use App\Http\Controllers\Boards\ReplyController;
 use App\Http\Controllers\Components\ComponentController;
+use App\Http\Controllers\Components\ComponentOptionController;
+use App\Http\Controllers\Components\ComponentTypeController;
+use App\Http\Controllers\Components\ComponentTypePropertyController;
 use App\Http\Controllers\Components\ComponentVersionController;
 use App\Http\Controllers\EditablePages\EditablePageController;
 use App\Http\Controllers\EditablePages\EditablePageLayoutController;
@@ -422,13 +425,41 @@ Route::group([
         Route::delete('/{component_id}/version/{version_id}', [ComponentVersionController::class, 'destroy']);
 
         Route::patch('/{component_id}/activate-version/{version_id}', [ComponentVersionController::class, 'activate']);
+
+        // 컴포넌트 옵션
+        Route::get('/{component_id}/version/{version_id}/option', [ComponentOptionController::class, 'index']);
+        Route::get('/{component_id}/version/{version_id}/option/{option_id}', [ComponentOptionController::class, 'show']);
+        Route::post('/{component_id}/version/{version_id}/option', [ComponentOptionController::class, 'store']);
+        Route::patch('/{component_id}/version/{version_id}/option/{option_id}', [ComponentOptionController::class, 'update']);
+        Route::delete('/{component_id}/version/{version_id}/option/{option_id}', [ComponentOptionController::class, 'destroy']);
+
+        Route::post('/{component_id}/version/{version_id}/relational-option', [ComponentOptionController::class, 'relationalStore']);
+
+    });
+
+    // 컴포넌트 옵션 유형
+    Route::group([
+        'prefix' => 'component-type',
+        'middleware' => ['auth:api', 'chkAccess:partner']
+    ], function () {
+        Route::get('', [ComponentTypeController::class, 'index']);
+        Route::get('/{type_id}', [ComponentTypeController::class, 'show']);
+        Route::post('', [ComponentTypeController::class, 'store']);
+        Route::patch('/{type_id}', [ComponentTypeController::class, 'update']);
+        Route::delete('/{type_id}', [ComponentTypeController::class, 'destroy']);
+
+        // 컴포넌트 옵션 유형 속성
+        Route::get('/{type_id}/property', [ComponentTypePropertyController::class, 'index']);
+        Route::get('/{type_id}/property/{property_id}', [ComponentTypePropertyController::class, 'show']);
+        Route::post('/{type_id}/property', [ComponentTypePropertyController::class, 'store']);
+        Route::patch('/{type_id}/property/{property_id}', [ComponentTypePropertyController::class, 'update']);
     });
 
 
     /**
      * 컴포넌트 Script Request API
      */
-    Route::get('/component/script/{hash}', [ScriptRequestController::class, 'show'])
+    Route::get('/component/script/{hash}.js', [ScriptRequestController::class, 'show'])
         ->withoutMiddleware([ConvertResponseToCamelCase::class]);
 
     /**

@@ -25,8 +25,9 @@ class DatabaseSeeder extends Seeder
                 EmailTemplateSeeder::class,
                 ExhibitionsSeeder::class,
                 WidgetSeeder::class,
+                ComponentTypeSeeder::class,
                 TestEditorSeeder::class,
-                ComponentsAndThemesSeeder::class
+//                ComponentsAndThemesSeeder::class
             ]
         );
 

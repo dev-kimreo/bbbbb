@@ -142,7 +142,7 @@ class LinkedComponentController extends Controller
      *      }}
      *  )
      */
-    public function show(int $linkedComponentId)
+    public function show(int $themeId, int $editablePageId, int $linkedComponentId)
     {
         $res = LinkedComponent::query()->findOrFail($linkedComponentId);
 
@@ -169,6 +169,8 @@ class LinkedComponentController extends Controller
      *              @OA\Property(property="component_id", ref="#/components/schemas/LinkedComponent/properties/component_id"),
      *              @OA\Property(property="name", ref="#/components/schemas/LinkedComponent/properties/name"),
      *              @OA\Property(property="sort", ref="#/components/schemas/LinkedComponent/properties/sort"),
+     *              @OA\Property(property="display_on_pc", ref="#/components/schemas/LinkedComponent/properties/display_on_pc"),
+     *              @OA\Property(property="display_on_mobile", ref="#/components/schemas/LinkedComponent/properties/display_on_mobile"),
      *          )
      *      ),
      *      @OA\Response(
@@ -205,8 +207,11 @@ class LinkedComponentController extends Controller
      *      @OA\RequestBody(
      *          description="",
      *          @OA\JsonContent(
+     *              @OA\Property(property="linked_component_group_id", ref="#/components/schemas/LinkedComponent/properties/linked_component_group_id"),
      *              @OA\Property(property="name", ref="#/components/schemas/LinkedComponent/properties/name"),
      *              @OA\Property(property="sort", ref="#/components/schemas/LinkedComponent/properties/sort"),
+     *              @OA\Property(property="display_on_pc", ref="#/components/schemas/LinkedComponent/properties/display_on_pc"),
+     *              @OA\Property(property="display_on_mobile", ref="#/components/schemas/LinkedComponent/properties/display_on_mobile"),
      *          )
      *      ),
      *      @OA\Response(
@@ -237,6 +242,15 @@ class LinkedComponentController extends Controller
         // 컴포넌트 작성자 확인
         if (!Auth::user()->can('authorize', $component = Component::findOrFail($linkedComponent->getAttribute('component_id')))) {
             throw new QpickHttpException(403, 'common.forbidden');
+        }
+
+        // check linkedComponentGroupId
+        if ($i = $request->input('linked_component_group_id')) {
+            $editablePageLayout = EditablePageLayout::query()->where('editable_page_id', $editablePageId)->first();
+            $eplData = $editablePageLayout->getAttributes();
+            if (!in_array($i, [$eplData['header_component_group_id'], $eplData['content_component_group_id'], $eplData['footer_component_group_id']])) {
+                throw new QpickHttpException(422, 'common.bad_request');
+            }
         }
 
         $linkedComponent->update($request->all());
@@ -302,6 +316,8 @@ class LinkedComponentController extends Controller
      *              @OA\Property(property="component_id", ref="#/components/schemas/LinkedComponent/properties/component_id"),
      *              @OA\Property(property="name", ref="#/components/schemas/LinkedComponent/properties/name"),
      *              @OA\Property(property="sort", ref="#/components/schemas/LinkedComponent/properties/sort"),
+     *              @OA\Property(property="display_on_pc", ref="#/components/schemas/LinkedComponent/properties/display_on_pc"),
+     *              @OA\Property(property="display_on_mobile", ref="#/components/schemas/LinkedComponent/properties/display_on_mobile"),
      *          )
      *      ),
      *      @OA\Response(
