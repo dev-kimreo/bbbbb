@@ -26,7 +26,7 @@ class LinkedComponentOption extends Model
 
     protected $fillable = ['component_option_id', 'linked_component_id', 'value'];
     protected $casts = [
-        'value' => 'json'
+        'value' => 'array'
     ];
 
     public function componentOption(): BelongsTo
