@@ -24,20 +24,13 @@ class LinkedComponentOption extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
-
     protected $fillable = ['component_option_id', 'linked_component_id', 'value'];
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [];
+    protected $casts = [
+        'value' => 'json'
+    ];
 
     public function componentOption(): BelongsTo
     {
         return $this->belongsTo(ComponentOption::class, 'component_option_id');
     }
-
 }
-
