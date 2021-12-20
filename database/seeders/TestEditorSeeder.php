@@ -45,13 +45,8 @@ class TestEditorSeeder extends Seeder
                     [
                         [
                             'name' => '메인',
-                            'file_name' => 'main.html'
-                        ],
-                        [
-
-                            'name' => '목록',
-                            'file_name' => 'list.html'
-                        ],
+                            'file_name' => 'index.js'
+                        ]
                     ]
                 );
             });
