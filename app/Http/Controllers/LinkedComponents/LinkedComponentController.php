@@ -67,20 +67,20 @@ class LinkedComponentController extends Controller
             foreach ($a as $type) {
                 switch ($type) {
                     case 'header':
-                        $res['header'] = $editablePageLayout->linkedHeaderComponentGroup->linkedComponent;
+                        $res['header'] = $editablePageLayout->linkedHeaderComponentGroup->linkedComponents;
                         break;
                     case 'content':
-                        $res['content'] = $editablePageLayout->linkedContentComponentGroup->linkedComponent;
+                        $res['content'] = $editablePageLayout->linkedContentComponentGroup->linkedComponents;
                         break;
                     case 'footer':
-                        $res['footer'] = $editablePageLayout->linkedFooterComponentGroup->linkedComponent;
+                        $res['footer'] = $editablePageLayout->linkedFooterComponentGroup->linkedComponents;
                         break;
                 }
             }
         } else {
-            $res['header'] = $editablePageLayout->linkedHeaderComponentGroup->linkedComponent;
-            $res['content'] = $editablePageLayout->linkedContentComponentGroup->linkedComponent;
-            $res['footer'] = $editablePageLayout->linkedFooterComponentGroup->linkedComponent;
+            $res['header'] = $editablePageLayout->linkedHeaderComponentGroup->linkedComponents;
+            $res['content'] = $editablePageLayout->linkedContentComponentGroup->linkedComponents;
+            $res['footer'] = $editablePageLayout->linkedFooterComponentGroup->linkedComponents;
         }
 
         return $res;

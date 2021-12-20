@@ -47,7 +47,7 @@ class LinkedComponentGroup extends Model
         return $this->hasMany(EditablePageLayout::class, 'footer_component_group_id', 'id');
     }
 
-    public function linkedComponent(): HasMany
+    public function linkedComponents(): HasMany
     {
         return $this->hasMany(LinkedComponent::class, 'linked_component_group_id', 'id')->orderBy('sort', 'asc');
     }
