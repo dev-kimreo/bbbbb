@@ -106,7 +106,7 @@ class ComponentOptionController extends Controller
         $res = ComponentOption::findOrFail($optionId);
 
         if ($request->input('with_option_properties')) {
-            $res->selectedOption;
+            $res->properties;
         }
 
         return collect($res);
@@ -344,7 +344,7 @@ class ComponentOptionController extends Controller
         });
 
         // 연동 컴포넌트 옵션 속성 추가
-        $option->selectedOption;
+        $option->properties;
 
         return response()->json($option, 201);
     }

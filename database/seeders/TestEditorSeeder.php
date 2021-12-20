@@ -130,7 +130,7 @@ class TestEditorSeeder extends Seeder
                         'name' => '이미지',
                         'initial_value' => 'https://블라블라~'
                     ]),
-                    'selectedOption'
+                    'properties'
                 )->has(
                     ComponentOptionProperty::factory()->for(
                         ComponentType::where('name', 'Image URL Display')->first()->properties->skip(1)->first(),
@@ -140,7 +140,7 @@ class TestEditorSeeder extends Seeder
                         'name' => '이미지 alt',
                         'initial_value' => 'https://블라블라~'
                     ]),
-                    'selectedOption'
+                    'properties'
                 )->has(
                     ComponentOptionProperty::factory()->for(
                         ComponentType::where('name', 'Image URL Display')->first()->properties->skip(2)->first(),
@@ -150,7 +150,7 @@ class TestEditorSeeder extends Seeder
                         'name' => '연결 url',
                         'initial_value' => 'https://블라블라로이동'
                     ]),
-                    'selectedOption'
+                    'properties'
                 ),
                 'option'
             ),
