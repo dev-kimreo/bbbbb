@@ -32,7 +32,9 @@ class ThemeProduct extends Model
 
 
     protected $fillable = [
-        'user_partner_id', 'name', 'all_usable'
+        'user_partner_id',
+        'name',
+        'all_usable'
     ];
 
     /**
@@ -41,7 +43,6 @@ class ThemeProduct extends Model
      * @var array
      */
     protected $hidden = ['deleted_at'];
-
 
     public function creator(): BelongsTo
     {
@@ -57,7 +58,5 @@ class ThemeProduct extends Model
     {
         return $this->hasOne(ThemeProductInformation::class);
     }
-
-
 }
 
