@@ -52,7 +52,7 @@ class LinkedComponent extends Model
         return $this->belongsTo(Component::class, 'component_id');
     }
 
-    public function linkedOption(): HasMany
+    public function linkedOptions(): HasMany
     {
         return $this->hasMany(LinkedComponentOption::class, 'linked_component_id', 'id');
     }

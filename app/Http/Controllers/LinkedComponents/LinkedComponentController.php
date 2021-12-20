@@ -150,6 +150,27 @@ class LinkedComponentController extends Controller
             $res = $res->setAppends(['renderData']);
         }
 
+        if (request()->input('with_options')) {
+            $optionValues = [];
+            $res->linkedOptions()->each(function($lo) use (&$optionValues) {
+                $optionValues[$lo->componentOption()->first()->getAttribute('key')] = $lo->getAttribute('value');
+            });
+
+            $res->setAttribute('optionValues', $optionValues);
+
+            $res->linkedOptions;
+
+            // TODO 연동 컴포넌트 옵션 값을 어찌 할것이냐에 따라 쓰이고 안쓰이고...
+//            $mergedOption = [];
+//            $res->component->usableVersion()->first()->option()->each(function ($co) use (&$mergedOption) {
+//                $mergedOption[$co['key']] = [];
+//                $co->selectedOption()->each(function ($cop) use (&$mergedOption) {
+//                });
+//            });
+//
+//            $res->setAttribute('mergedOption', $mergedOption);
+        }
+
         return $res;
     }
 
@@ -338,9 +359,6 @@ class LinkedComponentController extends Controller
     public function relationalLinkedComponent(StoreRequest $request, int $themeId, int $editablePageId)
     {
         $linkedComponent = $this->createLinkedComponent(Theme::findOrFail($themeId), $request);
-
-        // 컴포넌트에 적용된 옵션 연동 컴포넌트 옵션으로 추가
-        $this->createLinkedComponentOptionForComponent($linkedComponent);
     }
 
     /**
@@ -372,6 +390,11 @@ class LinkedComponentController extends Controller
         ))->refresh();
     }
 
+    /**
+     * 연결된 컴포넌트의 옵션을 연동 컴포넌트 옵션으로 등록하는 함수
+     * 추후 연동 컴포넌트 옵션을 어찌할 것이냐에 따라 사용 여부가 결정될 것 같음.
+     * @param LinkedComponent $linkedComponent
+     */
     protected function createLinkedComponentOptionForComponent(LinkedComponent $linkedComponent)
     {
         $linkedComponent->component()->each(function ($c) use ($linkedComponent) {
@@ -384,9 +407,5 @@ class LinkedComponentController extends Controller
                 });
             });
         });
-    }
-
-    public function scriptRequest()
-    {
     }
 }
