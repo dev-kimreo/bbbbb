@@ -47,6 +47,11 @@ class Theme extends Model
      */
     protected $hidden = [];
 
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(ThemeProduct::class, 'theme_product_id');
+    }
+
     public function solution(): BelongsTo
     {
         return $this->belongsTo(Solution::class, 'solution_id');

@@ -48,7 +48,7 @@ class ThemeProduct extends Model
         return $this->belongsTo(UserPartner::class, 'user_partner_id');
     }
 
-    public function theme(): HasMany
+    public function themes(): HasMany
     {
         return $this->hasMany(Theme::class);
     }
