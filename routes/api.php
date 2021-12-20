@@ -28,6 +28,7 @@ use App\Http\Controllers\LinkedComponents\LinkedComponentOptionController;
 use App\Http\Controllers\LinkedComponents\ScriptRequestController;
 use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\TermsOfUseController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\Themes\ThemeController;
 use App\Http\Controllers\Themes\ThemeProductController;
 use App\Http\Controllers\TooltipController;
@@ -62,6 +63,9 @@ Route::group([
         'responseToCamel',
     ]
 ], function () {
+    // TODO Front end 의 Referer 체크를 위한 임시 controller 체크 후 삭제
+    Route::get('test', [TestController::class, 'test']);
+
     /**
      * 회원 관련
      */
