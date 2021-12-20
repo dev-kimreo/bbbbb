@@ -427,7 +427,7 @@ for(const v of compOpt["menu"]) {
                     'type' => 'Text Field',
                     'key' => 'menu',
                     'help' => '다음과 같은 형식의 JSON 배열로 입력합니다: [{title:"", url:""},{title:"", url:""}]',
-                    'default' => '[]'
+                    'default' => '[{"title":\'신상NEW\',"url":\'/\'},{"title":\'BEST50\',"url":\'/\'}]'
                 ],
                 /*
                  *  데이터 형태
@@ -517,14 +517,14 @@ for(const v of compOpt["banners"]) {
                     'type' => 'Text Field',
                     'key' => 'title',
                     'help' => '다음과 같은 형식의 JSON 배열로 2개의 배너를 입력합니다: [{img:"", url:""},{img:"", url:""}]',
-                    'default' => '[]'
+                    'default' => '[{"img":\'https://raphanus.cafe24.com/qpick_images/img_mainbnr_1.png\',"url":\'/product.html\'},{"img":\'https://raphanus.cafe24.com/qpick_images/img_mainbnr_2.png\',"url":\'/product.html\'}]'
                 ],
                 /*
                  *  데이터 형태
                  *  {
                  *  "banners":[
-                 *      {"img":'https://raphanus.cafe24.com/qpick/images/img_mainbnr_1.png',"url":'/product.html'},
-                 *      {"img":'https://raphanus.cafe24.com/qpick/images/img_mainbnr_2.png',"url":'/product.html'}
+                 *      {"img":'https://raphanus.cafe24.com/qpick_images/img_mainbnr_1.png',"url":'/product.html'},
+                 *      {"img":'https://raphanus.cafe24.com/qpick_images/img_mainbnr_2.png',"url":'/product.html'}
                  *  ]
                  *  }
                 */
@@ -1183,7 +1183,7 @@ for(const no of compOpt.items) {
                     'type' => 'Text Field',
                     'key' => 'items',
                     'help' => '노출할 상품번호를 입력합니다. 여러 개를 입력할 경우 쉼표(,)로 연결하여 입력합니다.',
-                    'default' => 'NEW DEAL'
+                    'default' => '9,10,11,12,13'
                 ]
                 /*
                  *  데이터 형태
@@ -1342,11 +1342,16 @@ for(const no of compOpt.items) {
 
             // 연동 컴포넌트 옵션
             $v->version->first()->option->each(function ($v2) use ($v, $linkedComponent) {
+                $values = [];
+                $v2->properties->each(function ($v3) use (&$values) {
+                    $values[$v3->key] = $v3->initial_value;
+                });
+
                 LinkedComponentOption::query()->create(
                     [
                         'component_option_id' => $v2->id,
                         'linked_component_id' => $linkedComponent->id,
-                        'value' => $v2->default
+                        'value' => $values
                     ]
                 );
             });
