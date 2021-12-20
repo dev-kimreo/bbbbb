@@ -50,7 +50,7 @@ class ComponentOption extends Model
         return $this->belongsTo(ComponentType::class, 'component_type_id', 'id');
     }
 
-    public function selectedOption(): hasMany
+    public function properties(): hasMany
     {
         return $this->hasMany(ComponentOptionProperty::class, 'component_option_id', 'id');
     }
