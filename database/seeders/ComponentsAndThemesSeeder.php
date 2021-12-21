@@ -45,7 +45,7 @@ class ComponentsAndThemesSeeder extends Seeder
       <a href="#">고객센터</a>
     </div>
     <ul id="lHeaderRightMenu">
-      <li class="cart"><a href="order/basket.html">장바구니</a><span data-qpick-element="cart-count"></span></li>
+      <li class="cart"><a href="#">장바구니</a><span data-qpick-element="cart-count"></span></li>
       <li class="menu"><a href="#">메뉴</a></li>
     </ul>
     <ul id="lHeaderMainMenu"></ul>
@@ -370,8 +370,9 @@ class ComponentsAndThemesSeeder extends Seeder
             ',
             'script' => '
 // Data postprocessing for the theme editor
-compOpt[\'menu\'] = JSON.parse(compOpt[\'menu\']);
-if(typeof(compOpt[\'menu\']) != \'array\') {
+try {
+  compOpt[\'menu\'] = JSON.parse(compOpt[\'menu\']);
+} catch(e) {
   compOpt[\'menu\'] = [];
 }
 
@@ -387,6 +388,9 @@ for(const v of compOpt["menu"]) {
 
   li.appendChild(anchor);
   ul.appendChild(li);
+
+  // Links
+  document.querySelector("#lHeaderRightMenu .cart a").setAttribute("href", "/order/basket.html");
 
   // Search Form
   document.querySelector("[data-qpick-form=\'search\']").setAttribute("action", "/product/search.html");
@@ -491,8 +495,9 @@ for(const v of compOpt["menu"]) {
             ',
             'script' => '
 // Data postprocessing for the theme editor
-compOpt[\'banners\'] = JSON.parse(compOpt[\'banners\']);
-if(typeof(compOpt[\'banners\']) != \'array\') {
+try {
+  compOpt[\'banners\'] = JSON.parse(compOpt[\'banners\']);
+} catch(e) {
   compOpt[\'banners\'] = [];
 }
 
@@ -1120,8 +1125,9 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
             ',
             'script' => '
 // Data postprocessing for the theme editor
-compOpt[\'items\'] = JSON.parse(\'[\' + compOpt[\'items\'] + \']\');
-if(typeof(compOpt[\'items\']) != \'array\') {
+try {
+  compOpt[\'items\'] = JSON.parse(\'[\' + compOpt[\'items\'] + \']\');
+} catch(e) {
   compOpt[\'items\'] = [];
 }
 
