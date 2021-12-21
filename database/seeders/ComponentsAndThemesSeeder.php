@@ -431,7 +431,7 @@ for(const v of compOpt["menu"]) {
                     'type' => 'Text Field',
                     'key' => 'menu',
                     'help' => '다음과 같은 형식의 JSON 배열로 입력합니다: [{title:"", url:""},{title:"", url:""}]',
-                    'default' => '[{"title":\'신상NEW\',"url":\'/\'},{"title":\'BEST50\',"url":\'/\'}]'
+                    'default' => '[{"title":"신상NEW","url":"/"},{"title":"BEST50","url":"/"}]'
                 ],
                 /*
                  *  데이터 형태
@@ -520,9 +520,9 @@ for(const v of compOpt["banners"]) {
                 [
                     'name' => '배너정보',
                     'type' => 'Text Field',
-                    'key' => 'title',
+                    'key' => 'banners',
                     'help' => '다음과 같은 형식의 JSON 배열로 2개의 배너를 입력합니다: [{img:"", url:""},{img:"", url:""}]',
-                    'default' => '[{"img":\'https://raphanus.cafe24.com/qpick_images/img_mainbnr_1.png\',"url":\'/product.html\'},{"img":\'https://raphanus.cafe24.com/qpick_images/img_mainbnr_2.png\',"url":\'/product.html\'}]'
+                    'default' => '[{"img":"https://raphanus.cafe24.com/qpick_images/img_mainbnr_1.png","url":"/product.html"},{"img":"https://raphanus.cafe24.com/qpick_images/img_mainbnr_2.png","url":"/product.html"}]'
                 ],
                 /*
                  *  데이터 형태
