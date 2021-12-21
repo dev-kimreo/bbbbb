@@ -29,6 +29,7 @@ use App\Http\Controllers\LinkedComponents\ScriptRequestController;
 use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\TermsOfUseController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\Themes\ThemeBuildController;
 use App\Http\Controllers\Themes\ThemeController;
 use App\Http\Controllers\Themes\ThemeProductController;
 use App\Http\Controllers\TooltipController;
@@ -406,6 +407,9 @@ Route::group([
         Route::post('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option', [LinkedComponentOptionController::class, 'store']);
         Route::patch('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'update']);
         Route::delete('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'destroy']);
+
+        // 빌드
+        Route::get('/{theme_id}/build', [ThemeBuildController::class, 'build']);
     });
 
     /**

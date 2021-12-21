@@ -45,7 +45,7 @@ class TestEditorSeeder extends Seeder
                     [
                         [
                             'name' => '메인',
-                            'file_name' => 'index.js'
+                            'file_name' => 'index'
                         ]
                     ]
                 );
