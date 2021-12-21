@@ -134,9 +134,10 @@ window.addEventListener("load", function(event) {
 
     protected function makeEachViewFiles()
     {
-        $head = 'let componentRenders = {}; window.addEventListener(\'load\', (e) => {' . "\n";
-        $tail = '});';
-        $raw = '';
+        $jHead = 'let componentRenders = {}; window.addEventListener(\'load\', (e) => {' . "\n";
+        $jTail = '});';
+        $jRaw = '';
+        $hRaw = '<!--@layout(/qpick/layout/main.html)-->';
 
         foreach($this->theme->editablePages as $page) {
             $componentGroup = [
@@ -149,12 +150,14 @@ window.addEventListener("load", function(event) {
                 foreach($group as $linkedComponent) {
                     $fileName = '/qpick/components/' . $linkedComponent->id . '.js';
                     $optJson = $this->getComponentOptionJson($linkedComponent->id);
-                    $raw .= "/*" . $linkedComponent->component->name . "*/\n";
-                    $raw .= 'import(\'' . $fileName . '\').then((module) => { module.setTemplate(' . $optJson . '); });' . "\n";
+                    $jRaw .= "/*" . $linkedComponent->component->name . "*/\n";
+                    $jRaw .= 'import(\'' . $fileName . '\').then((module) => { module.setTemplate(' . $optJson . '); });' . "\n";
+                    $hRaw .= '<qpick-component-' . $linkedComponent->id . '></qpick-component-' . $linkedComponent->id . '>';
                 }
             }
 
-            $this->zip->addFile('qpick/views/' . $page->supportedEditablePage->file_name, $head . $raw . $tail);
+            $this->zip->addFile('qpick/views/' . $page->supportedEditablePage->file_name . '.js', $jHead . $jRaw . $jTail);
+            $this->zip->addFile($page->supportedEditablePage->file_name . '.html', $hRaw);
         }
     }
 

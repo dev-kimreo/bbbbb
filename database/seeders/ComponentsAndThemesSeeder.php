@@ -42,10 +42,10 @@ class ComponentsAndThemesSeeder extends Seeder
       <a data-qpick-element="user-reg">회원가입</a>
       <a data-qpick-element="user-info">회원정보수정</a>
       <a data-qpick-element="logout">로그아웃</a>
-      <a href="#">고객센터</a>
+      <a data-qpick-element="customer-service">게시판</a>
     </div>
     <ul id="lHeaderRightMenu">
-      <li class="cart"><a href="#">장바구니</a><span data-qpick-element="cart-count"></span></li>
+      <li class="cart"><a data-qpick-element="cart">장바구니</a><span data-qpick-element="cart-count"></span></li>
       <li class="menu"><a href="#">메뉴</a></li>
     </ul>
     <ul id="lHeaderMainMenu"></ul>
@@ -390,7 +390,9 @@ for(const v of compOpt["menu"]) {
   ul.appendChild(li);
 
   // Links
-  document.querySelector("#lHeaderRightMenu .cart a").setAttribute("href", "/order/basket.html");
+  document.querySelector("[data-qpick-element=\'cart\']").setAttribute("href", "/order/basket.html");
+  document.querySelector("[data-qpick-element=\'customer-service\']").setAttribute("href", "/board/index.html");
+
 
   // Search Form
   document.querySelector("[data-qpick-form=\'search\']").setAttribute("action", "/product/search.html");
