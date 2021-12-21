@@ -2,6 +2,7 @@
 
 namespace App\Services\ThemeBuilders;
 
+use App\Models\LinkedComponents\LinkedComponent;
 use App\Models\Solution;
 use App\Models\Themes\Theme;
 use ZipStream\Option\Archive as ZipArchive;
@@ -167,8 +168,14 @@ abstract class ThemeBuilderService
         }
     }
 
-    protected function getComponentOptionJson($component_id)
+    protected function getComponentOptionJson($linked_component_id)
     {
-        // TODO: Implement getComponentOptionJson() method.
+        $dat = [];
+        $comp = LinkedComponent::query()->find($linked_component_id);
+        $comp->linkedOptions->each(function($v) use (&$dat) {
+            $dat[$v->componentOption->key] = $v->value;
+        });
+
+        return count($dat)? json_encode($dat): '{}';
     }
 }

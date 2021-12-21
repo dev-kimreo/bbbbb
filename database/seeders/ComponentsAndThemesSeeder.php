@@ -371,7 +371,7 @@ class ComponentsAndThemesSeeder extends Seeder
             'script' => '
 // Data postprocessing for the theme editor
 try {
-  compOpt[\'menu\'] = JSON.parse(compOpt[\'menu\']);
+  compOpt[\'menu\'] = JSON.parse(compOpt[\'menu\'].text);
 } catch(e) {
   compOpt[\'menu\'] = [];
 }
@@ -496,7 +496,7 @@ for(const v of compOpt["menu"]) {
             'script' => '
 // Data postprocessing for the theme editor
 try {
-  compOpt[\'banners\'] = JSON.parse(compOpt[\'banners\']);
+  compOpt[\'banners\'] = JSON.parse(compOpt[\'banners\'].text);
 } catch(e) {
   compOpt[\'banners\'] = [];
 }
@@ -847,9 +847,9 @@ QpickTunnel.categories().then((res) => {
             'script' => '
 let ul = document.querySelector("ul");
 
-document.querySelector("h2").innerText = compOpt.title;
+document.querySelector("h2").innerText = compOpt["title"].text;
 
-QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
+QpickTunnel.mainProducts(compOpt["groupNo"].text).then((res) => {
   for(const v of res) {
     let li = document.createElement("li");
     let img = new Image();
@@ -1126,16 +1126,16 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
             'script' => '
 // Data postprocessing for the theme editor
 try {
-  compOpt[\'items\'] = JSON.parse(\'[\' + compOpt[\'items\'] + \']\');
+  compOpt[\'items\'] = JSON.parse(\'[\' + compOpt[\'items\'].text + \']\');
 } catch(e) {
   compOpt[\'items\'] = [];
 }
 
 let ul = document.querySelector("ul");
 
-document.querySelector("h2").innerText = compOpt.title;
+document.querySelector("h2").innerText = compOpt["title"].text;
 
-for(const no of compOpt.items) {
+for(const no of compOpt["items"]) {
   let li = document.createElement("li");
   ul.appendChild(li);
 

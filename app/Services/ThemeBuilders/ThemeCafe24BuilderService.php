@@ -148,9 +148,9 @@ window.addEventListener("load", function(event) {
             foreach($componentGroup as $group) {
                 foreach($group as $linkedComponent) {
                     $fileName = '/qpick/components/' . $linkedComponent->id . '.js';
-                    // TODO: setTemplate() 안의 Object를 실제 DB에 저장된 컴포넌트 옵션값들로 구성하기
+                    $optJson = $this->getComponentOptionJson($linkedComponent->id);
                     $raw .= "/*" . $linkedComponent->component->name . "*/\n";
-                    $raw .= 'import(\'' . $fileName . '\').then((module) => { module.setTemplate({}); });' . "\n";
+                    $raw .= 'import(\'' . $fileName . '\').then((module) => { module.setTemplate(' . $optJson . '); });' . "\n";
                 }
             }
 
