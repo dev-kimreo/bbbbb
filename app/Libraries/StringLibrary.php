@@ -38,6 +38,14 @@ class StringLibrary
         ]);
     }
 
+    // 중복된 공백문자 및 개행문자 제거
+    public static function removeSpace(string $s): string
+    {
+        $s = preg_replace('/[\r\n]+/', '', trim($s));
+        $s = preg_replace('/[\s]+/', ' ', $s);
+        return preg_replace('/[\s]{2,}/', ' ', $s);
+    }
+
     // 한국어 조사변화 from https://taegon.kim/archives/4776
     public static function convertParticle($str)
     {

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Libraries\StringLibrary;
 use App\Models\ScriptRequest;
 use Auth;
 use Illuminate\Database\Eloquent\Model;
@@ -11,12 +12,12 @@ final class ComponentRenderingService
 {
     public static function procTemplate(string $s): string
     {
-        return self::removeSpace($s);
+        return StringLibrary::removeSpace($s);
     }
 
     public static function procStyle(string $s): string
     {
-        return self::removeSpace($s);
+        return StringLibrary::removeSpace($s);
     }
 
     public static function getScript(string $hash): string
@@ -41,7 +42,7 @@ final class ComponentRenderingService
             })(shadowRoot);
         };';
 
-        return self::removeSpace($scr);
+        return StringLibrary::removeSpace($scr);
     }
 
     public static function getJsonp(string $hash, string $callback): string
@@ -67,7 +68,7 @@ final class ComponentRenderingService
         });
         ';
 
-        //return self::removeSpace($scr);
+        //return StringLibrary::removeSpace($scr);
         return $scr;
     }
 
@@ -88,12 +89,5 @@ final class ComponentRenderingService
         $model->save();
 
         return $url;
-    }
-
-    protected static function removeSpace(string $s): string
-    {
-        $s = preg_replace('/[\r\n]+/', '', trim($s));
-        $s = preg_replace('/[\s]+/', ' ', $s);
-        return preg_replace('/[\s]{2,}/', ' ', $s);
     }
 }
