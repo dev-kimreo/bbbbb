@@ -52,9 +52,10 @@ class EditablePageLayoutController extends Controller
      *      }}
      *  )
      */
-    public function index(IndexRequest $request)
+    public function index(IndexRequest $request, int $themeId, int $editablePageId)
     {
         $layoutBuilder = EditablePageLayout::query();
+        $layoutBuilder->where('editable_page_id', $editablePageId);
 
         // Sort By
         if ($s = $request->input('sort_by')) {
@@ -92,7 +93,7 @@ class EditablePageLayoutController extends Controller
      *      }}
      *  )
      */
-    public function show(int $layoutId)
+    public function show(int $themeId, int $editablePageId, int $layoutId)
     {
         return EditablePageLayout::findOrFail($layoutId);
     }
