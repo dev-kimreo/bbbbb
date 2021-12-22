@@ -30,12 +30,13 @@ class ThemeBuildController extends Controller
         // 빌더
         switch($theme->solution->name)
         {
-            case '카페24': $builder = new ThemeCafe24BuilderService(); break;
+            case '카페24': $builder = new ThemeCafe24BuilderService('zip'); break;
             default:
                 throw new QpickHttpException(422, 'something.here');
         }
 
         // 다운로드
-        $builder->download($theme_id);
+        $builder->build($theme_id);
+        $builder->download();
     }
 }

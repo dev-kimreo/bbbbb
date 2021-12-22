@@ -10,28 +10,38 @@ use ZipStream\ZipStream;
 
 abstract class ThemeBuilderService
 {
+    protected string $mode = 'zip';
     protected ZipStream $zip;
     protected Theme $theme;
     protected Solution $solution;
     protected array $linkedComponents = [];
+    protected array $files = [];
 
     abstract protected function makeTunnelFile();
+
     abstract protected function makeEachViewFiles();
+
     abstract protected function makeSolutionSpecializedFiles();
 
-    public function __construct()
+    public function __construct(string $mode = 'zip')
     {
+        $this->setMode($mode);
     }
 
-    public function download(int $theme_id)
+    protected function setMode($mode)
     {
-        // enable output of HTTP headers
-        $options = new ZipArchive();
-        $options->setSendHttpHeaders(true);
+        if (in_array($mode, ['zip', 'ftp'])) {
+            $this->mode = $mode;
+        }
+    }
 
-        // create a new zipstream object
-        $this->zip = new ZipStream('qpick.zip', $options);
+    protected function addFile($path, $data)
+    {
+        $this->files[$path] = $data;
+    }
 
+    public function build(int $theme_id)
+    {
         // make up details
         $this->getRelations($theme_id);
         $this->makeBasicFiles();
@@ -39,9 +49,20 @@ abstract class ThemeBuilderService
         $this->makeEachViewFiles();
         $this->makeEachComponentFiles();
         $this->makeSolutionSpecializedFiles();
+    }
 
-        // start download
-        $this->zip->finish();
+    public function download()
+    {
+        $options = new ZipArchive();
+        $options->setSendHttpHeaders(true);
+
+        $zip = new ZipStream('qpick.zip', $options);
+
+        foreach($this->files as $path => $data) {
+            $zip->addFile($path, $data);
+        }
+
+        $zip->finish();
     }
 
     protected function getRelations(int $theme_id)
@@ -68,7 +89,7 @@ abstract class ThemeBuilderService
     {
         // qpick/basis/base.css;
         $raw = 'body { margin: 0; padding: 0; }';
-        $this->zip->addFile('qpick/basis/base.css', $raw);
+        $this->addFile('qpick/basis/base.css', $raw);
 
         // qpick/basis/core.js;
         $raw = '
@@ -90,7 +111,7 @@ abstract class ThemeBuilderService
               }
             }
         ';
-        $this->zip->addFile('qpick/basis/core.js', $raw);
+        $this->addFile('qpick/basis/core.js', $raw);
 
         // qpick/basis/qpick.js;
         $raw = '
@@ -123,7 +144,7 @@ abstract class ThemeBuilderService
               }
             }
         ';
-        $this->zip->addFile('qpick/basis/qpick.js', $raw);
+        $this->addFile('qpick/basis/qpick.js', $raw);
     }
 
     protected function makeEachComponentFiles()
@@ -140,28 +161,28 @@ abstract class ThemeBuilderService
             "createTextNode",
             "createDocumentFragment"
           ];
-        
+
           for(const fn of arrMethod) {
             shadowRoot[fn] = function(v = null){
               return document[fn](v)
             };
           }
-        
+
           (function(document) {
         ';
         $rTail = '
           })(shadowRoot);
-        };        
+        };
         ';
 
         foreach ($this->linkedComponents as $linkedComponent) {
             $sourceCodes = $linkedComponent->component->usableVersion()->first();
             $raw = $linkedComponent->id . ',`' . $sourceCodes->template . '`,`' . $sourceCodes->style . '`';
-            $this->zip->addFile(
+            $this->addFile(
                 'qpick/components/' . $linkedComponent->id . '.js',
                 $cHead . $raw . $cTail
             );
-            $this->zip->addFile(
+            $this->addFile(
                 'qpick/renderers/' . $linkedComponent->id . '.js',
                 $rHead . $sourceCodes->script . $rTail
             );
