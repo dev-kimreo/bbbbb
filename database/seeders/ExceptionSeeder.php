@@ -320,6 +320,12 @@ class ExceptionSeeder extends Seeder
             ],
             [
                 'exception',
+                'theme.solution.not_found',
+                '테마의 솔루션 정보가 잘못되었습니다.',
+                'Wrong solution information'
+            ],
+            [
+                'exception',
                 'theme.export.ftp.host',
                 '솔루션 FTP 접속정보가 잘못되었습니다.',
                 'Wrong host or port for connect FTP'

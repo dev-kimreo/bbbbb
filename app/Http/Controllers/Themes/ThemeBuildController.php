@@ -68,7 +68,7 @@ class ThemeBuildController extends Controller
                 $port = 21;
                 break;
             default:
-                throw new QpickHttpException(422, 'something.here');
+                throw new QpickHttpException(422, 'theme.solution.not_found');
         }
 
         // FTP 업로드
