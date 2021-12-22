@@ -2,15 +2,20 @@
 
 namespace App\Services\ThemeBuilders;
 
+use App\Exceptions\QpickHttpException;
 use App\Models\LinkedComponents\LinkedComponent;
 use App\Models\Solution;
 use App\Models\Themes\Theme;
+use League\Flysystem\Adapter\Ftp as FtpAdapter;
+use League\Flysystem\ConnectionRuntimeException;
+use League\Flysystem\FileExistsException;
+use League\Flysystem\FileNotFoundException;
+use League\Flysystem\Filesystem;
 use ZipStream\Option\Archive as ZipArchive;
 use ZipStream\ZipStream;
 
 abstract class ThemeBuilderService
 {
-    protected string $mode = 'zip';
     protected ZipStream $zip;
     protected Theme $theme;
     protected Solution $solution;
@@ -23,16 +28,8 @@ abstract class ThemeBuilderService
 
     abstract protected function makeSolutionSpecializedFiles();
 
-    public function __construct(string $mode = 'zip')
+    public function __construct()
     {
-        $this->setMode($mode);
-    }
-
-    protected function setMode($mode)
-    {
-        if (in_array($mode, ['zip', 'ftp'])) {
-            $this->mode = $mode;
-        }
     }
 
     protected function addFile($path, $data)
@@ -63,6 +60,43 @@ abstract class ThemeBuilderService
         }
 
         $zip->finish();
+    }
+
+    /**
+     * @throws FileNotFoundException
+     * @throws QpickHttpException
+     */
+    public function ftpUpload(string $host, int $port, string $user, string $password, string $rootPath)
+    {
+        $ftp = new Filesystem(
+            new FtpAdapter(
+                [
+                    'host' => $host,
+                    'username' => $user,
+                    'password' => $password,
+
+                    /** optional config settings */
+                    'port' => $port,
+                    'root' => $rootPath,
+                    'passive' => true,
+                    'ssl' => ($port == 22),
+                    'timeout' => 10,
+                    'ignorePassiveAddress' => false,
+                ]
+            )
+        );
+
+        foreach ($this->files as $path => $data) {
+            try {
+                $ftp->write($path, $data);
+            } catch (FileExistsException $e) {
+                $ftp->update($path, $data);
+            } catch (ConnectionRuntimeException $e) {
+                throw new QpickHttpException(403, 'wrong.ftp.info');
+            }
+        }
+
+        unset($ftp);
     }
 
     protected function getRelations(int $theme_id)

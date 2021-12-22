@@ -410,6 +410,7 @@ Route::group([
 
         // 빌드
         Route::get('/{theme_id}/build', [ThemeBuildController::class, 'build']);
+        Route::get('/{theme_id}/export', [ThemeBuildController::class, 'export']);
     });
 
     /**
