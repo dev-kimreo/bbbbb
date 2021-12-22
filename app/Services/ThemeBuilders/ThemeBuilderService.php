@@ -2,9 +2,16 @@
 
 namespace App\Services\ThemeBuilders;
 
+use App\Exceptions\QpickHttpException;
 use App\Models\LinkedComponents\LinkedComponent;
 use App\Models\Solution;
 use App\Models\Themes\Theme;
+use League\Flysystem\Adapter\Ftp as FtpAdapter;
+use League\Flysystem\ConnectionRuntimeException;
+use League\Flysystem\FileExistsException;
+use League\Flysystem\FileNotFoundException;
+use League\Flysystem\Filesystem;
+use League\Flysystem\InvalidRootException;
 use ZipStream\Option\Archive as ZipArchive;
 use ZipStream\ZipStream;
 
@@ -14,24 +21,25 @@ abstract class ThemeBuilderService
     protected Theme $theme;
     protected Solution $solution;
     protected array $linkedComponents = [];
+    protected array $files = [];
 
     abstract protected function makeTunnelFile();
+
     abstract protected function makeEachViewFiles();
+
     abstract protected function makeSolutionSpecializedFiles();
 
     public function __construct()
     {
     }
 
-    public function download(int $theme_id)
+    protected function addFile($path, $data)
     {
-        // enable output of HTTP headers
-        $options = new ZipArchive();
-        $options->setSendHttpHeaders(true);
+        $this->files[$path] = $data;
+    }
 
-        // create a new zipstream object
-        $this->zip = new ZipStream('qpick.zip', $options);
-
+    public function build(int $theme_id)
+    {
         // make up details
         $this->getRelations($theme_id);
         $this->makeBasicFiles();
@@ -39,9 +47,61 @@ abstract class ThemeBuilderService
         $this->makeEachViewFiles();
         $this->makeEachComponentFiles();
         $this->makeSolutionSpecializedFiles();
+    }
 
-        // start download
-        $this->zip->finish();
+    public function download()
+    {
+        $options = new ZipArchive();
+        $options->setSendHttpHeaders(true);
+
+        $zip = new ZipStream('qpick.zip', $options);
+
+        foreach($this->files as $path => $data) {
+            $zip->addFile($path, $data);
+        }
+
+        $zip->finish();
+    }
+
+    /**
+     * @throws FileNotFoundException
+     * @throws QpickHttpException
+     */
+    public function ftpUpload(string $host, int $port, string $user, string $password, string $rootPath)
+    {
+        $ftp = new Filesystem(
+            new FtpAdapter(
+                [
+                    'host' => $host,
+                    'username' => $user,
+                    'password' => $password,
+
+                    /** optional config settings */
+                    'port' => $port,
+                    'root' => $rootPath,
+                    'passive' => true,
+                    'ssl' => ($port == 22),
+                    'timeout' => 10,
+                    'ignorePassiveAddress' => false,
+                ]
+            )
+        );
+
+        foreach ($this->files as $path => $data) {
+            try {
+                $ftp->put($path, $data);
+            } catch (ConnectionRuntimeException $e) {
+                if (strpos($e->getMessage(), 'Could not connect to host') !== false) {
+                    throw new QpickHttpException(404, 'theme.export.ftp.host');
+                } elseif (strpos($e->getMessage(), 'Could not login with connection') !== false) {
+                    throw new QpickHttpException(403, 'theme.export.ftp.login');
+                }
+            } catch(InvalidRootException $e) {
+                throw new QpickHttpException(404, 'theme.export.ftp.root');
+            }
+        }
+
+        unset($ftp);
     }
 
     protected function getRelations(int $theme_id)
@@ -68,7 +128,7 @@ abstract class ThemeBuilderService
     {
         // qpick/basis/base.css;
         $raw = 'body { margin: 0; padding: 0; }';
-        $this->zip->addFile('qpick/basis/base.css', $raw);
+        $this->addFile('qpick/basis/base.css', $raw);
 
         // qpick/basis/core.js;
         $raw = '
@@ -90,7 +150,7 @@ abstract class ThemeBuilderService
               }
             }
         ';
-        $this->zip->addFile('qpick/basis/core.js', $raw);
+        $this->addFile('qpick/basis/core.js', $raw);
 
         // qpick/basis/qpick.js;
         $raw = '
@@ -123,7 +183,7 @@ abstract class ThemeBuilderService
               }
             }
         ';
-        $this->zip->addFile('qpick/basis/qpick.js', $raw);
+        $this->addFile('qpick/basis/qpick.js', $raw);
     }
 
     protected function makeEachComponentFiles()
@@ -140,28 +200,28 @@ abstract class ThemeBuilderService
             "createTextNode",
             "createDocumentFragment"
           ];
-        
+
           for(const fn of arrMethod) {
             shadowRoot[fn] = function(v = null){
               return document[fn](v)
             };
           }
-        
+
           (function(document) {
         ';
         $rTail = '
           })(shadowRoot);
-        };        
+        };
         ';
 
         foreach ($this->linkedComponents as $linkedComponent) {
             $sourceCodes = $linkedComponent->component->usableVersion()->first();
             $raw = $linkedComponent->id . ',`' . $sourceCodes->template . '`,`' . $sourceCodes->style . '`';
-            $this->zip->addFile(
+            $this->addFile(
                 'qpick/components/' . $linkedComponent->id . '.js',
                 $cHead . $raw . $cTail
             );
-            $this->zip->addFile(
+            $this->addFile(
                 'qpick/renderers/' . $linkedComponent->id . '.js',
                 $rHead . $sourceCodes->script . $rTail
             );

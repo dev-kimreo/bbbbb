@@ -180,5 +180,17 @@ class UserAndManagerSeeder extends Seeder
                 ->for($solution, 'solution')
                 ->create();
         }
+
+        UserSite::query()->create(
+            [
+                'user_id' => 1,
+                'solution_id' => Solution::query()->where('name', '카페24')->first()->id,
+                'type' => '남성의류',
+                'name' => '라파누스몰',
+                'url' => 'https://raphanus.cafe24.com',
+                'solution_user_id' => 'raphanus',
+                'apikey' => 'pRByfNKnDaQKRevR5c8DiA'
+            ]
+        );
     }
 }

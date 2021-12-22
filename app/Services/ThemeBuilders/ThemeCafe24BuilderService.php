@@ -129,7 +129,7 @@ window.addEventListener("load", function(event) {
   }
 });
         ';
-        $this->zip->addFile('qpick/tunnel/tunnel.js', $raw);
+        $this->addFile('qpick/tunnel/tunnel.js', $raw);
     }
 
     protected function makeEachViewFiles()
@@ -156,8 +156,8 @@ window.addEventListener("load", function(event) {
                 }
             }
 
-            $this->zip->addFile('qpick/views/' . $page->supportedEditablePage->file_name . '.js', $jHead . $jRaw . $jTail);
-            $this->zip->addFile($page->supportedEditablePage->file_name . '.html', $hRaw);
+            $this->addFile('qpick/views/' . $page->supportedEditablePage->file_name . '.js', $jHead . $jRaw . $jTail);
+            $this->addFile($page->supportedEditablePage->file_name . '.html', $hRaw);
         }
     }
 
@@ -177,13 +177,13 @@ window.addEventListener("load", function(event) {
     <link href="/qpick/basis/base.css" type="text/css" rel="stylesheet" />
   </head>
   <body id="main">
-        
+
     <!--@contents-->
 
   </body>
 </html>
         ';
 
-        $this->zip->addFile('qpick/layout/main.html', trim($raw));
+        $this->addFile('qpick/layout/main.html', trim($raw));
     }
 }

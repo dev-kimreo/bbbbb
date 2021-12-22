@@ -134,10 +134,10 @@ class ComponentsAndThemesSeeder extends Seeder
     background-size: 24px 24px;
   }
   #lHeaderRightMenu li:first-of-type {
-    background-image: url("https://raphanus.cafe24.com/qpick_images/ico_cart.png");
+    background-image: url("https://raphanus.cafe24.com/cocen_images/ico_cart.png");
   }
   #lHeaderRightMenu li:last-of-type {
-    background-image: url("https://raphanus.cafe24.com/qpick_images/ico_menu.png");
+    background-image: url("https://raphanus.cafe24.com/cocen_images/ico_menu.png");
   }
   #lHeaderRightMenu li a {
     overflow: hidden;
@@ -206,7 +206,7 @@ class ComponentsAndThemesSeeder extends Seeder
     height: 24px;
     border: 0;
     background-color: #f5f5f5;
-    background-image: url("https://raphanus.cafe24.com/qpick_images/ico_search.png");
+    background-image: url("https://raphanus.cafe24.com/cocen_images/ico_search.png");
     background-size: 24px 24px;
     text-indent: -5000px;
     cursor: pointer;
@@ -279,10 +279,10 @@ class ComponentsAndThemesSeeder extends Seeder
     background-repeat: no-repeat;
   }
   #lHeaderRightMenu li:first-of-type {
-    background-image: url("https://raphanus.cafe24.com/qpick_images/ico_cart.png");
+    background-image: url("https://raphanus.cafe24.com/cocen_images/ico_cart.png");
   }
   #lHeaderRightMenu li:last-of-type {
-    background-image: url("https://raphanus.cafe24.com/qpick_images/ico_menu.png");
+    background-image: url("https://raphanus.cafe24.com/cocen_images/ico_menu.png");
   }
   #lHeaderRightMenu li a {
     display: block;
@@ -359,7 +359,7 @@ class ComponentsAndThemesSeeder extends Seeder
     margin: 0;
     border: 0;
     background-color: transparent;
-    background-image: url("https://raphanus.cafe24.com/qpick_images/ico_search.png");
+    background-image: url("https://raphanus.cafe24.com/cocen_images/ico_search.png");
     background-size: 20px 20px;
     background-position: center center;
     background-repeat: no-repeat;
@@ -524,14 +524,14 @@ for(const v of compOpt["banners"]) {
                     'type' => 'Text Field',
                     'key' => 'banners',
                     'help' => '다음과 같은 형식의 JSON 배열로 2개의 배너를 입력합니다: [{img:"", url:""},{img:"", url:""}]',
-                    'default' => '[{"img":"https://raphanus.cafe24.com/qpick_images/img_mainbnr_1.png","url":"/product.html"},{"img":"https://raphanus.cafe24.com/qpick_images/img_mainbnr_2.png","url":"/product.html"}]'
+                    'default' => '[{"img":"https://raphanus.cafe24.com/cocen_images/img_mainbnr_1.png","url":"/product.html"},{"img":"https://raphanus.cafe24.com/cocen_images/img_mainbnr_2.png","url":"/product.html"}]'
                 ],
                 /*
                  *  데이터 형태
                  *  {
                  *  "banners":[
-                 *      {"img":'https://raphanus.cafe24.com/qpick_images/img_mainbnr_1.png',"url":'/product.html'},
-                 *      {"img":'https://raphanus.cafe24.com/qpick_images/img_mainbnr_2.png',"url":'/product.html'}
+                 *      {"img":'https://raphanus.cafe24.com/cocen_images/img_mainbnr_1.png',"url":'/product.html'},
+                 *      {"img":'https://raphanus.cafe24.com/cocen_images/img_mainbnr_2.png',"url":'/product.html'}
                  *  ]
                  *  }
                 */
