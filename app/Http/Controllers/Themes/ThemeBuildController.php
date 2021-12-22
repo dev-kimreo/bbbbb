@@ -73,7 +73,7 @@ class ThemeBuildController extends Controller
 
         // FTP 업로드
         $builder->build($theme_id);
-        $builder->ftpUpload($host, $port, 'raphanus', '____', '/sde_design/skin1');
+        $builder->ftpUpload($host, $port, 'raphanus', $request->input('password'), '/sde_design/skin1');
 
         // 결과
         return collect(['res' => true]);
