@@ -318,6 +318,24 @@ class ExceptionSeeder extends Seeder
                 '사용 중인 컴포넌트 유형은 삭제 할 수 없습니다.',
                 '사용 중인 컴포넌트 유형은 삭제 할 수 없습니다.'
             ],
+            [
+                'exception',
+                'theme.export.ftp.host',
+                '솔루션 FTP 접속정보가 잘못되었습니다.',
+                'Wrong host or port for connect FTP'
+            ],
+            [
+                'exception',
+                'theme.export.ftp.root',
+                '솔루션 FTP 접속 디렉토리가 잘못되었습니다.',
+                'Wrong directory path for connect FTP'
+            ],
+            [
+                'exception',
+                'theme.export.ftp.login',
+                '솔루션 아이디 또는 FTP 비밀번호가 잘못되었습니다.',
+                'Wrong user name or password for connect FTP'
+            ],
         ];
 
         // Truncate tables

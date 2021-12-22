@@ -11,6 +11,7 @@ use League\Flysystem\ConnectionRuntimeException;
 use League\Flysystem\FileExistsException;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\Filesystem;
+use League\Flysystem\InvalidRootException;
 use ZipStream\Option\Archive as ZipArchive;
 use ZipStream\ZipStream;
 
@@ -88,11 +89,15 @@ abstract class ThemeBuilderService
 
         foreach ($this->files as $path => $data) {
             try {
-                $ftp->write($path, $data);
-            } catch (FileExistsException $e) {
-                $ftp->update($path, $data);
+                $ftp->put($path, $data);
             } catch (ConnectionRuntimeException $e) {
-                throw new QpickHttpException(403, 'wrong.ftp.info');
+                if (strpos($e->getMessage(), 'Could not connect to host') !== false) {
+                    throw new QpickHttpException(404, 'theme.export.ftp.host');
+                } elseif (strpos($e->getMessage(), 'Could not login with connection') !== false) {
+                    throw new QpickHttpException(403, 'theme.export.ftp.login');
+                }
+            } catch(InvalidRootException $e) {
+                throw new QpickHttpException(404, 'theme.export.ftp.root');
             }
         }
 
