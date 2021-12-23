@@ -2,12 +2,6 @@
 
 namespace App\Services\ThemeBuilders;
 
-use App\Models\EditablePages\EditablePage;
-use App\Models\Solution;
-use App\Models\SupportedEditablePage;
-use ZipStream\Option\Archive as ZipArchive;
-use ZipStream\ZipStream;
-
 class ThemeCafe24BuilderService extends ThemeBuilderService
 {
     protected function makeTunnelFile()

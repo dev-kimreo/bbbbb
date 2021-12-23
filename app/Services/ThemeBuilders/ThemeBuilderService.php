@@ -8,7 +8,6 @@ use App\Models\Solution;
 use App\Models\Themes\Theme;
 use League\Flysystem\Adapter\Ftp as FtpAdapter;
 use League\Flysystem\ConnectionRuntimeException;
-use League\Flysystem\FileExistsException;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InvalidRootException;
