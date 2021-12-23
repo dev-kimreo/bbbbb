@@ -414,6 +414,19 @@ Route::group([
     });
 
     /**
+     * 연동 컴포넌트 (Shortcut)
+     */
+    Route::group(
+        [
+            'prefix' => 'linked-component',
+            'middleware' => ['auth:api', 'chkAccess:partner']
+        ],
+        function () {
+            Route::get('/{linked_component_id}', [LinkedComponentController::class, 'showDirectly']);
+        }
+    );
+
+    /**
      * 컴포넌트
      */
     Route::group([
