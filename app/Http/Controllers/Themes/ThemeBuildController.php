@@ -35,7 +35,7 @@ class ThemeBuildController extends Controller
                 $builder = new ThemeCafe24BuilderService();
                 break;
             default:
-                throw new QpickHttpException(422, 'something.here');
+                throw new QpickHttpException(422, 'theme.solution.not_found');
         }
 
         // 다운로드
