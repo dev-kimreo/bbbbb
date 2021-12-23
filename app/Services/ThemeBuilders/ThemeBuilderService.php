@@ -8,14 +8,13 @@ use App\Models\Solution;
 use App\Models\Themes\Theme;
 use League\Flysystem\Adapter\Ftp as FtpAdapter;
 use League\Flysystem\ConnectionRuntimeException;
-use League\Flysystem\FileExistsException;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InvalidRootException;
 use ZipStream\Option\Archive as ZipArchive;
 use ZipStream\ZipStream;
 
-abstract class ThemeBuilderService
+abstract class ThemeBuilderService implements ThemeBuilderInterface
 {
     protected ZipStream $zip;
     protected Theme $theme;
@@ -40,7 +39,6 @@ abstract class ThemeBuilderService
 
     public function build(int $theme_id)
     {
-        // make up details
         $this->getRelations($theme_id);
         $this->makeBasicFiles();
         $this->makeTunnelFile();
