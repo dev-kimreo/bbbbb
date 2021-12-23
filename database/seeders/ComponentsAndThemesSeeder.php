@@ -370,16 +370,17 @@ class ComponentsAndThemesSeeder extends Seeder
             ',
             'script' => '
 // Data postprocessing for the theme editor
+let menu = []; 
 try {
-  compOpt[\'menu\'] = JSON.parse(compOpt[\'menu\'].text);
+  menu = JSON.parse(compOpt[\'menu\'].text);
 } catch(e) {
-  compOpt[\'menu\'] = [];
+  menu = [];
 }
 
 // Main Menu
 let ul = document.querySelector("#lHeaderMainMenu");
 
-for(const v of compOpt["menu"]) {
+for(const v of menu) {
   let li = document.createElement("li");
   let anchor = document.createElement("a");
 
@@ -497,15 +498,16 @@ for(const v of compOpt["menu"]) {
             ',
             'script' => '
 // Data postprocessing for the theme editor
+let banners
 try {
-  compOpt[\'banners\'] = JSON.parse(compOpt[\'banners\'].text);
+  banners = JSON.parse(compOpt[\'banners\'].text);
 } catch(e) {
-  compOpt[\'banners\'] = [];
+  banners = [];
 }
 
 let ul = document.getElementById("banners");
 
-for(const v of compOpt["banners"]) {
+for(const v of banners) {
   let img = new Image();
   let li = document.createElement("li");
   let anchor = document.createElement("a");
@@ -1127,17 +1129,18 @@ QpickTunnel.mainProducts(compOpt["groupNo"].text).then((res) => {
             ',
             'script' => '
 // Data postprocessing for the theme editor
+let items;
 try {
-  compOpt[\'items\'] = JSON.parse(\'[\' + compOpt[\'items\'].text + \']\');
+  items = JSON.parse(\'[\' + compOpt[\'items\'].text + \']\');
 } catch(e) {
-  compOpt[\'items\'] = [];
+  items = [];
 }
 
 let ul = document.querySelector("ul");
 
 document.querySelector("h2").innerText = compOpt["title"].text;
 
-for(const no of compOpt["items"]) {
+for(const no of items) {
   let li = document.createElement("li");
   ul.appendChild(li);
 
