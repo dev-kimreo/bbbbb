@@ -22,6 +22,8 @@ class CreateActionLogsTable extends Migration
             $table->char('ip', 15);
             $table->string('loggable_type');
             $table->foreignId('loggable_id');
+            $table->string('request_location', 255)->nullable();
+            $table->string('request_path', 255)->nullable();
             $table->char('crud', 1);
             $table->string('path', 128);
             $table->string('title', 16)->nullable();
