@@ -152,7 +152,7 @@ class LinkedComponentController extends Controller
 
         if (request()->input('with_options')) {
             $optionValues = [];
-            $res->linkedOptions()->each(function($lo) use (&$optionValues) {
+            $res->linkedOptions()->each(function ($lo) use (&$optionValues) {
                 $optionValues[$lo->componentOption()->first()->getAttribute('key')] = $lo->getAttribute('value');
             });
 
@@ -170,6 +170,48 @@ class LinkedComponentController extends Controller
 //
 //            $res->setAttribute('mergedOption', $mergedOption);
         }
+
+        return $res;
+    }
+
+    /**
+     * @param int $id
+     * @return Collection
+     */
+    public function showDirectly(int $id): Collection
+    {
+        // 연동 컴포넌트 정보
+        $comp = LinkedComponent::query()->findOrFail($id);
+        $res = collect($comp)->only(['id', 'name', 'display_on_pc', 'display_on_mobile']);
+
+        // 연동 컴포넌트 옵션 설정값 정보
+        $linkOpts = collect();
+        $comp->linkedOptions()
+            ->select(['linked_component_id', 'component_option_id', 'value'])
+            ->get()
+            ->each(function ($v) use (&$linkOpts) {
+                $linkOpts->push(collect($v));
+            });
+
+        // (파트너사 제작) 컴포넌트 옵션 정보
+        $opts = collect();
+        $comp->component
+            ->usableVersion()->first()
+            ->options()
+            ->select(
+                ['id', 'name', 'key', 'display_on_pc', 'display_on_mobile', 'hideable', 'attributes', 'help']
+            )
+            ->get()
+            ->each(function ($v) use (&$opts, $linkOpts) {
+                $opts->push(
+                    collect($v)->merge(
+                        ['linked-option' => $linkOpts->where('component_option_id', $v->id)->first()]
+                    )
+                );
+            });
+
+        // 컴포넌트 옵션 정보
+        $res = $res->merge(['options' => $opts]);
 
         return $res;
     }
@@ -261,7 +303,10 @@ class LinkedComponentController extends Controller
         $linkedComponent = LinkedComponent::findOrFail($linkedComponentId);
 
         // 컴포넌트 작성자 확인
-        if (!Auth::user()->can('authorize', $component = Component::findOrFail($linkedComponent->getAttribute('component_id')))) {
+        if (!Auth::user()->can(
+            'authorize',
+            $component = Component::findOrFail($linkedComponent->getAttribute('component_id'))
+        )) {
             throw new QpickHttpException(403, 'common.forbidden');
         }
 
@@ -269,7 +314,14 @@ class LinkedComponentController extends Controller
         if ($i = $request->input('linked_component_group_id')) {
             $editablePageLayout = EditablePageLayout::query()->where('editable_page_id', $editablePageId)->first();
             $eplData = $editablePageLayout->getAttributes();
-            if (!in_array($i, [$eplData['header_component_group_id'], $eplData['content_component_group_id'], $eplData['footer_component_group_id']])) {
+            if (!in_array(
+                $i,
+                [
+                    $eplData['header_component_group_id'],
+                    $eplData['content_component_group_id'],
+                    $eplData['footer_component_group_id']
+                ]
+            )) {
                 throw new QpickHttpException(422, 'common.bad_request');
             }
         }
@@ -311,7 +363,10 @@ class LinkedComponentController extends Controller
         $linkedComponent = LinkedComponent::findOrFail($linkedComponentId);
 
         // 컴포넌트 작성자 확인
-        if (!Auth::user()->can('authorize', $component = Component::findOrFail($linkedComponent->getAttribute('component_id')))) {
+        if (!Auth::user()->can(
+            'authorize',
+            $component = Component::findOrFail($linkedComponent->getAttribute('component_id'))
+        )) {
             throw new QpickHttpException(403, 'common.forbidden');
         }
 
@@ -381,13 +436,15 @@ class LinkedComponentController extends Controller
         $maxSort = $maxSortLinkedComponent ? $maxSortLinkedComponent->getAttribute('sort') + 1 : 1;
 
         // Linked Component 생성
-        return LinkedComponent::create(array_merge(
-            [
-                'name' => $component->getAttribute('name'),
-                'sort' => $maxSort
-            ],
-            $request->all()
-        ))->refresh();
+        return LinkedComponent::create(
+            array_merge(
+                [
+                    'name' => $component->getAttribute('name'),
+                    'sort' => $maxSort
+                ],
+                $request->all()
+            )
+        )->refresh();
     }
 
     /**
@@ -401,9 +458,9 @@ class LinkedComponentController extends Controller
             $c->usableVersion()->each(function ($uv) use ($linkedComponent) {
                 $uv->option->each(function ($item) use ($linkedComponent) {
                     LinkedComponentOption::create([
-                        'component_option_id' => $item->getAttribute('id'),
-                        'linked_component_id' => $linkedComponent->getAttribute('id')
-                    ]);
+                                                      'component_option_id' => $item->getAttribute('id'),
+                                                      'linked_component_id' => $linkedComponent->getAttribute('id')
+                                                  ]);
                 });
             });
         });

@@ -48,7 +48,7 @@ class ComponentVersion extends Model
         return $this->belongsTo(Component::class);
     }
 
-    public function option(): HasMany
+    public function options(): HasMany
     {
         return $this->hasMany(ComponentOption::class, 'component_version_id', 'id');
     }
