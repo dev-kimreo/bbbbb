@@ -175,6 +175,133 @@ class LinkedComponentController extends Controller
     }
 
     /**
+     * @OA\Get (
+     *      path="/v1/linked-component/{linked_component_id}",
+     *      summary="연동 컴포넌트 에디터용 상세",
+     *      description="에디터용 연동 컴포넌트 상세정보 Shortcut",
+     *      operationId="LinkedComponentShowDirectly",
+     *      tags={"연동 컴포넌트"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="id",
+     *                  type="integer",
+     *                  example="56",
+     *                  description="연동 컴포넌트 옵션 고유번호"
+     *              ),
+     *              @OA\Property(
+     *                  property="name",
+     *                  type="string",
+     *                  example="타이틀",
+     *                  description="연동 컴포넌트 옵션명"
+     *              ),
+     *              @OA\Property(
+     *                  property="displayOnPc",
+     *                  type="boolean",
+     *                  example="1",
+     *                  description="연동 컴포넌트 옵션의 데스크탑 표시여부"
+     *              ),
+     *              @OA\Property(
+     *                  property="displayOnMobile",
+     *                  type="boolean",
+     *                  example="1",
+     *                  description="연동 컴포넌트 옵션의 모바일 표시여부"
+     *              ),
+     *              @OA\Property(property="options", type="object",
+     *                  @OA\Property(
+     *                      property="id",
+     *                      type="integer",
+     *                      example="56",
+     *                      description="컴포넌트 옵션 고유번호"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="name",
+     *                      type="string",
+     *                      example="타이틀",
+     *                      description="컴포넌트 옵션명"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="key",
+     *                      type="string",
+     *                      example="title",
+     *                      description="컴포넌트 옵션의 고유 키값"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="componentTypeId",
+     *                      type="integer",
+     *                      example="6",
+     *                      description="컴포넌트 옵션 유형 고유번호"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="displayOnPc",
+     *                      type="boolean",
+     *                      example="1",
+     *                      description="컴포넌트 옵션의 데스크탑 표시여부"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="displayOnMobile",
+     *                      type="boolean",
+     *                      example="1",
+     *                      description="컴포넌트 옵션의 모바일 표시여부"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="hideable",
+     *                      type="boolean",
+     *                      example="0",
+     *                      description="숨김/보임을 조정할 수 있는 토글 표시여부"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="attributes",
+     *                      type="JSON",
+     *                      example="[]",
+     *                      description="향후 설명 추가"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="help",
+     *                      type="string",
+     *                      example="영역 상단에 표시될 타이틀입니다.",
+     *                      description="도움말"
+     *                  ),
+     *                  @OA\Property(property="linkedOptions", type="object",
+     *                      @OA\Property(
+     *                          property="linkedComponentId",
+     *                          type="integer",
+     *                          example="83",
+     *                          description="연동 컴포넌트 고유번호"
+     *                      ),
+     *                      @OA\Property(
+     *                          property="componentOptionId",
+     *                          type="integer",
+     *                          example="738",
+     *                          description="컴포넌트 옵션 고유번호"
+     *                      ),
+     *                      @OA\Property(
+     *                          property="value",
+     *                          type="object",
+     *                          example="{}",
+     *                          description="설정된 값"
+     *                      )
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "partner_auth":{}
+     *      }}
+     *  )
+     *
      * @param int $id
      * @return Collection
      */
@@ -199,13 +326,13 @@ class LinkedComponentController extends Controller
             ->usableVersion()->first()
             ->options()
             ->select(
-                ['id', 'name', 'key', 'display_on_pc', 'display_on_mobile', 'hideable', 'attributes', 'help']
+                ['id', 'name', 'key', 'component_type_id', 'display_on_pc', 'display_on_mobile', 'hideable', 'attributes', 'help']
             )
             ->get()
             ->each(function ($v) use (&$opts, $linkOpts) {
                 $opts->push(
                     collect($v)->merge(
-                        ['linked-option' => $linkOpts->where('component_option_id', $v->id)->first()]
+                        ['linkedOptions' => $linkOpts->where('component_option_id', $v->id)->first()]
                     )
                 );
             });
