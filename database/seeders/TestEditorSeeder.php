@@ -147,7 +147,7 @@ class TestEditorSeeder extends Seeder
                     ]),
                     'properties'
                 ),
-                'option'
+                'options'
             ),
             'version'
         )->state([
