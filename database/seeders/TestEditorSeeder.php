@@ -147,7 +147,7 @@ class TestEditorSeeder extends Seeder
                     ]),
                     'properties'
                 ),
-                'option'
+                'options'
             ),
             'version'
         )->state([
@@ -192,7 +192,7 @@ class TestEditorSeeder extends Seeder
                             ])->has(
                                 // 연동 컴포넌트 옵션
                                 LinkedComponentOption::factory()->for(
-                                    $component->version->first()->option->skip(0)->first(),
+                                    $component->version->first()->options->skip(0)->first(),
                                     'componentOption'
                                 )->state([
                                     'value' => [

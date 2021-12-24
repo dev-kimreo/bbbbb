@@ -370,7 +370,7 @@ class ComponentsAndThemesSeeder extends Seeder
             ',
             'script' => '
 // Data postprocessing for the theme editor
-let menu = []; 
+let menu = [];
 try {
   menu = JSON.parse(compOpt[\'menu\'].text);
 } catch(e) {
@@ -1352,7 +1352,7 @@ for(const no of items) {
             );
 
             // 연동 컴포넌트 옵션
-            $v->version->first()->option->each(function ($v2) use ($v, $linkedComponent) {
+            $v->version->first()->options->each(function ($v2) use ($v, $linkedComponent) {
                 $values = [];
                 $v2->properties->each(function ($v3) use (&$values) {
                     $values[$v3->key] = $v3->initial_value;
