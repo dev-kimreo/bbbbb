@@ -310,11 +310,11 @@ class LinkedComponentController extends Controller
         // 연동 컴포넌트 정보
         $comp = LinkedComponent::query()->findOrFail($id);
         $res = collect($comp)->only(['id', 'name', 'display_on_pc', 'display_on_mobile']);
+        $compVersion = $comp->component->usableVersion()->first();
 
         // 연동 컴포넌트 옵션 설정값 정보
         $linkOpts = collect();
         $comp->linkedOptions()
-            ->select(['linked_component_id', 'component_option_id', 'value'])
             ->get()
             ->each(function ($v) use (&$linkOpts) {
                 $linkOpts->push(collect($v));
@@ -322,17 +322,34 @@ class LinkedComponentController extends Controller
 
         // (파트너사 제작) 컴포넌트 옵션 정보
         $opts = collect();
-        $comp->component
-            ->usableVersion()->first()
+        $optsOrigin = collect();
+        $compVersion
             ->options()
-            ->select(
-                ['id', 'name', 'key', 'component_type_id', 'display_on_pc', 'display_on_mobile', 'hideable', 'attributes', 'help']
-            )
             ->get()
-            ->each(function ($v) use (&$opts, $linkOpts) {
+            ->each(function ($v) use (&$opts, &$optsOrigin, $linkOpts) {
+                $row = collect($v);
+                $optsOrigin->push($row);
                 $opts->push(
-                    collect($v)->merge(
-                        ['linkedOptions' => $linkOpts->where('component_option_id', $v->id)->first()]
+                    $row->only(
+                        [
+                            'id',
+                            'name',
+                            'key',
+                            'component_type_id',
+                            'display_on_pc',
+                            'display_on_mobile',
+                            'hideable',
+                            'attributes',
+                            'help'
+                        ]
+                    )->merge(
+                        [
+                            'linkedOptions' =>
+                                $linkOpts
+                                    ->where('component_option_id', $v->id)
+                                    ->first()
+                                    ->only(['linked_component_id', 'component_option_id', 'value'])
+                        ]
                     )
                 );
             });
@@ -340,6 +357,17 @@ class LinkedComponentController extends Controller
         // 컴포넌트 옵션 정보
         $res = $res->merge(['options' => $opts]);
 
+        // 업데이트 여부
+        // TODO: linked_components.component_version_id 컬럼 추가 후 구현
+        /*
+        $res = $res->merge(['component_version' => [
+            'used' => 0,
+            'current' => 0,
+            'changed' => false
+        ]]);
+        */
+
+        // return
         return $res;
     }
 
