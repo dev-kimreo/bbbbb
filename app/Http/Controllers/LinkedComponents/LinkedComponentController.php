@@ -162,7 +162,7 @@ class LinkedComponentController extends Controller
 
             // TODO 연동 컴포넌트 옵션 값을 어찌 할것이냐에 따라 쓰이고 안쓰이고...
 //            $mergedOption = [];
-//            $res->component->usableVersion()->first()->option()->each(function ($co) use (&$mergedOption) {
+//            $res->component->usableVersion()->first()->options()->each(function ($co) use (&$mergedOption) {
 //                $mergedOption[$co['key']] = [];
 //                $co->selectedOption()->each(function ($cop) use (&$mergedOption) {
 //                });
@@ -583,7 +583,7 @@ class LinkedComponentController extends Controller
     {
         $linkedComponent->component()->each(function ($c) use ($linkedComponent) {
             $c->usableVersion()->each(function ($uv) use ($linkedComponent) {
-                $uv->option->each(function ($item) use ($linkedComponent) {
+                $uv->options->each(function ($item) use ($linkedComponent) {
                     LinkedComponentOption::create([
                                                       'component_option_id' => $item->getAttribute('id'),
                                                       'linked_component_id' => $linkedComponent->getAttribute('id')
