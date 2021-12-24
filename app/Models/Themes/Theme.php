@@ -26,6 +26,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @method where(array $array)
  * @method static findOrFail(int $theme_id)
+ * @method static find(int $theme_id)
+ * @property mixed editablePages
  */
 class Theme extends Model
 {
@@ -39,13 +41,17 @@ class Theme extends Model
         'reviewCompleted'   // 심사 완료
     ];
 
-
     /**
      * The attributes that should be hidden for arrays.
      *
      * @var array
      */
     protected $hidden = [];
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(ThemeProduct::class, 'theme_product_id');
+    }
 
     public function solution(): BelongsTo
     {
@@ -56,6 +62,4 @@ class Theme extends Model
     {
         return $this->hasMany(EditablePage::class);
     }
-
 }
-

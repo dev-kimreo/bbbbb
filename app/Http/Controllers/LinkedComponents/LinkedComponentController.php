@@ -67,20 +67,20 @@ class LinkedComponentController extends Controller
             foreach ($a as $type) {
                 switch ($type) {
                     case 'header':
-                        $res['header'] = $editablePageLayout->linkedHeaderComponentGroup->linkedComponent;
+                        $res['header'] = $editablePageLayout->linkedHeaderComponentGroup->linkedComponents;
                         break;
                     case 'content':
-                        $res['content'] = $editablePageLayout->linkedContentComponentGroup->linkedComponent;
+                        $res['content'] = $editablePageLayout->linkedContentComponentGroup->linkedComponents;
                         break;
                     case 'footer':
-                        $res['footer'] = $editablePageLayout->linkedFooterComponentGroup->linkedComponent;
+                        $res['footer'] = $editablePageLayout->linkedFooterComponentGroup->linkedComponents;
                         break;
                 }
             }
         } else {
-            $res['header'] = $editablePageLayout->linkedHeaderComponentGroup->linkedComponent;
-            $res['content'] = $editablePageLayout->linkedContentComponentGroup->linkedComponent;
-            $res['footer'] = $editablePageLayout->linkedFooterComponentGroup->linkedComponent;
+            $res['header'] = $editablePageLayout->linkedHeaderComponentGroup->linkedComponents;
+            $res['content'] = $editablePageLayout->linkedContentComponentGroup->linkedComponents;
+            $res['footer'] = $editablePageLayout->linkedFooterComponentGroup->linkedComponents;
         }
 
         return $res;
@@ -150,6 +150,224 @@ class LinkedComponentController extends Controller
             $res = $res->setAppends(['renderData']);
         }
 
+        if (request()->input('with_options')) {
+            $optionValues = [];
+            $res->linkedOptions()->each(function ($lo) use (&$optionValues) {
+                $optionValues[$lo->componentOption()->first()->getAttribute('key')] = $lo->getAttribute('value');
+            });
+
+            $res->setAttribute('optionValues', $optionValues);
+
+            $res->linkedOptions;
+
+            // TODO 연동 컴포넌트 옵션 값을 어찌 할것이냐에 따라 쓰이고 안쓰이고...
+//            $mergedOption = [];
+//            $res->component->usableVersion()->first()->options()->each(function ($co) use (&$mergedOption) {
+//                $mergedOption[$co['key']] = [];
+//                $co->selectedOption()->each(function ($cop) use (&$mergedOption) {
+//                });
+//            });
+//
+//            $res->setAttribute('mergedOption', $mergedOption);
+        }
+
+        return $res;
+    }
+
+    /**
+     * @OA\Get (
+     *      path="/v1/linked-component/{linked_component_id}",
+     *      summary="연동 컴포넌트 에디터용 상세",
+     *      description="에디터용 연동 컴포넌트 상세정보 Shortcut",
+     *      operationId="LinkedComponentShowDirectly",
+     *      tags={"연동 컴포넌트"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="id",
+     *                  type="integer",
+     *                  example="56",
+     *                  description="연동 컴포넌트 옵션 고유번호"
+     *              ),
+     *              @OA\Property(
+     *                  property="name",
+     *                  type="string",
+     *                  example="타이틀",
+     *                  description="연동 컴포넌트 옵션명"
+     *              ),
+     *              @OA\Property(
+     *                  property="displayOnPc",
+     *                  type="boolean",
+     *                  example="1",
+     *                  description="연동 컴포넌트 옵션의 데스크탑 표시여부"
+     *              ),
+     *              @OA\Property(
+     *                  property="displayOnMobile",
+     *                  type="boolean",
+     *                  example="1",
+     *                  description="연동 컴포넌트 옵션의 모바일 표시여부"
+     *              ),
+     *              @OA\Property(property="options", type="object",
+     *                  @OA\Property(
+     *                      property="id",
+     *                      type="integer",
+     *                      example="56",
+     *                      description="컴포넌트 옵션 고유번호"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="name",
+     *                      type="string",
+     *                      example="타이틀",
+     *                      description="컴포넌트 옵션명"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="key",
+     *                      type="string",
+     *                      example="title",
+     *                      description="컴포넌트 옵션의 고유 키값"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="componentTypeId",
+     *                      type="integer",
+     *                      example="6",
+     *                      description="컴포넌트 옵션 유형 고유번호"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="displayOnPc",
+     *                      type="boolean",
+     *                      example="1",
+     *                      description="컴포넌트 옵션의 데스크탑 표시여부"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="displayOnMobile",
+     *                      type="boolean",
+     *                      example="1",
+     *                      description="컴포넌트 옵션의 모바일 표시여부"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="hideable",
+     *                      type="boolean",
+     *                      example="0",
+     *                      description="숨김/보임을 조정할 수 있는 토글 표시여부"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="attributes",
+     *                      type="JSON",
+     *                      example="[]",
+     *                      description="향후 설명 추가"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="help",
+     *                      type="string",
+     *                      example="영역 상단에 표시될 타이틀입니다.",
+     *                      description="도움말"
+     *                  ),
+     *                  @OA\Property(property="linkedOptions", type="object",
+     *                      @OA\Property(
+     *                          property="linkedComponentId",
+     *                          type="integer",
+     *                          example="83",
+     *                          description="연동 컴포넌트 고유번호"
+     *                      ),
+     *                      @OA\Property(
+     *                          property="componentOptionId",
+     *                          type="integer",
+     *                          example="738",
+     *                          description="컴포넌트 옵션 고유번호"
+     *                      ),
+     *                      @OA\Property(
+     *                          property="value",
+     *                          type="object",
+     *                          example="{}",
+     *                          description="설정된 값"
+     *                      )
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "partner_auth":{}
+     *      }}
+     *  )
+     *
+     * @param int $id
+     * @return Collection
+     */
+    public function showDirectly(int $id): Collection
+    {
+        // 연동 컴포넌트 정보
+        $comp = LinkedComponent::query()->findOrFail($id);
+        $res = collect($comp)->only(['id', 'name', 'display_on_pc', 'display_on_mobile']);
+        $compVersion = $comp->component->usableVersion()->first();
+
+        // 연동 컴포넌트 옵션 설정값 정보
+        $linkOpts = collect();
+        $comp->linkedOptions()
+            ->get()
+            ->each(function ($v) use (&$linkOpts) {
+                $linkOpts->push(collect($v));
+            });
+
+        // (파트너사 제작) 컴포넌트 옵션 정보
+        $opts = collect();
+        $optsOrigin = collect();
+        $compVersion
+            ->options()
+            ->get()
+            ->each(function ($v) use (&$opts, &$optsOrigin, $linkOpts) {
+                $row = collect($v);
+                $optsOrigin->push($row);
+                $opts->push(
+                    $row->only(
+                        [
+                            'id',
+                            'name',
+                            'key',
+                            'component_type_id',
+                            'display_on_pc',
+                            'display_on_mobile',
+                            'hideable',
+                            'attributes',
+                            'help'
+                        ]
+                    )->merge(
+                        [
+                            'linkedOptions' =>
+                                $linkOpts
+                                    ->where('component_option_id', $v->id)
+                                    ->first()
+                                    ->only(['linked_component_id', 'component_option_id', 'value'])
+                        ]
+                    )
+                );
+            });
+
+        // 컴포넌트 옵션 정보
+        $res = $res->merge(['options' => $opts]);
+
+        // 업데이트 여부
+        // TODO: linked_components.component_version_id 컬럼 추가 후 구현
+        /*
+        $res = $res->merge(['component_version' => [
+            'used' => 0,
+            'current' => 0,
+            'changed' => false
+        ]]);
+        */
+
+        // return
         return $res;
     }
 
@@ -240,7 +458,10 @@ class LinkedComponentController extends Controller
         $linkedComponent = LinkedComponent::findOrFail($linkedComponentId);
 
         // 컴포넌트 작성자 확인
-        if (!Auth::user()->can('authorize', $component = Component::findOrFail($linkedComponent->getAttribute('component_id')))) {
+        if (!Auth::user()->can(
+            'authorize',
+            $component = Component::findOrFail($linkedComponent->getAttribute('component_id'))
+        )) {
             throw new QpickHttpException(403, 'common.forbidden');
         }
 
@@ -248,7 +469,14 @@ class LinkedComponentController extends Controller
         if ($i = $request->input('linked_component_group_id')) {
             $editablePageLayout = EditablePageLayout::query()->where('editable_page_id', $editablePageId)->first();
             $eplData = $editablePageLayout->getAttributes();
-            if (!in_array($i, [$eplData['header_component_group_id'], $eplData['content_component_group_id'], $eplData['footer_component_group_id']])) {
+            if (!in_array(
+                $i,
+                [
+                    $eplData['header_component_group_id'],
+                    $eplData['content_component_group_id'],
+                    $eplData['footer_component_group_id']
+                ]
+            )) {
                 throw new QpickHttpException(422, 'common.bad_request');
             }
         }
@@ -290,7 +518,10 @@ class LinkedComponentController extends Controller
         $linkedComponent = LinkedComponent::findOrFail($linkedComponentId);
 
         // 컴포넌트 작성자 확인
-        if (!Auth::user()->can('authorize', $component = Component::findOrFail($linkedComponent->getAttribute('component_id')))) {
+        if (!Auth::user()->can(
+            'authorize',
+            $component = Component::findOrFail($linkedComponent->getAttribute('component_id'))
+        )) {
             throw new QpickHttpException(403, 'common.forbidden');
         }
 
@@ -338,9 +569,6 @@ class LinkedComponentController extends Controller
     public function relationalLinkedComponent(StoreRequest $request, int $themeId, int $editablePageId)
     {
         $linkedComponent = $this->createLinkedComponent(Theme::findOrFail($themeId), $request);
-
-        // 컴포넌트에 적용된 옵션 연동 컴포넌트 옵션으로 추가
-        $this->createLinkedComponentOptionForComponent($linkedComponent);
     }
 
     /**
@@ -363,30 +591,33 @@ class LinkedComponentController extends Controller
         $maxSort = $maxSortLinkedComponent ? $maxSortLinkedComponent->getAttribute('sort') + 1 : 1;
 
         // Linked Component 생성
-        return LinkedComponent::create(array_merge(
-            [
-                'name' => $component->getAttribute('name'),
-                'sort' => $maxSort
-            ],
-            $request->all()
-        ))->refresh();
+        return LinkedComponent::create(
+            array_merge(
+                [
+                    'name' => $component->getAttribute('name'),
+                    'sort' => $maxSort
+                ],
+                $request->all()
+            )
+        )->refresh();
     }
 
+    /**
+     * 연결된 컴포넌트의 옵션을 연동 컴포넌트 옵션으로 등록하는 함수
+     * 추후 연동 컴포넌트 옵션을 어찌할 것이냐에 따라 사용 여부가 결정될 것 같음.
+     * @param LinkedComponent $linkedComponent
+     */
     protected function createLinkedComponentOptionForComponent(LinkedComponent $linkedComponent)
     {
         $linkedComponent->component()->each(function ($c) use ($linkedComponent) {
             $c->usableVersion()->each(function ($uv) use ($linkedComponent) {
-                $uv->option->each(function ($item) use ($linkedComponent) {
+                $uv->options->each(function ($item) use ($linkedComponent) {
                     LinkedComponentOption::create([
-                        'component_option_id' => $item->getAttribute('id'),
-                        'linked_component_id' => $linkedComponent->getAttribute('id')
-                    ]);
+                                                      'component_option_id' => $item->getAttribute('id'),
+                                                      'linked_component_id' => $linkedComponent->getAttribute('id')
+                                                  ]);
                 });
             });
         });
-    }
-
-    public function scriptRequest()
-    {
     }
 }

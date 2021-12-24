@@ -45,13 +45,8 @@ class TestEditorSeeder extends Seeder
                     [
                         [
                             'name' => '메인',
-                            'file_name' => 'main.html'
-                        ],
-                        [
-
-                            'name' => '목록',
-                            'file_name' => 'list.html'
-                        ],
+                            'file_name' => 'index'
+                        ]
                     ]
                 );
             });
@@ -130,7 +125,7 @@ class TestEditorSeeder extends Seeder
                         'name' => '이미지',
                         'initial_value' => 'https://블라블라~'
                     ]),
-                    'selectedOption'
+                    'properties'
                 )->has(
                     ComponentOptionProperty::factory()->for(
                         ComponentType::where('name', 'Image URL Display')->first()->properties->skip(1)->first(),
@@ -140,7 +135,7 @@ class TestEditorSeeder extends Seeder
                         'name' => '이미지 alt',
                         'initial_value' => 'https://블라블라~'
                     ]),
-                    'selectedOption'
+                    'properties'
                 )->has(
                     ComponentOptionProperty::factory()->for(
                         ComponentType::where('name', 'Image URL Display')->first()->properties->skip(2)->first(),
@@ -150,9 +145,9 @@ class TestEditorSeeder extends Seeder
                         'name' => '연결 url',
                         'initial_value' => 'https://블라블라로이동'
                     ]),
-                    'selectedOption'
+                    'properties'
                 ),
-                'option'
+                'options'
             ),
             'version'
         )->state([
@@ -197,14 +192,18 @@ class TestEditorSeeder extends Seeder
                             ])->has(
                                 // 연동 컴포넌트 옵션
                                 LinkedComponentOption::factory()->for(
-                                    $component->version->first()->option->skip(0)->first(),
+                                    $component->version->first()->options->skip(0)->first(),
                                     'componentOption'
                                 )->state([
-                                    'value' => '{"image":"https://블라블라~", "alt":"이미지거든", "url":"https://샬라샬라~"}'
+                                    'value' => [
+                                        'image' => 'https://블라블라~',
+                                        'alt'   => '이미지거든',
+                                        'url'   => 'https://샬라샬라~'
+                                    ]
                                 ]),
-                                'linkedOption'
+                                'linkedOptions'
                             ),
-                            'linkedComponent'
+                            'linkedComponents'
                         ),
                         'linkedContentComponentGroup'
                     )->for(

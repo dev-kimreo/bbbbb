@@ -34,7 +34,7 @@ class ActionLog extends Model
     public $hidden = ['user_id', 'loggable_type', 'loggable_id'];
     public $with = ['user'];
     protected $casts = [
-        'properties' => 'json'
+        'properties' => 'array'
     ];
 
     public static function boot()

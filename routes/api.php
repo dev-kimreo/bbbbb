@@ -28,6 +28,8 @@ use App\Http\Controllers\LinkedComponents\LinkedComponentOptionController;
 use App\Http\Controllers\LinkedComponents\ScriptRequestController;
 use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\TermsOfUseController;
+use App\Http\Controllers\TestController;
+use App\Http\Controllers\Themes\ThemeBuildController;
 use App\Http\Controllers\Themes\ThemeController;
 use App\Http\Controllers\Themes\ThemeProductController;
 use App\Http\Controllers\TooltipController;
@@ -62,6 +64,9 @@ Route::group([
         'responseToCamel',
     ]
 ], function () {
+    // TODO Front end 의 Referer 체크를 위한 임시 controller 체크 후 삭제
+    Route::get('test', [TestController::class, 'test']);
+
     /**
      * 회원 관련
      */
@@ -402,7 +407,24 @@ Route::group([
         Route::post('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option', [LinkedComponentOptionController::class, 'store']);
         Route::patch('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'update']);
         Route::delete('/{theme_id}/editable-page/{editable_page_id}/linked-component/{linked_component_id}/option/{linked_component_option_id}', [LinkedComponentOptionController::class, 'destroy']);
+
+        // 빌드
+        Route::get('/{theme_id}/build', [ThemeBuildController::class, 'build']);
+        Route::post('/{theme_id}/export', [ThemeBuildController::class, 'export']);
     });
+
+    /**
+     * 연동 컴포넌트 (Shortcut)
+     */
+    Route::group(
+        [
+            'prefix' => 'linked-component',
+            'middleware' => ['auth:api', 'chkAccess:partner']
+        ],
+        function () {
+            Route::get('/{linked_component_id}', [LinkedComponentController::class, 'showDirectly']);
+        }
+    );
 
     /**
      * 컴포넌트

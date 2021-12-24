@@ -42,10 +42,10 @@ class ComponentsAndThemesSeeder extends Seeder
       <a data-qpick-element="user-reg">회원가입</a>
       <a data-qpick-element="user-info">회원정보수정</a>
       <a data-qpick-element="logout">로그아웃</a>
-      <a href="#">고객센터</a>
+      <a data-qpick-element="customer-service">게시판</a>
     </div>
     <ul id="lHeaderRightMenu">
-      <li class="cart"><a href="order/basket.html">장바구니</a><span data-qpick-element="cart-count"></span></li>
+      <li class="cart"><a data-qpick-element="cart">장바구니</a><span data-qpick-element="cart-count"></span></li>
       <li class="menu"><a href="#">메뉴</a></li>
     </ul>
     <ul id="lHeaderMainMenu"></ul>
@@ -93,9 +93,9 @@ class ComponentsAndThemesSeeder extends Seeder
     right: 0;
     height: 12px;
     margin: 0;
-    padding: 0;      
+    padding: 0;
   }
-  #lHeaderTopMenu a,    
+  #lHeaderTopMenu a,
   #lHeaderTopMenu span {
     display: inline-block;
     height: 10px;
@@ -134,10 +134,10 @@ class ComponentsAndThemesSeeder extends Seeder
     background-size: 24px 24px;
   }
   #lHeaderRightMenu li:first-of-type {
-    background-image: url("https://raphanus.cafe24.com/qpick/images/ico_cart.png");
+    background-image: url("https://raphanus.cafe24.com/cocen_images/ico_cart.png");
   }
   #lHeaderRightMenu li:last-of-type {
-    background-image: url("https://raphanus.cafe24.com/qpick/images/ico_menu.png");
+    background-image: url("https://raphanus.cafe24.com/cocen_images/ico_menu.png");
   }
   #lHeaderRightMenu li a {
     overflow: hidden;
@@ -158,7 +158,7 @@ class ComponentsAndThemesSeeder extends Seeder
     color: #fff;
     font-weight: 700;
     line-height: 10px;
-    border-radius: 3px;      
+    border-radius: 3px;
   }
   #lHeaderMainMenu {
     position: absolute;
@@ -183,7 +183,7 @@ class ComponentsAndThemesSeeder extends Seeder
   form {
     position: absolute;
     top: 70px;
-    left: 740px;  
+    left: 740px;
     width: 400px;
     height: 48px;
   }
@@ -206,7 +206,7 @@ class ComponentsAndThemesSeeder extends Seeder
     height: 24px;
     border: 0;
     background-color: #f5f5f5;
-    background-image: url("https://raphanus.cafe24.com/qpick/images/ico_search.png");
+    background-image: url("https://raphanus.cafe24.com/cocen_images/ico_search.png");
     background-size: 24px 24px;
     text-indent: -5000px;
     cursor: pointer;
@@ -255,7 +255,7 @@ class ComponentsAndThemesSeeder extends Seeder
     width: 450px;
     background: #fff;
     margin: 0;
-    padding: 0;      
+    padding: 0;
   }
   #lHeaderRightMenu {
     position: absolute;
@@ -279,15 +279,15 @@ class ComponentsAndThemesSeeder extends Seeder
     background-repeat: no-repeat;
   }
   #lHeaderRightMenu li:first-of-type {
-    background-image: url("https://raphanus.cafe24.com/qpick/images/ico_cart.png");
+    background-image: url("https://raphanus.cafe24.com/cocen_images/ico_cart.png");
   }
   #lHeaderRightMenu li:last-of-type {
-    background-image: url("https://raphanus.cafe24.com/qpick/images/ico_menu.png");
+    background-image: url("https://raphanus.cafe24.com/cocen_images/ico_menu.png");
   }
   #lHeaderRightMenu li a {
-    display: block;        
+    display: block;
     overflow: hidden;
-    position: absolute;    
+    position: absolute;
     top: 0;
     left: 0;
     bottom: 0;
@@ -308,7 +308,7 @@ class ComponentsAndThemesSeeder extends Seeder
     color: #fff;
     font-weight: 700;
     line-height: 10px;
-    border-radius: 3px;      
+    border-radius: 3px;
   }
   #lHeaderMainMenu {
     position: absolute;
@@ -359,7 +359,7 @@ class ComponentsAndThemesSeeder extends Seeder
     margin: 0;
     border: 0;
     background-color: transparent;
-    background-image: url("https://raphanus.cafe24.com/qpick/images/ico_search.png");
+    background-image: url("https://raphanus.cafe24.com/cocen_images/ico_search.png");
     background-size: 20px 20px;
     background-position: center center;
     background-repeat: no-repeat;
@@ -369,10 +369,18 @@ class ComponentsAndThemesSeeder extends Seeder
 }
             ',
             'script' => '
+// Data postprocessing for the theme editor
+let menu = [];
+try {
+  menu = JSON.parse(compOpt[\'menu\'].text);
+} catch(e) {
+  menu = [];
+}
+
 // Main Menu
 let ul = document.querySelector("#lHeaderMainMenu");
 
-for(const v of compOpt["menu"]) {
+for(const v of menu) {
   let li = document.createElement("li");
   let anchor = document.createElement("a");
 
@@ -381,6 +389,11 @@ for(const v of compOpt["menu"]) {
 
   li.appendChild(anchor);
   ul.appendChild(li);
+
+  // Links
+  document.querySelector("[data-qpick-element=\'cart\']").setAttribute("href", "/order/basket.html");
+  document.querySelector("[data-qpick-element=\'customer-service\']").setAttribute("href", "/board/index.html");
+
 
   // Search Form
   document.querySelector("[data-qpick-form=\'search\']").setAttribute("action", "/product/search.html");
@@ -410,7 +423,7 @@ for(const v of compOpt["menu"]) {
     o.style.visibility = "hidden";
   });
 
-  // Search Keyword 
+  // Search Keyword
   // TODO - 템플릿 언어 등으로 개선 필요
   document.querySelector("input[type=text]").value = QpickLibraries.getParameterFromUrl("kw");
 }
@@ -421,7 +434,7 @@ for(const v of compOpt["menu"]) {
                     'type' => 'Text Field',
                     'key' => 'menu',
                     'help' => '다음과 같은 형식의 JSON 배열로 입력합니다: [{title:"", url:""},{title:"", url:""}]',
-                    'default' => '[]'
+                    'default' => '[{"title":"신상NEW","url":"/"},{"title":"BEST50","url":"/"}]'
                 ],
                 /*
                  *  데이터 형태
@@ -472,10 +485,10 @@ for(const v of compOpt["menu"]) {
     font-size: 0;
     font-family: sans-serif;
   }
-  li { 
+  li {
     display: none;
   }
-  li:first-child { 
+  li:first-child {
     display: list-item;
   }
   img {
@@ -484,9 +497,17 @@ for(const v of compOpt["menu"]) {
 }
             ',
             'script' => '
+// Data postprocessing for the theme editor
+let banners
+try {
+  banners = JSON.parse(compOpt[\'banners\'].text);
+} catch(e) {
+  banners = [];
+}
+
 let ul = document.getElementById("banners");
 
-for(const v of compOpt["banners"]) {
+for(const v of banners) {
   let img = new Image();
   let li = document.createElement("li");
   let anchor = document.createElement("a");
@@ -503,16 +524,16 @@ for(const v of compOpt["banners"]) {
                 [
                     'name' => '배너정보',
                     'type' => 'Text Field',
-                    'key' => 'title',
+                    'key' => 'banners',
                     'help' => '다음과 같은 형식의 JSON 배열로 2개의 배너를 입력합니다: [{img:"", url:""},{img:"", url:""}]',
-                    'default' => '[]'
+                    'default' => '[{"img":"https://raphanus.cafe24.com/cocen_images/img_mainbnr_1.png","url":"/product.html"},{"img":"https://raphanus.cafe24.com/cocen_images/img_mainbnr_2.png","url":"/product.html"}]'
                 ],
                 /*
                  *  데이터 형태
                  *  {
                  *  "banners":[
-                 *      {"img":'https://raphanus.cafe24.com/qpick/images/img_mainbnr_1.png',"url":'/product.html'},
-                 *      {"img":'https://raphanus.cafe24.com/qpick/images/img_mainbnr_2.png',"url":'/product.html'}
+                 *      {"img":'https://raphanus.cafe24.com/cocen_images/img_mainbnr_1.png',"url":'/product.html'},
+                 *      {"img":'https://raphanus.cafe24.com/cocen_images/img_mainbnr_2.png',"url":'/product.html'}
                  *  ]
                  *  }
                 */
@@ -542,7 +563,7 @@ for(const v of compOpt["banners"]) {
     display: inline-block;
     margin: 0 22px;
     font-size: 15px;
-    line-height: 16px;    
+    line-height: 16px;
   }
   li a {
     color: #606060;
@@ -584,7 +605,7 @@ for(const v of compOpt["banners"]) {
             'script' => '
 let ul = document.querySelector("ul");
 
-QpickTunnel.categories().then((res) => {   
+QpickTunnel.categories().then((res) => {
   for(const v of res) {
     let li = document.createElement("li");
     let anchor = document.createElement("a");
@@ -642,7 +663,7 @@ QpickTunnel.categories().then((res) => {
     right: 0;
     height: 16px;
     margin: 0;
-    padding: 0;      
+    padding: 0;
     color: #000000;
     font-size: 16px;
     font-weight: bold;
@@ -661,7 +682,7 @@ QpickTunnel.categories().then((res) => {
     right: 0;
     text-indent: -5000px;
   }
-  li .price {      
+  li .price {
     position: absolute;
     top: 308px;
     left: 0;
@@ -671,7 +692,7 @@ QpickTunnel.categories().then((res) => {
     font-size: 16px;
     line-height: 16px;
   }
-  li .soldQty {    
+  li .soldQty {
     position: absolute;
     top: 338px;
     left: 0;
@@ -708,7 +729,7 @@ QpickTunnel.categories().then((res) => {
     color: #F55555;
     border: 1px solid #F55555;
   }
-  li .catchphrase i {      
+  li .catchphrase i {
     color: #ffffff;
     border: 1px solid #43C7FF;
     background-color: #43C7FF;
@@ -764,7 +785,7 @@ QpickTunnel.categories().then((res) => {
     right: 0;
     height: 14px;
     margin: 0;
-    padding: 0;      
+    padding: 0;
     color: #000000;
     font-size: 14px;
     font-weight: bold;
@@ -772,7 +793,7 @@ QpickTunnel.categories().then((res) => {
     letter-spacing: -1px;
     word-spacing: -1px;
   }
-  li .price {  
+  li .price {
     position: absolute;
     bottom: 24px;
     left: 0;
@@ -782,7 +803,7 @@ QpickTunnel.categories().then((res) => {
     font-size: 14px;
     line-height: 14px;
   }
-  li .soldQty {    
+  li .soldQty {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -820,7 +841,7 @@ QpickTunnel.categories().then((res) => {
     color: #F55555;
     border: 1px solid #F55555;
   }
-  li .catchphrase i {      
+  li .catchphrase i {
     color: #ffffff;
     border: 1px solid #43C7FF;
     background-color: #43C7FF;
@@ -830,9 +851,9 @@ QpickTunnel.categories().then((res) => {
             'script' => '
 let ul = document.querySelector("ul");
 
-document.querySelector("h2").innerText = compOpt.title;
+document.querySelector("h2").innerText = compOpt["title"].text;
 
-QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {  
+QpickTunnel.mainProducts(compOpt["groupNo"].text).then((res) => {
   for(const v of res) {
     let li = document.createElement("li");
     let img = new Image();
@@ -845,9 +866,9 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
 
     img.src = v.image;
     img.setAttribute("alt", v.name);
-    
+
     h3Title.appendChild(document.createTextNode(v.name));
-    
+
     divPrice.className = "price";
 
     if(v.orgPrice) {
@@ -942,7 +963,7 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     right: 0;
     height: 16px;
     margin: 0;
-    padding: 0;      
+    padding: 0;
     color: #000000;
     font-size: 16px;
     font-weight: bold;
@@ -961,7 +982,7 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     right: 0;
     text-indent: -5000px;
   }
-  li .price {      
+  li .price {
     position: absolute;
     top: 487px;
     left: 0;
@@ -984,7 +1005,7 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     color: #AAAAAA;
     font-weight: bold;
     font-size: 13px;
-    text-decoration: line-through; 
+    text-decoration: line-through;
     line-height: 15px;
     letter-spacing: -1px;;
   }
@@ -1015,7 +1036,7 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     color: #F55555;
     border: 1px solid #F55555;
   }
-  li .catchphrase i {      
+  li .catchphrase i {
     color: #ffffff;
     border: 1px solid #43C7FF;
     background-color: #43C7FF;
@@ -1057,13 +1078,13 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     margin-bottom: 127px;
   }
   li h3 {
-    position: absolute; 
+    position: absolute;
     left: 16px;
     right: 16px;
     bottom: 56px;
     height: 32px;
     margin: 0;
-    padding: 0;      
+    padding: 0;
     color: #000000;
     font-size: 14px;
     font-weight: bold;
@@ -1071,7 +1092,7 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     letter-spacing: -1px;
   }
   li .price {
-    position: absolute; 
+    position: absolute;
     left: 16px;
     right: 16px;
     bottom: 32px;
@@ -1089,12 +1110,12 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
     margin-left: 6px;
     color: #AAAAAA;
     font-size: 13px;
-    text-decoration: line-through; 
+    text-decoration: line-through;
     line-height: 15px;
     letter-spacing: -1px;;
   }
   li .catchphrase {
-    position: absolute; 
+    position: absolute;
     left: 16px;
     right: 16px;
     bottom: 95px;
@@ -1107,26 +1128,33 @@ QpickTunnel.mainProducts(compOpt.groupNo).then((res) => {
 }
             ',
             'script' => '
+// Data postprocessing for the theme editor
+let items;
+try {
+  items = JSON.parse(\'[\' + compOpt[\'items\'].text + \']\');
+} catch(e) {
+  items = [];
+}
 
 let ul = document.querySelector("ul");
 
-document.querySelector("h2").innerText = compOpt.title;
+document.querySelector("h2").innerText = compOpt["title"].text;
 
-for(const no of compOpt.items) {      
+for(const no of items) {
   let li = document.createElement("li");
   ul.appendChild(li);
 
-  QpickTunnel.product(no).then((res) => {      
+  QpickTunnel.product(no).then((res) => {
     let img = new Image();
     let h3Title = document.createElement("h3");
     let divPrice = document.createElement("div");
     //let divQty = document.createElement("div");
     let divPhrase = document.createElement("div");
     let anchor = document.createElement("a");
-    
+
     img.src = res.image;
     img.setAttribute("alt", res.name);
-    
+
     h3Title.appendChild(document.createTextNode(res.name));
 
     let price_formatted = parseInt(res.price).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -1166,7 +1194,7 @@ for(const no of compOpt.items) {
                     'type' => 'Text Field',
                     'key' => 'items',
                     'help' => '노출할 상품번호를 입력합니다. 여러 개를 입력할 경우 쉼표(,)로 연결하여 입력합니다.',
-                    'default' => 'NEW DEAL'
+                    'default' => '9,10,11,12,13'
                 ]
                 /*
                  *  데이터 형태
@@ -1324,12 +1352,17 @@ for(const no of compOpt.items) {
             );
 
             // 연동 컴포넌트 옵션
-            $v->version->first()->option->each(function ($v2) use ($v, $linkedComponent) {
+            $v->version->first()->options->each(function ($v2) use ($v, $linkedComponent) {
+                $values = [];
+                $v2->properties->each(function ($v3) use (&$values) {
+                    $values[$v3->key] = $v3->initial_value;
+                });
+
                 LinkedComponentOption::query()->create(
                     [
                         'component_option_id' => $v2->id,
                         'linked_component_id' => $linkedComponent->id,
-                        'value' => $v2->default
+                        'value' => $values
                     ]
                 );
             });
