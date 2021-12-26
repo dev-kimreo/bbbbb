@@ -28,7 +28,7 @@ class ActionLog extends Model
 
     public $timestamps = false;
     public $fillable = [
-        'client_id', 'conn_id', 'crud', 'ip', 'loggable_id', 'loggable_type',
+        'client_id', 'conn_id', 'request_location', 'request_path', 'crud', 'ip', 'loggable_id', 'loggable_type',
         'memo', 'path', 'properties', 'title', 'user_id', 'user_grade'
     ];
     public $hidden = ['user_id', 'loggable_type', 'loggable_id'];

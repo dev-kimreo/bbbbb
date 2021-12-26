@@ -992,7 +992,7 @@ class UserController extends Controller
      */
     public function getActionLog(ActionLogRequest $request, int $user_id): array
     {
-        $logs = ActionLog::query()->select(['id', 'title', 'user_id', 'properties', 'created_at', 'ip']);
+        $logs = ActionLog::query();
 
         // set search condition
         $logs->where('user_id', $user_id);
