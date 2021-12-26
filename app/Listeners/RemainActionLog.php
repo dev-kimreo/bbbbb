@@ -32,7 +32,7 @@ class RemainActionLog
     /**
      * Handle the event.
      *
-     * @param  DataCreated|DataUpdated|DataDeleted|Login|Logout  $event
+     * @param DataCreated|DataUpdated|DataDeleted|Login|Logout $event
      * @return void
      */
     public function handle($event)
@@ -69,6 +69,11 @@ class RemainActionLog
             return;
         }
 
+        $currentData = [];
+        if ($j = $this->request->headers->get('qpick-current-location')) {
+            $currentData = json_decode(urldecode($j), true);
+        }
+
         // set attributes
         $log->setAttribute('conn_id', $conn_id);
         $log->setAttribute('client_id', $client_id);
@@ -78,6 +83,8 @@ class RemainActionLog
         $log->setAttribute('loggable_id', $id);
         $log->setAttribute('title', $event->title);
         $log->setAttribute('ip', $this->request->ip());
+        $log->setAttribute('request_location', $currentData['url'] ?? null);
+        $log->setAttribute('request_path', $currentData['pathName'] ?? null);
         $log->setAttribute('crud', $event::$crud ?? 'r');
         $log->setAttribute('path', $this->request->path());
         $log->setAttribute('memo', $event->memo ?? null);
