@@ -204,7 +204,12 @@ abstract class ThemeBuilderService implements ThemeBuilderInterface
               return document[fn](v)
             };
           }
+          
+          shadowRoot.innerHTML = "
+        ';
 
+        $rMiddle = '
+          ";
           (function(document) {
         ';
         $rTail = '
@@ -221,7 +226,7 @@ abstract class ThemeBuilderService implements ThemeBuilderInterface
             );
             $this->addFile(
                 'qpick/renderers/' . $linkedComponent->id . '.js',
-                $rHead . $sourceCodes->script . $rTail
+                $rHead . $sourceCodes->template . $rMiddle . $sourceCodes->script . $rTail
             );
         }
     }

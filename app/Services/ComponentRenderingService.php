@@ -48,6 +48,7 @@ final class ComponentRenderingService
     public static function getJsonp(string $hash, string $callback): string
     {
         $data = ScriptRequest::query()->where('hash', $hash)->firstOrFail();
+        $comp = $data->component->usableVersion()->first();
 
         $scr = $callback . '(function(shadowRoot, compOpt) {
             let arrMethod = [
@@ -62,8 +63,10 @@ final class ComponentRenderingService
                 };
             }
             
+            shadowRoot.innerHTML = "' . $comp->template . '";            
+            
             (function(document) {        
-                ' . $data->component->usableVersion()->first()->script . '
+                ' . $comp->script . '
             })(shadowRoot);
         });
         ';
