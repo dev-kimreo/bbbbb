@@ -63,7 +63,7 @@ final class ComponentRenderingService
                 };
             }
             
-            shadowRoot.innerHTML = "' . $comp->template . '";            
+            shadowRoot.innerHTML = `' . $comp->template . '<style>' . $comp->style . '</style>`;            
             
             (function(document) {        
                 ' . $comp->script . '

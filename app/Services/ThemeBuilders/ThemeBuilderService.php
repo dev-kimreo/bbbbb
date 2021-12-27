@@ -205,11 +205,11 @@ abstract class ThemeBuilderService implements ThemeBuilderInterface
             };
           }
           
-          shadowRoot.innerHTML = "
+          shadowRoot.innerHTML = `
         ';
 
         $rMiddle = '
-          ";
+          `;
           (function(document) {
         ';
         $rTail = '
@@ -224,9 +224,11 @@ abstract class ThemeBuilderService implements ThemeBuilderInterface
                 'qpick/components/' . $linkedComponent->id . '.js',
                 $cHead . $raw . $cTail
             );
+
+            $innerHTML = $sourceCodes->template . '<style>' . $sourceCodes->style . '</style>';
             $this->addFile(
                 'qpick/renderers/' . $linkedComponent->id . '.js',
-                $rHead . $sourceCodes->template . $rMiddle . $sourceCodes->script . $rTail
+                $rHead . $innerHTML . $rMiddle . $sourceCodes->script . $rTail
             );
         }
     }
