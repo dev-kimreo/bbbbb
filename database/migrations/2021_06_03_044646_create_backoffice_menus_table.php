@@ -16,6 +16,7 @@ class CreateBackofficeMenusTable extends Migration
         Schema::create('backoffice_menus', function (Blueprint $table) {
             $table->id();
             $table->string('name', 32);
+            $table->string('key', 64)->nullable();
             $table->tinyInteger('depth')->default(1);
             $table->unsignedBigInteger('parent')->default(0);
             $table->boolean('last')->default(1);

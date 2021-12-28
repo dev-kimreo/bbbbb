@@ -25,64 +25,74 @@ class BackofficeMenuSeeder extends Seeder
         $menus = [
             [
                 'name' => '대시보드',
+                'key' => 'dashboard',
             ],
             [
                 'name' => '회원관리',
+                'key' => 'user'
             ],
             [
                 'name' => '라이브러리',
+                'key' => 'library',
                 'child' => [
-                    ['name' => '이메일 관리'],
-                    ['name' => '위젯 관리'],
-                    ['name' => '아이콘 그룹 관리'],
-                    ['name' => '폰트 목록 관리'],
+                    ['name' => '이메일 관리', 'key' => 'email'],
+                    ['name' => '위젯 관리', 'key' => 'widget'],
+                    ['name' => '아이콘 그룹 관리', 'key' => 'icon-group'],
+                    ['name' => '폰트 목록 관리', 'key' => 'font'],
 
                 ]
             ],
             [
                 'name' => '파트너센터',
+                'key' => 'partner-center',
                 'child' =>
                     [
-                        ['name' => '파트너 회원 관리'],
-                        ['name' => '심사 관리'],
-                        ['name' => '테마 상품'],
-//                            ['name' => '플러그인 상품'],
-                        ['name' => '컴포넌트 관리'],
-                        ['name' => '기본 페이지 관리'],
+                        ['name' => '파트너 회원 관리', 'key' => 'partner-user'],
+                        ['name' => '심사 관리', 'key' => 'audit'],
+                        ['name' => '테마 상품', 'key' => 'theme'],
+//                            ['name' => '플러그인 상품', 'key' => 'plugin'],
+                        ['name' => '컴포넌트 관리', 'key' => 'component'],
+                        ['name' => '기본 페이지 관리', 'key' => 'default-page'],
                     ]
             ],
 //                [
-//                    'name' => '스토어'
+//                    'name' => '스토어',
+//                    'key' => 'store'
 //                ],
             [
                 'name' => '전시관리',
+                'key' => 'display',
                 'child' => [
-                    ['name' => '팝업/배너 관리'],
-                    ['name' => '이용약관'],
-                    ['name' => '개인정보처리방침'],
+                    ['name' => '팝업/배너 관리', 'key' => 'popup-banner'],
+                    ['name' => '이용약관', 'key' => 'user-agreement'],
+                    ['name' => '개인정보처리방침', 'key' => 'privacy-policy'],
                 ]
             ],
             [
                 'name' => '게시판관리',
+                'key' => 'board',
                 'child' => [
-                    ['name' => '게시판 목록'],
-                    ['name' => '게시글 목록'],
-                    ['name' => '1:1 문의 목록'],
+                    ['name' => '게시판 목록', 'key' => 'board-list'],
+                    ['name' => '게시글 목록', 'key' => 'post-list'],
+                    ['name' => '1:1 문의 목록', 'key' => 'inquiry-list'],
                 ]
             ],
 //                [
 //                    'name' => '결제내역'
+//                    'key'= > 'payment-history',
 //                ],
             [
-                'name' => '통계'
+                'name' => '통계',
+                'key' => 'statistics'
             ],
             [
                 'name' => '시스템관리',
+                'key' => 'system',
                 'child' => [
-                    ['name' => '알림센터'],
-                    ['name' => '관리자 설정'],
-                    ['name' => '툴팁 관리'],
-                    ['name' => '현지화 언어 관리'],
+                    ['name' => '알림센터', 'key' => 'notification'],
+                    ['name' => '관리자 설정', 'key' => 'manager'],
+                    ['name' => '툴팁 관리', 'key' => 'tooltip'],
+                    ['name' => '현지화 언어 관리', 'key' => 'localization'],
 //                        ['name' => '솔루션 연동'],
                 ]
             ]
@@ -102,6 +112,7 @@ class BackofficeMenuSeeder extends Seeder
 
             $res = BackofficeMenu::create([
                 'name' => $arr['name'],
+                'key' => $arr['key'],
                 'depth' => $this->depth,
                 'parent' => $this->parent[count($this->parent)-1],
                 'last' => $this->last,
