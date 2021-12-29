@@ -32,7 +32,7 @@ class UserTest extends TestCase
             'createdAt',
             'updatedAt',
             'advAgree',
-            'sites'
+            'solutions'
         ];
     }
 

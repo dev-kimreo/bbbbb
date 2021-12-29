@@ -13,7 +13,7 @@ use App\Models\Users\UserPartner;
 use App\Models\Users\UserPrivacyActive;
 use App\Models\Users\UserPrivacyDeleted;
 use App\Models\Users\UserPrivacyInactive;
-use App\Models\Users\UserSite;
+use App\Models\Users\UserSolution;
 use Carbon\Carbon;
 use Closure;
 use DB;
@@ -59,7 +59,7 @@ use Laravel\Passport\HasApiTokens;
  *   @OA\Property(property="createdAt", ref="#/components/schemas/Base/properties/created_at"),
  *   @OA\Property(property="updatedAt", ref="#/components/schemas/Base/properties/updated_at"),
  *   @OA\Property(property="advAgree", ref="#/components/schemas/UserAdvAgree"),
- *   @OA\Property(property="sites", type="array", @OA\Items(ref="#/components/schemas/UserSite"))
+ *   @OA\Property(property="solutions", type="array", @OA\Items(ref="#/components/schemas/UserSolution"))
  * )
  *
  * @OA\Schema (
@@ -110,9 +110,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(UserAdvAgree::class);
     }
 
-    public function sites(): hasMany
+    public function solutions(): hasMany
     {
-        return $this->hasMany(UserSite::class);
+        return $this->hasMany(UserSolution::class);
     }
 
     public function checkAdmin(): bool

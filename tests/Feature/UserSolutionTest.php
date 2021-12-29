@@ -4,13 +4,13 @@ namespace Tests\Feature;
 
 use App\Models\Solution;
 use App\Models\Users\User;
-use App\Models\Users\UserSite;
+use App\Models\Users\UserSolution;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\Feature\Traits\QpickTestBase;
 use Tests\TestCase;
 
-class UserSiteTest extends TestCase
+class UserSolutionTest extends TestCase
 {
     use WithFaker, QpickTestBase, DatabaseTransactions;
 
@@ -36,7 +36,7 @@ class UserSiteTest extends TestCase
 
     protected function getFactory()
     {
-        return UserSite::factory()
+        return UserSolution::factory()
             ->for(User::factory()->create(), 'user')
             ->for(Solution::factory()->create(), 'solution');
     }
@@ -48,7 +48,7 @@ class UserSiteTest extends TestCase
     {
         $user = $this->createAsQpickUser('regular');
 
-        $response = $this->requestQpickApi('post', '/v1/user/' . $user->id . '/site', $this->createResource);
+        $response = $this->requestQpickApi('post', '/v1/user/' . $user->id . '/solution', $this->createResource);
         $response->assertUnauthorized();
     }
 
@@ -56,7 +56,7 @@ class UserSiteTest extends TestCase
     {
         $user = $this->actingAsQpickUser('associate');
 
-        $response = $this->requestQpickApi('post', '/v1/user/' . $user->id . '/site', $this->createResource);
+        $response = $this->requestQpickApi('post', '/v1/user/' . $user->id . '/solution', $this->createResource);
         $response->assertCreated();
     }
 
@@ -64,7 +64,7 @@ class UserSiteTest extends TestCase
     {
         $user = $this->actingAsQpickUser('regular');
 
-        $response = $this->requestQpickApi('post', '/v1/user/' . $user->id . '/site', $this->createResource);
+        $response = $this->requestQpickApi('post', '/v1/user/' . $user->id . '/solution', $this->createResource);
         $response->assertCreated();
     }
 
@@ -73,7 +73,7 @@ class UserSiteTest extends TestCase
         $other = $this->createAsQpickUser('regular');
         $user = $this->actingAsQpickUser('regular');
 
-        $response = $this->requestQpickApi('post', '/v1/user/' . $other->id . '/site', $this->createResource);
+        $response = $this->requestQpickApi('post', '/v1/user/' . $other->id . '/solution', $this->createResource);
         $response->assertForbidden();
     }
 
@@ -81,7 +81,7 @@ class UserSiteTest extends TestCase
     {
         $user = $this->actingAsQpickUser('backoffice');
 
-        $response = $this->requestQpickApi('post', '/v1/user/' . $user->id . '/site', $this->createResource);
+        $response = $this->requestQpickApi('post', '/v1/user/' . $user->id . '/solution', $this->createResource);
         $response->assertCreated();
     }
 
@@ -91,36 +91,36 @@ class UserSiteTest extends TestCase
     public function testUpdateByGuest()
     {
         $user = $this->createAsQpickUser('regular');
-        $site = $this->getFactory()->create(['user_id' => $user->id]);
+        $solution = $this->getFactory()->create(['user_id' => $user->id]);
 
-        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id . '/site/' . $site->id, $this->updateResource);
+        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id . '/solution/' . $solution->id, $this->updateResource);
         $response->assertUnauthorized();
     }
 
     public function testUpdateByAssociate()
     {
         $user = $this->actingAsQpickUser('associate');
-        $site = $this->getFactory()->create(['user_id' => $user->id]);
+        $solution = $this->getFactory()->create(['user_id' => $user->id]);
 
-        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id . '/site/' . $site->id, $this->updateResource);
+        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id . '/solution/' . $solution->id, $this->updateResource);
         $response->assertCreated();
     }
 
     public function testUpdateByRegular()
     {
         $user = $this->actingAsQpickUser('regular');
-        $site = $this->getFactory()->create(['user_id' => $user->id]);
+        $solution = $this->getFactory()->create(['user_id' => $user->id]);
 
-        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id . '/site/' . $site->id, $this->updateResource);
+        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id . '/solution/' . $solution->id, $this->updateResource);
         $response->assertCreated();
     }
 
     public function testUpdateByBackoffice()
     {
         $user = $this->actingAsQpickUser('backoffice');
-        $site = $this->getFactory()->create(['user_id' => $user->id]);
+        $solution = $this->getFactory()->create(['user_id' => $user->id]);
 
-        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id . '/site/' . $site->id, $this->updateResource);
+        $response = $this->requestQpickApi('patch', '/v1/user/' . $user->id . '/solution/' . $solution->id, $this->updateResource);
         $response->assertCreated();
     }
 
@@ -130,36 +130,36 @@ class UserSiteTest extends TestCase
     public function testDestroyByGuest()
     {
         $user = $this->createAsQpickUser('regular');
-        $site = $this->getFactory()->create(['user_id' => $user->id]);
+        $solution = $this->getFactory()->create(['user_id' => $user->id]);
 
-        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id . '/site/' . $site->id, $this->updateResource);
+        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id . '/solution/' . $solution->id, $this->updateResource);
         $response->assertUnauthorized();
     }
 
     public function testDestroyByAssociate()
     {
         $user = $this->actingAsQpickUser('associate');
-        $site = $this->getFactory()->create(['user_id' => $user->id]);
+        $solution = $this->getFactory()->create(['user_id' => $user->id]);
 
-        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id . '/site/' . $site->id, $this->updateResource);
+        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id . '/solution/' . $solution->id, $this->updateResource);
         $response->assertNoContent();
     }
 
     public function testDestroyByRegular()
     {
         $user = $this->actingAsQpickUser('regular');
-        $site = $this->getFactory()->create(['user_id' => $user->id]);
+        $solution = $this->getFactory()->create(['user_id' => $user->id]);
 
-        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id . '/site/' . $site->id, $this->updateResource);
+        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id . '/solution/' . $solution->id, $this->updateResource);
         $response->assertNoContent();
     }
 
     public function testDestroyByBackoffice()
     {
         $user = $this->actingAsQpickUser('backoffice');
-        $site = $this->getFactory()->create(['user_id' => $user->id]);
+        $solution = $this->getFactory()->create(['user_id' => $user->id]);
 
-        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id . '/site/' . $site->id, $this->updateResource);
+        $response = $this->requestQpickApi('delete', '/v1/user/' . $user->id . '/solution/' . $solution->id, $this->updateResource);
         $response->assertNoContent();
     }
 

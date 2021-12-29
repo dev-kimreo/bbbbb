@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Solution;
 use App\Models\Users\User;
-use App\Models\Users\UserSite;
+use App\Models\Users\UserSolution;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -170,18 +170,18 @@ class UserAndManagerSeeder extends Seeder
             ]
         );
 
-        // User Site
+        // User Solution
         for ($i = 0; $i < 7; $i++) {
             $user = User::skip(rand(1, User::count()) - 1)->first();
             $solution = Solution::skip(rand(1, Solution::count()) - 1)->first();
 
-            UserSite::factory()
+            UserSolution::factory()
                 ->for($user, 'user')
                 ->for($solution, 'solution')
                 ->create();
         }
 
-        UserSite::query()->create(
+        UserSolution::query()->create(
             [
                 'user_id' => 1,
                 'solution_id' => Solution::query()->where('name', '카페24')->first()->id,

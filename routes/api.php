@@ -36,7 +36,7 @@ use App\Http\Controllers\TooltipController;
 use App\Http\Controllers\Users\ManagerController;
 use App\Http\Controllers\Users\UserAdvAgreeController;
 use App\Http\Controllers\Users\UserController;
-use App\Http\Controllers\Users\UserSiteController;
+use App\Http\Controllers\Users\UserSolutionController;
 use App\Http\Controllers\Widgets\WidgetController;
 use App\Http\Controllers\Widgets\WidgetUsageController;
 use App\Http\Middleware\ConvertResponseToCamelCase;
@@ -93,7 +93,7 @@ Route::group([
         Route::delete('/auth', [AccessTokenController::class, 'destroy']);
 
         // 회원 연동 솔루션 CD (추가 및 삭제)
-        Route::resource('/{user_id}/site', UserSiteController::class, [
+        Route::resource('/{user_id}/solution', UserSolutionController::class, [
             'only' => ['store', 'update', 'destroy']
         ])->middleware('chkAccess:owner,backoffice');
 
