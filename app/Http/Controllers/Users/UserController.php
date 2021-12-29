@@ -127,7 +127,7 @@ class UserController extends Controller
             $user = $this->user::status($status);
         }
 
-        $user = $user->with(['privacy', 'advAgree', 'sites', 'authority']);
+        $user = $user->with(['privacy', 'advAgree', 'solutions', 'authority']);
 
         // set search conditions
         if ($s = $request->input('id')) {
@@ -1265,7 +1265,7 @@ class UserController extends Controller
      */
     protected function getOne(int $id)
     {
-        $with = ['privacy', 'advAgree', 'sites'];
+        $with = ['privacy', 'advAgree', 'solutions'];
 
         if (Auth::hasAccessRightsToBackoffice()) {
             $with[] = 'backofficeLogs';

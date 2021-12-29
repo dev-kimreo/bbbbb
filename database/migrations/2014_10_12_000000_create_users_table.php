@@ -42,7 +42,7 @@ class CreateUsersTable extends Migration
             });
         }
 
-        Schema::create('user_sites', function (Blueprint $table) {
+        Schema::create('user_solutions', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_id')->constrained();
@@ -74,7 +74,7 @@ class CreateUsersTable extends Migration
     public function down()
     {
         Schema::dropIfExists('user_login_logs');
-        Schema::dropIfExists('user_sites');
+        Schema::dropIfExists('user_solutions');
         Schema::dropIfExists('user_advertising_agrees');
         Schema::dropIfExists('user_privacy_active');
         Schema::dropIfExists('user_privacy_inactive');

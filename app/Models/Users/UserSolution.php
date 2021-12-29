@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  *
  * @OA\Schema(
- *   schema="UserSite",
+ *   schema="UserSolution",
  *   @OA\Property(property="id", type="integer", example="12"),
  *   @OA\Property(property="user_id", type="integer", description="사용자의 고유번호(PK)", example="27"),
  *   @OA\Property(property="solution_id", type="integer", description="솔루션 고유번호(PK)", example="3"),
@@ -29,14 +29,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *   @OA\Property(property="updatedAt", ref="#/components/schemas/Base/properties/updated_at"),
  * )
  * *
- * Class UserSite
+ * Class UserSolution
  * @package App\Models
  * @method static create(array|int[] $params)
  * @method static findOrFail(int $solution_id)
  * @method static find($id)
  */
 
-class UserSite extends Model
+class UserSolution extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 

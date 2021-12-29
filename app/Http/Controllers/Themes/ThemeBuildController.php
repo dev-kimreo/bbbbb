@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Themes;
 use App\Exceptions\QpickHttpException;
 use App\Http\Controllers\Controller;
 use App\Models\Themes\Theme;
-use App\Models\Users\UserSite;
+use App\Models\Users\UserSolution;
 use App\Services\ThemeBuilders\ThemeBuilderInterface;
 use App\Services\ThemeBuilders\ThemeCafe24BuilderService;
 use Auth;
@@ -47,15 +47,15 @@ class ThemeBuildController extends Controller
     {
         // 데이터 가져오기
         $theme = Theme::findOrFail($theme_id);
-        $site = UserSite::query()->findOrFail($request->input('user_site_id'));
-        $solutionId = $site->solution_user_id;
+        $solution = UserSolution::query()->findOrFail($request->input('user_solution_id'));
+        $solutionId = $solution->solution_user_id;
 
         // 권한 검사
-        if (Auth::id() != $theme->product->user_partner_id || Auth::id() != $site->user_id) {
+        if (Auth::id() != $theme->product->user_partner_id || Auth::id() != $solution->user_id) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
 
-        if ($site->solution_id != $theme->solution->id) {
+        if ($solution->solution_id != $theme->solution->id) {
             throw new QpickHttpException(422, 'theme.solution.not_matched');
         }
 
