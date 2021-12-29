@@ -47,9 +47,6 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('solution_id')->constrained();
-            $table->string('type', 16)->nullable();
-            $table->string('name', 32)->nullable();
-            $table->string('url', 256)->nullable();
             $table->string('solution_user_id', 128)->nullable();
             $table->string('apikey', 512)->nullable();
             $table->timestamps();
