@@ -5,9 +5,12 @@ namespace App\Models\Themes;
 use App\Models\EditablePages\EditablePage;
 use App\Models\Solution;
 use App\Models\Traits\DateFormatISO8601;
+use App\Models\Users\User;
+use App\Models\UserThemes\UserThemePurchaseHistory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -61,5 +64,10 @@ class Theme extends Model
     public function editablePages(): HasMany
     {
         return $this->hasMany(EditablePage::class);
+    }
+
+    public function purchasingUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, UserThemePurchaseHistory::query()->getModel()->getTable());
     }
 }

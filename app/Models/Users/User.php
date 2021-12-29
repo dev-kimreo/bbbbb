@@ -6,14 +6,10 @@ use App\Exceptions\QpickHttpException;
 use App\Models\ActionLog;
 use App\Models\Inquiries\Inquiry;
 use App\Models\Manager;
+use App\Models\Themes\Theme;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
-use App\Models\Users\UserAdvAgree;
-use App\Models\Users\UserPartner;
-use App\Models\Users\UserPrivacyActive;
-use App\Models\Users\UserPrivacyDeleted;
-use App\Models\Users\UserPrivacyInactive;
-use App\Models\Users\UserSolution;
+use App\Models\UserThemes\UserThemePurchaseHistory;
 use Carbon\Carbon;
 use Closure;
 use DB;
@@ -148,6 +144,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function assignedInquiry(): HasMany
     {
         return $this->hasMany(Inquiry::class, 'assignee_id', 'id');
+    }
+
+    public function purchasingThemes(): BelongsToMany
+    {
+        return $this->belongsToMany(Theme::class, UserThemePurchaseHistory::query()->getModel()->getTable());
     }
 
     public function privacy(): HasOne
