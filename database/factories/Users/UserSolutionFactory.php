@@ -22,9 +22,11 @@ class UserSolutionFactory extends Factory
     public function definition()
     {
         return [
+            /*
             'type' => $this->faker->text(12),
             'name' => $this->faker->text(16),
             'url' => $this->faker->url,
+            */
             'solution_user_id' => $this->faker->firstName(),
             'apikey' => substr($this->faker->sha1(), 0, 32)
         ];

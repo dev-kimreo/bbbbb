@@ -16,7 +16,7 @@ class CreateUserThemesTable extends Migration
         Schema::create('user_themes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->foreignId('user_theme_purchase_history_id')->constrained();
+            $table->foreignId('theme_id')->constrained();
             $table->string('name', 256);
             $table->timestamps();
             $table->softDeletes();
@@ -32,6 +32,13 @@ class CreateUserThemesTable extends Migration
             $table->softDeletes();
         });
 
+        Schema::create('user_component_groups', function (Blueprint $table) {
+            $table->collation = 'utf8mb4_general_ci';
+            $table->id();
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
         Schema::create('user_editable_page_layouts', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
@@ -39,13 +46,6 @@ class CreateUserThemesTable extends Migration
             $table->foreignId('header_component_group_id')->constrained('user_component_groups');
             $table->foreignId('content_component_group_id')->constrained('user_component_groups');
             $table->foreignId('footer_component_group_id')->constrained('user_component_groups');
-            $table->timestamps();
-            $table->softDeletes();
-        });
-
-        Schema::create('user_component_groups', function (Blueprint $table) {
-            $table->collation = 'utf8mb4_general_ci';
-            $table->id();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -82,11 +82,11 @@ class CreateUserThemesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_themes');
-        Schema::dropIfExists('user_editable_pages');
+        Schema::dropIfExists('user_component_options');
+        Schema::dropIfExists('user_components');
         Schema::dropIfExists('user_editable_page_layouts');
         Schema::dropIfExists('user_component_groups');
-        Schema::dropIfExists('user_components');
-        Schema::dropIfExists('user_component_options');
+        Schema::dropIfExists('user_editable_pages');
+        Schema::dropIfExists('user_themes');
     }
 }
