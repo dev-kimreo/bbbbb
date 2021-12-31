@@ -1206,6 +1206,206 @@ for(const no of items) {
             ]
         ];
 
+        $rawSourceCodes[] = [
+            'name' => '모바일 앱 소개',
+            'html' => '
+<div id="wAppIntro">
+  <div id="wImg"><img /></div>
+  <div id="wTextWrap">
+    <h3></h3>
+    <div id="wContents"></div>
+    <div id="wButtons"></div>
+  </div>
+</div>
+            ',
+            'css' => '
+  #wButtons {
+    margin-top: 20px;
+  }
+  #wButtons a {
+    display: inline-block;
+    margin-right: 8px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background-color: #eee;
+    color: #333;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  /*
+
+  Desktop Device
+
+  */
+  @media (min-width: 1025px) {
+    #wAppIntro {
+      position: relative;
+      height: 100vh;
+    }
+    #wImg {
+      position: absolute;
+      padding: 10vh 0;
+      height: 100vh;
+      width: 60%;
+      display: flex;
+      box-sizing: border-box;
+      align-items: center;
+      justify-content: center;
+    }
+    #wImg img {
+      max-width: 90%;
+      max-height: 80vh;
+    }
+    #wTextWrap {
+      position: absolute;
+      top: 40vh;
+      width: 40%;
+      box-sizing: border-box;
+      padding: 0 6vw;
+    }
+    h3 {
+      color: #6388c5;
+      font-family: SpoqaHanSansNeo;
+      font-size: 28px;
+      font-weight: 700;
+      font-stretch: normal;
+      font-style: normal;
+      line-height: 1.47;
+      letter-spacing: -1.4px;
+      word-break: keep-all;
+    }
+    #wContents {
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.6;
+      letter-spacing: -0.8px;
+    }
+    #wAppIntro[data-align=left] #wTextWrap {
+      left : 0;
+    }
+    #wAppIntro[data-align=right] #wTextWrap {
+      right : 0;
+    }
+    #wAppIntro[data-align=left] #wImg {
+      right : 0;
+    }
+    #wAppIntro[data-align=right] #wImg {
+      left : 0;
+    }
+  }
+  /*
+
+  Mobile Device
+
+  */
+  @media (max-width: 1024px) {
+    #wAppIntro {
+      position: relative;
+      height: 100vh;
+      width: 100wh;
+    }
+    #wImg {
+      display: flex;
+      height: 70vh;
+      box-sizing: border-box;
+      align-items: center;
+      justify-content: center;
+    }
+    #wImg img {
+      max-height: 70vh;
+      max-width: 86vw;
+    }
+    #wTextWrap {
+      position: absolute;
+      bottom: 0;
+      width: 100vw;
+      height: 28vh;
+      box-sizing: border-box;
+      padding: 0 8vw;
+    }
+    #wContents {
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.6;
+      letter-spacing: -0.8px;
+    }
+    h3 {
+      color: #6388c5;
+      font-family: SpoqaHanSansNeo;
+      font-size: 28px;
+      font-weight: 700;
+      font-stretch: normal;
+      font-style: normal;
+      line-height: 1.47;
+      letter-spacing: -1.4px;
+      word-break: keep-all;
+    }
+  }
+            ',
+            'script' => '
+let ul = document.querySelector("ul");
+
+document.querySelector("#wAppIntro").dataset.align = compOpt.align.text;
+document.querySelector("#wAppIntro").style.backgroundColor = compOpt.bgcolor.text;
+document.querySelector("#wImg img").setAttribute("src", compOpt.img.text);
+document.querySelector("h3").innerText = compOpt.title.text;
+document.querySelector("#wContents").innerHTML = compOpt.contents.text;
+
+var arr = JSON.parse(compOpt.buttons.text);
+if(typeof(arr) == "array")
+{
+    for(let v of arr) {
+      document.querySelector("#wButtons").innerHTML += "<a href=" + v.url + " target=\'_blank\'>" + v.title + "</a>";
+    }
+}
+            ',
+            'options' => [
+                [
+                    'name' => '정렬',
+                    'type' => 'Text Field',
+                    'key' => 'align',
+                    'help' => 'left와 right 중 하나를 입력',
+                    'default' => 'left'
+                ],
+                [
+                    'name' => '배경색',
+                    'type' => 'Text Field',
+                    'key' => 'bgcolor',
+                    'help' => 'HEX Color 값을 입력',
+                    'default' => '#FFFFFF'
+                ],
+                [
+                    'name' => '이미지 URL',
+                    'type' => 'Text Field',
+                    'key' => 'img',
+                    'help' => '이미지의 URL을 입력',
+                    'default' => 'https://d1unjqcospf8gs.cloudfront.net/assets/home/main/3x/image-top-4eb6b8642f61c5c012136597a25a7b72c705d6c6479a7270f3fb23726fddf585.png'
+                ],
+                [
+                    'name' => '타이틀',
+                    'type' => 'Text Field',
+                    'key' => 'title',
+                    'help' => '문구 입력',
+                    'default' => '당신 근처의 당근마켓'
+                ],
+                [
+                    'name' => '내용',
+                    'type' => 'Text Field',
+                    'key' => 'contents',
+                    'help' => '문구 입력',
+                    'default' => '중고 거래부터 동네 정보까지, 이웃과 함께해요. 가깝고 따뜻한 당신의 근처를 만들어요.'
+                ],
+                [
+                    'name' => '버튼(JSON Array)',
+                    'type' => 'Text Field',
+                    'key' => 'buttons',
+                    'help' => 'JSON Array로 입력',
+                    'default' => '[{"title":"테스트용 버튼", "url":"#"}]'
+                ]
+            ]
+        ];
         /*
         $rawSourceCodes[] = [
             'name' => '컴포넌트 옵션 이름',
@@ -1288,7 +1488,12 @@ for(const no of items) {
             }
         }
 
-        // 테마상품
+        // 지원가능 에디터 지원 페이지
+        $supportedEditablePage = SupportedEditablePage::query()
+            ->where('solution_id', $solution->id)
+            ->first();
+
+        // 테마상품 및 테마 #1
         $themeProduct = ThemeProduct::query()->create(
             [
                 'user_partner_id' => $userPartner->id,
@@ -1296,8 +1501,6 @@ for(const no of items) {
                 'all_usable' => 1
             ]
         );
-
-        // 테마
         $theme = Theme::query()->create(
             [
                 'theme_product_id' => $themeProduct->id,
@@ -1306,11 +1509,6 @@ for(const no of items) {
                 'display' => 1
             ]
         );
-
-        // 지원가능 에디터 지원 페이지
-        $supportedEditablePage = SupportedEditablePage::query()
-            ->where('solution_id', $solution->id)
-            ->first();
 
         // 에디터 지원 페이지
         $editablePage = EditablePage::query()->create(
@@ -1338,6 +1536,10 @@ for(const no of items) {
 
         // 연동 컴포넌트
         foreach ($component as $k => $v) {
+            if($k == 4) {
+                continue;
+            }
+
             $groupId = $k == 0 ? $header->id : $contents->id;
 
             $linkedComponent = LinkedComponent::query()->create(
@@ -1363,6 +1565,109 @@ for(const no of items) {
                         'component_option_id' => $v2->id,
                         'linked_component_id' => $linkedComponent->id,
                         'value' => $values
+                    ]
+                );
+            });
+        }
+
+        // 테마상품 및 테마 #2
+        $themeProduct = ThemeProduct::query()->create(
+            [
+                'user_partner_id' => $userPartner->id,
+                'name' => '모바일 앱 소개',
+                'all_usable' => 1
+            ]
+        );
+        $theme = Theme::query()->create(
+            [
+                'theme_product_id' => $themeProduct->id,
+                'solution_id' => $solution->id,
+                'status' => 'registered',
+                'display' => 1
+            ]
+        );
+
+        // 에디터 지원 페이지
+        $editablePage = EditablePage::query()->create(
+            [
+                'theme_id' => $theme->id,
+                'supported_editable_page_id' => $supportedEditablePage->id,
+                'name' => $supportedEditablePage->name
+            ]
+        );
+
+        // 연동 컴포넌트 그룹
+        $header = LinkedComponentGroup::query()->create();
+        $contents = LinkedComponentGroup::query()->create();
+        $footer = LinkedComponentGroup::query()->create();
+
+        // 에디터 지원 페이지 레이아웃
+        $layout = EditablePageLayout::query()->create(
+            [
+                'editable_page_id' => $editablePage->id,
+                'header_component_group_id' => $header->id,
+                'content_component_group_id' => $contents->id,
+                'footer_component_group_id' => $footer->id,
+            ]
+        );
+
+        // 연동 컴포넌트
+        $v = $component[5];
+        $options = [
+            [
+                "align" => "left",
+                "bgcolor" => "#FBF7F2",
+                "img" => "https://d1unjqcospf8gs.cloudfront.net/assets/home/main/3x/image-top-4eb6b8642f61c5c012136597a25a7b72c705d6c6479a7270f3fb23726fddf585.png",
+                "title" => "당신 근처의 당근마켓",
+                "contents" => "중고 거래부터 동네 정보까지, 이웃과 함께해요. 가깝고 따뜻한 당신의 근처를 만들어요.",
+                "buttons" => '[]'
+            ],
+            [
+                "align" => "right",
+                "bgcolor" => "#FFFFFF",
+                "img" => "https://d1unjqcospf8gs.cloudfront.net/assets/home/main/3x/image-1-39ac203e8922f615aa3843337871cb654b81269e872494128bf08236157c5f6a.png",
+                "title" => "우리 동네 중고 직거래 마켓",
+                "contents" => "동네 주민들과 가깝고 따뜻한 거래를 지금 경험해보세요.",
+                "buttons" => '[{"title":"인기매물 보기", "url":"https://www.daangn.com/hot_articles"},{"title":"믿을 수 있는 중고거래", "url":"https://www.daangn.com/trust"}]'
+            ],
+            [
+                "align" => "left",
+                "bgcolor" => "#E6F3E6",
+                "img" => "https://d1unjqcospf8gs.cloudfront.net/assets/home/main/3x/image-2-f286322ab98acedf914a05bf77e84c67dcb897c8ccb543e66f6afea9d366d06d.png",
+                "title" => "이웃과 함께 하는 동네생활",
+                "contents" => "우리 동네의 다양한 이야기를 이웃과 함께 나누어요.",
+                "buttons" => '[]'
+
+            ],
+            [
+                "align" => "right",
+                "bgcolor" => "#FFFFFF",
+                "img" => "https://d1unjqcospf8gs.cloudfront.net/assets/home/main/3x/image-3-0c8b631ac2294ac5a3b3e7a3a5580c3e68a3303ad2aded1e84aa57a2e1442786.png",
+                "title" => "내 근처에서 찾는 동네가게",
+                "contents" => "우리 동네 가게를 찾고 있나요? 동네 주민이 남긴 진짜 후기를 함께 확인해보세요!.",
+                "buttons" => '[{"title":"당근마켓 동네가게 찾기", "url":"https://town.daangn.com/"}]'
+            ]
+        ];
+
+        foreach($options as $o) {
+            $linkedComponent = LinkedComponent::query()->create(
+                [
+                    'linked_component_group_id' => $contents->id,
+                    'component_id' => $v->id,
+                    'name' => $v->name,
+                    'display_on_pc' => 1,
+                    'display_on_mobile' => 1,
+                    'sort' => 999
+                ]
+            );
+
+            // 연동 컴포넌트 옵션
+            $v->version->first()->options->each(function ($v2) use ($v, $linkedComponent, $o) {
+                LinkedComponentOption::query()->create(
+                    [
+                        'component_option_id' => $v2->id,
+                        'linked_component_id' => $linkedComponent->id,
+                        'value' => ["text" => $o[$v2->key]]
                     ]
                 );
             });
