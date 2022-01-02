@@ -75,6 +75,7 @@ class CreateUsersTable extends Migration
     {
         Schema::dropIfExists('user_login_logs');
         Schema::dropIfExists('user_solutions');
+        Schema::dropIfExists('user_sites');  // TODO: 구 버전 마이그레이션 환경 대응 임시 추가
         Schema::dropIfExists('user_advertising_agrees');
         Schema::dropIfExists('user_privacy_active');
         Schema::dropIfExists('user_privacy_inactive');
