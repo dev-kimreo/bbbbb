@@ -348,7 +348,7 @@ class LinkedComponentController extends Controller
                                 $linkOpts
                                     ->where('component_option_id', $v->id)
                                     ->first()
-                                    ->only(['linked_component_id', 'component_option_id', 'value'])
+                                    ->only(['id', 'linked_component_id', 'component_option_id', 'value'])
                         ]
                     )
                 );
