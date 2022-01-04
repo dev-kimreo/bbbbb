@@ -26,6 +26,8 @@ class ActionLog extends Model
 {
     use HasFactory, DateFormatISO8601;
 
+    public static string $exceptionEntity = "actionLog";
+
     public $timestamps = false;
     public $fillable = [
         'client_id', 'conn_id', 'request_location', 'request_path', 'crud', 'ip', 'loggable_id', 'loggable_type',

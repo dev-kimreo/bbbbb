@@ -86,6 +86,8 @@ class Inquiry extends Model
     use DateFormatISO8601;
     use CheckUpdatedAt;
 
+    public static string $exceptionEntity = "inquiry";
+
     public static array $status = [
         'waiting' => 'waiting',       // 접수
         'answering' => 'answering',   // 확인중

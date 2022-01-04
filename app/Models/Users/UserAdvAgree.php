@@ -26,6 +26,8 @@ class UserAdvAgree extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601;
 
+    public static string $exceptionEntity = "userAdvertiseAgree";
+
     public $timestamps = false;
     protected $table = 'user_advertising_agrees';
     protected $fillable = ['user_id', 'agree'];

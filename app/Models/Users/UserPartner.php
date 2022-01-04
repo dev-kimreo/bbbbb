@@ -31,6 +31,8 @@ class UserPartner extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "userPartner";
+
     protected $fillable = ['user_id', 'name'];
     protected $hidden = ['deleted_at'];
 

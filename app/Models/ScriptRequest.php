@@ -15,6 +15,8 @@ class ScriptRequest extends Model
     use HasFactory;
     use DateFormatISO8601;
 
+    public static string $exceptionEntity = "scriptRequest";
+
     public $timestamps = false;
     protected $fillable = [
         'user_id', 'hash', 'url'

@@ -30,6 +30,7 @@ class EditablePageLayout extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601;
 
+    public static string $exceptionEntity = "editablePageLayout";
 
     protected $fillable = [
         'header_component_group_id',

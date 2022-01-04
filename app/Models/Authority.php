@@ -45,6 +45,8 @@ class Authority extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "authority";
+
     /**
      * The attributes that are mass assignable.
      *

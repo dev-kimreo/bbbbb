@@ -58,6 +58,8 @@ class AttachFile extends Model
     use SoftDeletes;
     use DateFormatISO8601;
 
+    public static string $exceptionEntity = "attachFile";
+
     protected $fillable = [
         'server', 'attachable_type', 'attachable_id', 'user_id', 'url', 'path', 'name', 'org_name', 'etc', 'size'
     ];

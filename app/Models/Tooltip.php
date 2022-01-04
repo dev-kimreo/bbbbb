@@ -51,6 +51,8 @@ class Tooltip extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "tooltip";
+
     protected $appends = ['code'];
     protected $fillable = ['user_id', 'type', 'title', 'visible'];
     protected $hidden = ['deleted_at'];

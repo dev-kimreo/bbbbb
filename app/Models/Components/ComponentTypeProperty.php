@@ -23,6 +23,7 @@ class ComponentTypeProperty extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "componentTypeProperty";
 
     protected $fillable = [
         'component_type_id', 'type'

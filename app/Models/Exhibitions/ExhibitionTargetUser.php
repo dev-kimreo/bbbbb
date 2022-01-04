@@ -18,6 +18,8 @@ class ExhibitionTargetUser extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public static string $exceptionEntity = "exhibitionTargetUser";
+
     public $timestamps = false;
     protected $fillable = ['exhibition_id', 'user_id'];
     protected $hidden = ['deleted_at'];

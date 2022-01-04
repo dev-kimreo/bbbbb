@@ -16,6 +16,8 @@ class Exhibition extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "exhibition";
+
     protected $fillable = [
         'exhibition_category_id', 'started_at', 'ended_at', 'target_opt', 'target_grade',
         'sort', 'visible'

@@ -34,6 +34,8 @@ class Reply extends Model
     use DateFormatISO8601;
     use CheckUpdatedAt;
 
+    public static string $exceptionEntity = "reply";
+
     /**
      * The attributes that are mass assignable.
      *

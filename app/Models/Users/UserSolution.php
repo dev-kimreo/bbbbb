@@ -37,6 +37,8 @@ class UserSolution extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "userSolution";
+
     protected $fillable = ['user_id', 'solution_id', 'solution_user_id', 'apikey'];
     protected $hidden = ['deleted_at'];
     protected $appends = ['solution_name'];
