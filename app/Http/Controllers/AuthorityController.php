@@ -17,6 +17,8 @@ use function PHPUnit\Framework\isInstanceOf;
 
 class AuthorityController extends Controller
 {
+    public string $exceptionEntity = "authority";
+
     /**
      * @OA\Get(
      *      path="/v1/authority",

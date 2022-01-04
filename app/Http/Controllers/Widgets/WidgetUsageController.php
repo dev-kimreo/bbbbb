@@ -17,6 +17,8 @@ use Illuminate\Support\Collection;
 
 class WidgetUsageController extends Controller
 {
+    public string $exceptionEntity = "widgetUsage";
+
     /**
      * @OA\Get(
      *      path="/v1/widget/usage",

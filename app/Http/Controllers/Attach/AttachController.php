@@ -21,6 +21,7 @@ class AttachController extends Controller
 {
     private AttachService $attachService;
     private AttachFile $attach;
+    public string $exceptionEntity = "attach";
 
     public function __construct(AttachFile $attach, AttachService $attachService)
     {

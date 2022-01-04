@@ -10,6 +10,8 @@ use Illuminate\Http\Response;
 
 class UserSolutionController extends Controller
 {
+    public string $exceptionEntity = "userSolution";
+
     ## TODO 추후 백오피스에 기획에 따라 백오피스 로그 남겨야 함.
 
     /**

@@ -20,6 +20,8 @@ use Illuminate\Support\Collection;
 
 class PopupController extends Controller
 {
+    public string $exceptionEntity = "popup";
+
     /**
      * @OA\Get(
      *      path="/v1/exhibition/popup",

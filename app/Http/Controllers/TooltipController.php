@@ -16,6 +16,8 @@ use Illuminate\Support\Collection;
 
 class TooltipController extends Controller
 {
+    public string $exceptionEntity = "tooltip";
+
     /**
      * @OA\Get(
      *      path="/v1/tooltip",

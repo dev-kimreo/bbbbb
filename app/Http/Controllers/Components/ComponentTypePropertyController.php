@@ -15,6 +15,7 @@ use Illuminate\Support\Collection;
 
 class ComponentTypePropertyController extends Controller
 {
+    public string $exceptionEntity = "componentTypeProperty";
 
     public function __construct()
     {

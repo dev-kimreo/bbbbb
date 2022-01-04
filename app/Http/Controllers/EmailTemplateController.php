@@ -15,6 +15,7 @@ use Illuminate\Support\Collection;
 
 class EmailTemplateController extends Controller
 {
+    public string $exceptionEntity = "emailTemplate";
     private EmailTemplate $mailTemplate;
 
     public function __construct(EmailTemplate $mailTemplate)

@@ -14,6 +14,8 @@ use Illuminate\Support\Collection;
 
 class CategoryController extends Controller
 {
+    public string $exceptionEntity = "exhibitionCategory";
+
     /**
      * @OA\Get(
      *      path="/v1/exhibition/category",

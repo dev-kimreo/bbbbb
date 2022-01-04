@@ -44,6 +44,7 @@ class UserController extends Controller
 {
     protected User $user;
     protected SignedCode $signedCode;
+    public string $exceptionEntity = "user";
 
     /**
      * Create a new AuthController instance.

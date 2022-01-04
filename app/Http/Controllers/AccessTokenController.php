@@ -20,6 +20,7 @@ use Validator;
 
 class AccessTokenController extends ATC
 {
+    public string $exceptionEntity = "accessToken";
     protected User $user;
 
     /**
