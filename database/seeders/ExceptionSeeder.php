@@ -348,6 +348,40 @@ class ExceptionSeeder extends Seeder
                 '솔루션 아이디 또는 FTP 비밀번호가 잘못되었습니다.',
                 'Wrong user name or password for connect FTP'
             ],
+
+            /**
+             * reo 에러메시지 테스트간 필요한 seeder 데이터
+             * Start
+             */
+            [
+                'exception',
+                'system.http.404.board',
+                '존재하지 않는 :word._board입니다.',
+                ':word._board is not exists'
+            ],
+            [
+                'exception',
+                'system.http.404.post',
+                '존재하지 않는 :word._post입니다.',
+                ':word._post is not exists'
+            ],
+            [
+                'exception',
+                'validation.required.post.title',
+                ':word.post.title을 필수로 입력해주세요.',
+                ':word.post.title is necessary'
+            ],
+            [
+                'exception',
+                'validation.required.post.content',
+                ':word.post.content을 필수로 입력해주세요.',
+                ':word.post.content is necessary'
+            ],
+
+            /**
+             * End
+             */
+
         ];
 
         // Truncate tables
