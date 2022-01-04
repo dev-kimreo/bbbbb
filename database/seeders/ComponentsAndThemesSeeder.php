@@ -498,12 +498,7 @@ for(const v of menu) {
             ',
             'script' => '
 // Data postprocessing for the theme editor
-let banners
-try {
-  banners = JSON.parse(compOpt[\'banners\'].text);
-} catch(e) {
-  banners = [];
-}
+let banners = [compOpt[\'left\'], compOpt[\'right\']]
 
 let ul = document.getElementById("banners");
 
@@ -513,7 +508,8 @@ for(const v of banners) {
   let anchor = document.createElement("a");
 
   anchor.href = v["url"];
-  img.src = v["img"];
+  anchor.setAttribute("target", v["target"]);
+  img.src = v["text"];
 
   anchor.appendChild(img);
   li.appendChild(anchor);
@@ -524,14 +520,14 @@ for(const v of banners) {
                 [
                     'name' => '좌측 배너정보',
                     'type' => 'Text + URL Display',
-                    'key' => 'banners',
+                    'key' => 'left',
                     'help' => '',
                     'default' => '{"text":"https://raphanus.cafe24.com/cocen_images/img_mainbnr_1.png","url":"/product.html","target":"_blank"}'
                 ],
                 [
                     'name' => '우측 배너정보',
                     'type' => 'Text + URL Display',
-                    'key' => 'banners',
+                    'key' => 'right',
                     'help' => '',
                     'default' => '{"text":"https://raphanus.cafe24.com/cocen_images/img_mainbnr_2.png","url":"/product.html","target":"_self"}'
                 ],
