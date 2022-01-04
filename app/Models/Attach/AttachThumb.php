@@ -36,6 +36,8 @@ class AttachThumb extends AttachFile
 {
     use HasFactory;
 
+    public static string $exceptionEntity = "attachThumb";
+
     protected $table = 'attach_files';
     protected $hidden = ['attachable_type', 'attachable_id', 'user_id', 'created_at', 'updated_at', 'deleted_at'];
     protected $with = [];

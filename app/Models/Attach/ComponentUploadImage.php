@@ -25,6 +25,8 @@ class ComponentUploadImage extends Model
     use HasFactory;
     use DateFormatISO8601;
 
+    public static string $exceptionEntity = "componentUploadImage";
+
     public $timestamps = false;
     protected $fillable = ['user_id', 'width', 'height'];
     protected $hidden = ['created_at', 'deleted_at'];

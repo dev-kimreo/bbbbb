@@ -19,6 +19,8 @@ use Image;
 
 class ComponentUploadImageController extends Controller
 {
+    public string $exceptionEntity = "componentUploadImage";
+
     /**
      * @OA\Get(
      *      path="/v1/component-upload-image",

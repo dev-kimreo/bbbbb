@@ -18,6 +18,7 @@ use Illuminate\Support\Collection;
 class ManagerController extends Controller
 {
     private Manager $manager;
+    public string $exceptionEntity = "manager";
 
     public function __construct(Manager $manager)
     {

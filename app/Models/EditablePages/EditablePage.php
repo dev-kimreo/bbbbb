@@ -30,6 +30,7 @@ class EditablePage extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "editablePage";
 
     protected $fillable = [
         'theme_id', 'supported_editable_page_id', 'name'

@@ -34,6 +34,7 @@ class BackofficeMenu extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "backofficeMenu";
 
     protected $fillable = [
         'name', 'depth', 'parent', 'last', 'sort'

@@ -22,6 +22,7 @@ class ThemeController extends Controller
 {
     protected Theme $theme;
     private EditorService $editorService;
+    public string $exceptionEntity = "theme";
 
     public function __construct(Theme $theme, EditorService $editorService)
     {

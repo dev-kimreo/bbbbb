@@ -19,6 +19,8 @@ class ThemeProductInformation extends Model
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
 
+    public static string $exceptionEntity = "themeProductInformation";
+
     protected $fillable = [
     ];
 

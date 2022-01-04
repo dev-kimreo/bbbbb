@@ -24,6 +24,8 @@ class LinkedComponentOption extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "linkedComponentOption";
+
     protected $fillable = ['component_option_id', 'linked_component_id', 'value'];
     protected $casts = [
         'value' => 'array'

@@ -16,13 +16,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *      @OA\Property(property="en", type="string", example="These contents were written in English.", description="영어 콘텐츠" ),
  *      @OA\Property(property="ISO 639-1 2자리 코드", type="string", example="Key에 표시된 언어코드로 작성된 콘텐츠", description="Key에 표시된 언어코드로 작성된 콘텐츠" ),
  *  )
- * 
+ *
  * Class TranslationContent
  * @package App\Models
  */
 class TranslationContent extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
+
+    public static string $exceptionEntity = "translationContent";
 
     protected $fillable = ['lang', 'value'];
     protected $hidden = ['id', 'translation_id', 'created_at', 'updated_at', 'deleted_at'];

@@ -22,6 +22,7 @@ class EditablePageController extends Controller
 {
     private ThemeService $themeService;
     private EditorService $editorService;
+    public string $exceptionEntity = "editablePage";
 
     public function __construct(ThemeService $themeService, EditorService $editorService)
     {

@@ -10,6 +10,7 @@ use Illuminate\Support\Collection;
 class OptionController extends Controller
 {
     private BoardService $boardService;
+    public string $exceptionEntity = "boardOption";
 
     public function __construct(BoardService $boardService)
     {

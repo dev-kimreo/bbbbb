@@ -36,6 +36,8 @@ class Theme extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601;
 
+    public static string $exceptionEntity = "theme";
+
     protected $fillable = ['theme_product_id', 'solution_id', 'status', 'display'];
 
     public static array $status = [

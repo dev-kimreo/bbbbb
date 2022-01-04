@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 
 class UserAdvAgreeController extends Controller
 {
+    public string $exceptionEntity = "userAdvertiseAgree";
 
     /**
      * @OA\Patch(

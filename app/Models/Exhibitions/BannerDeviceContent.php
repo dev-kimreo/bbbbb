@@ -17,6 +17,7 @@ class BannerDeviceContent extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public static string $exceptionEntity = "bannerDeviceContent";
     public static array $device = ['pc', 'mobile'];
 
     public $timestamps = false;

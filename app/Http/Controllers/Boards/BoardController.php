@@ -24,6 +24,7 @@ class BoardController extends Controller
 {
     private Board $board;
     private BoardService $boardService;
+    public string $exceptionEntity = "board";
 
     /**
      * @param Board $board

@@ -35,6 +35,8 @@ class LinkedComponent extends Model
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
 
+    public static string $exceptionEntity = "linkedComponent";
+
     protected $fillable = [
         'linked_component_group_id', 'component_id', 'name', 'sort', 'etc', 'display_on_pc', 'display_on_mobile'
     ];

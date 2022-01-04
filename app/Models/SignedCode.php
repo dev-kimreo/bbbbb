@@ -17,6 +17,8 @@ class SignedCode extends Model
 {
     use HasFactory, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "signedCode";
+
     protected $dates = [
         'created_at',
         'updated_at'

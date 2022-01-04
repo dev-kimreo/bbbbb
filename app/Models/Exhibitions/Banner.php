@@ -100,6 +100,8 @@ class Banner extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "banner";
+
     protected $fillable = ['user_id', 'title', 'url', 'ga_code', 'memo'];
     protected $hidden = ['deleted_at', 'user_id'];
     protected $casts = [];

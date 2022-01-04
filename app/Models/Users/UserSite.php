@@ -32,6 +32,8 @@ class UserSite extends Model
     use DateFormatISO8601;
     use CheckUpdatedAt;
 
+    public static string $exceptionEntity = "userSite";
+
     protected $fillable = ['user_id', 'solution_id',  'user_solution_id', 'name', 'url', 'biz_type'];
     protected $hidden = ['deleted_at'];
 

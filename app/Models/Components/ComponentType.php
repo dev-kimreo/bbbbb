@@ -28,6 +28,7 @@ class ComponentType extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601;
 
+    public static string $exceptionEntity = "componentType";
 
     protected $fillable = [
         'name', 'is_plural', 'has_option', 'has_default', 'max_count', 'attributes'

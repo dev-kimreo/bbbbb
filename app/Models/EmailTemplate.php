@@ -44,6 +44,8 @@ class EmailTemplate extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "emailTemplate";
+
     protected $appends = [];
     protected $fillable = ['code', 'user_id', 'name', 'title'];
     protected $hidden = ['enable', 'ignore_agree', 'deleted_at'];

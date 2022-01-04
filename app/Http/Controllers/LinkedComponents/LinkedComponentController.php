@@ -21,6 +21,7 @@ use Illuminate\Support\Collection;
 class LinkedComponentController extends Controller
 {
     private ThemeService $themeService;
+    public string $exceptionEntity = "linkedComponent";
 
     public function __construct(ThemeService $themeService)
     {

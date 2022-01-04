@@ -13,6 +13,7 @@ use Illuminate\Support\Collection;
 
 class BackofficeMenuController extends Controller
 {
+    public string $exceptionEntity = "backofficeMenu";
     private BackofficeMenu $menu;
 
     public function __construct(BackofficeMenu $menu)

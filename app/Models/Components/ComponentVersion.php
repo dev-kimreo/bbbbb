@@ -28,6 +28,7 @@ class ComponentVersion extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601;
 
+    public static string $exceptionEntity = "componentVersion";
 
     protected $fillable = [
         'template', 'style', 'script', 'component_id', 'usable'

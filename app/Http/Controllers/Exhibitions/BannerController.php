@@ -20,6 +20,8 @@ use Illuminate\Support\Collection;
 
 class BannerController extends Controller
 {
+    public string $exceptionEntity = "banner";
+
     /**
      * @OA\Get(
      *      path="/v1/exhibition/banner",

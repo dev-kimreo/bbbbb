@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 
 class ScriptRequestController extends Controller
 {
+    public string $exceptionEntity = "scriptRequest";
 
     /**
      * @OA\Get (

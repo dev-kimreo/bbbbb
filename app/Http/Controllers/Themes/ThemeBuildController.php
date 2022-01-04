@@ -15,6 +15,8 @@ use Illuminate\Support\Collection;
 
 class ThemeBuildController extends Controller
 {
+    public string $exceptionEntity = "themeBuild";
+
     /**
      * @param int $theme_id
      * @throws QpickHttpException

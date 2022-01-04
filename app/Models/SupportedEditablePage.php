@@ -20,6 +20,8 @@ class SupportedEditablePage extends Model
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
 
+    public static string $exceptionEntity = "supportedEditablePage";
+
     protected $fillable = [
     ];
 

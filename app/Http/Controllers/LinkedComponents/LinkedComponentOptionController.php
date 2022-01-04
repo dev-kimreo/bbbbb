@@ -16,6 +16,7 @@ use Illuminate\Http\Response;
 class LinkedComponentOptionController extends Controller
 {
     private ThemeService $themeService;
+    public string $exceptionEntity = "linkedComponentOption";
 
     public function __construct(ThemeService $themeService)
     {

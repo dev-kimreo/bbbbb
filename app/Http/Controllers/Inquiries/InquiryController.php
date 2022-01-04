@@ -35,6 +35,7 @@ class InquiryController extends Controller
 {
     private Inquiry $inquiry;
     private AttachService $attachService;
+    public string $exceptionEntity = "inquiry";
 
     public function __construct(Inquiry $inquiry, AttachService $attachService)
     {

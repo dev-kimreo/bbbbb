@@ -17,6 +17,7 @@ use Illuminate\Support\Collection;
 
 class TermsOfUseController extends Controller
 {
+    public string $exceptionEntity = "termsOfUse";
     private TermsOfUse $termsOfUse;
 
     public function __construct(TermsOfUse $termsOfUse)

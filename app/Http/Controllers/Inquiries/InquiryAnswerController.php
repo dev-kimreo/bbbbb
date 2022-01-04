@@ -18,6 +18,7 @@ use Illuminate\Support\Collection;
 class InquiryAnswerController extends Controller
 {
     private InquiryAnswer $answer;
+    public string $exceptionEntity = "inquiryAnswer";
 
     public function __construct(InquiryAnswer $answer)
     {

@@ -82,6 +82,8 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, HasApiTokens, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "user";
+
     // 회원 등급
     public static array $userGrade = [
         0 => 'associate',  // 준회원
