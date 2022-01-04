@@ -522,11 +522,18 @@ for(const v of banners) {
             ',
             'options' => [
                 [
-                    'name' => '배너정보',
-                    'type' => 'Text Field',
+                    'name' => '좌측 배너정보',
+                    'type' => 'Text + URL Display',
                     'key' => 'banners',
-                    'help' => '다음과 같은 형식의 JSON 배열로 2개의 배너를 입력합니다: [{img:"", url:""},{img:"", url:""}]',
-                    'default' => '[{"img":"https://raphanus.cafe24.com/cocen_images/img_mainbnr_1.png","url":"/product.html"},{"img":"https://raphanus.cafe24.com/cocen_images/img_mainbnr_2.png","url":"/product.html"}]'
+                    'help' => '',
+                    'default' => '{"text":"https://raphanus.cafe24.com/cocen_images/img_mainbnr_1.png","url":"/product.html","target":"_blank"}'
+                ],
+                [
+                    'name' => '우측 배너정보',
+                    'type' => 'Text + URL Display',
+                    'key' => 'banners',
+                    'help' => '',
+                    'default' => '{"text":"https://raphanus.cafe24.com/cocen_images/img_mainbnr_2.png","url":"/product.html","target":"_self"}'
                 ],
                 /*
                  *  데이터 형태
@@ -1476,15 +1483,35 @@ if(typeof(arr) == "array")
                     ]
                 );
 
-                ComponentOptionProperty::query()->create(
-                    [
-                        'component_option_id' => $compOpt->id,
-                        'component_type_property_id' => $typeId,
-                        'key' => 'text',
-                        'name' => $opt['name'],
-                        'initial_value' => $opt['default']
-                    ]
-                );
+                $createData = [];
+                switch($typeId) {
+                    case 2:
+                        // Text Field
+                        $createData[] = [
+                            'component_option_id' => $compOpt->id,
+                            'component_type_property_id' => $typeId,
+                            'key' => 'text',
+                            'name' => $opt['name'],
+                            'initial_value' => $opt['default']
+                        ];
+                        break;
+
+                    case 8:
+                        // Text + URL Display
+                        foreach(json_decode($opt['default'], true) as $defaultKey => $defaultValue)
+                        {
+                            $createData[] = [
+                                'component_option_id' => $compOpt->id,
+                                'component_type_property_id' => $typeId,
+                                'key' => $defaultKey,
+                                'name' => $opt['name'],
+                                'initial_value' => $defaultValue
+                            ];
+                        }
+                        break;
+                }
+
+                ComponentOptionProperty::query()->insert($createData);
             }
         }
 
@@ -1536,8 +1563,8 @@ if(typeof(arr) == "array")
 
         // 연동 컴포넌트
         foreach ($component as $k => $v) {
-            if($k == 4) {
-                continue;
+            if($k > 4) {
+                break;
             }
 
             $groupId = $k == 0 ? $header->id : $contents->id;
