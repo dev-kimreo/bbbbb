@@ -50,6 +50,8 @@ class Post extends Model
     use DateFormatISO8601;
     use CheckUpdatedAt;
 
+    public static string $exceptionEntity = "post";
+
     /**
      * The attributes that are mass assignable.
      *
