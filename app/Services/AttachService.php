@@ -153,7 +153,7 @@ class AttachService
         }
 
         // 저장경로
-        $hexName = str_pad(dechex($alias), $this->hexLength, '0', STR_PAD_LEFT);
+        $hexName = str_pad(dechex($nos[0]), $this->hexLength, '0', STR_PAD_LEFT);
 
         for ($i = -$this->levelDepth; abs($i) <= $this->hexLength; $i -= $this->levelDepth) {
             $this->path[] = substr($hexName, $i, $this->levelDepth);
