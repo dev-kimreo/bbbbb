@@ -153,7 +153,7 @@ class Handler extends ExceptionHandler
             $statusCode = $o->getStatusCode();
             $response['errors'][] = [
                 'code' => 'system.http.' . $statusCode,
-                'msg' => method_exists($e, 'getMessage') ? $e->getMessage() : $o->original['message']
+                'msg' => method_exists($e, 'getMessage') ? $e->getMessage() : $o->original['msg']
             ];
         }
 
