@@ -29,6 +29,7 @@ class PostController extends Controller
     private Post $post;
     private Board $board;
     private AttachService $attachService;
+    public string $exceptionEntity = "post";
 
     public function __construct(Post $post, Board $board, AttachService $attachService)
     {

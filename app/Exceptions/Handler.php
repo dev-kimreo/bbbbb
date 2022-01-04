@@ -3,8 +3,10 @@
 namespace App\Exceptions;
 
 use App\Libraries\CollectionLibrary;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Throwable;
@@ -57,6 +59,8 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
+        $effectedExceptionEntity = null;
+
         // Define the response
         $response = [
             'errors' => []
@@ -85,6 +89,15 @@ class Handler extends ExceptionHandler
             $statusCode = 500;
             $response['errors'][] = [
                 'code' => 'system.internalError',
+                'msg' => $e->getMessage()
+            ];
+        } elseif ($e instanceof ModelNotFoundException) {
+            $currentModel = '\\' . $e->getModel();
+            $effectedExceptionEntity = $currentModel::$exceptionEntity ?? null;
+
+            $statusCode = 404;
+            $response['errors'][] = [
+                'code' => 'system.http.' . $statusCode,
                 'msg' => $e->getMessage()
             ];
         } elseif ($e instanceof ValidationException) {
@@ -142,6 +155,38 @@ class Handler extends ExceptionHandler
                 'code' => 'system.http.' . $statusCode,
                 'msg' => method_exists($e, 'getMessage') ? $e->getMessage() : $o->original['message']
             ];
+        }
+
+        //
+        if (Route::getCurrentRoute()) {
+            $exceptionPrefix = 'exception';
+            $effectedExceptionEntity = $effectedExceptionEntity ?? (Route::getCurrentRoute()->getController()->exceptionEntity ?? '');
+
+            foreach ($response['errors'] as $k => &$arr) {
+                $changed = [];
+
+                if (isset($arr['target'])) {
+                    $currentAttr = $effectedExceptionEntity . '.' . $arr['target'];
+                } else {
+                    $currentAttr = $effectedExceptionEntity;
+                }
+
+                $arr['user_code'] = $arr['code'] . '.' . ($currentAttr);
+                $arr['user_msg'] = __($exceptionPrefix . '.' . $arr['user_code']);
+
+                if (!$arr['user_msg'] || $arr['user_msg'] == $exceptionPrefix . '.' . $arr['user_code']) {
+                    $arr['user_msg'] = $arr['msg'];
+                } else {
+                    preg_match_all('/\:([a-zA-Z\_\.]+)/', $arr['user_msg'], $matched);
+                    if (isset($matched[1])) {
+                        foreach ($matched[1] as $k => $v) {
+                            $changed[$v] = __($v);
+                        }
+
+                        $arr['user_msg'] = __($exceptionPrefix . '.' . $arr['user_code'], $changed);
+                    }
+                }
+            }
         }
 
         // Default Renderder

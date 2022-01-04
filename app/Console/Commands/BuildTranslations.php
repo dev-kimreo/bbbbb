@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Exception;
+use App\Models\Word;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -47,6 +48,18 @@ class BuildTranslations extends Command
                 $this->assignArrayByPath(
                     $res[$content->lang][$translation->linkable_type],
                     $exception->code,
+                    $content->value
+                );
+            });
+        });
+
+        // Getting translated words from DB
+        Word::with('translation.translationContents')->get()->each(function ($word) use (&$res) {
+            $translation = $word->translation;
+            $translation->translationContents->each(function ($content) use ($word, $translation, &$res) {
+                $this->assignArrayByPath(
+                    $res[$content->lang][$translation->linkable_type],
+                    $word->code,
                     $content->value
                 );
             });
