@@ -24,13 +24,13 @@ class WordSeeder extends Seeder
              */
             [
                 'word',
-                '_board',
+                'board.board',
                 '게시판',
                 'Board'
             ],
             [
                 'word',
-                '_post',
+                'post.post',
                 '게시글',
                 'Post'
             ],
