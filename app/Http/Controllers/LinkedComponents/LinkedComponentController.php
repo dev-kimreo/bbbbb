@@ -321,6 +321,7 @@ class LinkedComponentController extends Controller
                 $linkOpts->push(collect($v));
             });
 
+
         // (파트너사 제작) 컴포넌트 옵션 정보
         $opts = collect();
         $optsOrigin = collect();
@@ -328,6 +329,7 @@ class LinkedComponentController extends Controller
             ->options()
             ->get()
             ->each(function ($v) use (&$opts, &$optsOrigin, $linkOpts) {
+                $type = $v->type()->first();
                 $row = collect($v);
                 $optsOrigin->push($row);
                 $opts->push(
@@ -345,11 +347,15 @@ class LinkedComponentController extends Controller
                         ]
                     )->merge(
                         [
-                            'linkedOptions' =>
+                            'linked_options' =>
                                 $linkOpts
                                     ->where('component_option_id', $v->id)
                                     ->first()
                                     ->only(['id', 'linked_component_id', 'component_option_id', 'value'])
+                        ]
+                    )->merge(
+                        [
+                            'component_type' => $type->only(['id', 'name'])
                         ]
                     )
                 );
