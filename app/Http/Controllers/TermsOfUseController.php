@@ -136,7 +136,7 @@ class TermsOfUseController extends Controller
      *              @OA\Property(property="service", type="string", example="qpick", description="서비스<br/>qpick:큐픽, partner:파트너센터"),
      *              @OA\Property(property="type", type="string", example="termsOfUse", description="구분<br/>termsOfUse:이용약관, privacyPolicy:개인정보처리방침"),
      *              @OA\Property(property="title", type="string", example="전시 제목", description="전시 제목"),
-     *              @OA\Property(property="startedAt", type="date(Y-m-d H:i:s)", example="2021-06-01 09:00:00", description="전시 시작일"),
+     *              @OA\Property(property="startedAt", type="datetime", example="2021-06-01T09:00:00+00:00", description="전시 시작일"),
      *              @OA\Property(property="history", type="string", example="변경내역", description="변경내역"),
      *              @OA\Property(property="content[ko]", type="string", example="한국어로 입력된 툴팁 내용", description="한국어로 입력된 내용"),
      *              @OA\Property(property="content[en]", type="string", example="Contents written in English", description="영어로 입력된 내용"),
@@ -266,7 +266,7 @@ class TermsOfUseController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="type", type="string", example="termsOfUse", description="구분<br/>termsOfUse:이용약관, privacyPolicy:개인정보처리방침"),
      *              @OA\Property(property="title", type="string", example="전시 제목", description="전시 제목"),
-     *              @OA\Property(property="startedAt", type="date(Y-m-d H:i:s)", example="2021-06-01 09:00:00", description="전시 시작일"),
+     *              @OA\Property(property="startedAt", type="datetime", example="2021-06-01T09:00:00+00:00", description="전시 시작일"),
      *              @OA\Property(property="history", type="string", example="변경내역", description="변경내역"),
      *              @OA\Property(property="content[ko]", type="string", example="한국어로 입력된 툴팁 내용", description="한국어로 입력된 내용"),
      *              @OA\Property(property="content[en]", type="string", example="Contents written in English", description="영어로 입력된 내용"),
