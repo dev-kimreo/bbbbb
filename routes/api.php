@@ -18,6 +18,7 @@ use App\Http\Controllers\Components\ComponentVersionController;
 use App\Http\Controllers\EditablePages\EditablePageController;
 use App\Http\Controllers\EditablePages\EditablePageLayoutController;
 use App\Http\Controllers\EmailTemplateController;
+use App\Http\Controllers\ExceptionController;
 use App\Http\Controllers\Exhibitions\BannerController;
 use App\Http\Controllers\Exhibitions\CategoryController as ExhibitionCategoryController;
 use App\Http\Controllers\Exhibitions\PopupController;
@@ -483,6 +484,24 @@ Route::group([
      */
     Route::get('/component/script/{hash}.js', [ScriptRequestController::class, 'show'])
         ->withoutMiddleware([ConvertResponseToCamelCase::class]);
+
+    /**
+     * Exception
+     */
+    Route::group([
+        'prefix' => 'exception',
+        'middleware' => ['auth:api', 'chkAccess:backoffice']
+    ], function () {
+        Route::get('', [ExceptionController::class, 'index']);
+        Route::get('/{exception_id}', [ExceptionController::class, 'show']);
+        Route::post('', [ExceptionController::class, 'store']);
+        Route::patch('/{exception_id}', [ExceptionController::class, 'update']);
+    });
+    Route::post('/relation-exception', [ExceptionController::class, 'relationStore']);
+    /**
+     * End
+     */
+
 
     /**
      * 통계
