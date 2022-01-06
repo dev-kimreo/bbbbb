@@ -140,18 +140,24 @@ class UserController extends Controller
         }
 
         if ($s = $request->input('email')) {
-            $user->where('privacy.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+            $user->whereHas('privacy', function (Builder $q) use ($s) {
+                $q->where('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+            });
         }
 
         if ($s = $request->input('name')) {
-            $user->where('privacy.name', $s);
+            $user->whereHas('privacy', function (Builder $q) use ($s) {
+                $q->where('name', $s);
+            });
         }
 
         if ($s = $request->input('multi_search')) {
             // 통합검색
             $user->where(function ($q) use ($s) {
-                $q->orWhere('privacy.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-                $q->orWhere('privacy.name', $s);
+                $q->whereHas('privacy', function (Builder $q) use ($s) {
+                    $q->where('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+                    $q->orWhere('name', $s);
+                });
 
                 if (is_numeric($s)) {
                     $q->orWhere('id', $s);
