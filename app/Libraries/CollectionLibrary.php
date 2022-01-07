@@ -8,24 +8,31 @@ use Illuminate\Support\Collection;
 
 class CollectionLibrary
 {
-    public static function toCamelCase(Collection $value): Collection
+    public static function toCamelCase(Collection|array $value): Collection
     {
-        $res = [];
+        return self::changeCase($value, 'camel');
+    }
 
-        if ($value instanceof Collection) {
-            $value = $value->toArray();
+    public static function changeCase(Collection|array $value, string $case): Collection
+    {
+        // Setting Case
+        if(!in_array($case, ['camel', 'kebab', 'snake'])) {
+            $case = 'camel';
         }
 
-        if (is_array($value) || is_object($value)) {
-            foreach ($value as $key => $val) {
-                if (is_array($val) || is_object($val)) {
-                    $res[Str::camel($key)] = self::toCamelCase(collect($val));
-                } else {
-                    $res[Str::camel($key)] = $val;
-                }
+        // Init
+        $res = [];
+
+        // Proc
+        foreach ($value as $key => $val) {
+            if (is_array($val) || is_object($val)) {
+                $res[Str::$case($key)] = self::toCamelCase(collect($val));
+            } else {
+                $res[Str::$case($key)] = $val;
             }
         }
 
+        // Return
         return collect($res);
     }
 

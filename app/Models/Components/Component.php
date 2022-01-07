@@ -52,6 +52,7 @@ class Component extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "component";
 
     protected $fillable = [
         'user_partner_id',

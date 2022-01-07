@@ -13,6 +13,7 @@ use Illuminate\Http\Response;
 
 class SolutionController extends Controller
 {
+    public string $exceptionEntity = "solution";
 
     /**
      * @OA\Post (

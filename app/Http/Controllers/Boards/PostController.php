@@ -29,6 +29,7 @@ class PostController extends Controller
     private Post $post;
     private Board $board;
     private AttachService $attachService;
+    public string $exceptionEntity = "post";
 
     public function __construct(Post $post, Board $board, AttachService $attachService)
     {
@@ -387,8 +388,8 @@ class PostController extends Controller
      *              @OA\Property(property="title", type="string", example="제목으로 검색합니다.", description="게시글 제목 검색 필드" ),
      *              @OA\Property(property="multiSearch", type="string|integer", example="전체 검색합니다.", description="통합검색을 위한 검색어"),
      *              @OA\Property(property="sortBy", type="string", example="+sort,-id", description="정렬기준<br/>+:오름차순, -:내림차순" ),
-     *              @OA\Property(property="startCreatedDate", type="date(Y-m-d)", example="2021-01-01", description="등록일자 검색 시작일"),
-     *              @OA\Property(property="endCreatedDate", type="date(Y-m-d)", example="2021-01-01", description="등록일자 검색 시작일"),
+     *              @OA\Property(property="startCreatedDate", type="datetime", example="2021-01-01T00:00:00+00:00", description="등록일자 검색 시작일"),
+     *              @OA\Property(property="endCreatedDate", type="datetime", example="2021-01-01T23:59:59+00:00", description="등록일자 검색 시작일"),
      *              @OA\Property(property="hidden[]", type="boolean", example=1, description="숨김여부<br/>1: 숨김, 0: 노출"),
      *          ),
      *      ),

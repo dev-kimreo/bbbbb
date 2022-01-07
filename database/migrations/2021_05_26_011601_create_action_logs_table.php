@@ -22,6 +22,8 @@ class CreateActionLogsTable extends Migration
             $table->char('ip', 15);
             $table->string('loggable_type');
             $table->foreignId('loggable_id');
+            $table->string('request_location', 255)->nullable();
+            $table->string('request_path', 255)->nullable();
             $table->char('crud', 1);
             $table->string('path', 128);
             $table->string('title', 16)->nullable();
@@ -36,7 +38,8 @@ class CreateActionLogsTable extends Migration
 
         DB::statement("
             ALTER TABLE `action_logs` PARTITION BY RANGE (UNIX_TIMESTAMP(created_at)) (
-                PARTITION p2021 VALUES LESS THAN (UNIX_TIMESTAMP('2021-12-31 23:59:59')) ENGINE = InnoDB
+                PARTITION p2021 VALUES LESS THAN (UNIX_TIMESTAMP('2021-12-31 23:59:59')) ENGINE = InnoDB,
+                PARTITION p2022 VALUES LESS THAN (UNIX_TIMESTAMP('2022-12-31 23:59:59')) ENGINE = InnoDB
             )
         ");
     }

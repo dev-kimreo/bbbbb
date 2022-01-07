@@ -6,14 +6,10 @@ use App\Exceptions\QpickHttpException;
 use App\Models\ActionLog;
 use App\Models\Inquiries\Inquiry;
 use App\Models\Manager;
+use App\Models\Themes\Theme;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
-use App\Models\Users\UserAdvAgree;
-use App\Models\Users\UserPartner;
-use App\Models\Users\UserPrivacyActive;
-use App\Models\Users\UserPrivacyDeleted;
-use App\Models\Users\UserPrivacyInactive;
-use App\Models\Users\UserSite;
+use App\Models\UserThemes\UserThemePurchaseHistory;
 use Carbon\Carbon;
 use Closure;
 use DB;
@@ -59,7 +55,7 @@ use Laravel\Passport\HasApiTokens;
  *   @OA\Property(property="createdAt", ref="#/components/schemas/Base/properties/created_at"),
  *   @OA\Property(property="updatedAt", ref="#/components/schemas/Base/properties/updated_at"),
  *   @OA\Property(property="advAgree", ref="#/components/schemas/UserAdvAgree"),
- *   @OA\Property(property="sites", type="array", @OA\Items(ref="#/components/schemas/UserSite"))
+ *   @OA\Property(property="solutions", type="array", @OA\Items(ref="#/components/schemas/UserSolution"))
  * )
  *
  * @OA\Schema (
@@ -86,6 +82,8 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, HasApiTokens, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "user";
+
     // 회원 등급
     public static array $userGrade = [
         0 => 'associate',  // 준회원
@@ -110,9 +108,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(UserAdvAgree::class);
     }
 
-    public function sites(): hasMany
+    public function solutions(): hasMany
     {
-        return $this->hasMany(UserSite::class);
+        return $this->hasMany(UserSolution::class);
     }
 
     public function checkAdmin(): bool
@@ -148,6 +146,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function assignedInquiry(): HasMany
     {
         return $this->hasMany(Inquiry::class, 'assignee_id', 'id');
+    }
+
+    public function purchasingThemes(): BelongsToMany
+    {
+        return $this->belongsToMany(Theme::class, UserThemePurchaseHistory::query()->getModel()->getTable());
     }
 
     public function privacy(): HasOne

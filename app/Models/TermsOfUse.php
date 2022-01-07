@@ -65,6 +65,8 @@ class TermsOfUse extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "termsOfUse";
+
     protected $fillable = ['user_id', 'type', 'service', 'title', 'started_at', 'history'];
     protected $hidden = ['deleted_at'];
     protected $casts = [

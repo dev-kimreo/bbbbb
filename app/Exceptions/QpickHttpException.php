@@ -14,7 +14,7 @@ class QpickHttpException extends Exception
         $errorInfo = $this->getErrorInfo($errorCode, $targetKey);
         $this->errors[] = $errorInfo;
 
-        parent::__construct($errorInfo['message'], $httpStatusCode);
+        parent::__construct($errorInfo['msg'], $httpStatusCode);
     }
 
     public function getStatusCode()
@@ -42,12 +42,12 @@ class QpickHttpException extends Exception
             $res = [
                 'code' => $code,
                 'target' => CollectionLibrary::hasKeyCaseInsensitive(collect(request()->originals), $key),
-                'message' => $msg
+                'msg' => $msg
             ];
         } else {
             $res = [
                 'code' => $code,
-                'message' => $msg
+                'msg' => $msg
             ];
         }
 

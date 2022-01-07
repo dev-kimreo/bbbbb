@@ -17,6 +17,8 @@ class PopupDeviceContent extends Model
 
     public static array $device = ['pc', 'mobile'];
 
+    public static string $exceptionEntity = "popupDeviceContent";
+
     public $timestamps = false;
     protected $fillable = ['popup_id', 'device', 'contents'];
     protected $hidden = ['popup_id', 'deleted_at'];

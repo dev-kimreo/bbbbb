@@ -70,6 +70,8 @@ class Board extends Model
     use CheckUpdatedAt;
 
 
+    public static string $exceptionEntity = "board";
+
     /**
      * The attributes that are mass assignable.
      *

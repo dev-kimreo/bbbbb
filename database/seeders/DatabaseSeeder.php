@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
                 BoardsSeeder::class,
                 BoardOptionsSeeder::class,
                 ExceptionSeeder::class,
+                WordSeeder::class,
                 BackofficeMenuSeeder::class,
                 EmailTemplateSeeder::class,
                 ExhibitionsSeeder::class,

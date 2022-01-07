@@ -33,6 +33,8 @@ class BoardOption extends Model
 {
     use HasFactory, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "boardOption";
+
     /**
      * The attributes that are mass assignable.
      *

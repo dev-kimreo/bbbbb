@@ -18,9 +18,11 @@ use App\Http\Controllers\Components\ComponentVersionController;
 use App\Http\Controllers\EditablePages\EditablePageController;
 use App\Http\Controllers\EditablePages\EditablePageLayoutController;
 use App\Http\Controllers\EmailTemplateController;
+use App\Http\Controllers\ExceptionController;
 use App\Http\Controllers\Exhibitions\BannerController;
 use App\Http\Controllers\Exhibitions\CategoryController as ExhibitionCategoryController;
 use App\Http\Controllers\Exhibitions\PopupController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\Inquiries\InquiryAnswerController;
 use App\Http\Controllers\Inquiries\InquiryController;
 use App\Http\Controllers\LinkedComponents\LinkedComponentController;
@@ -36,7 +38,7 @@ use App\Http\Controllers\TooltipController;
 use App\Http\Controllers\Users\ManagerController;
 use App\Http\Controllers\Users\UserAdvAgreeController;
 use App\Http\Controllers\Users\UserController;
-use App\Http\Controllers\Users\UserSiteController;
+use App\Http\Controllers\Users\UserSolutionController;
 use App\Http\Controllers\Widgets\WidgetController;
 use App\Http\Controllers\Widgets\WidgetUsageController;
 use App\Http\Middleware\ConvertResponseToCamelCase;
@@ -93,7 +95,7 @@ Route::group([
         Route::delete('/auth', [AccessTokenController::class, 'destroy']);
 
         // 회원 연동 솔루션 CD (추가 및 삭제)
-        Route::resource('/{user_id}/site', UserSiteController::class, [
+        Route::resource('/{user_id}/solution', UserSolutionController::class, [
             'only' => ['store', 'update', 'destroy']
         ])->middleware('chkAccess:owner,backoffice');
 
@@ -483,6 +485,30 @@ Route::group([
      */
     Route::get('/component/script/{hash}.js', [ScriptRequestController::class, 'show'])
         ->withoutMiddleware([ConvertResponseToCamelCase::class]);
+
+    /**
+     * Exception
+     */
+    Route::group([
+        'prefix' => 'exception',
+        'middleware' => ['auth:api', 'chkAccess:backoffice']
+    ], function () {
+        Route::get('', [ExceptionController::class, 'index']);
+        Route::get('/{exception_id}', [ExceptionController::class, 'show']);
+        Route::post('', [ExceptionController::class, 'store']);
+        Route::patch('/{exception_id}', [ExceptionController::class, 'update']);
+    });
+    Route::post('/relation-exception', [ExceptionController::class, 'relationStore']);
+
+    /**
+     * Export
+     */
+    Route::group([
+        'prefix' => 'export',
+        'middleware' => ['auth:api', 'chkAccess:backoffice']
+    ], function () {
+        Route::get('/excel', [ExportController::class, 'excel']);
+    });
 
     /**
      * 통계

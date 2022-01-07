@@ -16,6 +16,8 @@ use Illuminate\Support\Collection;
 
 class WidgetController extends Controller
 {
+    public string $exceptionEntity = "widget";
+
     /**
      * @OA\Get(
      *      path="/v1/widget",

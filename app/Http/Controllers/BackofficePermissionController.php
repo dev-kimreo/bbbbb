@@ -14,6 +14,7 @@ use Illuminate\Support\Collection;
 
 class BackofficePermissionController extends Controller
 {
+    public string $exceptionEntity = "backofficePermission";
     private BackofficePermission $permission;
 
     public function __construct(BackofficePermission $permission)

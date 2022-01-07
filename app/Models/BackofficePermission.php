@@ -27,6 +27,8 @@ class BackofficePermission extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "backofficePermission";
+
     protected $fillable = [
         'authority_id', 'backoffice_menu_id'
     ];

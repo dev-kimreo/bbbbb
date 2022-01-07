@@ -93,6 +93,8 @@ class Popup extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "popup";
+
     protected $fillable = ['user_id', 'title'];
     protected $hidden = ['deleted_at', 'user_id'];
     protected $casts = [];

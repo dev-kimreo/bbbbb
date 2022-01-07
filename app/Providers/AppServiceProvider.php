@@ -38,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
             'component_upload_image' => 'App\Models\Attach\ComponentUploadImage',
             'email_template' => 'App\Models\EmailTemplate',
             'exception' => 'App\Models\Exception',
+            'word' => 'App\Models\Word',
             'exhibition' => 'App\Models\Exhibitions\Exhibition',
             'exhibition_category' => 'App\Models\Exhibitions\ExhibitionCategory',
             'exhibition_target_user' => 'App\Models\Exhibitions\ExhibitionTargetUser',
@@ -49,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
             'terms_of_use' => 'App\Models\TermsOfUse',
             'tooltip' => 'App\Models\Tooltip',
             'user' => 'App\Models\Users\User',
-            'user_site' => 'App\Models\Users\UserSite',
+            'user_solution' => 'App\Models\Users\UserSolution',
         ]);
     }
 }

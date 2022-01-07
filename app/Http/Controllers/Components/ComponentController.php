@@ -19,6 +19,7 @@ use Illuminate\Support\Collection;
 
 class ComponentController extends Controller
 {
+    public string $exceptionEntity = "component";
 
     public function __construct()
     {

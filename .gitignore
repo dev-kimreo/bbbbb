@@ -15,6 +15,7 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 /resources/lang/*/exception.php
+/resources/lang/*/word.php
 /app/Schemas/ErrorsResponse.php
 /.phpstorm.meta.php
 /_ide_helper.php

@@ -3,21 +3,23 @@
 namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Users\SiteRequest;
-use App\Models\Users\UserSite;
+use App\Http\Requests\Users\SolutionRequest;
+use App\Models\Users\UserSolution;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
-class UserSiteController extends Controller
+class UserSolutionController extends Controller
 {
+    public string $exceptionEntity = "userSolution";
+
     ## TODO 추후 백오피스에 기획에 따라 백오피스 로그 남겨야 함.
 
     /**
      * @OA\Post(
-     *      path="/v1/user/{user_id}/site",
+     *      path="/v1/user/{user_id}/solution",
      *      summary="사이트 정보 추가",
      *      description="새로운 사이트 정보 추가",
-     *      operationId="userSiteCreate",
+     *      operationId="userSolutionCreate",
      *      tags={"회원관련"},
      *      @OA\RequestBody(
      *          required=true,
@@ -33,7 +35,7 @@ class UserSiteController extends Controller
      *      @OA\Response(
      *          response=201,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/UserSite")
+     *          @OA\JsonContent(ref="#/components/schemas/UserSolution")
      *      ),
      *      @OA\Response(
      *          response=401,
@@ -49,23 +51,23 @@ class UserSiteController extends Controller
      *      )
      *  )
      *
-     * @param SiteRequest $req
+     * @param SolutionRequest $req
      * @param int $user_id
      * @return JsonResponse
      */
-    public function store(SiteRequest $req, int $user_id): JsonResponse
+    public function store(SolutionRequest $req, int $user_id): JsonResponse
     {
         $params = array_merge($req->toArray(), ['user_id' => $user_id]);
-        $data = UserSite::create($params);
+        $data = UserSolution::create($params);
         return response()->json(collect($this->getOne($data->id)), 201);
     }
 
     /**
      * @OA\Patch(
-     *      path="/v1/user/{user_id}/site/{site_id}",
+     *      path="/v1/user/{user_id}/solution/{solution_id}",
      *      summary="사이트 정보 수정",
      *      description="새로운 사이트 정보 수정",
-     *      operationId="userSiteUpdate",
+     *      operationId="userSolutionUpdate",
      *      tags={"회원관련"},
      *      @OA\RequestBody(
      *          required=true,
@@ -81,7 +83,7 @@ class UserSiteController extends Controller
      *      @OA\Response(
      *          response=201,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/UserSite")
+     *          @OA\JsonContent(ref="#/components/schemas/UserSolution")
      *      ),
      *      @OA\Response(
      *          response=401,
@@ -97,23 +99,23 @@ class UserSiteController extends Controller
      *      )
      *  )
      *
-     * @param SiteRequest $req
+     * @param SolutionRequest $req
      * @param int $user_id
      * @param int $id
      * @return JsonResponse
      */
-    public function update(SiteRequest $req, int $user_id, int $id): JsonResponse
+    public function update(SolutionRequest $req, int $user_id, int $id): JsonResponse
     {
-        UserSite::findOrfail($id)->update($req->toArray());
+        UserSolution::findOrfail($id)->update($req->toArray());
         return response()->json(collect($this->getOne($id)), 201);
     }
 
     /**
      * @OA\delete(
-     *      path="/v1/user/{user_id}/site/{site_id}",
+     *      path="/v1/user/{user_id}/solution/{solution_id}",
      *      summary="사이트 정보 삭제",
      *      description="기존 사이트 정보 삭제",
-     *      operationId="userSiteDelete",
+     *      operationId="userSolutionDelete",
      *      tags={"회원관련"},
      *      @OA\Response(
      *          response=204,
@@ -135,12 +137,12 @@ class UserSiteController extends Controller
      */
     public function destroy(int $user_id, int $solution_id): Response
     {
-        UserSite::findOrFail($solution_id)->delete();
+        UserSolution::findOrFail($solution_id)->delete();
         return response()->noContent();
     }
 
     protected function getOne($id)
     {
-        return UserSite::find($id);
+        return UserSolution::find($id);
     }
 }

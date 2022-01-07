@@ -17,6 +17,7 @@ use Illuminate\Http\Response;
 class ThemeProductController extends Controller
 {
     protected ThemeProduct $themeProduct;
+    public string $exceptionEntity = "themeProduct";
 
     public function __construct(ThemeProduct $themeProduct)
     {

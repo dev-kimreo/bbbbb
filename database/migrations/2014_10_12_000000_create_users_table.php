@@ -42,14 +42,11 @@ class CreateUsersTable extends Migration
             });
         }
 
-        Schema::create('user_sites', function (Blueprint $table) {
+        Schema::create('user_solutions', function (Blueprint $table) {
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('solution_id')->constrained();
-            $table->string('type', 16)->nullable();
-            $table->string('name', 32)->nullable();
-            $table->string('url', 256)->nullable();
             $table->string('solution_user_id', 128)->nullable();
             $table->string('apikey', 512)->nullable();
             $table->timestamps();
@@ -74,7 +71,8 @@ class CreateUsersTable extends Migration
     public function down()
     {
         Schema::dropIfExists('user_login_logs');
-        Schema::dropIfExists('user_sites');
+        Schema::dropIfExists('user_solutions');
+        Schema::dropIfExists('user_sites');  // TODO: 구 버전 마이그레이션 환경 대응 임시 추가
         Schema::dropIfExists('user_advertising_agrees');
         Schema::dropIfExists('user_privacy_active');
         Schema::dropIfExists('user_privacy_inactive');

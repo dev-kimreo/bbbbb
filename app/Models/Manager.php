@@ -34,6 +34,8 @@ class Manager extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "manager";
+
     protected $fillable = [
         'user_id', 'authority_id'
     ];

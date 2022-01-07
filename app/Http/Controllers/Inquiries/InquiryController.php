@@ -35,6 +35,7 @@ class InquiryController extends Controller
 {
     private Inquiry $inquiry;
     private AttachService $attachService;
+    public string $exceptionEntity = "inquiry";
 
     public function __construct(Inquiry $inquiry, AttachService $attachService)
     {
@@ -117,8 +118,8 @@ class InquiryController extends Controller
      *              @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
      *              @OA\Property(property="id", type="string", example=1, description="1:1문의의 고유번호(PK)"),
      *              @OA\Property(property="status[]", type="string", example="waiting", description="검색할 상태값(다중입력 가능)<br>waiting:접수, answering:확인중, answered:완료"),
-     *              @OA\Property(property="startDate", type="date(Y-m-d)", example=1, description="접수기간 검색 시작일"),
-     *              @OA\Property(property="endDate", type="date(Y-m-d)", example=1, description="접수기간 검색 종료일"),
+     *              @OA\Property(property="startDate", type="datetime", example="2021-07-01T00:00:00+00:00", description="접수기간 검색 시작일"),
+     *              @OA\Property(property="endDate", type="datetime", example="2021-07-01T23:59:59+00:00", description="접수기간 검색 종료일"),
      *              @OA\Property(property="title", type="string", example=1, description="제목 검색어"),
      *              @OA\Property(property="userId", type="integer", example=1, description="문의를 작성한 사용자의 고유번호(PK)"),
      *              @OA\Property(property="userEmail", type="string", example=1, description="문의를 작성한 사용자의 이메일"),

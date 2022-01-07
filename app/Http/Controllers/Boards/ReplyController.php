@@ -25,6 +25,7 @@ class ReplyController extends Controller
 {
     private Reply $reply;
     private Post $post;
+    public string $exceptionEntity = "reply";
 
     public function __construct(Reply $reply, Post $post)
     {

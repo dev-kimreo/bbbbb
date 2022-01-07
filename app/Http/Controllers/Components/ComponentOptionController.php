@@ -21,6 +21,7 @@ use Illuminate\Support\Collection;
 
 class ComponentOptionController extends Controller
 {
+    public string $exceptionEntity = "componentOption";
 
     public function __construct()
     {

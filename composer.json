@@ -8,7 +8,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.4|^8.0",
+        "php": "^8.0",
         "ext-json": "*",
         "darkaonline/l5-swagger": "^8.0",
         "fideloper/proxy": "^4.4",
@@ -20,6 +20,7 @@
         "laravel/passport": "^10.1",
         "laravel/telescope": "^4.4",
         "laravel/tinker": "^2.5",
+        "maatwebsite/excel": "^3.1",
         "maennchen/zipstream-php": "^2.1"
     },
     "require-dev": {

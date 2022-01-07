@@ -43,6 +43,8 @@ class InquiryAnswer extends Model
     use DateFormatISO8601;
     use CheckUpdatedAt;
 
+    public static string $exceptionEntity = "inquiryAnswer";
+
     /**
      * The attributes that are mass assignable.
      *

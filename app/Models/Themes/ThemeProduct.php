@@ -30,6 +30,7 @@ class ThemeProduct extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601;
 
+    public static string $exceptionEntity = "themeProduct";
 
     protected $fillable = [
         'user_partner_id',

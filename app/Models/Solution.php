@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
-use App\Models\Users\UserSite;
+use App\Models\Users\UserSolution;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -29,6 +29,8 @@ class Solution extends Model
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
 
+    public static string $exceptionEntity = "solution";
+
     protected $fillable = [
         'name'
     ];
@@ -45,9 +47,9 @@ class Solution extends Model
         return $this->hasMany(SupportedEditablePage::class);
     }
 
-    public function userSites(): HasMany
+    public function userSolutions(): HasMany
     {
-        return $this->hasMany(UserSite::class);
+        return $this->hasMany(UserSolution::class);
     }
 }
 

@@ -44,6 +44,7 @@ class UserController extends Controller
 {
     protected User $user;
     protected SignedCode $signedCode;
+    public string $exceptionEntity = "user";
 
     /**
      * Create a new AuthController instance.
@@ -70,10 +71,10 @@ class UserController extends Controller
      *          @OA\JsonContent(
      *              required={},
      *              @OA\Property(property="status", type="string", example="inactive", default="active", description="active:활성회원<br />inactive:휴면회원<br />deleted:탈퇴회원"),
-     *              @OA\Property(property="startCreatedDate", type="date(Y-m-d)", example="2021-01-01", description="가입일 검색 시작일"),
-     *              @OA\Property(property="endCreatedDate", type="date(Y-m-d)", example="2021-03-01", description="가입일 검색 종료일"),
-     *              @OA\Property(property="startRegisteredDate", type="date(Y-m-d)", example="2021-03-01", description="전환일 검색 시작일"),
-     *              @OA\Property(property="endRegisteredDate", type="date(Y-m-d)", example="2021-05-01", description="전환일 검색 종료일"),
+     *              @OA\Property(property="startCreatedDate", type="datetime", example="2021-07-01T00:00:00+00:00", description="가입일 검색 시작일"),
+     *              @OA\Property(property="endCreatedDate", type="datetime", example="2021-07-01T23:59:59+00:00", description="가입일 검색 종료일"),
+     *              @OA\Property(property="startRegisteredDate", type="datetime", example="2021-07-01T00:00:00+00:00", description="전환일 검색 시작일"),
+     *              @OA\Property(property="endRegisteredDate", type="datetime", example="2021-07-01T23:59:59+00:00", description="전환일 검색 종료일"),
      *              @OA\Property(property="grade[]", type="integer", example=1, description="회원 등급"),
      *              @OA\Property(property="id", type="integer", example=1, description="회원 번호"),
      *              @OA\Property(property="email", type="string", example="abcd@qpicki.com", description="ID(메일)"),
@@ -127,7 +128,7 @@ class UserController extends Controller
             $user = $this->user::status($status);
         }
 
-        $user = $user->with(['privacy', 'advAgree', 'sites', 'authority']);
+        $user = $user->with(['privacy', 'advAgree', 'solutions', 'authority']);
 
         // set search conditions
         if ($s = $request->input('id')) {
@@ -139,18 +140,24 @@ class UserController extends Controller
         }
 
         if ($s = $request->input('email')) {
-            $user->where('privacy.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+            $user->whereHas('privacy', function (Builder $q) use ($s) {
+                $q->where('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+            });
         }
 
         if ($s = $request->input('name')) {
-            $user->where('privacy.name', $s);
+            $user->whereHas('privacy', function (Builder $q) use ($s) {
+                $q->where('name', $s);
+            });
         }
 
         if ($s = $request->input('multi_search')) {
             // 통합검색
             $user->where(function ($q) use ($s) {
-                $q->orWhere('privacy.email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
-                $q->orWhere('privacy.name', $s);
+                $q->whereHas('privacy', function (Builder $q) use ($s) {
+                    $q->where('email', 'like', '%' . StringLibrary::escapeSql($s) . '%');
+                    $q->orWhere('name', $s);
+                });
 
                 if (is_numeric($s)) {
                     $q->orWhere('id', $s);
@@ -992,7 +999,7 @@ class UserController extends Controller
      */
     public function getActionLog(ActionLogRequest $request, int $user_id): array
     {
-        $logs = ActionLog::query()->select(['id', 'title', 'user_id', 'properties', 'created_at', 'ip']);
+        $logs = ActionLog::query();
 
         // set search condition
         $logs->where('user_id', $user_id);
@@ -1265,7 +1272,7 @@ class UserController extends Controller
      */
     protected function getOne(int $id)
     {
-        $with = ['privacy', 'advAgree', 'sites'];
+        $with = ['privacy', 'advAgree', 'solutions'];
 
         if (Auth::hasAccessRightsToBackoffice()) {
             $with[] = 'backofficeLogs';

@@ -35,6 +35,8 @@ class ExhibitionCategory extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601, CheckUpdatedAt;
 
+    public static string $exceptionEntity = "exhibitionCategory";
+
     protected $fillable = ['name', 'url', 'division', 'site', 'max', 'enable'];
     protected $hidden = ['deleted_at'];
     protected $casts = [

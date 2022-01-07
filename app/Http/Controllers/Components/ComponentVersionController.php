@@ -20,6 +20,7 @@ use Illuminate\Support\Collection;
 
 class ComponentVersionController extends Controller
 {
+    public string $exceptionEntity = "componentVersion";
 
     public function __construct()
     {

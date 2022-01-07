@@ -6,7 +6,7 @@ use App\Models\Solution;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class SiteRequest extends FormRequest
+class SolutionRequest extends FormRequest
 {
     /**
      * @return bool
