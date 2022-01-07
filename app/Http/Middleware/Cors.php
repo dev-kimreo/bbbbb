@@ -12,10 +12,12 @@ class Cors
      */
     public function handle($request, Closure $next)
     {
-//        return $next($request);
-        return $next($request)
-            ->header("Access-Control-Allow-Origin", "*")
-            ->header("Access-Control-Allow-Methods", "GET, POST, DELETE, PATCH, OPTIONS")
-            ->header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, X-Token-Auth, Authorization, qpick-current-location");
+        // return $next($request);
+        $res = $next($request);
+        $res->headers->set("Access-Control-Allow-Origin", "*");
+        $res->headers->set("Access-Control-Allow-Methods", "GET, POST, DELETE, PATCH, OPTIONS");
+        $res->headers->set("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, X-Token-Auth, Authorization, qpick-current-location");
+
+        return $res;
     }
 }

@@ -22,6 +22,7 @@ use App\Http\Controllers\ExceptionController;
 use App\Http\Controllers\Exhibitions\BannerController;
 use App\Http\Controllers\Exhibitions\CategoryController as ExhibitionCategoryController;
 use App\Http\Controllers\Exhibitions\PopupController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\Inquiries\InquiryAnswerController;
 use App\Http\Controllers\Inquiries\InquiryController;
 use App\Http\Controllers\LinkedComponents\LinkedComponentController;
@@ -498,10 +499,16 @@ Route::group([
         Route::patch('/{exception_id}', [ExceptionController::class, 'update']);
     });
     Route::post('/relation-exception', [ExceptionController::class, 'relationStore']);
-    /**
-     * End
-     */
 
+    /**
+     * Export
+     */
+    Route::group([
+        'prefix' => 'export',
+        'middleware' => ['auth:api', 'chkAccess:backoffice']
+    ], function () {
+        Route::get('/excel', [ExportController::class, 'excel']);
+    });
 
     /**
      * 통계
