@@ -6,6 +6,11 @@ use App\Libraries\StringLibrary;
 use App\Models\ScriptRequest;
 use Auth;
 use Illuminate\Database\Eloquent\Model;
+use Sabberworm\CSS\CSSList\AtRuleBlockList;
+use Sabberworm\CSS\OutputFormat;
+use Sabberworm\CSS\Parser;
+use Sabberworm\CSS\Parsing\SourceException;
+use Sabberworm\CSS\RuleSet\DeclarationBlock;
 use Str;
 
 final class ComponentRenderingService
@@ -15,9 +20,46 @@ final class ComponentRenderingService
         return StringLibrary::removeSpace($s);
     }
 
+    /**
+     * @throws SourceException
+     */
     public static function procStyle(string $s): string
     {
-        return StringLibrary::removeSpace($s);
+        // change
+        $parsed = (new Parser($s))->parse();
+        $render = '';
+
+        foreach($parsed->getContents() as $oRule) {
+            if($oRule instanceof DeclarationBlock) {
+                $render .= $oRule->render(OutputFormat::create());
+            } else if ($oRule instanceof AtRuleBlockList) {
+                if ($oRule->atRuleName() == 'media') {
+                    // set class name
+                    if ($oRule->atRuleArgs() == '(min-width: 1025px)') {
+                        $className = '.DAV-preview__shop--pc ';
+                    } else {
+                        if ($oRule->atRuleArgs() == '(max-width: 1024px)') {
+                            $className = '.DAV-preview__shop--mobile ';
+                        } else {
+                            continue;
+                        }
+                    }
+
+                    foreach ($oRule->getContents() as $v) {
+                        //selector?: string, style?: string, index?: number
+                        $selector = [];
+                        foreach ($v->getSelectors() as $v2) {
+                            $selector[] = $className . $v2;
+                        }
+                        $v->setSelectors($selector);
+                        $render .= $v->render(OutputFormat::create());
+                    }
+                }
+            }
+        }
+
+        // remove white space and return
+        return StringLibrary::removeSpace($render);
     }
 
     public static function getScript(string $hash): string
