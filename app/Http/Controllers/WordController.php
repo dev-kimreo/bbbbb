@@ -3,31 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\QpickHttpException;
-use App\Http\Requests\Exceptions\IndexRequest;
-use App\Http\Requests\Exceptions\RelationStoreRequest;
-use App\Http\Requests\Exceptions\StoreRequest;
-use App\Http\Requests\Exceptions\UpdateRequest;
+use App\Http\Requests\Words\IndexRequest;
+use App\Http\Requests\Words\RelationStoreRequest;
+use App\Http\Requests\Words\ResponseInJsonRequest;
+use App\Http\Requests\Words\StoreRequest;
+use App\Http\Requests\Words\UpdateRequest;
 use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
-use App\Models\Exception;
+use App\Models\Word;
 use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 
-class ExceptionController extends Controller
+class WordController extends Controller
 {
-    public string $exceptionEntity = "exception";
+    public string $exceptionEntity = "word";
 
 
     /**
      * @OA\Get(
-     *      path="/v1/exception",
-     *      summary="예외 목록",
-     *      description="예외 목록",
-     *      operationId="exceptionIndex",
-     *      tags={"예외"},
+     *      path="/v1/word",
+     *      summary="용어 목록",
+     *      description="용어 목록",
+     *      operationId="wordIndex",
+     *      tags={"용어"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
@@ -43,7 +44,7 @@ class ExceptionController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="header", type="object", ref="#/components/schemas/Pagination"),
      *              @OA\Property(property="list", type="array",
-     *                  @OA\Items(type="object", ref="#/components/schemas/RelationException")
+     *                  @OA\Items(type="object", ref="#/components/schemas/RelationWord")
      *              )
      *          )
      *      ),
@@ -62,21 +63,21 @@ class ExceptionController extends Controller
      */
     public function index(IndexRequest $request): Collection
     {
-        $exception = Exception::query();
+        $word = Word::query();
 
         // Sort By
         if ($s = $request->input('sort_by')) {
             $sortCollect = CollectionLibrary::getBySort($s, ['id']);
-            $sortCollect->each(function ($item) use ($exception) {
-                $exception->orderBy($item['key'], $item['value']);
+            $sortCollect->each(function ($item) use ($word) {
+                $word->orderBy($item['key'], $item['value']);
             });
         }
 
         // Set Pagination Information
-        $pagination = PaginationLibrary::set($request->input('page'), $exception->count(), $request->input('per_page'));
+        $pagination = PaginationLibrary::set($request->input('page'), $word->count(), $request->input('per_page'));
 
         // Get Data from DB
-        $data = $exception->skip($pagination['skip'])->take($pagination['perPage'])->get();
+        $data = $word->skip($pagination['skip'])->take($pagination['perPage'])->get();
 
         // Result
         $result = [
@@ -87,59 +88,20 @@ class ExceptionController extends Controller
         return collect($result);
     }
 
+
     /**
      * @OA\Get(
-     *      path="/v1/exception/{exception_id}",
-     *      summary="예외 상세",
-     *      description="예외 상세",
-     *      operationId="exceptionShow",
-     *      tags={"예외"},
+     *      path="/v1/word/{word_id}",
+     *      summary="용어 상세",
+     *      description="용어 상세",
+     *      operationId="wordShow",
+     *      tags={"용어"},
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/RelationException")
+     *          @OA\JsonContent(ref="#/components/schemas/RelationWord")
      *      ),
      *      @OA\Response(
-     *          response=422,
-     *          description="failed"
-     *      ),
-     *      security={{
-     *          "admin_auth":{}
-     *      }}
-     *  )
-     * @param int $exceptionId
-     * @return Collection
-     */
-    public function show(int $exceptionId): Collection
-    {
-        return collect(Exception::findOrFail($exceptionId));
-    }
-
-    /**
-     * OA\Post(
-     *      path="/v1/exception",
-     *      summary="예외 작성",
-     *      description="예외 작성",
-     *      operationId="exceptionCreate",
-     *      tags={"예외"},
-     *      OA\RequestBody(
-     *          required=true,
-     *          description="",
-     *          OA\JsonContent(
-     *              OA\Property(property="code", type="string", example="common.not_found", description="예외 code"),
-     *              OA\Property(property="title", type="string", example="요청한 데이터를 찾을 수 없습니다.", description="예외 제목"),
-     *          ),
-     *      ),
-     *      OA\Response(
-     *          response=201,
-     *          description="created",
-     *          OA\JsonContent(
-     *              allOf={
-     *                  OA\Schema(ref="#/components/schemas/RelationException")
-     *              }
-     *          )
-     *      ),
-     *      OA\Response(
      *          response=422,
      *          description="failed"
      *      ),
@@ -148,28 +110,39 @@ class ExceptionController extends Controller
      *      }}
      *  )
      *
+     * @param int $wordId
+     * @return Collection
+     */
+    public function show(int $wordId): Collection
+    {
+        return collect(Word::findOrFail($wordId));
+    }
+
+
+    /**
      * @param StoreRequest $request
      * @return Collection
      */
     public function store(StoreRequest $request): Collection
     {
-        $exception = Exception::create($request->all());
-        return collect($exception->refresh());
+        $word = Word::create($request->all());
+        return collect($word->refresh());
     }
+
 
     /**
      * @OA\Patch(
-     *      path="/v1/exception/{exception_id}",
-     *      summary="예외 수정",
-     *      description="예외 수정",
-     *      operationId="exceptionUpdate",
-     *      tags={"예외"},
+     *      path="/v1/word/{word_id}",
+     *      summary="용어 수정",
+     *      description="용어 수정",
+     *      operationId="wordUpdate",
+     *      tags={"용어"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              @OA\Property(property="code", ref="#/components/schemas/Exception/properties/code" ),
-     *              @OA\Property(property="title", ref="#/components/schemas/Exception/properties/title" ),
+     *              @OA\Property(property="code", ref="#/components/schemas/Word/properties/code" ),
+     *              @OA\Property(property="title", ref="#/components/schemas/Word/properties/title" ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -177,7 +150,7 @@ class ExceptionController extends Controller
      *          description="created",
      *          @OA\JsonContent(
      *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/RelationException")
+     *                  @OA\Schema(ref="#/components/schemas/RelationWord")
      *              }
      *          )
      *      ),
@@ -190,26 +163,27 @@ class ExceptionController extends Controller
      *      }}
      *  )
      * @param UpdateRequest $request
-     * @param int $exceptionId
+     * @param int $wordId
      * @return JsonResponse
      */
-    public function update(UpdateRequest $request, int $exceptionId): JsonResponse
+    public function update(UpdateRequest $request, int $wordId): JsonResponse
     {
-        $exceptionBuild = Exception::query();
-        $exception = $exceptionBuild->findOrFail($exceptionId);
+        $wordBuild = Word::query();
+        $word = $wordBuild->findOrFail($wordId);
 
-        $exception->update($request->all());
+        $word->update($request->all());
 
-        return response()->json(collect($exception), 201);
+        return response()->json(collect($word), 201);
     }
+
 
     /**
      * @OA\delete(
-     *      path="/v1/exception/{exception_id}",
-     *      summary="예외 삭제",
-     *      description="예외 삭제",
-     *      operationId="exceptionDelete",
-     *      tags={"예외"},
+     *      path="/v1/word/{word_id}",
+     *      summary="용어 삭제",
+     *      description="용어 삭제",
+     *      operationId="wordDelete",
+     *      tags={"용어"},
      *      @OA\Response(
      *          response=204,
      *          description="deleted"
@@ -218,31 +192,31 @@ class ExceptionController extends Controller
      *          "admin_auth":{}
      *      }}
      *  )
-     * @param int $exceptionId
+     * @param int $wordId
      * @return Response
      */
-    public function destroy(int $exceptionId): Response
+    public function destroy(int $wordId): Response
     {
-        $exceptionBuild = Exception::query();
-        $exception = $exceptionBuild->findOrFail($exceptionId);
-        $exception->delete();
+        $wordBuild = Word::query();
+        $word = $wordBuild->findOrFail($wordId);
+        $word->delete();
 
         return response()->noContent();
     }
 
     /**
      * @OA\Post(
-     *      path="/v1/relation-exception",
-     *      summary="예외 관계형 생성",
-     *      description="예외 관계형 작성",
-     *      operationId="relationExceptionCreate",
-     *      tags={"예외"},
+     *      path="/v1/relation-word",
+     *      summary="용어 관계형 생성",
+     *      description="용어 관계형 작성",
+     *      operationId="relationWordCreate",
+     *      tags={"용어"},
      *      @OA\RequestBody(
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              @OA\Property(property="code", type="string", example="common.not_found", description="예외 code"),
-     *              @OA\Property(property="title", type="string", example="요청한 데이터를 찾을 수 없습니다.", description="예외 제목"),
+     *              @OA\Property(property="code", ref="#/components/schemas/Word/properties/code" ),
+     *              @OA\Property(property="title", ref="#/components/schemas/Word/properties/title" ),
      *              @OA\Property(property="value[ko]", type="string", example="한국어로 입력된 예외 내용", description="한국어로 입력된 내용"),
      *              @OA\Property(property="value[en]", type="string", example="Values written in English", description="영어로 입력된 내용"),
      *              @OA\Property(property="value[..]", type="string", example="다른 어떤 언어로 쓰인 예외 내용", description="[..]안에 쓰인 ISO 639-1코드의 언어로 입력된 내용"),
@@ -253,7 +227,7 @@ class ExceptionController extends Controller
      *          description="created",
      *          @OA\JsonContent(
      *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/RelationException")
+     *                  @OA\Schema(ref="#/components/schemas/RelationWord")
      *              }
      *          )
      *      ),
@@ -271,9 +245,9 @@ class ExceptionController extends Controller
      */
     public function relationStore(RelationStoreRequest $request): Collection
     {
-        $exception = Exception::create($request->all());
+        $word = Word::create($request->all());
 
-        $translation = $exception->translation()->create($request->all());
+        $translation = $word->translation()->create($request->all());
 
         // create a translation content
         if (is_array($content = $request->input('value'))) {
@@ -285,7 +259,7 @@ class ExceptionController extends Controller
             }
         }
 
-        return collect(Exception::findOrFail($exception->getAttribute('id')));
+        return collect(word::findOrFail($word->getAttribute('id')));
     }
 
 
@@ -293,6 +267,8 @@ class ExceptionController extends Controller
     {
         Artisan::call('build:translations');
 
-        return collect(__('exception'));
+        return collect(__('word'));
     }
+
+
 }

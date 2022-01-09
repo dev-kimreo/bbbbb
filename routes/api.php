@@ -41,6 +41,7 @@ use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Users\UserSolutionController;
 use App\Http\Controllers\Widgets\WidgetController;
 use App\Http\Controllers\Widgets\WidgetUsageController;
+use App\Http\Controllers\WordController;
 use App\Http\Middleware\ConvertResponseToCamelCase;
 use Illuminate\Support\Facades\Route;
 
@@ -495,10 +496,33 @@ Route::group([
     ], function () {
         Route::get('', [ExceptionController::class, 'index']);
         Route::get('/{exception_id}', [ExceptionController::class, 'show']);
-        Route::post('', [ExceptionController::class, 'store']);
+//        Route::post('', [ExceptionController::class, 'store']);
         Route::patch('/{exception_id}', [ExceptionController::class, 'update']);
+        Route::delete('/{exception_id}', [ExceptionController::class, 'destroy']);
     });
     Route::post('/relation-exception', [ExceptionController::class, 'relationStore']);
+    Route::get('/exception-to-json', [ExceptionController::class, 'responseInJsonFormat']);
+    /**
+     * End
+     */
+
+    /**
+     * Word
+     */
+    Route::group([
+        'prefix' => 'word',
+        'middleware' => ['auth:api', 'chkAccess:backoffice']
+    ], function () {
+        Route::get('', [WordController::class, 'index']);
+        Route::get('/{word_id}', [WordController::class, 'show']);
+//        Route::post('', [WordController::class, 'store']);
+        Route::patch('/{word_id}', [WordController::class, 'update']);
+        Route::delete('/{word_id}', [WordController::class, 'destroy']);
+    });
+    Route::post('/relation-word', [WordController::class, 'relationStore']);
+    Route::get('/word-to-json', [WordController::class, 'responseInJsonFormat']);
+
+
 
     /**
      * Export
