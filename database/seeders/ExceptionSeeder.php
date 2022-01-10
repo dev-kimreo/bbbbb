@@ -26,6 +26,12 @@ class ExceptionSeeder extends Seeder
             ],
             [
                 'exception',
+                'common.already_exists',
+                '이미 존재하는 데이터입니다.',
+                'Already exists.'
+            ],
+            [
+                'exception',
                 'common.unauthorized',
                 '요청 권한이 없습니다.',
                 'Unauthorized.'
