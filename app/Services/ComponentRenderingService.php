@@ -9,19 +9,27 @@ use Illuminate\Database\Eloquent\Model;
 use Sabberworm\CSS\CSSList\AtRuleBlockList;
 use Sabberworm\CSS\OutputFormat;
 use Sabberworm\CSS\Parser;
+use Sabberworm\CSS\Parsing\OutputException;
 use Sabberworm\CSS\Parsing\SourceException;
 use Sabberworm\CSS\RuleSet\DeclarationBlock;
 use Str;
 
 final class ComponentRenderingService
 {
+    const ClassNameMobile = 'QPICK--preview-device--mobile';
+    const ClassNameDesktop = 'QPICK--preview-device--desktop';
+    const ShodawDomRootTag = 'section';
+
     public static function procTemplate(string $s): string
     {
         return StringLibrary::removeSpace($s);
     }
 
     /**
+     * @param string $s
+     * @return string
      * @throws SourceException
+     * @throws OutputException
      */
     public static function procStyle(string $s): string
     {
@@ -36,15 +44,14 @@ final class ComponentRenderingService
                 if ($oRule->atRuleName() == 'media') {
                     // set class name
                     if ($oRule->atRuleArgs() == '(min-width: 1024px)') {
-                        $className = '.DAV-preview__shop--pc ';
+                        $className = self::ShodawDomRootTag . '.' . self::ClassNameDesktop . ' ';
                     } elseif ($oRule->atRuleArgs() == '(max-width: 1023px)') {
-                        $className = '.DAV-preview__shop--mobile ';
+                        $className = self::ShodawDomRootTag . '.' . self::ClassNameMobile . ' ';
                     } else {
                         continue;
                     }
 
                     foreach ($oRule->getContents() as $v) {
-                        //selector?: string, style?: string, index?: number
                         $selector = [];
                         foreach ($v->getSelectors() as $v2) {
                             $selector[] = $className . $v2;
@@ -85,12 +92,16 @@ final class ComponentRenderingService
         return StringLibrary::removeSpace($scr);
     }
 
+    /**
+     * @throws SourceException
+     * @throws OutputException
+     */
     public static function getJsonp(string $hash, string $callback): string
     {
         $data = ScriptRequest::query()->where('hash', $hash)->firstOrFail();
         $comp = $data->component->usableVersion()->first();
 
-        $scr = $callback . '(function(shadowRoot, compOpt) {
+        $scr = $callback . '(function(shadowRoot, compOpt, device) {
             let arrMethod = [
                 "createElement",
                 "createTextNode",
@@ -103,7 +114,22 @@ final class ComponentRenderingService
                 };
             }
             
-            shadowRoot.innerHTML = `' . $comp->template . '<style>' . $comp->style . '</style>`;            
+            if(device == "mobile") {
+                shadowRoot.innerHTML = `
+                    <' . self::ShodawDomRootTag . ' class="' . self::ClassNameMobile . '">
+                        ' . $comp->template . '
+                    </' . self::ShodawDomRootTag . '>
+                    <style>' . self::procStyle($comp->style) . '</style>
+                `;
+            } else {
+                shadowRoot.innerHTML = `
+                    <' . self::ShodawDomRootTag . ' class="' . self::ClassNameDesktop . '">
+                        ' . $comp->template . '
+                    </' . self::ShodawDomRootTag . '>
+                    <style>' . self::procStyle($comp->style) . '</style>
+                `;
+            }
+                        
             
             (function(document) {        
                 ' . $comp->script . '
