@@ -4,6 +4,7 @@ namespace Tests\Feature\Traits;
 
 use App\Models\Manager;
 use App\Models\Users\User;
+use App\Models\Users\UserPartner;
 use App\Models\Users\UserPrivacyActive;
 use Hash;
 use Laravel\Passport\Passport;
@@ -19,17 +20,21 @@ trait QpickTestBase
     {
         User::status('active');
 
-        $newArrs = [
+        $newArrays = [
             'password' => Hash::make($this->userPassword)
         ];
 
         switch ($role) {
             case 'associate':
-                $newArrs['grade'] = 0;
+                $newArrays['grade'] = 0;
                 break;
 
             case 'regular':
-                $newArrs['grade'] = 1;
+                $newArrays['grade'] = 1;
+                break;
+
+            case 'partner':
+                $newArrays['grade'] = 1;
                 break;
 
             case 'backoffice':
@@ -37,10 +42,16 @@ trait QpickTestBase
                 break;
         }
 
-        if ($role != 'backoffice') {
+        if ($role == 'partner') {
             $user = User::factory()->has(
                 UserPrivacyActive::factory(), 'privacy'
-            )->create($newArrs);
+            )->has(
+                UserPartner::factory(), 'partner'
+            )->create($newArrays);
+        } elseif ($role != 'backoffice') {
+            $user = User::factory()->has(
+                UserPrivacyActive::factory(), 'privacy'
+            )->create($newArrays);
         }
 
         return $user;
@@ -58,6 +69,10 @@ trait QpickTestBase
 
             case 'backoffice':
                 $this->getPassportToken($user);
+                break;
+
+            case 'partner':
+                $this->getPassportToken($user, 'partner');
                 break;
         }
 
