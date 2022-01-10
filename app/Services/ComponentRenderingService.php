@@ -35,14 +35,12 @@ final class ComponentRenderingService
             } else if ($oRule instanceof AtRuleBlockList) {
                 if ($oRule->atRuleName() == 'media') {
                     // set class name
-                    if ($oRule->atRuleArgs() == '(min-width: 1025px)') {
+                    if ($oRule->atRuleArgs() == '(min-width: 1024px)') {
                         $className = '.DAV-preview__shop--pc ';
+                    } elseif ($oRule->atRuleArgs() == '(max-width: 1023px)') {
+                        $className = '.DAV-preview__shop--mobile ';
                     } else {
-                        if ($oRule->atRuleArgs() == '(max-width: 1024px)') {
-                            $className = '.DAV-preview__shop--mobile ';
-                        } else {
-                            continue;
-                        }
+                        continue;
                     }
 
                     foreach ($oRule->getContents() as $v) {
