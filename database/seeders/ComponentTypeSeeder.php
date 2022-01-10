@@ -25,7 +25,7 @@ class ComponentTypeSeeder extends Seeder
                 'has_option' => false,
                 'has_default' => true,
                 'max_count' => 1,
-                'attributes' => null,
+                'attributes' => [],
             ],
             [
                 'name' => 'Text Field',
@@ -43,7 +43,7 @@ class ComponentTypeSeeder extends Seeder
                 'has_option' => false,
                 'has_default' => false,
                 'max_count' => 1,
-                'attributes' => null,
+                'attributes' => [],
             ],
             [
                 'name' => 'Radio',
@@ -51,7 +51,7 @@ class ComponentTypeSeeder extends Seeder
                 'has_option' => true,
                 'has_default' => true,
                 'max_count' => 1,
-                'attributes' => null
+                'attributes' => []
             ],
             [
                 'name' => 'Checkbox',
@@ -59,7 +59,7 @@ class ComponentTypeSeeder extends Seeder
                 'has_option' => true,
                 'has_default' => true,
                 'max_count' => 1,
-                'attributes' => null
+                'attributes' => []
             ],
             [
                 'name' => 'Image Display',
@@ -67,7 +67,7 @@ class ComponentTypeSeeder extends Seeder
                 'has_option' => false,
                 'has_default' => false,
                 'max_count' => 1,
-                'attributes' => null
+                'attributes' => []
             ],
             [
                 'name' => 'Image URL Display',
@@ -75,7 +75,41 @@ class ComponentTypeSeeder extends Seeder
                 'has_option' => false,
                 'has_default' => false,
                 'max_count' => 1,
-                'attributes' => null
+                'attributes' => []
+            ],
+            [
+                'name' => 'Select',
+                'is_plural' => false,
+                'has_option' => true,
+                'has_default' => true,
+                'max_count' => 1,
+                'attributes' => []
+            ],
+            [
+                'name' => 'Number',
+                'is_plural' => false,
+                'has_option' => false,
+                'has_default' => true,
+                'max_count' => 1,
+                'attributes' => [
+                    'unit' => ''
+                ],
+            ],
+            [
+                'name' => 'Color Picker',
+                'is_plural' => false,
+                'has_option' => false,
+                'has_default' => true,
+                'max_count' => 1,
+                'attributes' => [],
+            ],
+            [
+                'name' => 'Icon Picker',
+                'is_plural' => false,
+                'has_option' => false,
+                'has_default' => true,
+                'max_count' => 1,
+                'attributes' => [],
             ],
             [
                 'name' => 'Text + URL Display',
@@ -86,7 +120,7 @@ class ComponentTypeSeeder extends Seeder
                 'attributes' => [
                     "textMaxLength" => 25
                 ]
-            ]
+            ],
         ];
 
         $propertiesArrs = [
@@ -150,6 +184,42 @@ class ComponentTypeSeeder extends Seeder
                     'type' => 'url',
                     'preset' => 'url'
                 ],
+                [
+                    'type' => 'text',
+                    'preset' => 'target'
+                ]
+            ],
+            // Select
+            [
+                [
+                    'type' => 'text',
+                    'preset' => 'select'
+                ]
+            ],
+            // Number
+            [
+                [
+                    'type' => 'integer',
+                    'preset' => 'number'
+                ]
+            ],
+            // Color Picker
+            [
+                [
+                    'type' => 'color',
+                    'preset' => 'color'
+                ]
+            ],
+            // Icon Picker
+            [
+                [
+                    'type' => 'icon',
+                    'preset' => 'text'
+                ],
+                [
+                    'type' => 'color',
+                    'preset' => 'color'
+                ]
             ],
             // Text + URL Display
             [
@@ -161,6 +231,10 @@ class ComponentTypeSeeder extends Seeder
                     'type' => 'url',
                     'preset' => 'url'
                 ],
+                [
+                    'type' => 'text',
+                    'preset' => 'target'
+                ]
             ],
         ];
 
