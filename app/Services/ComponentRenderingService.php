@@ -67,9 +67,14 @@ final class ComponentRenderingService
         return StringLibrary::removeSpace($render);
     }
 
+    /**
+     * @throws SourceException
+     * @throws OutputException
+     */
     public static function getScript(string $hash): string
     {
         $data = ScriptRequest::query()->where('hash', $hash)->firstOrFail();
+        $comp = $data->component->usableVersion()->first();
 
         $scr = 'export function render(shadowRoot, compOpt) {
             let arrMethod = [
@@ -101,7 +106,7 @@ final class ComponentRenderingService
             }
             
             (function(document) {        
-                ' . $data->component->usableVersion()->first()->script . '
+                ' . $comp->script . '
             })(shadowRoot);
         };';
 
