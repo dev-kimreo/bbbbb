@@ -263,6 +263,27 @@ class WordController extends Controller
     }
 
 
+    /**
+     * @OA\Get(
+     *      path="/v1/word-to-json",
+     *      summary="용어 상세 결과 json 형태로",
+     *      description="용어 상세 결과 json 형태로 출력",
+     *      operationId="wordToJsonShow",
+     *      tags={"용어"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "admin_auth":{}
+     *      }}
+     *  )
+     * @return Collection
+     */
     public function responseInJsonFormat(): Collection
     {
         Artisan::call('build:translations');
