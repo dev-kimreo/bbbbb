@@ -18,7 +18,7 @@ final class ComponentRenderingService
 {
     const ClassNameMobile = 'QPICK--preview-device--mobile';
     const ClassNameDesktop = 'QPICK--preview-device--desktop';
-    const ShodawDomRootTag = 'section';
+    const ShadowDomRootTag = 'section';
 
     public static function procTemplate(string $s): string
     {
@@ -44,9 +44,9 @@ final class ComponentRenderingService
                 if ($oRule->atRuleName() == 'media') {
                     // set class name
                     if ($oRule->atRuleArgs() == '(min-width: 1024px)') {
-                        $className = self::ShodawDomRootTag . '.' . self::ClassNameDesktop . ' ';
+                        $className = self::ShadowDomRootTag . '.' . self::ClassNameDesktop . ' ';
                     } elseif ($oRule->atRuleArgs() == '(max-width: 1023px)') {
-                        $className = self::ShodawDomRootTag . '.' . self::ClassNameMobile . ' ';
+                        $className = self::ShadowDomRootTag . '.' . self::ClassNameMobile . ' ';
                     } else {
                         continue;
                     }
@@ -116,16 +116,16 @@ final class ComponentRenderingService
             
             if(device == "mobile") {
                 shadowRoot.innerHTML = `
-                    <' . self::ShodawDomRootTag . ' class="' . self::ClassNameMobile . '">
+                    <' . self::ShadowDomRootTag . ' class="' . self::ClassNameMobile . '">
                         ' . $comp->template . '
-                    </' . self::ShodawDomRootTag . '>
+                    </' . self::ShadowDomRootTag . '>
                     <style>' . self::procStyle($comp->style) . '</style>
                 `;
             } else {
                 shadowRoot.innerHTML = `
-                    <' . self::ShodawDomRootTag . ' class="' . self::ClassNameDesktop . '">
+                    <' . self::ShadowDomRootTag . ' class="' . self::ClassNameDesktop . '">
                         ' . $comp->template . '
-                    </' . self::ShodawDomRootTag . '>
+                    </' . self::ShadowDomRootTag . '>
                     <style>' . self::procStyle($comp->style) . '</style>
                 `;
             }
