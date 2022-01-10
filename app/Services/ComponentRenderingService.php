@@ -67,9 +67,14 @@ final class ComponentRenderingService
         return StringLibrary::removeSpace($render);
     }
 
+    /**
+     * @throws SourceException
+     * @throws OutputException
+     */
     public static function getScript(string $hash): string
     {
         $data = ScriptRequest::query()->where('hash', $hash)->firstOrFail();
+        $comp = $data->component->usableVersion()->first();
 
         $scr = 'export function render(shadowRoot, compOpt) {
             let arrMethod = [
@@ -84,8 +89,24 @@ final class ComponentRenderingService
                 };
             }
             
+            if(device == "mobile") {
+                shadowRoot.innerHTML = `
+                    <' . self::ShadowDomRootTag . ' class="' . self::ClassNameMobile . '">
+                        ' . $comp->template . '
+                    </' . self::ShadowDomRootTag . '>
+                    <style>' . self::procStyle($comp->style) . '</style>
+                `;
+            } else {
+                shadowRoot.innerHTML = `
+                    <' . self::ShadowDomRootTag . ' class="' . self::ClassNameDesktop . '">
+                        ' . $comp->template . '
+                    </' . self::ShadowDomRootTag . '>
+                    <style>' . self::procStyle($comp->style) . '</style>
+                `;
+            }
+            
             (function(document) {        
-                ' . $data->component->usableVersion()->first()->script . '
+                ' . $comp->script . '
             })(shadowRoot);
         };';
 
@@ -129,7 +150,6 @@ final class ComponentRenderingService
                     <style>' . self::procStyle($comp->style) . '</style>
                 `;
             }
-                        
             
             (function(document) {        
                 ' . $comp->script . '
