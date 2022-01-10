@@ -34,6 +34,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\Themes\ThemeBuildController;
 use App\Http\Controllers\Themes\ThemeController;
 use App\Http\Controllers\Themes\ThemeProductController;
+use App\Http\Controllers\Themes\ThemeProductInformationController;
 use App\Http\Controllers\TooltipController;
 use App\Http\Controllers\Users\ManagerController;
 use App\Http\Controllers\Users\UserAdvAgreeController;
@@ -360,6 +361,18 @@ Route::group([
         Route::post('', [ThemeProductController::class, 'store']);
         Route::patch('/{theme_product_id}', [ThemeProductController::class, 'update']);
         Route::delete('/{theme_product_id}', [ThemeProductController::class, 'destroy']);
+
+        // 전시정보
+        Route::group([
+            'prefix' => '{theme_product_id}/information'
+        ], function(){
+            Route::get('', [ThemeProductInformationController::class, 'index']);
+            Route::get('/{information_id}', [ThemeProductInformationController::class, 'show']);
+            Route::post('', [ThemeProductInformationController::class, 'store']);
+            Route::patch('/{information_id}', [ThemeProductInformationController::class, 'update']);
+            Route::delete('/{information_id}', [ThemeProductInformationController::class, 'destroy']);
+        });
+
 
         // 테마
         Route::get('/{theme_product_id}/theme', [ThemeController::class, 'index']);
