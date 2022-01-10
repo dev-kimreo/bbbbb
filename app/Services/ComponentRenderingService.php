@@ -84,6 +84,22 @@ final class ComponentRenderingService
                 };
             }
             
+            if(device == "mobile") {
+                shadowRoot.innerHTML = `
+                    <' . self::ShadowDomRootTag . ' class="' . self::ClassNameMobile . '">
+                        ' . $comp->template . '
+                    </' . self::ShadowDomRootTag . '>
+                    <style>' . self::procStyle($comp->style) . '</style>
+                `;
+            } else {
+                shadowRoot.innerHTML = `
+                    <' . self::ShadowDomRootTag . ' class="' . self::ClassNameDesktop . '">
+                        ' . $comp->template . '
+                    </' . self::ShadowDomRootTag . '>
+                    <style>' . self::procStyle($comp->style) . '</style>
+                `;
+            }
+            
             (function(document) {        
                 ' . $data->component->usableVersion()->first()->script . '
             })(shadowRoot);
@@ -129,7 +145,6 @@ final class ComponentRenderingService
                     <style>' . self::procStyle($comp->style) . '</style>
                 `;
             }
-                        
             
             (function(document) {        
                 ' . $comp->script . '
