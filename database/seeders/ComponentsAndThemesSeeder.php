@@ -1492,7 +1492,7 @@ if(typeof(arr) == "array")
                         ];
                         break;
 
-                    case 8:
+                    case 12:
                         // Text + URL Display
                         foreach(json_decode($opt['default'], true) as $defaultKey => $defaultValue)
                         {
