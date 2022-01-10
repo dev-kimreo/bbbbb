@@ -289,6 +289,27 @@ class ExceptionController extends Controller
     }
 
 
+    /**
+     * @OA\Get(
+     *      path="/v1/exception-to-json",
+     *      summary="예외 상세 결과 json 형태로",
+     *      description="예외 상세 결과 json 형태로 출력",
+     *      operationId="exceptionToJsonShow",
+     *      tags={"예외"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "admin_auth":{}
+     *      }}
+     *  )
+     * @return Collection
+     */
     public function responseInJsonFormat(): Collection
     {
         Artisan::call('build:translations');
