@@ -58,7 +58,7 @@ class ComponentsAndThemesSeeder extends Seeder
             ',
             'css' => '
 /* Desktop Device */
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   header {
     height: 188px;
     margin: 0;
@@ -213,7 +213,7 @@ class ComponentsAndThemesSeeder extends Seeder
   }
 }
 /* Mobile Device */
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   header {
     position: relative;
     height: 100px;
@@ -455,7 +455,7 @@ for(const v of menu) {
             'html' => '<ul id="banners"></ul>',
             'css' => '
 /* Desktop Device */
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   ul {
     width: 1248px;
     margin: 16px auto;
@@ -477,7 +477,7 @@ for(const v of menu) {
   }
 }
 /* Mobile Device */
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   ul {
     overflow: hidden;
     width: 100%;
@@ -548,7 +548,7 @@ for(const v of banners) {
             'html' => '<div id="wCategories"><ul></ul></div>',
             'css' => '
 /* Desktop Device */
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   #wCategories {
     height: 48px;
     border-top: 1px solid #e0e0e0;
@@ -574,7 +574,7 @@ for(const v of banners) {
   }
 }
 /* Mobile Device */
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   #wCategories {
     background-color: #ececec;
     padding: 24px 17px;
@@ -629,7 +629,7 @@ QpickTunnel.categories().then((res) => {
             'html' => '<div id="wBest"><h2></h2><ul></ul></div>',
             'css' => '
 /* Desktop Device */
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   #wBest {
     width: 1248px;
     margin: 48px auto 0 auto;
@@ -739,7 +739,7 @@ QpickTunnel.categories().then((res) => {
   }
 }
 /* Mobile Device */
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   #wBest {
     width: 100%;
     font-family: sans-serif;
@@ -931,7 +931,7 @@ QpickTunnel.mainProducts(compOpt["groupNo"].text).then((res) => {
             'html' => '<div id="wNewDeal"><h2></h2><ul></ul></div>',
             'css' => '
 /* Desktop Device */
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   #wNewDeal {
     width: 1248px;
     margin: 48px auto 0 auto;
@@ -1046,7 +1046,7 @@ QpickTunnel.mainProducts(compOpt["groupNo"].text).then((res) => {
   }
 }
 /* Mobile Device */
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   h2 {
     height: 22px;
     margin: 0;
@@ -1242,7 +1242,7 @@ for(const no of items) {
   Desktop Device
 
   */
-  @media (min-width: 1025px) {
+  @media (min-width: 1024px) {
     #wAppIntro {
       position: relative;
       height: 100vh;
@@ -1303,7 +1303,7 @@ for(const no of items) {
   Mobile Device
 
   */
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     #wAppIntro {
       position: relative;
       height: 100vh;
