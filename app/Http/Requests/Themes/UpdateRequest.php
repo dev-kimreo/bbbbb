@@ -26,8 +26,10 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'status' => ['required_without_all:display', 'string', Rule::in(Theme::$status)],
-            'display' => ['required_without_all:status', 'boolean']
+            'theme_product_id' => ['prohibited'],
+            'solution_id' => ['prohibited'],
+            'status' => ['sometimes', 'string', Rule::in(Theme::$status)],
+            'display' => ['sometimes', 'boolean']
         ];
     }
 }
