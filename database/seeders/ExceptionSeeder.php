@@ -363,13 +363,13 @@ class ExceptionSeeder extends Seeder
                 'exception',
                 'system.http.404.board',
                 '존재하지 않는 :word.board.board입니다.',
-                ':word._board is not exists'
+                ':word.board.board is not exists'
             ],
             [
                 'exception',
                 'system.http.404.post',
                 '존재하지 않는 :word.post.post입니다.',
-                ':word._post is not exists'
+                ':word.post.post is not exists'
             ],
             [
                 'exception',
