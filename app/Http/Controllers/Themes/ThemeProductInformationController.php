@@ -117,10 +117,10 @@ class ThemeProductInformationController extends Controller
      *
      * @param StoreRequest $request
      * @param int $themeProductId
-     * @return Collection
+     * @return JsonResponse
      * @throws QpickHttpException
      */
-    public function store(StoreRequest $request, int $themeProductId): Collection
+    public function store(StoreRequest $request, int $themeProductId): JsonResponse
     {
         // exists check
         if (ThemeProductInformation::where('theme_product_id', $themeProductId)->exists()) {
@@ -136,7 +136,7 @@ class ThemeProductInformationController extends Controller
 
         $information->refresh();
 
-        return collect($information);
+        return response()->json(collect($information), 201);
     }
 
     /**
