@@ -1367,17 +1367,19 @@ if(typeof(arr) == "array")
             'options' => [
                 [
                     'name' => '정렬',
-                    'type' => 'Text Field',
+                    'type' => 'Radio',
                     'key' => 'align',
                     'help' => 'left와 right 중 하나를 입력',
-                    'default' => 'left'
+                    'default' => 'left',
+                    'options' => ['left', 'right']
                 ],
                 [
                     'name' => '배경색',
-                    'type' => 'Text Field',
+                    'type' => 'Color Picker',
                     'key' => 'bgcolor',
                     'help' => 'HEX Color 값을 입력',
-                    'default' => '#FFFFFF'
+                    'color_default' => '#FFFFFF',
+                    'alpha_default' => '10'
                 ],
                 [
                     'name' => '이미지 URL',
@@ -1474,8 +1476,7 @@ if(typeof(arr) == "array")
                         'help' => $opt['help'],
                         'display_on_pc' => true,
                         'display_on_mobile' => true,
-                        'hideable' => false,
-                        'attributes' => '["textMaxLength"]'
+                        'hideable' => false
                     ]
                 );
 
@@ -1488,7 +1489,52 @@ if(typeof(arr) == "array")
                             'component_type_property_id' => $typeId,
                             'key' => 'text',
                             'name' => $opt['name'],
-                            'initial_value' => $opt['default']
+                            'initial_value' => $opt['default'],
+                            'elements' => json_encode(["textMaxLength" => 100])
+                        ];
+                        break;
+
+                    case 4:
+                        // Radio
+                        $createData[] = [
+                            'component_option_id' => $compOpt->id,
+                            'component_type_property_id' => $typeId,
+                            'key' => 'text',
+                            'name' => $opt['name'],
+                            'initial_value' => $opt['default'],
+                            'elements' => $opt['options']? json_encode(['options' => $opt['options']]): null
+                        ];
+                        break;
+
+                    case 9:
+                        // Number
+                        $createData[] = [
+                            'component_option_id' => $compOpt->id,
+                            'component_type_property_id' => $typeId,
+                            'key' => 'integer',
+                            'name' => $opt['name'],
+                            'initial_value' => $opt['default'],
+                            'elements' => json_encode(["unit" => "px"])
+                        ];
+                        break;
+
+                    case 10:
+                        // Color Picker
+                        $createData[] = [
+                            'component_option_id' => $compOpt->id,
+                            'component_type_property_id' => $typeId,
+                            'key' => 'color',
+                            'name' => $opt['name'] . ' 색상',
+                            'initial_value' => $opt['color_default'],
+                            'elements' => null
+                        ];
+                        $createData[] = [
+                            'component_option_id' => $compOpt->id,
+                            'component_type_property_id' => $typeId,
+                            'key' => 'color',
+                            'name' => $opt['name'] . ' 알파',
+                            'initial_value' => $opt['alpha_default'],
+                            'elements' => null
                         ];
                         break;
 
@@ -1501,7 +1547,8 @@ if(typeof(arr) == "array")
                                 'component_type_property_id' => $typeId,
                                 'key' => $defaultKey,
                                 'name' => $opt['name'],
-                                'initial_value' => $defaultValue
+                                'initial_value' => $defaultValue,
+                                'elements' => $defaultKey == 'text'? json_encode(["textMaxLength" => 100]): null
                             ];
                         }
                         break;

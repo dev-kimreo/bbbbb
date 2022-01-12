@@ -33,9 +33,7 @@ class ComponentTypeSeeder extends Seeder
                 'has_option' => false,
                 'has_default' => false,
                 'max_count' => 1,
-                'attributes' => [
-                    "textMaxLength" => 99
-                ],
+                'attributes' => ['textMaxLength'],
             ],
             [
                 'name' => 'Textarea',
@@ -91,9 +89,7 @@ class ComponentTypeSeeder extends Seeder
                 'has_option' => false,
                 'has_default' => true,
                 'max_count' => 1,
-                'attributes' => [
-                    'unit' => ''
-                ],
+                'attributes' => ['unit'],
             ],
             [
                 'name' => 'Color Picker',
@@ -117,9 +113,7 @@ class ComponentTypeSeeder extends Seeder
                 'has_option' => false,
                 'has_default' => true,
                 'max_count' => 1,
-                'attributes' => [
-                    "textMaxLength" => 25
-                ]
+                'attributes' => ['textMaxLength']
             ],
         ];
 
@@ -208,6 +202,10 @@ class ComponentTypeSeeder extends Seeder
                 [
                     'type' => 'color',
                     'preset' => 'color'
+                ],
+                [
+                    'type' => 'integer',
+                    'preset' => 'alpha'
                 ]
             ],
             // Icon Picker
