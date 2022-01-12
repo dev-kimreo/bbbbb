@@ -23,7 +23,6 @@ class CreateComponentOptionsTable extends Migration
             $table->boolean('display_on_pc')->default(false);
             $table->boolean('display_on_mobile')->default(false);
             $table->boolean('hideable');
-            $table->text('attributes')->nullable();
             $table->text('help')->nullable();
             $table->timestamps();
             $table->softDeletes();

@@ -35,7 +35,7 @@ class ComponentOption extends Model
     public static string $exceptionEntity = "componentOption";
 
     protected $fillable = [
-        'component_version_id', 'component_type_id', 'name', 'key', 'display_on_pc', 'display_on_mobile', 'hideable', 'attributes', 'help'
+        'component_version_id', 'component_type_id', 'name', 'key', 'display_on_pc', 'display_on_mobile', 'hideable', 'help'
     ];
 
     /**
