@@ -1733,13 +1733,27 @@ if(typeof(arr) == "array")
 
             // 연동 컴포넌트 옵션
             $v->version->first()->options->each(function ($v2) use ($v, $linkedComponent, $o) {
-                LinkedComponentOption::query()->create(
-                    [
-                        'component_option_id' => $v2->id,
-                        'linked_component_id' => $linkedComponent->id,
-                        'value' => ["text" => $o[$v2->key]]
-                    ]
-                );
+                switch ($v2->component_type_id) {
+                    case 2: // Text Field
+                    case 4: // Radio
+                        LinkedComponentOption::query()->create(
+                            [
+                                'component_option_id' => $v2->id,
+                                'linked_component_id' => $linkedComponent->id,
+                                'value' => ["text" => $o[$v2->key]]
+                            ]
+                        );
+                        break;
+
+                    case 10: // Color Picker
+                        LinkedComponentOption::query()->create(
+                            [
+                                'component_option_id' => $v2->id,
+                                'linked_component_id' => $linkedComponent->id,
+                                'value' => ["color" => $o[$v2->key], "alpha" => 0]
+                            ]
+                        );
+                }
             });
         }
     }
