@@ -202,10 +202,6 @@ class ComponentTypeSeeder extends Seeder
                 [
                     'type' => 'color',
                     'preset' => 'color'
-                ],
-                [
-                    'type' => 'integer',
-                    'preset' => 'alpha'
                 ]
             ],
             // Icon Picker
