@@ -856,7 +856,7 @@ let ul = document.querySelector("ul");
 
 document.querySelector("h2").innerText = compOpt["title"].text;
 
-QpickTunnel.mainProducts(compOpt["groupNo"].text).then((res) => {
+QpickTunnel.mainProducts(compOpt["groupNo"].number).then((res) => {
   for(const v of res) {
     let li = document.createElement("li");
     let img = new Image();
@@ -911,7 +911,7 @@ QpickTunnel.mainProducts(compOpt["groupNo"].text).then((res) => {
                 ],
                 [
                     'name' => '메인진열분류번호',
-                    'type' => 'Text Field',
+                    'type' => 'Number',
                     'key' => 'groupNo',
                     'help' => '노출할 메인진열분류의 번호를 입력합니다. 1개만 입력할 수 있습니다.',
                     'default' => '2'
@@ -1511,7 +1511,7 @@ if(typeof(arr) == "array")
                         $createData[] = [
                             'component_option_id' => $compOpt->id,
                             'component_type_property_id' => $typeId,
-                            'key' => 'integer',
+                            'key' => 'number',
                             'name' => $opt['name'],
                             'initial_value' => $opt['default'],
                             'elements' => json_encode(["unit" => "px"])
