@@ -19,8 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *      @OA\Property(property="id", type="integer", example=1, description="위젯 고유번호" ),
  *      @OA\Property(property="name", type="string", example="최근 사용한 테마", description="위젯명" ),
  *      @OA\Property(property="description", type="string", example="로그인한 회원이 편집한 테마를 편집일 역순으로 표시", description="위젯 기능설명" ),
- *      @OA\Property(property="enable", type="boolean", example="true", description="사용구분<br/>true:사용, false:미사용" ),
- *      @OA\Property(property="onlyForManager", type="boolean", example="false", description="관리자 전용 위젯 여부<br/>true:관리자전용, false:모든 사용자용" ),
+ *      @OA\Property(property="enable", type="boolean", example="true", description="사용구분<br/>1:사용, 0:미사용" ),
+ *      @OA\Property(property="onlyForManager", type="boolean", example="false", description="관리자 전용 위젯 여부<br/>(1:관리자전용, 0:모든 사용자용)" ),
  *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록일자", readOnly="true"),
  *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정일자", readOnly="true"),
  *      @OA\Property(property="creator", type="object", ref="#/components/schemas/UserSimply")

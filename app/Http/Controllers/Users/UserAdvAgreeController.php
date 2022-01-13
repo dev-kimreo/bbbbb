@@ -23,7 +23,7 @@ class UserAdvAgreeController extends Controller
      *          description="",
      *          @OA\JsonContent(
      *              required={"agree"},
-     *              @OA\Property(property="agree", type="boolean", example=true, description="광고 수신동의 여부<br/>true:동의, false:미동의"),
+     *              @OA\Property(property="agree", type="boolean", example=true, description="광고 수신동의 여부<br/>(1:동의, 0:미동의)"),
      *          ),
      *      ),
      *      @OA\Response(
