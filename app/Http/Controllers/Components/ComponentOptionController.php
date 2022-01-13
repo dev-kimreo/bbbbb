@@ -73,7 +73,7 @@ class ComponentOptionController extends Controller
      *      path="/v1/component/{component_id}/version/{version_id}/option/{option_id}",
      *      summary="컴포넌트 옵션 상세 (상위모델 참고)",
      *      description="컴포넌트 옵션 상세정보",
-     *      operationId="ComponentOptionShow",
+     *      operationId="ComponentOptionShowRefUpperModel",
      *      tags={"컴포넌트 옵션"},
      *      @OA\RequestBody(
      *          required=true,
@@ -85,7 +85,12 @@ class ComponentOptionController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/ComponentOption")
+     *          @OA\JsonContent(
+     *              allOf={@OA\Schema(ref="#/components/schemas/ComponentOption")},
+     *              @OA\Property(property="properties", type="array",
+     *                  @OA\Items(type="object", ref="#/components/schemas/ComponentOptionProperty")
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -112,7 +117,12 @@ class ComponentOptionController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/ComponentOption")
+     *          @OA\JsonContent(
+     *              allOf={@OA\Schema(ref="#/components/schemas/ComponentOption")},
+     *              @OA\Property(property="properties", type="array",
+     *                  @OA\Items(type="object", ref="#/components/schemas/ComponentOptionProperty")
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response=422,

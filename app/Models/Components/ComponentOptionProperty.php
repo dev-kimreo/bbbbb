@@ -12,6 +12,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  *
  * @OA\Schema(
+ *      @OA\Property(property="id", type="integer", example=1, description="고유번호"),
+ *      @OA\Property(property="componentOptionId", type="integer", example=1, description="컴포넌트 옵션 고유번호"),
+ *      @OA\Property(property="componentTypePropertyId", type="integer", example=1, description="컴포넌트 옵션유형 속성의 고유번호"),
+ *      @OA\Property(property="key", type="string", example="color", description="연동 컴포넌트 옵션에서 변수명처럼 사용할 속성의 이름"),
+ *      @OA\Property(property="name", type="string", example="배경색 색상", description="속성명"),
+ *      @OA\Property(property="initialValue", type="string", example="#FFCCDD00", description="초기값"),
+ *      @OA\Property(property="elements", type="JSON", example="color", description="파트너사가 입력한 각종 설정"),
+ *      @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자"),
+ *      @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자")
  * )
  *
  */
