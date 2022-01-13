@@ -476,6 +476,18 @@ Route::group([
     });
 
     // 컴포넌트 옵션 유형
+    Route::group(
+        [
+            'prefix' => 'component-option',
+            'middleware' => ['auth:api', 'chkAccess:partner']
+        ],
+        function () {
+            Route::get('', [ComponentOptionController::class, 'index']);
+            Route::get('/{option_id}', [ComponentOptionController::class, 'show']);
+        }
+    );
+
+    // 컴포넌트 옵션 유형
     Route::group([
         'prefix' => 'component-type',
         'middleware' => ['auth:api', 'chkAccess:partner']
