@@ -17,7 +17,7 @@ class CreateComponentTypePropertiesTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('component_type_id')->constrained();
-            $table->enum('type', ['boolean', 'integer', 'file', 'alt', 'url', 'text']);
+            $table->enum('type', ['boolean', 'integer', 'file', 'icon', 'color', 'text', 'alt', 'url']);
             $table->string('preset', 32);
             $table->timestamps();
             $table->softDeletes();

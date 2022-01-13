@@ -22,7 +22,7 @@ class ComponentOptionProperty extends Model
     public static string $exceptionEntity = "componentOptionProperty";
 
     protected $fillable = [
-        'component_option_id', 'component_type_property_id', 'key', 'name', 'initial_value'
+        'component_option_id', 'component_type_property_id', 'key', 'name', 'initial_value', 'elements'
     ];
 
     /**
@@ -31,12 +31,16 @@ class ComponentOptionProperty extends Model
      * @var array
      */
     protected $hidden = [];
-
+    protected $casts = ['elements' => 'array'];
 
     public function property(): belongsTo
     {
         return $this->belongsTo(ComponentTypeProperty::class, 'component_type_property_id', 'id');
     }
 
+    public function option(): belongsTo
+    {
+        return $this->belongsTo(ComponentOption::class, 'component_option_id', 'id');
+    }
 }
 

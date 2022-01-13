@@ -342,7 +342,7 @@ class LinkedComponentController extends Controller
                             'display_on_pc',
                             'display_on_mobile',
                             'hideable',
-                            'attributes',
+                            'elements',
                             'help'
                         ]
                     )->merge(

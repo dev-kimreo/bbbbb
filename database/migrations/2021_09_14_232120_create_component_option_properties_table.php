@@ -23,6 +23,7 @@ class CreateComponentOptionPropertiesTable extends Migration
             $table->string('key');
             $table->string('name')->nullable();
             $table->text('initial_value')->nullable();
+            $table->text('elements')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
