@@ -71,6 +71,33 @@ class ComponentOptionController extends Controller
     /**
      * @OA\Get (
      *      path="/v1/component/{component_id}/version/{version_id}/option/{option_id}",
+     *      summary="컴포넌트 옵션 상세 (상위모델 참고)",
+     *      description="컴포넌트 옵션 상세정보",
+     *      operationId="ComponentOptionShow",
+     *      tags={"컴포넌트 옵션"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="with_option_properties", type="boolean", example=1, description="컴포넌트 옵션 속성 데이터 포함 여부" ),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(ref="#/components/schemas/ComponentOption")
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "partner_auth":{}
+     *      }}
+     *  )
+     *
+     * @OA\Get (
+     *      path="/v1/component-option/{option_id}",
      *      summary="컴포넌트 옵션 상세",
      *      description="컴포넌트 옵션 상세정보",
      *      operationId="ComponentOptionShow",
@@ -97,17 +124,14 @@ class ComponentOptionController extends Controller
      *  )
      *
      * @param ShowRequest $request
-     * @param int $componentId
-     * @param int $versionId
-     * @param int $optionId
      * @return Collection
      */
-    public function show(ShowRequest $request, int $componentId, int $versionId, int $optionId): Collection
+    public function show(ShowRequest $request): Collection
     {
-        $res = ComponentOption::findOrFail($optionId);
+        $res = ComponentOption::query()->findOrFail($request->route('option_id'));
 
         if ($request->input('with_option_properties')) {
-            $res->properties;
+            $res->getAttribute('properties');
         }
 
         return collect($res);
@@ -359,7 +383,4 @@ class ComponentOptionController extends Controller
     {
         return ComponentOption::create($dataArray)->refresh();
     }
-
-
-
 }
