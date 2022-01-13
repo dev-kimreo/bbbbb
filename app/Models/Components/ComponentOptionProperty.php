@@ -38,5 +38,9 @@ class ComponentOptionProperty extends Model
         return $this->belongsTo(ComponentTypeProperty::class, 'component_type_property_id', 'id');
     }
 
+    public function option(): belongsTo
+    {
+        return $this->belongsTo(ComponentOption::class, 'component_option_id', 'id');
+    }
 }
 
