@@ -7,6 +7,7 @@ use App\Http\Requests\EmailTemplates\CreateRequest;
 use App\Http\Requests\EmailTemplates\IndexRequest;
 use App\Http\Requests\EmailTemplates\UpdateRequest;
 use App\Libraries\CollectionLibrary;
+use App\Libraries\PaginationLibrary;
 use App\Models\EmailTemplate;
 use Auth;
 use Illuminate\Http\JsonResponse;
@@ -34,9 +35,14 @@ class EmailTemplateController extends Controller
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
+     *              @OA\Property(property="category", type="string", example="회원관련", description="카테고리(분류)"),
      *              @OA\Property(property="code", type="string", example="USER_REGISTED", description="메일 템플릿 코드"),
      *              @OA\Property(property="name", type="string", example="[회원] 회원가입 완료 메일", description="메일 템플릿 명"),
      *              @OA\Property(property="title", type="string", example="{{$name}}님의 가입을 축하합니다.", description="메일 제목"),
+     *              @OA\Property(property="contents", type="string", example="가입을 환영합니다!", description="메일내용(HTML)"),
+     *              @OA\Property(property="sendingTime", type="string", example="가입시 발송", description="발송시점에 대한 관리자 메모"),
+     *              @OA\Property(property="enable", type="boolean", example="true", description="사용여부<br />(1:사용, 0:미사용)"),
+     *              @OA\Property(property="ignoreAgree", type="boolean", example="false", description="회원의 광고성 정보수신 동의 반영여부<br />(1:광고성 정보수신 동의를 무시함, 0:광고성 정보수신 동의를 반영함)"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -74,7 +80,7 @@ class EmailTemplateController extends Controller
     {
         $data = $this->mailTemplate->create(array_merge($request->all(), ['user_id' => Auth::id()]));
 
-        return response()->json($data->refresh(), 201);
+        return response()->json($this->getOne($data->id), 201);
     }
 
 
@@ -168,8 +174,11 @@ class EmailTemplateController extends Controller
     {
         // set relations
         $with = ['user'];
+        $columns = [
+            'id', 'user_id', 'code', 'category', 'name', 'title', 'sending_time', 'enable', 'ignore_agree', 'created_at'
+        ];
 
-        $mail = $this->mailTemplate->with($with);
+        $mail = $this->mailTemplate->with($with)->select($columns);
 
         // Sort By
         if ($s = $request->input('sort_by')) {
@@ -179,10 +188,16 @@ class EmailTemplateController extends Controller
             });
         }
 
+        // set pagination information
+        $pagination = PaginationLibrary::set($request->input('page'), $mail->count(), $request->input('per_page'));
+
+        // get data from DB
+        $data = $mail->skip($pagination['skip'])->take($pagination['perPage'])->get();
+
         // result
         $result = [
-            'header' => [],
-            'list' => $mail->get() ?? []
+            'header' => $pagination,
+            'list' => $data
         ];
 
         return collect($result);
@@ -199,9 +214,15 @@ class EmailTemplateController extends Controller
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
+     *              @OA\Property(property="category", type="string", example="회원관련", description="카테고리(분류)"),
+     *              @OA\Property(property="code", type="string", example="USER_REGISTED", description="메일 템플릿 코드"),
      *              @OA\Property(property="name", type="string", example="[회원] 회원가입 완료 메일", description="메일 템플릿 명"),
      *              @OA\Property(property="title", type="string", example="{{$name}}님의 가입을 축하합니다.", description="메일 제목"),
-     *          ),
+     *              @OA\Property(property="contents", type="string", example="가입을 환영합니다!", description="메일내용(HTML)"),
+     *              @OA\Property(property="sendingTime", type="string", example="가입시 발송", description="발송시점에 대한 관리자 메모"),
+     *              @OA\Property(property="enable", type="boolean", example="true", description="사용여부<br />(1:사용, 0:미사용)"),
+     *              @OA\Property(property="ignoreAgree", type="boolean", example="false", description="회원의 광고성 정보수신 동의 반영여부<br />(1:광고성 정보수신 동의를 무시함, 0:광고성 정보수신 동의를 반영함)"),
+     *          )
      *      ),
      *      @OA\Response(
      *          response=201,
