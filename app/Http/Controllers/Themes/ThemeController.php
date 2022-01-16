@@ -17,6 +17,7 @@ use App\Services\EditorService;
 use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 
 class ThemeController extends Controller
 {
@@ -55,7 +56,7 @@ class ThemeController extends Controller
      *  )
      * @throws QpickHttpException
      */
-    public function index(IndexRequest $request)
+    public function index(IndexRequest $request): Collection
     {
         $theme = Theme::query();
 
@@ -75,7 +76,7 @@ class ThemeController extends Controller
         $pagination = PaginationLibrary::set($request->input('page'), $theme->count(), $request->input('per_page'));
 
         // get data
-        return $theme->skip($pagination['skip'])->take($pagination['perPage'])->get();
+        return collect($theme->skip($pagination['skip'])->take($pagination['perPage'])->get());
     }
 
 
@@ -100,7 +101,7 @@ class ThemeController extends Controller
      *      }}
      *  )
      */
-    public function show(ShowRequest $request)
+    public function show(ShowRequest $request): Collection
     {
         $theme = Theme::query();
 
@@ -108,7 +109,7 @@ class ThemeController extends Controller
             $theme->where('theme_product_id', $i);
         }
 
-        return $theme->findOrFail($request->route('theme_id'));
+        return collect($theme->findOrFail($request->route('theme_id')));
     }
 
 
@@ -292,7 +293,7 @@ class ThemeController extends Controller
         $this->editorService->createEditablePageForTheme($theme);
 
         // 하위 Entity 추가
-        $theme->editablePage->each(function($ep){
+        $theme->editablePages->each(function($ep){
             $ep->editablePageLayout;
         });
 
