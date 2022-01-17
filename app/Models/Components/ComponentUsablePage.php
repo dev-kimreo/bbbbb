@@ -2,10 +2,12 @@
 
 namespace App\Models\Components;
 
+use App\Models\SupportedEditablePage;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -36,6 +38,15 @@ class ComponentUsablePage extends Model
      */
     protected $hidden = [];
 
+    public function component(): BelongsTo
+    {
+        return $this->belongsTo(Component::class);
+    }
+
+    public function supportedEditablePage(): BelongsTo
+    {
+        return $this->belongsTo(SupportedEditablePage::class);
+    }
 
 }
 
