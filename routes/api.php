@@ -14,6 +14,7 @@ use App\Http\Controllers\Components\ComponentController;
 use App\Http\Controllers\Components\ComponentOptionController;
 use App\Http\Controllers\Components\ComponentTypeController;
 use App\Http\Controllers\Components\ComponentTypePropertyController;
+use App\Http\Controllers\Components\ComponentUsablePageController;
 use App\Http\Controllers\Components\ComponentVersionController;
 use App\Http\Controllers\EditablePages\EditablePageController;
 use App\Http\Controllers\EditablePages\EditablePageLayoutController;
@@ -472,7 +473,17 @@ Route::group([
         Route::delete('/{component_id}/version/{version_id}/option/{option_id}', [ComponentOptionController::class, 'destroy']);
 
         Route::post('/{component_id}/version/{version_id}/relational-option', [ComponentOptionController::class, 'relationalStore']);
+    });
 
+    // 컴포넌트 사용 페이지
+    Route::group([
+        'prefix' => 'component-usable-page',
+        'middleware' => ['auth:api', 'chkAccess:partner']
+    ], function(){
+        Route::get('', [ComponentUsablePageController::class, 'index']);
+        Route::get('/{component_usable_page_id}', [ComponentUsablePageController::class, 'show']);
+        Route::post('', [ComponentUsablePageController::class, 'store']);
+        Route::delete('/{component_usable_page_id}', [ComponentUsablePageController::class, 'destroy']);
     });
 
     // 컴포넌트 옵션 유형
