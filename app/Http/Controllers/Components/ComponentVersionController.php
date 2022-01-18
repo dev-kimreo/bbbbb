@@ -173,7 +173,8 @@ class ComponentVersionController extends Controller
                         'component_id' => $component->getAttribute('id')
                     ]
                 ))->refresh()
-            )
+            ),
+            201
         );
     }
 
