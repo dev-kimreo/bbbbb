@@ -18,21 +18,22 @@ class EmailTemplateSeeder extends Seeder
      */
     public function run()
     {
-        $templateRegister = '        
+        $templateRegister = '
             @extends("emails.layout")
-    
+
             @section("title")
                 <span style="color:#54C7A2">큐픽</span>에 가입하기 위한<br />
                 인증메일을 보내드립니다.
                 @endsection
-            
+
             @section("contents")
-            <b>{{ $user[\'privacy\'][\'name\']}}</b>님, 큐픽에 가입해주셔서 대단히 감사합니다.<br />
+            <b style="font-size:18px;">{{ $user[\'privacy\'][\'name\'] }}</b>님, 큐픽에 가입해주셔서 대단히 감사합니다.<br />
                 아래의 링크를 클릭하면 이메일 인증이 완료됩니다.<br />
+                큐픽을 이용해 더 쉽게 더 멋진 쇼핑몰을 만들어보세요.<br />
                 <br />
-                <a href="{{ $data[\'url\'] }}">이메일 인증 진행하기 &gt;</a><br />
-                <br />
-                큐픽을 이용해 더 쉽게 더 멋진 쇼핑몰을 가꾸어가세요.
+                <a href="{{ $data[\'url\'] }}" style="background-color:#54C7A2;width:300px;height:50px;margin:30px auto 50px auto;display:block;color:#fff;font-size:14px;font-weight:bold;text-align:center;text-decoration:none;line-height:50px;font-size:15px">
+                    이메일 인증 진행하기
+                </a><br />
                 @endsection
         ';
 
