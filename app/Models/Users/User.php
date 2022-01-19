@@ -81,6 +81,7 @@ use Laravel\Passport\HasApiTokens;
  * @method static where(string $string, string $string1, Carbon $addDays)
  * @method static whereHas(string $string, Closure $param)
  * @method static inRandomOrder()
+ * @property mixed privacy
  */
 class User extends Authenticatable implements MustVerifyEmail
 {

@@ -2,6 +2,9 @@
 
 namespace App\Console;
 
+use App\Models\Users\User;
+use App\Services\UserService;
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -37,6 +40,33 @@ class Kernel extends ConsoleKernel
 
         // 다국어 리소스 캐시
         $schedule->command('build:translations')->everyFiveMinutes();
+
+        $schedule->call(function () {
+            // 1년 미접속 회원 휴면처리
+            User::query()
+                ->whereNull('inactivated_at')
+                ->where('last_authorized_at', '<=', Carbon::now()->subDays(365))
+                ->get()
+                ->each(function ($user) {
+                    try {
+                        UserService::inactivate($user);
+                    } catch (\Exception $e) {
+                        // Do Nothing
+                    }
+                });
+
+            // 1년 미접속 휴면회원 탈퇴처리
+            User::query()
+                ->where('inactivated_at', '<=', Carbon::now()->subDays(365))
+                ->get()
+                ->each(function ($user) {
+                    try {
+                        UserService::inactivate($user);
+                    } catch (\Exception $e) {
+                        // Do Nothing
+                    }
+                });
+        })->dailyAt('16:00'); // KST 1:00, UTC 16:00
     }
 
     /**
