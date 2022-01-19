@@ -44,6 +44,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @method static create(array|int[]|null[]|string[] $array_merge)
  * @method static findOrFail(int $id)
+ * @method static where(array $array)
  */
 class EmailTemplate extends Model
 {
