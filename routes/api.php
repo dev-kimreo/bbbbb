@@ -514,6 +514,7 @@ Route::group([
         Route::get('/{type_id}/property/{property_id}', [ComponentTypePropertyController::class, 'show']);
         Route::post('/{type_id}/property', [ComponentTypePropertyController::class, 'store']);
         Route::patch('/{type_id}/property/{property_id}', [ComponentTypePropertyController::class, 'update']);
+        Route::delete('/{type_id}/property/{property_id}', [ComponentTypePropertyController::class, 'destroy']);
     });
 
 

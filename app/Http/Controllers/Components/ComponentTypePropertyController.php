@@ -136,7 +136,8 @@ class ComponentTypePropertyController extends Controller
                         'component_type_id' => $typeId,
                     ]
                 ))->refresh()
-            )
+            ),
+            201
         );
     }
 
