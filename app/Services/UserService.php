@@ -29,9 +29,15 @@ class UserService
      */
     static public function withdrawal(User $user): bool
     {
-        UserPrivacyDeleted::query()->create(collect($user->privacy)->put('user_id', $user->id)->toArray());
-        UserPrivacyActive::query()->where(['user_id' => $user->id])->forceDelete();
-        UserPrivacyInactive::query()->where(['user_id' => $user->id])->forceDelete();
+        $privacyActive = UserPrivacyActive::query()->where(['user_id' => $user->id])->first();
+        $privacyInactive = UserPrivacyInactive::query()->where(['user_id' => $user->id])->first();
+        $privacy = $privacyActive ?? $privacyInactive;
+
+        UserPrivacyDeleted::query()->create(
+            collect($privacy)->put('user_id', $user->id)->toArray()
+        );
+
+        $privacy->forceDelete();
 
         $user->delete();
 
