@@ -3,17 +3,18 @@
 namespace App\Console\Commands;
 
 use App\Models\Users\User;
+use App\Services\UserService;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 
-class DeletePrivacyOfDeletedUser extends Command
+class UsersDestruct extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'delete:privacyDeletedUser';
+    protected $signature = 'users:destruct';
 
     /**
      * The console command description.
@@ -39,11 +40,11 @@ class DeletePrivacyOfDeletedUser extends Command
      */
     public function handle()
     {
-        $users = User::onlyTrashed()->where('deleted_at', '<=', Carbon::now()->addDays(-1 * config('custom.user.deleted.permanentDeleteDays')))->get();
-
-        $users->each(function ($item) {
-            $item::status('deleted');
-            $item->privacy->delete();
-        });
+        User::onlyTrashed()
+            ->where('deleted_at', '<=', Carbon::now()->subDays(config('custom.user.toDestructDays')))
+            ->get()
+            ->each(function ($user) {
+                UserService::destruct($user);
+            });
     }
 }

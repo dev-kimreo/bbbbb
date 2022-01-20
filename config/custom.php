@@ -4,9 +4,8 @@ return [
 
     'user' => [
         'toInactiveDays' => 365,
-        'deleted' => [
-            'permanentDeleteDays' => 90
-        ],
+        'toAutoWithdrawalDays' => 365,
+        'toDestructDays' => 90
     ],
 
 ];

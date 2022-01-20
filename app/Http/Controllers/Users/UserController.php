@@ -26,6 +26,7 @@ use App\Mail\QpickMailSender;
 use App\Models\ActionLog;
 use App\Models\SignedCode;
 use App\Models\Users\User;
+use App\Services\UserService;
 use Auth;
 use Cache;
 use DB;
@@ -437,17 +438,8 @@ class UserController extends Controller
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
-        $this->user = $this->user->findOrFail($id);
-
         // delete
-        $this->user->delete();
-
-        // move Privacy Info
-        $activePrivacy = $this->user->privacy->toArray();
-        $this->user->privacy->delete();
-
-        $this->user::status('deleted');
-        $this->user->privacy()->create(array_merge($activePrivacy, ['user_id' => $this->user->id]));
+        UserService::withdrawal($this->user->findOrFail($id));
 
         // logout
         if(Auth::id() == $id) {
