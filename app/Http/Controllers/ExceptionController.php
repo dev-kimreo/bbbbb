@@ -14,6 +14,7 @@ use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Artisan;
 
 class ExceptionController extends Controller
 {
@@ -115,30 +116,30 @@ class ExceptionController extends Controller
     }
 
     /**
-     * @OA\Post(
+     * OA\Post(
      *      path="/v1/exception",
      *      summary="예외 작성",
      *      description="예외 작성",
      *      operationId="exceptionCreate",
      *      tags={"예외"},
-     *      @OA\RequestBody(
+     *      OA\RequestBody(
      *          required=true,
      *          description="",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="code", type="string", example="common.not_found", description="예외 code"),
-     *              @OA\Property(property="title", type="string", example="요청한 데이터를 찾을 수 없습니다.", description="예외 제목"),
+     *          OA\JsonContent(
+     *              OA\Property(property="code", type="string", example="common.not_found", description="예외 code"),
+     *              OA\Property(property="title", type="string", example="요청한 데이터를 찾을 수 없습니다.", description="예외 제목"),
      *          ),
      *      ),
-     *      @OA\Response(
+     *      OA\Response(
      *          response=201,
      *          description="created",
-     *          @OA\JsonContent(
+     *          OA\JsonContent(
      *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/RelationException")
+     *                  OA\Schema(ref="#/components/schemas/RelationException")
      *              }
      *          )
      *      ),
-     *      @OA\Response(
+     *      OA\Response(
      *          response=422,
      *          description="failed"
      *      ),
@@ -167,8 +168,8 @@ class ExceptionController extends Controller
      *          required=true,
      *          description="",
      *          @OA\JsonContent(
-     *              @OA\Property(property="code", type="string", example="common.not_found", description="예외 code"),
-     *              @OA\Property(property="title", type="string", example="요청한 데이터를 찾을 수 없습니다.", description="예외 제목"),
+     *              @OA\Property(property="code", ref="#/components/schemas/Exception/properties/code" ),
+     *              @OA\Property(property="title", ref="#/components/schemas/Exception/properties/title" ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -287,4 +288,32 @@ class ExceptionController extends Controller
         return collect(Exception::findOrFail($exception->getAttribute('id')));
     }
 
+
+    /**
+     * @OA\Get(
+     *      path="/v1/exception-to-json",
+     *      summary="예외 상세 결과 json 형태로",
+     *      description="예외 상세 결과 json 형태로 출력",
+     *      operationId="exceptionToJsonShow",
+     *      tags={"예외"},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "admin_auth":{}
+     *      }}
+     *  )
+     * @return Collection
+     */
+    public function responseInJsonFormat(): Collection
+    {
+        Artisan::call('build:translations');
+
+        return collect(__('exception'));
+    }
 }

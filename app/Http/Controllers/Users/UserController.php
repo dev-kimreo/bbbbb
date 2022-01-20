@@ -26,6 +26,7 @@ use App\Mail\QpickMailSender;
 use App\Models\ActionLog;
 use App\Models\SignedCode;
 use App\Models\Users\User;
+use App\Services\UserService;
 use Auth;
 use Cache;
 use DB;
@@ -80,8 +81,8 @@ class UserController extends Controller
      *              @OA\Property(property="email", type="string", example="abcd@qpicki.com", description="ID(메일)"),
      *              @OA\Property(property="name", type="string", example="홍길동", description="이름"),
      *              @OA\Property(property="multiSearch", type="string", example="홍길동", description="전체 검색"),
-     *              @OA\Property(property="advAgree", type="boolean", example="true", description="광고수신동의 여부<br/>(true:동의, false:미동의)"),
-     *              @OA\Property(property="activate", type="boolean", example="true", description="회원 상태 여부<br/>(true:정상, false:휴면)"),
+     *              @OA\Property(property="advAgree", type="boolean", example="true", description="광고수신동의 여부<br/>(1:동의, 0:미동의)"),
+     *              @OA\Property(property="activate", type="boolean", example="true", description="회원 상태 여부<br/>(1:정상, 0:휴면)"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -437,17 +438,8 @@ class UserController extends Controller
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
 
-        $this->user = $this->user->findOrFail($id);
-
         // delete
-        $this->user->delete();
-
-        // move Privacy Info
-        $activePrivacy = $this->user->privacy->toArray();
-        $this->user->privacy->delete();
-
-        $this->user::status('deleted');
-        $this->user->privacy()->create(array_merge($activePrivacy, ['user_id' => $this->user->id]));
+        UserService::withdrawal($this->user->findOrFail($id));
 
         // logout
         if(Auth::id() == $id) {

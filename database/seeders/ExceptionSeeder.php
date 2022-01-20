@@ -26,6 +26,12 @@ class ExceptionSeeder extends Seeder
             ],
             [
                 'exception',
+                'common.already_exists',
+                '이미 존재하는 데이터입니다.',
+                'Already exists.'
+            ],
+            [
+                'exception',
                 'common.unauthorized',
                 '요청 권한이 없습니다.',
                 'Unauthorized.'
@@ -357,13 +363,13 @@ class ExceptionSeeder extends Seeder
                 'exception',
                 'system.http.404.board',
                 '존재하지 않는 :word.board.board입니다.',
-                ':word._board is not exists'
+                ':word.board.board is not exists'
             ],
             [
                 'exception',
                 'system.http.404.post',
                 '존재하지 않는 :word.post.post입니다.',
-                ':word._post is not exists'
+                ':word.post.post is not exists'
             ],
             [
                 'exception',

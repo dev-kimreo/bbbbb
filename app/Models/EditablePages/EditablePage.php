@@ -3,6 +3,7 @@
 namespace App\Models\EditablePages;
 
 use App\Models\SupportedEditablePage;
+use App\Models\Themes\Theme;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -43,6 +44,10 @@ class EditablePage extends Model
      */
     protected $hidden = [];
 
+    public function theme(): BelongsTo
+    {
+        return $this->belongsTo(Theme::class, 'theme_id');
+    }
 
     public function supportedEditablePage(): BelongsTo
     {

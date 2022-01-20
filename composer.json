@@ -21,7 +21,8 @@
         "laravel/telescope": "^4.4",
         "laravel/tinker": "^2.5",
         "maatwebsite/excel": "^3.1",
-        "maennchen/zipstream-php": "^2.1"
+        "maennchen/zipstream-php": "^2.1",
+        "sabberworm/php-css-parser": "^8.4"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.10",

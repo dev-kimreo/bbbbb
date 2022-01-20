@@ -24,6 +24,9 @@ class ComponentOptionFactory extends Factory
     public function definition()
     {
         return [
+            'name' => $this->faker->text(12),
+            'key' => $this->faker->text(10),
+            'hideable' => rand(0, 1),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];

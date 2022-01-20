@@ -3,6 +3,9 @@
 namespace App\Mail;
 
 use App\Models\EmailTemplate;
+use App\Models\Users\User;
+use App\Services\BladeTemplateService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -12,38 +15,50 @@ class QpickMailSender extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    protected $template;
-    public $user;
-    public $data;
+    protected EmailTemplate $template;
+    public User $user;
+    public array $data;
 
     /**
      * Create a new message instance.
      *
      * @param string $code
-     * @param $user
-     * @param $data
+     * @param User $user
+     * @param array $data
      */
-    public function __construct(string $code, $user, $data)
+    public function __construct(string $code, User $user, array $data)
     {
+        $user->getAttribute('privacy');
         $this->user = $user;
-        $this->user->privacy;
-        $this->template = EmailTemplate::where([
-            'code' => $code,
-            'enable' => 1
-        ])->first();
-
+        $this->template = EmailTemplate::where(
+            [
+                'code' => $code,
+                'enable' => 1
+            ]
+        )->first();
         $this->data = $data;
+
+        return true;
     }
 
     /**
      * Build the message.
      *
      * @return $this
+     * @throws Exception
      */
     public function build(): QpickMailSender
     {
+        return $this
+            ->html(BladeTemplateService::instance()->compileWiths($this->template->contents, [
+                'user' => $this->user->toArray(),
+                'data' => $this->data
+            ]))
+            ->subject('[' . getenv('APP_NAME') . '] ' . $this->template->title);
+        /*
         return $this->view('emails.' . $this->template->code)
             ->subject('[' . getenv('APP_NAME') . '] ' . $this->template->title);
+        */
     }
 
     public function send($mailer) {

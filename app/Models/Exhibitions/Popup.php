@@ -29,7 +29,7 @@ use Illuminate\Support\Collection;
  *          @OA\Property(property="startedAt", type="string", format="date-time", description="전시기간 시작일자"),
  *          @OA\Property(property="endedAt", type="string", format="date-time", description="전시기간 종료일자"),
  *          @OA\Property(property="sort", type="integer", example=999, description="전시기간 종료일자"),
- *          @OA\Property(property="visible", type="boolean", example=true, description="전시여부<br />true:노출<br />false:숨김"),
+ *          @OA\Property(property="visible", type="boolean", example=true, description="전시여부<br />(1:노출, 0:숨김)"),
  *          @OA\Property(property="target", type="object",
  *              @OA\Property(property="opt", type="string", example="grade", description="전시 타겟설정<br />all:모든 회원<br />grade:회원구분<br />designate:특정회원"),
  *              @OA\Property(property="grade", type="array", description="선택된 회원등급, 타겟설정이 [회원구분]인 경우에 표시<br />associate:준회원<br />regular:정회원", @OA\Items(
@@ -65,7 +65,7 @@ use Illuminate\Support\Collection;
  *          @OA\Property(property="startedAt", type="string", format="date-time", description="전시기간 시작일자"),
  *          @OA\Property(property="endedAt", type="string", format="date-time", description="전시기간 종료일자"),
  *          @OA\Property(property="sort", type="integer", example=999, description="전시기간 종료일자"),
- *          @OA\Property(property="visible", type="boolean", example=true, description="전시여부<br />true:노출<br />false:숨김"),
+ *          @OA\Property(property="visible", type="boolean", example=true, description="전시여부<br />(1:노출, 0:숨김)"),
  *          @OA\Property(property="target", type="object",
  *              @OA\Property(property="opt", type="string", example="grade", description="전시 타겟설정<br />all:모든 회원<br />grade:회원구분<br />designate:특정회원"),
  *              @OA\Property(property="grade", type="array", description="선택된 회원등급, 타겟설정이 [회원구분]인 경우에 표시<br />associate:준회원<br />regular:정회원", @OA\Items(

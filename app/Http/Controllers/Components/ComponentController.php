@@ -163,7 +163,7 @@ class ComponentController extends Controller
                         'user_partner_id' => Auth::user()->partner->id
                     ]
                 ))->refresh()
-            )
+            ), 201
         );
     }
 

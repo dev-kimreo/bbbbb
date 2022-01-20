@@ -58,7 +58,7 @@ class ComponentsAndThemesSeeder extends Seeder
             ',
             'css' => '
 /* Desktop Device */
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   header {
     height: 188px;
     margin: 0;
@@ -213,7 +213,7 @@ class ComponentsAndThemesSeeder extends Seeder
   }
 }
 /* Mobile Device */
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   header {
     position: relative;
     height: 100px;
@@ -455,7 +455,7 @@ for(const v of menu) {
             'html' => '<ul id="banners"></ul>',
             'css' => '
 /* Desktop Device */
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   ul {
     width: 1248px;
     margin: 16px auto;
@@ -477,7 +477,7 @@ for(const v of menu) {
   }
 }
 /* Mobile Device */
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   ul {
     overflow: hidden;
     width: 100%;
@@ -548,7 +548,7 @@ for(const v of banners) {
             'html' => '<div id="wCategories"><ul></ul></div>',
             'css' => '
 /* Desktop Device */
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   #wCategories {
     height: 48px;
     border-top: 1px solid #e0e0e0;
@@ -574,7 +574,7 @@ for(const v of banners) {
   }
 }
 /* Mobile Device */
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   #wCategories {
     background-color: #ececec;
     padding: 24px 17px;
@@ -629,7 +629,7 @@ QpickTunnel.categories().then((res) => {
             'html' => '<div id="wBest"><h2></h2><ul></ul></div>',
             'css' => '
 /* Desktop Device */
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   #wBest {
     width: 1248px;
     margin: 48px auto 0 auto;
@@ -739,7 +739,7 @@ QpickTunnel.categories().then((res) => {
   }
 }
 /* Mobile Device */
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   #wBest {
     width: 100%;
     font-family: sans-serif;
@@ -856,7 +856,7 @@ let ul = document.querySelector("ul");
 
 document.querySelector("h2").innerText = compOpt["title"].text;
 
-QpickTunnel.mainProducts(compOpt["groupNo"].text).then((res) => {
+QpickTunnel.mainProducts(compOpt["groupNo"].number).then((res) => {
   for(const v of res) {
     let li = document.createElement("li");
     let img = new Image();
@@ -911,7 +911,7 @@ QpickTunnel.mainProducts(compOpt["groupNo"].text).then((res) => {
                 ],
                 [
                     'name' => '메인진열분류번호',
-                    'type' => 'Text Field',
+                    'type' => 'Number',
                     'key' => 'groupNo',
                     'help' => '노출할 메인진열분류의 번호를 입력합니다. 1개만 입력할 수 있습니다.',
                     'default' => '2'
@@ -931,7 +931,7 @@ QpickTunnel.mainProducts(compOpt["groupNo"].text).then((res) => {
             'html' => '<div id="wNewDeal"><h2></h2><ul></ul></div>',
             'css' => '
 /* Desktop Device */
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   #wNewDeal {
     width: 1248px;
     margin: 48px auto 0 auto;
@@ -1046,7 +1046,7 @@ QpickTunnel.mainProducts(compOpt["groupNo"].text).then((res) => {
   }
 }
 /* Mobile Device */
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   h2 {
     height: 22px;
     margin: 0;
@@ -1242,7 +1242,7 @@ for(const no of items) {
   Desktop Device
 
   */
-  @media (min-width: 1025px) {
+  @media (min-width: 1024px) {
     #wAppIntro {
       position: relative;
       height: 100vh;
@@ -1303,7 +1303,7 @@ for(const no of items) {
   Mobile Device
 
   */
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     #wAppIntro {
       position: relative;
       height: 100vh;
@@ -1351,7 +1351,7 @@ for(const no of items) {
 let ul = document.querySelector("ul");
 
 document.querySelector("#wAppIntro").dataset.align = compOpt.align.text;
-document.querySelector("#wAppIntro").style.backgroundColor = compOpt.bgcolor.text;
+document.querySelector("#wAppIntro").style.backgroundColor = compOpt.bgcolor.color;
 document.querySelector("#wImg img").setAttribute("src", compOpt.img.text);
 document.querySelector("h3").innerText = compOpt.title.text;
 document.querySelector("#wContents").innerHTML = compOpt.contents.text;
@@ -1367,17 +1367,18 @@ if(typeof(arr) == "array")
             'options' => [
                 [
                     'name' => '정렬',
-                    'type' => 'Text Field',
+                    'type' => 'Radio',
                     'key' => 'align',
                     'help' => 'left와 right 중 하나를 입력',
-                    'default' => 'left'
+                    'default' => 'left',
+                    'options' => ['left', 'right']
                 ],
                 [
                     'name' => '배경색',
-                    'type' => 'Text Field',
+                    'type' => 'Color Picker',
                     'key' => 'bgcolor',
                     'help' => 'HEX Color 값을 입력',
-                    'default' => '#FFFFFF'
+                    'default' => '#FFFFFF00'
                 ],
                 [
                     'name' => '이미지 URL',
@@ -1474,8 +1475,7 @@ if(typeof(arr) == "array")
                         'help' => $opt['help'],
                         'display_on_pc' => true,
                         'display_on_mobile' => true,
-                        'hideable' => false,
-                        'attributes' => '["textMaxLength"]'
+                        'hideable' => false
                     ]
                 );
 
@@ -1488,11 +1488,48 @@ if(typeof(arr) == "array")
                             'component_type_property_id' => $typeId,
                             'key' => 'text',
                             'name' => $opt['name'],
-                            'initial_value' => $opt['default']
+                            'initial_value' => $opt['default'],
+                            'elements' => json_encode(["textMaxLength" => 100])
                         ];
                         break;
 
-                    case 8:
+                    case 4:
+                        // Radio
+                        $createData[] = [
+                            'component_option_id' => $compOpt->id,
+                            'component_type_property_id' => $typeId,
+                            'key' => 'text',
+                            'name' => $opt['name'],
+                            'initial_value' => $opt['default'],
+                            'elements' => $opt['options']? json_encode(['options' => $opt['options']]): null
+                        ];
+                        break;
+
+                    case 9:
+                        // Number
+                        $createData[] = [
+                            'component_option_id' => $compOpt->id,
+                            'component_type_property_id' => $typeId,
+                            'key' => 'number',
+                            'name' => $opt['name'],
+                            'initial_value' => $opt['default'],
+                            'elements' => json_encode(["unit" => "px"])
+                        ];
+                        break;
+
+                    case 10:
+                        // Color Picker
+                        $createData[] = [
+                            'component_option_id' => $compOpt->id,
+                            'component_type_property_id' => $typeId,
+                            'key' => 'color',
+                            'name' => $opt['name'] . ' 색상',
+                            'initial_value' => $opt['default'],
+                            'elements' => null
+                        ];
+                        break;
+
+                    case 12:
                         // Text + URL Display
                         foreach(json_decode($opt['default'], true) as $defaultKey => $defaultValue)
                         {
@@ -1501,7 +1538,8 @@ if(typeof(arr) == "array")
                                 'component_type_property_id' => $typeId,
                                 'key' => $defaultKey,
                                 'name' => $opt['name'],
-                                'initial_value' => $defaultValue
+                                'initial_value' => $defaultValue,
+                                'elements' => $defaultKey == 'text'? json_encode(["textMaxLength" => 100]): null
                             ];
                         }
                         break;
@@ -1639,7 +1677,7 @@ if(typeof(arr) == "array")
         $options = [
             [
                 "align" => "left",
-                "bgcolor" => "#FBF7F2",
+                "bgcolor" => "#00FBF7F2",
                 "img" => "https://d1unjqcospf8gs.cloudfront.net/assets/home/main/3x/image-top-4eb6b8642f61c5c012136597a25a7b72c705d6c6479a7270f3fb23726fddf585.png",
                 "title" => "당신 근처의 당근마켓",
                 "contents" => "중고 거래부터 동네 정보까지, 이웃과 함께해요. 가깝고 따뜻한 당신의 근처를 만들어요.",
@@ -1647,7 +1685,7 @@ if(typeof(arr) == "array")
             ],
             [
                 "align" => "right",
-                "bgcolor" => "#FFFFFF",
+                "bgcolor" => "#00FFFFFF",
                 "img" => "https://d1unjqcospf8gs.cloudfront.net/assets/home/main/3x/image-1-39ac203e8922f615aa3843337871cb654b81269e872494128bf08236157c5f6a.png",
                 "title" => "우리 동네 중고 직거래 마켓",
                 "contents" => "동네 주민들과 가깝고 따뜻한 거래를 지금 경험해보세요.",
@@ -1655,7 +1693,7 @@ if(typeof(arr) == "array")
             ],
             [
                 "align" => "left",
-                "bgcolor" => "#E6F3E6",
+                "bgcolor" => "#00E6F3E6",
                 "img" => "https://d1unjqcospf8gs.cloudfront.net/assets/home/main/3x/image-2-f286322ab98acedf914a05bf77e84c67dcb897c8ccb543e66f6afea9d366d06d.png",
                 "title" => "이웃과 함께 하는 동네생활",
                 "contents" => "우리 동네의 다양한 이야기를 이웃과 함께 나누어요.",
@@ -1664,7 +1702,7 @@ if(typeof(arr) == "array")
             ],
             [
                 "align" => "right",
-                "bgcolor" => "#FFFFFF",
+                "bgcolor" => "#00FFFFFF",
                 "img" => "https://d1unjqcospf8gs.cloudfront.net/assets/home/main/3x/image-3-0c8b631ac2294ac5a3b3e7a3a5580c3e68a3303ad2aded1e84aa57a2e1442786.png",
                 "title" => "내 근처에서 찾는 동네가게",
                 "contents" => "우리 동네 가게를 찾고 있나요? 동네 주민이 남긴 진짜 후기를 함께 확인해보세요!.",
@@ -1686,13 +1724,27 @@ if(typeof(arr) == "array")
 
             // 연동 컴포넌트 옵션
             $v->version->first()->options->each(function ($v2) use ($v, $linkedComponent, $o) {
-                LinkedComponentOption::query()->create(
-                    [
-                        'component_option_id' => $v2->id,
-                        'linked_component_id' => $linkedComponent->id,
-                        'value' => ["text" => $o[$v2->key]]
-                    ]
-                );
+                switch ($v2->component_type_id) {
+                    case 2: // Text Field
+                    case 4: // Radio
+                        LinkedComponentOption::query()->create(
+                            [
+                                'component_option_id' => $v2->id,
+                                'linked_component_id' => $linkedComponent->id,
+                                'value' => ["text" => $o[$v2->key]]
+                            ]
+                        );
+                        break;
+
+                    case 10: // Color Picker
+                        LinkedComponentOption::query()->create(
+                            [
+                                'component_option_id' => $v2->id,
+                                'linked_component_id' => $linkedComponent->id,
+                                'value' => ["color" => $o[$v2->key]]
+                            ]
+                        );
+                }
             });
         }
     }

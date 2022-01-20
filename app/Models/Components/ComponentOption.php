@@ -35,16 +35,15 @@ class ComponentOption extends Model
     public static string $exceptionEntity = "componentOption";
 
     protected $fillable = [
-        'component_version_id', 'component_type_id', 'name', 'key', 'display_on_pc', 'display_on_mobile', 'hideable', 'attributes', 'help'
+        'component_version_id', 'component_type_id', 'name', 'key', 'display_on_pc', 'display_on_mobile', 'hideable', 'help'
     ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
     protected $hidden = [];
-
+    protected $casts = [
+        'display_on_pc' => 'boolean',
+        'display_on_mobile' => 'boolean',
+        'hideable' => 'boolean'
+    ];
 
     public function type(): belongsTo
     {

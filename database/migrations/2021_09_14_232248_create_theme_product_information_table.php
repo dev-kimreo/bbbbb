@@ -17,6 +17,11 @@ class CreateThemeProductInformationTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('theme_product_id')->constrained();
+//            $table->string('business', 32);
+//            $table->string('layout', 32);
+//            $table->string('numberOfItemsSold', 32);
+//            $table->string('color', 32);
+            $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

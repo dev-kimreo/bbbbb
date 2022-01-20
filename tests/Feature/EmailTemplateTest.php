@@ -19,6 +19,52 @@ class EmailTemplateTest extends TestCase
     protected array $updateResource = [];
     protected array $searchResource = [];
 
+    public array $structureShow = [
+        'id',
+        'userId',
+        'code',
+        'category',
+        'name',
+        'title',
+        'contents',
+        'sendingTime',
+        'enable',
+        'ignoreAgree',
+        'createdAt',
+        'updatedAt',
+        'user' => [
+            'id', 'name', 'email'
+        ]
+    ];
+
+    public array $structureList = [
+        'header' => [
+            'page',
+            'perPage',
+            'skip',
+            'block',
+            'perBlock',
+            'totalCount',
+            'totalPage',
+            'totalBlock',
+            'startPage',
+            'endPage'
+        ],
+        'list' => [
+            [
+                'id',
+                'userId',
+                'category',
+                'name',
+                'title',
+                'sendingTime',
+                'createdAt',
+                'user' => [
+                    'id', 'name', 'email'
+                ]
+            ]
+        ]
+    ];
 
     public function setUp(): void
     {
@@ -82,6 +128,7 @@ class EmailTemplateTest extends TestCase
 
         $response = $this->requestQpickApi('post', '/v1/email-template', $this->createReq());
         $response->assertCreated();
+        $response->assertJsonStructure($this->structureShow);
     }
 
     /**
@@ -123,6 +170,7 @@ class EmailTemplateTest extends TestCase
 
         $response = $this->requestQpickApi('get', '/v1/email-template/' . $temp->id);
         $response->assertOk();
+        $response->assertJsonStructure($this->structureShow);
     }
 
     /**
@@ -156,6 +204,7 @@ class EmailTemplateTest extends TestCase
 
         $response = $this->requestQpickApi('get', '/v1/email-template');
         $response->assertOk();
+        $response->assertJsonStructure($this->structureList);
     }
 
     /**
@@ -194,6 +243,7 @@ class EmailTemplateTest extends TestCase
 
         $response = $this->requestQpickApi('patch', '/v1/email-template/' . $temp->id, $this->updateResource);
         $response->assertCreated();
+        $response->assertJsonStructure($this->structureShow);
     }
 
     /**

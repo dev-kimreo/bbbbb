@@ -41,16 +41,20 @@ use Laravel\Passport\HasApiTokens;
  *   @OA\Property(property="lanugage", type="string", default="ko", description="선택한 언어코드", example="ko"),
  *   @OA\Property(property="memoForManagers", type="string", description="관리자 메모", example="어뷰징 기록이 있는 사용자입니다"),
  *   @OA\Property(
- *       property="registerdAt", type="string", readOnly="true", format="date-time",
- *       description="정회원 등록일", default=null, example="2019-02-25 12:59:20"
+ *       property="registerdAt", type="datetime", readOnly="true", format="date-time",
+ *       description="정회원 등록일", default=null, example="2021-06-05T09:00:00+00:00"
  *   ),
  *   @OA\Property(
- *       property="inactivatedAt", type="string", readOnly="true", format="date-time",
- *       description="(휴면계정인 경우) 휴면일", default=null, example="2019-02-25 12:59:20"
+ *       property="inactivatedAt", type="datetime", readOnly="true", format="date-time",
+ *       description="(휴면계정인 경우) 휴면일", default=null, example="2021-06-05T09:00:00+00:00"
  *   ),
  *   @OA\Property(
- *       property="lastAuthorizedAt", type="string", readOnly="true", format="date-time",
- *       description="최종로그인 일시", default=null, example="2019-02-25 12:59:20"
+ *       property="deletedAt", type="datetime", readOnly="true", format="date-time",
+ *       description="(탈퇴계정인 경우) 탈퇴처리일", default=null, example="2021-06-05T09:00:00+00:00"
+ *   ),
+ *   @OA\Property(
+ *       property="lastAuthorizedAt", type="datetime", readOnly="true", format="date-time",
+ *       description="최종로그인 일시", default=null, example="2021-06-05T09:00:00+00:00"
  *   ),
  *   @OA\Property(property="createdAt", ref="#/components/schemas/Base/properties/created_at"),
  *   @OA\Property(property="updatedAt", ref="#/components/schemas/Base/properties/updated_at"),
@@ -77,6 +81,7 @@ use Laravel\Passport\HasApiTokens;
  * @method static where(string $string, string $string1, Carbon $addDays)
  * @method static whereHas(string $string, Closure $param)
  * @method static inRandomOrder()
+ * @property mixed privacy
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -93,7 +98,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'language', 'password', 'memo_for_managers'
     ];
-    protected $hidden = ['password', 'remember_token', 'deleted_at', 'memo_for_managers'];
+    protected $hidden = ['password', 'remember_token', 'memo_for_managers'];
     protected $casts = [
         'email_verified_at' => 'datetime',
         'registered_at' => 'datetime',

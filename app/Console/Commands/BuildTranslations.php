@@ -39,27 +39,42 @@ class BuildTranslations extends Command
     public function handle()
     {
         // Init
+        $wordArrays = [];
         $res = [];
 
         // Getting translated words from DB
-        Exception::with('translation.translationContents')->get()->each(function ($exception) use (&$res) {
-            $translation = $exception->translation;
-            $translation->translationContents->each(function ($content) use ($exception, $translation, &$res) {
+        Word::with('translation.translationContents')->get()->each(function ($word) use (&$res, &$wordArrays) {
+            $translation = $word->translation;
+            $translation->translationContents->each(function ($content) use ($word, $translation, &$res, &$wordArrays) {
+                $wordArrays[$content->lang][$word->code] = $content->value;
+
                 $this->assignArrayByPath(
                     $res[$content->lang][$translation->linkable_type],
-                    $exception->code,
+                    $word->code,
                     $content->value
                 );
             });
         });
 
         // Getting translated words from DB
-        Word::with('translation.translationContents')->get()->each(function ($word) use (&$res) {
-            $translation = $word->translation;
-            $translation->translationContents->each(function ($content) use ($word, $translation, &$res) {
+        Exception::with('translation.translationContents')->get()->each(function ($exception) use (&$res, $wordArrays) {
+            $translation = $exception->translation;
+            $translation->translationContents->each(function ($content) use ($exception, $translation, &$res, $wordArrays) {
+                preg_match_all('/(\:word.[a-zA-Z\_\.]+)/', $content->value, $matched);
+
+                if (isset($matched[1]) && count($matched[1])) {
+                    foreach ($matched[1] as $k => $v) {
+                        if (isset($wordArrays[$content->lang][str_replace(':word.', '', $v)])) {
+                            $content->value = str_replace($v, $wordArrays[$content->lang][str_replace(':word.', '', $v)], $content->value);
+                        } else {
+                            $content->value = str_replace($v, str_replace(':word.', 'word.', $v), $content->value);
+                        }
+                    }
+                }
+
                 $this->assignArrayByPath(
                     $res[$content->lang][$translation->linkable_type],
-                    $word->code,
+                    $exception->code,
                     $content->value
                 );
             });

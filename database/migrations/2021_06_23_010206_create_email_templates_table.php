@@ -17,11 +17,14 @@ class CreateEmailTemplatesTable extends Migration
             $table->collation = 'utf8mb4_general_ci';
             $table->id();
             $table->foreignId('user_id')->constrained();
+            $table->string('category', 16);
             $table->string('code', 64);
             $table->string('name', 256);
+            $table->string('title', 256);
+            $table->text('contents');
+            $table->text('sending_time');
             $table->boolean('enable');
             $table->boolean('ignore_agree')->default(1);
-            $table->string('title', 256);
             $table->timestamps();
             $table->softDeletes();
         });

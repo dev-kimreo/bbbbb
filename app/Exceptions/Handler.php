@@ -177,14 +177,7 @@ class Handler extends ExceptionHandler
                 if (!$arr['user_msg'] || $arr['user_msg'] == $exceptionPrefix . '.' . $arr['user_code']) {
                     $arr['user_msg'] = $arr['msg'];
                 } else {
-                    preg_match_all('/\:([a-zA-Z\_\.]+)/', $arr['user_msg'], $matched);
-                    if (isset($matched[1])) {
-                        foreach ($matched[1] as $k => $v) {
-                            $changed[$v] = __($v);
-                        }
-
-                        $arr['user_msg'] = __($exceptionPrefix . '.' . $arr['user_code'], $changed);
-                    }
+                    $arr['user_msg'] = __($exceptionPrefix . '.' . $arr['user_code']);
                 }
             }
         }

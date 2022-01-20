@@ -2,6 +2,9 @@
 
 namespace App\Console;
 
+use App\Models\Users\User;
+use App\Services\UserService;
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -27,16 +30,20 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
 
-        // User 관련
-        // TODO 주기 정해지면 적용해서 살려야함
-//        $schedule->command('switch:userInactive')->daily();   // 활성화 회원 -> 휴먼회원으로 전환
-//        $schedule->command('delete:privacyDeletedUser')->daily();   // 탈퇴 회원 개인정보 영구 삭제
-
         // Telescope 데이터 제거
         $schedule->command('telescope:prune')->daily();
 
         // 다국어 리소스 캐시
         $schedule->command('build:translations')->everyFiveMinutes();
+
+        // 장기 미접속 회원 휴면처리
+        $schedule->command('users:inactivate')->dailyAt('16:00'); // KST 1:00, UTC 16:00
+
+        // 장기 휴면회원 탈퇴처리
+        $schedule->command('users:autoWithdrawal')->dailyAt('16:00'); // KST 1:00, UTC 16:00
+
+        // 탈퇴회원 개인정보 파기
+        $schedule->command('users:destruct')->dailyAt('16:00'); // KST 1:00, UTC 16:00
     }
 
     /**

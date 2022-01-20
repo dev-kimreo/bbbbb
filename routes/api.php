@@ -14,6 +14,7 @@ use App\Http\Controllers\Components\ComponentController;
 use App\Http\Controllers\Components\ComponentOptionController;
 use App\Http\Controllers\Components\ComponentTypeController;
 use App\Http\Controllers\Components\ComponentTypePropertyController;
+use App\Http\Controllers\Components\ComponentUsablePageController;
 use App\Http\Controllers\Components\ComponentVersionController;
 use App\Http\Controllers\EditablePages\EditablePageController;
 use App\Http\Controllers\EditablePages\EditablePageLayoutController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\Themes\ThemeBuildController;
 use App\Http\Controllers\Themes\ThemeController;
 use App\Http\Controllers\Themes\ThemeProductController;
+use App\Http\Controllers\Themes\ThemeProductInformationController;
 use App\Http\Controllers\TooltipController;
 use App\Http\Controllers\Users\ManagerController;
 use App\Http\Controllers\Users\UserAdvAgreeController;
@@ -41,6 +43,7 @@ use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Users\UserSolutionController;
 use App\Http\Controllers\Widgets\WidgetController;
 use App\Http\Controllers\Widgets\WidgetUsageController;
+use App\Http\Controllers\WordController;
 use App\Http\Middleware\ConvertResponseToCamelCase;
 use Illuminate\Support\Facades\Route;
 
@@ -360,6 +363,18 @@ Route::group([
         Route::patch('/{theme_product_id}', [ThemeProductController::class, 'update']);
         Route::delete('/{theme_product_id}', [ThemeProductController::class, 'destroy']);
 
+        // 전시정보
+        Route::group([
+            'prefix' => '{theme_product_id}/information'
+        ], function(){
+            Route::get('', [ThemeProductInformationController::class, 'index']);
+            Route::get('/{information_id}', [ThemeProductInformationController::class, 'show']);
+            Route::post('', [ThemeProductInformationController::class, 'store']);
+            Route::patch('/{information_id}', [ThemeProductInformationController::class, 'update']);
+            Route::delete('/{information_id}', [ThemeProductInformationController::class, 'destroy']);
+        });
+
+
         // 테마
         Route::get('/{theme_product_id}/theme', [ThemeController::class, 'index']);
         Route::get('/{theme_product_id}/theme/{theme_id}', [ThemeController::class, 'show']);
@@ -458,8 +473,30 @@ Route::group([
         Route::delete('/{component_id}/version/{version_id}/option/{option_id}', [ComponentOptionController::class, 'destroy']);
 
         Route::post('/{component_id}/version/{version_id}/relational-option', [ComponentOptionController::class, 'relationalStore']);
-
     });
+
+    // 컴포넌트 사용 페이지
+    Route::group([
+        'prefix' => 'component-usable-page',
+        'middleware' => ['auth:api', 'chkAccess:partner']
+    ], function(){
+        Route::get('', [ComponentUsablePageController::class, 'index']);
+        Route::get('/{component_usable_page_id}', [ComponentUsablePageController::class, 'show']);
+        Route::post('', [ComponentUsablePageController::class, 'store']);
+        Route::delete('/{component_usable_page_id}', [ComponentUsablePageController::class, 'destroy']);
+    });
+
+    // 컴포넌트 옵션 유형
+    Route::group(
+        [
+            'prefix' => 'component-option',
+            'middleware' => ['auth:api', 'chkAccess:partner']
+        ],
+        function () {
+            Route::get('', [ComponentOptionController::class, 'index']);
+            Route::get('/{option_id}', [ComponentOptionController::class, 'show']);
+        }
+    );
 
     // 컴포넌트 옵션 유형
     Route::group([
@@ -495,10 +532,33 @@ Route::group([
     ], function () {
         Route::get('', [ExceptionController::class, 'index']);
         Route::get('/{exception_id}', [ExceptionController::class, 'show']);
-        Route::post('', [ExceptionController::class, 'store']);
+//        Route::post('', [ExceptionController::class, 'store']);
         Route::patch('/{exception_id}', [ExceptionController::class, 'update']);
+        Route::delete('/{exception_id}', [ExceptionController::class, 'destroy']);
     });
     Route::post('/relation-exception', [ExceptionController::class, 'relationStore']);
+    Route::get('/exception-to-json', [ExceptionController::class, 'responseInJsonFormat']);
+    /**
+     * End
+     */
+
+    /**
+     * Word
+     */
+    Route::group([
+        'prefix' => 'word',
+        'middleware' => ['auth:api', 'chkAccess:backoffice']
+    ], function () {
+        Route::get('', [WordController::class, 'index']);
+        Route::get('/{word_id}', [WordController::class, 'show']);
+//        Route::post('', [WordController::class, 'store']);
+        Route::patch('/{word_id}', [WordController::class, 'update']);
+        Route::delete('/{word_id}', [WordController::class, 'destroy']);
+    });
+    Route::post('/relation-word', [WordController::class, 'relationStore']);
+    Route::get('/word-to-json', [WordController::class, 'responseInJsonFormat']);
+
+
 
     /**
      * Export

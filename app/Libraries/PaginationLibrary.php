@@ -54,7 +54,7 @@ class PaginationLibrary {
 
         self::$block = ceil(self::$page / self::$perBlock);
         self::$startPage = (self::$block-1) * self::$perBlock + 1;
-        self::$endPage = self::$block * self::$perBlock;
+        self::$endPage = min(self::$block * self::$perBlock, self::$totalPage);
         self::$prev = [];
         self::$next = [];
         if ( (self::$block - 2) >= 0 ) {

@@ -31,6 +31,7 @@ class UserTest extends TestCase
             'lastPasswordChangedAt',
             'createdAt',
             'updatedAt',
+            'deletedAt',
             'advAgree',
             'solutions'
         ];
