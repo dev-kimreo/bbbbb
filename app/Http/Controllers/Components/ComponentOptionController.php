@@ -210,7 +210,7 @@ class ComponentOptionController extends Controller
             ]
         );
 
-        return response()->json($this->createOption($data));
+        return response()->json($this->createOption($data), 201);
     }
 
     /**
