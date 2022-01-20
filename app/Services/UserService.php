@@ -15,43 +15,35 @@ class UserService
      */
     static public function inactivate(User $user): bool
     {
-        $privacy = UserPrivacyActive::query()
-            ->where('user_id', $user->id)
-            ->firstOrFail();
-
-        UserPrivacyInactive::query()->insert(
-            [
-                'user_id' => $user->id,
-                'name' => $privacy->name,
-                'email' => $privacy->email,
-            ]
-        );
-        $privacy->forceDelete();
+        UserPrivacyInactive::query()->create(collect($user->privacy)->put('user_id', $user->id)->toArray());
+        $user->privacy->forceDelete();
 
         $user->inactivated_at = Carbon::now();
         $user->save();
+
         return true;
     }
 
     /**
-     * 휴면회원 탈퇴처리 (개인정보 파기)
+     * 탈퇴처리
      */
-    static public function permanentWithdrawal(User $user): bool
+    static public function withdrawal(User $user): bool
     {
-        $privacy = UserPrivacyInactive::query()
-            ->where(['user_id' => $user->id])
-            ->firstOrFail();
-
-        UserPrivacyDeleted::query()->insert(
-            [
-                'user_id' => $user->id,
-                'name' => $privacy->name,
-                'email' => $privacy->email,
-            ]
-        );
-        $privacy->forceDelete();
+        UserPrivacyDeleted::query()->create(collect($user->privacy)->put('user_id', $user->id)->toArray());
+        UserPrivacyActive::query()->where(['user_id' => $user->id])->forceDelete();
+        UserPrivacyInactive::query()->where(['user_id' => $user->id])->forceDelete();
 
         $user->delete();
+
+        return true;
+    }
+
+    /**
+     * 탈퇴 후 개인정보 보관기간 경과시 파기
+     */
+    static public function destruct(User $user): bool
+    {
+        UserPrivacyDeleted::query()->where(['user_id' => $user->id])->forceDelete();
         return true;
     }
 }
