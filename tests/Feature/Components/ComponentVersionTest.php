@@ -53,7 +53,7 @@ class ComponentVersionTest extends TestCase
     }
 
     /**
-     * Create 06701150248589 24120
+     * Create
      */
     public function testCreateByGuest()
     {
