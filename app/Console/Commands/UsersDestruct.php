@@ -40,8 +40,10 @@ class UsersDestruct extends Command
      */
     public function handle()
     {
+        $baseDate = Carbon::now()->setTime(15, 0, 0);
+
         User::onlyTrashed()
-            ->where('deleted_at', '<=', Carbon::now()->subDays(config('custom.user.toDestructDays')))
+            ->where('deleted_at', '<', $baseDate->subDays(config('custom.user.toDestructDays')))
             ->get()
             ->each(function ($user) {
                 UserService::destruct($user);
