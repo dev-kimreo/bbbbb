@@ -40,10 +40,12 @@ class UsersInactivate extends Command
      */
     public function handle()
     {
+        $baseDate = Carbon::now()->setTime(15, 0, 0);
+
         User::query()
             ->whereNull('inactivated_at')
             ->whereNotNull('last_authorized_at')
-            ->where('last_authorized_at', '<=', Carbon::now()->subDays(config('custom.user.toInactiveDays')))
+            ->where('last_authorized_at', '<', $baseDate->subDays(config('custom.user.toInactiveDays')))
             ->get()
             ->each(function ($user) {
                 UserService::inactivate($user);
