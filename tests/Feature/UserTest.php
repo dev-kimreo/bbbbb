@@ -13,6 +13,7 @@ class UserTest extends TestCase
     use WithFaker, DatabaseTransactions, QpickTestBase;
 
     protected array $resJson = [];
+    protected array $resShowJson = [];
 
     public function __construct()
     {
@@ -33,7 +34,7 @@ class UserTest extends TestCase
             'updatedAt',
             'deletedAt',
             'advAgree',
-            'solutions'
+            'sites'
         ];
     }
 

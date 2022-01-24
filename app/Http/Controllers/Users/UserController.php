@@ -1260,9 +1260,9 @@ class UserController extends Controller
      * 회원 1명 쿼리 함수
      *
      * @param int $id
-     * @return Collection
+     * @return Builder|Builder[]|\Illuminate\Database\Eloquent\Collection|Model|null
      */
-    protected function getOne(int $id): Collection
+    protected function getOne(int $id)
     {
         $with = ['privacy', 'advAgree', 'sites', 'sites.userSolution'];
 
@@ -1280,6 +1280,6 @@ class UserController extends Controller
         $user->email = $user->privacy->email;
         unset($user->privacy);
 
-        return collect($user);
+        return $user;
     }
 }
