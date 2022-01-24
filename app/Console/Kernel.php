@@ -46,7 +46,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('users:destruct')->dailyAt('16:00'); // KST 1:00, UTC 16:00
 
         // 휴면 및 탈퇴처리 예고 알림
-        $schedule->command('users:priorNotice')->dailyAt('16:00');
+        $schedule->command('users:priorNotice')->dailyAt('1:00'); // KST 10:00, UTC 1:00
     }
 
     /**
