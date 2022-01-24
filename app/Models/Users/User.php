@@ -113,6 +113,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(UserAdvAgree::class);
     }
 
+    public function sites(): hasMany
+    {
+        return $this->hasMany(UserSite::class);
+    }
+
     public function solutions(): hasMany
     {
         return $this->hasMany(UserSolution::class);
