@@ -161,7 +161,7 @@ class AttachController extends Controller
         $this->attachService->checkAttachableModel($typeCollect);
 
         // check upload file limit count
-        $this->attachService->checkUnderUploadLimit($typeCollect);
+        $this->attachService->checkUnderUploadCountLimit($typeCollect);
 
         // type Move
         $this->attachService->move($typeCollect, [$id]);

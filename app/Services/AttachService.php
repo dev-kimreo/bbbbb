@@ -226,7 +226,7 @@ class AttachService
         return true;
     }
 
-    public function checkUnderUploadLimit($collect): bool
+    public function checkUnderUploadCountLimit($collect): bool
     {
         $alias = $collect->getMorphClass();
 
