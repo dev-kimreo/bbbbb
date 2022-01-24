@@ -8,7 +8,9 @@ use App\Http\Requests\Attaches\StoreRequest;
 use App\Http\Resources\Attach\ComponentUploadImageResource;
 use App\Libraries\PaginationLibrary;
 use App\Models\Attach\ComponentUploadImage;
+use App\Models\Users\User;
 use App\Services\AttachService;
+use App\Services\UserService;
 use Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Image;
+use JetBrains\PhpStorm\ArrayShape;
 
 class ComponentUploadImageController extends Controller
 {
@@ -224,6 +227,34 @@ class ComponentUploadImageController extends Controller
     }
 
     /**
+     * @param Request $req
+     * @return JsonResponse
+     */
+    public function usage(Request $req): JsonResponse
+    {
+        // Set Target User ID
+        if(Auth::isLoggedForBackoffice()) {
+            $userId = $req->get('user_id') ?? Auth::id();
+        } else {
+            $userId = Auth::id();
+        }
+
+        // Get values
+        list($cnt, $sum) = $this->getStorageUsage($userId);
+        $limit = $this->getStorageLimit($userId);
+
+        // Response
+        $res = [
+            'count' => $cnt,
+            'storage' => [
+                'usage' => $sum,
+                'limit' => $limit
+            ]
+        ];
+        return response()->json($res, 201);
+    }
+
+    /**
      * @param int $id
      * @return Model
      * @throws QpickHttpException
@@ -247,5 +278,50 @@ class ComponentUploadImageController extends Controller
     protected function getOneResponse(int $id): Collection
     {
         return collect(ComponentUploadImageResource::make($this->getOneModel($id)));
+    }
+
+    /**
+     * @param int $userId
+     * @return bool
+     */
+    protected function chkUnderStorageLimit(int $userId): bool
+    {
+        $limit = $this->getStorageLimit($userId);
+        list($cnt, $sum) = $this->getStorageUsage($userId);
+
+        return $sum < $limit;
+    }
+
+    /**
+     * @param int $userId
+     * @return array
+     */
+    protected function getStorageUsage(int $userId): array
+    {
+        // Initialize
+        $cnt = 0;
+        $sum = 0;
+
+        // Query and aggregation
+        ComponentUploadImage::query()
+            ->where('user_id', $userId)
+            ->get()
+            ->each(function ($v) use (&$cnt, &$sum) {
+                $cnt++;
+                $sum += intval($v->attachFile->size);
+            });
+
+        return [$cnt, $sum];
+    }
+
+    /**
+     * @param int $userId
+     * @return int
+     */
+    protected function getStorageLimit(int $userId): int
+    {
+        $pricingTypeCode = UserService::getPricingType(User::find($userId));
+        $pricingTypeName = array_flip(config('custom.user.pricingType'))[$pricingTypeCode];
+        return intval(config('custom.attach.componentUploadImage.totalStorageLimit')[$pricingTypeName]);
     }
 }
