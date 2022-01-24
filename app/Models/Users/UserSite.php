@@ -34,17 +34,12 @@ class UserSite extends Model
 
     public static string $exceptionEntity = "userSite";
 
-    protected $fillable = ['user_id', 'solution_id',  'user_solution_id', 'name', 'url', 'biz_type'];
+    protected $fillable = ['user_id', 'user_solution_id', 'name', 'url', 'biz_type'];
     protected $hidden = ['deleted_at'];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function solution(): BelongsTo
-    {
-        return $this->belongsTo(Solution::class);
     }
 
     public function userSolution(): BelongsTo

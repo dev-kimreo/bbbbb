@@ -16,7 +16,6 @@ class CreateUserSitesTable extends Migration
         Schema::create('user_sites', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->foreignId('solution_id')->constrained();
             $table->foreignId('user_solution_id')->nullable()->index();
             $table->string('name', 32)->nullable();
             $table->string('url', 256)->nullable();
