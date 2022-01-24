@@ -129,7 +129,7 @@ class UserController extends Controller
             $user = $this->user::status($status);
         }
 
-        $user = $user->with(['privacy', 'advAgree', 'solutions', 'authority']);
+        $user = $user->with(['privacy', 'advAgree', 'sites', 'authority']);
 
         // set search conditions
         if ($s = $request->input('id')) {
@@ -1260,11 +1260,11 @@ class UserController extends Controller
      * 회원 1명 쿼리 함수
      *
      * @param int $id
-     * @return Builder|Builder[]|Collection|Model|null
+     * @return Collection
      */
-    protected function getOne(int $id)
+    protected function getOne(int $id): Collection
     {
-        $with = ['privacy', 'advAgree', 'solutions'];
+        $with = ['privacy', 'advAgree', 'sites'];
 
         if (Auth::hasAccessRightsToBackoffice()) {
             $with[] = 'backofficeLogs';
@@ -1280,6 +1280,6 @@ class UserController extends Controller
         $user->email = $user->privacy->email;
         unset($user->privacy);
 
-        return $user;
+        return collect($user);
     }
 }
