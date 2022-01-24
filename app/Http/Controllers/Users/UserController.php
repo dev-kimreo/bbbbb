@@ -129,7 +129,7 @@ class UserController extends Controller
             $user = $this->user::status($status);
         }
 
-        $user = $user->with(['privacy', 'advAgree', 'solutions', 'authority']);
+        $user = $user->with(['privacy', 'advAgree', 'sites', 'sites.userSolution', 'authority']);
 
         // set search conditions
         if ($s = $request->input('id')) {
@@ -1260,11 +1260,11 @@ class UserController extends Controller
      * 회원 1명 쿼리 함수
      *
      * @param int $id
-     * @return Builder|Builder[]|Collection|Model|null
+     * @return Builder|Builder[]|\Illuminate\Database\Eloquent\Collection|Model|null
      */
     protected function getOne(int $id)
     {
-        $with = ['privacy', 'advAgree', 'solutions'];
+        $with = ['privacy', 'advAgree', 'sites', 'sites.userSolution'];
 
         if (Auth::hasAccessRightsToBackoffice()) {
             $with[] = 'backofficeLogs';

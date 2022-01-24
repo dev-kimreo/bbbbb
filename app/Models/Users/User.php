@@ -59,7 +59,7 @@ use Laravel\Passport\HasApiTokens;
  *   @OA\Property(property="createdAt", ref="#/components/schemas/Base/properties/created_at"),
  *   @OA\Property(property="updatedAt", ref="#/components/schemas/Base/properties/updated_at"),
  *   @OA\Property(property="advAgree", ref="#/components/schemas/UserAdvAgree"),
- *   @OA\Property(property="solutions", type="array", @OA\Items(ref="#/components/schemas/UserSolution"))
+ *   @OA\Property(property="sites", type="array", @OA\Items(ref="#/components/schemas/UserSite"))
  * )
  *
  * @OA\Schema (
@@ -111,6 +111,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function advAgree(): HasOne
     {
         return $this->hasOne(UserAdvAgree::class);
+    }
+
+    public function sites(): hasMany
+    {
+        return $this->hasMany(UserSite::class);
     }
 
     public function solutions(): hasMany

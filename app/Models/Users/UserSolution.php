@@ -9,6 +9,7 @@ use App\Models\Traits\CheckUpdatedAt;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -51,6 +52,11 @@ class UserSolution extends Model
     public function solution(): BelongsTo
     {
         return $this->belongsTo(Solution::class);
+    }
+
+    public function sites(): HasMany
+    {
+        return $this->hasMany(UserSite::class);
     }
 
     public function actionLogs(): MorphMany
