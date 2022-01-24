@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Solution;
 use App\Models\Users\User;
+use App\Models\Users\UserSite;
 use App\Models\Users\UserSolution;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -174,25 +175,20 @@ class UserAndManagerSeeder extends Seeder
         for ($i = 0; $i < 7; $i++) {
             $user = User::skip(rand(1, User::count()) - 1)->first();
             $solution = Solution::skip(rand(1, Solution::count()) - 1)->first();
-
-            UserSolution::factory()
+            $userSolution = UserSolution::factory()
                 ->for($user, 'user')
                 ->for($solution, 'solution')
                 ->create();
-        }
 
-        UserSolution::query()->create(
-            [
-                'user_id' => 1,
-                'solution_id' => Solution::query()->where('name', '카페24')->first()->id,
-                /*
-                'type' => '남성의류',
-                'name' => '라파누스몰',
-                'url' => 'https://raphanus.cafe24.com',
-                */
-                'solution_user_id' => 'raphanus',
-                'apikey' => 'pRByfNKnDaQKRevR5c8DiA'
-            ]
-        );
+            UserSite::query()->create(
+                [
+                    'user_id' => $user->id,
+                    'user_solution_id' => $userSolution->id,
+                    'name' => substr(md5(rand(0,10000)), 0, rand(6,14)) . array_rand(array_flip(['샵', '상점', '몰'])),
+                    'url' => 'https://' . substr(md5(rand(0,10000)), 0, rand(6,14)) . '.com',
+                    'biz_type' => array_rand(array_flip(['남성의류', '여성의류', '식품', '잡화']))
+                ]
+            );
+        }
     }
 }
