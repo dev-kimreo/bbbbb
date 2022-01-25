@@ -8,7 +8,9 @@ use App\Http\Requests\Attaches\StoreRequest;
 use App\Http\Resources\Attach\ComponentUploadImageResource;
 use App\Libraries\PaginationLibrary;
 use App\Models\Attach\ComponentUploadImage;
+use App\Models\Users\User;
 use App\Services\AttachService;
+use App\Services\UserService;
 use Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Image;
+use JetBrains\PhpStorm\ArrayShape;
 
 class ComponentUploadImageController extends Controller
 {
@@ -224,6 +227,63 @@ class ComponentUploadImageController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *      path="/v1/component-upload-image/usage",
+     *      summary="컴포넌트 이미지 사용량 조회",
+     *      description="사용자가 업로드한 컴포넌트 이미지의 개수 및 용량을 조회",
+     *      operationId="componentUploadImageUsage",
+     *      tags={"첨부파일"},
+     *      @OA\RequestBody(
+     *          description="",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="user_id", type="integer", example=173, default="로그인한 회원의 ID", description="회원 ID (백오피스 로그인시에만 사용가능)<br />")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successfully",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="count", type="integer", example=3, description="업로드한 컴포넌트 이미지 총 개수" ),
+     *              @OA\Property(property="storage", type="object",
+     *                  @OA\Property(property="usage", type="integer", example=204152, description="업로드한 컴포넌트 이미지 용량 합계(byte 단위)"),
+     *                  @OA\Property(property="limit", type="integer", example=104857600, description="업로드할 수 있는 컴포넌트 이미지 용량제한(byte 단위)")
+     *              ),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *  )
+     *
+     * @param Request $req
+     * @return JsonResponse
+     */
+    public function usage(Request $req): JsonResponse
+    {
+        // Set Target User ID
+        if(Auth::isLoggedForBackoffice()) {
+            $userId = $req->get('user_id') ?? Auth::id();
+        } else {
+            $userId = Auth::id();
+        }
+
+        // Get values
+        list($cnt, $sum) = $this->getStorageUsage($userId);
+        $limit = $this->getStorageLimit($userId);
+
+        // Response
+        $res = [
+            'count' => $cnt,
+            'storage' => [
+                'usage' => $sum,
+                'limit' => $limit
+            ]
+        ];
+        return response()->json($res, 201);
+    }
+
+    /**
      * @param int $id
      * @return Model
      * @throws QpickHttpException
@@ -247,5 +307,50 @@ class ComponentUploadImageController extends Controller
     protected function getOneResponse(int $id): Collection
     {
         return collect(ComponentUploadImageResource::make($this->getOneModel($id)));
+    }
+
+    /**
+     * @param int $userId
+     * @return bool
+     */
+    protected function chkUnderStorageLimit(int $userId): bool
+    {
+        $limit = $this->getStorageLimit($userId);
+        list($cnt, $sum) = $this->getStorageUsage($userId);
+
+        return $sum < $limit;
+    }
+
+    /**
+     * @param int $userId
+     * @return array
+     */
+    protected function getStorageUsage(int $userId): array
+    {
+        // Initialize
+        $cnt = 0;
+        $sum = 0;
+
+        // Query and aggregation
+        ComponentUploadImage::query()
+            ->where('user_id', $userId)
+            ->get()
+            ->each(function ($v) use (&$cnt, &$sum) {
+                $cnt++;
+                $sum += intval($v->attachFile->size);
+            });
+
+        return [$cnt, $sum];
+    }
+
+    /**
+     * @param int $userId
+     * @return int
+     */
+    protected function getStorageLimit(int $userId): int
+    {
+        $pricingTypeCode = UserService::getPricingType(User::find($userId));
+        $pricingTypeName = array_flip(config('custom.user.pricingType'))[$pricingTypeCode];
+        return intval(config('custom.attach.componentUploadImage.totalStorageLimit')[$pricingTypeName]);
     }
 }

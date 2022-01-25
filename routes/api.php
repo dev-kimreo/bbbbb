@@ -254,9 +254,10 @@ Route::group([
         ],
         function () {
             Route::get('', [ComponentUploadImageController::class, 'index']);
-            Route::get('/{id}', [ComponentUploadImageController::class, 'show']);
+            Route::get('/{id}', [ComponentUploadImageController::class, 'show'])->where(['id' => '^[0-9]+$']);
             Route::post('', [ComponentUploadImageController::class, 'store']);
             Route::delete('/{id}', [ComponentUploadImageController::class, 'destroy']);
+            Route::get('/usage', [ComponentUploadImageController::class, 'usage']);
         }
     );
 
