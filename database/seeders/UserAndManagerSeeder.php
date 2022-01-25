@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Solution;
 use App\Models\Users\User;
+use App\Models\Users\UserPrivacyActive;
 use App\Models\Users\UserSite;
 use App\Models\Users\UserSolution;
 use Illuminate\Database\Seeder;
@@ -170,6 +171,11 @@ class UserAndManagerSeeder extends Seeder
                 ]
             ]
         );
+
+        // More dummy users
+        User::factory()->has(
+            UserPrivacyActive::factory(), 'privacy'
+        )->count(250)->create();
 
         // User Solution
         for ($i = 0; $i < 7; $i++) {

@@ -24,11 +24,6 @@ class ExhibitionsSeeder extends Seeder
     public function run()
     {
         ExhibitionCategory::factory()->count(10)->create();
-//
-        User::factory()->has(
-            UserPrivacyActive::factory(), 'privacy'
-        )->count(10)->create();
-
 
         for ($i = 0; $i < 10; $i++) {
             $banner = Banner::factory()
