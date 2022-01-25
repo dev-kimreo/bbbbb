@@ -280,7 +280,7 @@ class ComponentUploadImageController extends Controller
                 'limit' => $limit
             ]
         ];
-        return response()->json($res, 201);
+        return response()->json($res, 200);
     }
 
     /**
