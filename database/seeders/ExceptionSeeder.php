@@ -231,8 +231,20 @@ class ExceptionSeeder extends Seeder
             [
                 'exception',
                 'attach.over.limit',
-                '업로드 제한 갯수를 초과 하였습니다.',
-                '업로드 제한 갯수를 초과 하였습니다.'
+                '업로드 제한 갯수를 초과하였습니다.',
+                '업로드 제한 갯수를 초과하였습니다.'
+            ],
+            [
+                'exception',
+                'attach.over.upload_limit',
+                '업로드된 파일이 1회 업로드 제한 용량을 초과하였습니다.',
+                '업로드된 파일이 1회 업로드 제한 용량을 초과하였습니다.'
+            ],
+            [
+                'exception',
+                'attach.over.storage_limit',
+                '업로드 사용량을 초과하였습니다.',
+                '업로드 사용량을 초과하였습니다.'
             ],
             [
                 'exception',
