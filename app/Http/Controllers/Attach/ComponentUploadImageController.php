@@ -121,6 +121,10 @@ class ComponentUploadImageController extends Controller
      *          description="bad request"
      *      ),
      *      @OA\Response(
+     *          response=413,
+     *          description="payload too large<br />(컴포넌트 업로드 이미지의 크기가 1회 업로드 제한을 초과했거나, 총 업로드 사용량 제한을 초과한 경우)"
+     *      ),
+     *      @OA\Response(
      *          response=422,
      *          description="failed"
      *      ),
@@ -138,8 +142,22 @@ class ComponentUploadImageController extends Controller
      */
     public function store(StoreRequest $request, AttachService $attachService): JsonResponse
     {
+        // Checking size and storage limit
+        $file = $request->file('files');
+        $size = $file->getSize();
+
+        if($size > config('custom.attach.componentUploadImage.fileUploadLimit'))
+        {
+            throw new QpickHttpException(413, 'attach.over.upload_limit', 'files');
+        }
+
+        if($size > $this->getSpareStorage(Auth::id()))
+        {
+            throw new QpickHttpException(413, 'attach.over.storage_limit', 'files');
+        }
+
         // Getting width and height
-        $image = Image::make($request->file('files'));
+        $image = Image::make($file);
 
         // Create
         $attach = $attachService->create($request->file('files'))->refresh();
@@ -313,12 +331,12 @@ class ComponentUploadImageController extends Controller
      * @param int $userId
      * @return bool
      */
-    protected function chkUnderStorageLimit(int $userId): bool
+    protected function getSpareStorage(int $userId): bool
     {
         $limit = $this->getStorageLimit($userId);
         list($cnt, $sum) = $this->getStorageUsage($userId);
 
-        return $sum < $limit;
+        return $limit - $sum;
     }
 
     /**
