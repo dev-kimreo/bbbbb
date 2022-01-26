@@ -59,7 +59,7 @@ class UserSiteController extends Controller
     }
 
     /**
-     * @param Request $req
+     * @param StoreRequest $req
      * @param int $user_id
      * @return JsonResponse
      */
@@ -75,11 +75,11 @@ class UserSiteController extends Controller
      *
      * @param int $user_id
      * @param int $site_id
-     * @return JsonResponse
+     * @return Collection
      */
-    public function show(int $user_id, int $site_id): JsonResponse
+    public function show(int $user_id, int $site_id): Collection
     {
-        return response()->json(collect($this->getOne($site_id)), 201);
+        return collect($this->getOne($site_id));
     }
 
     /**
@@ -99,6 +99,7 @@ class UserSiteController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param DestroyRequest $req
      * @param int $user_id
      * @param int $site_id
      * @return Response
