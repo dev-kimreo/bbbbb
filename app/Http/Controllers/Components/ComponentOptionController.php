@@ -379,7 +379,7 @@ class ComponentOptionController extends Controller
         });
 
         // 연동 컴포넌트 옵션 속성 추가
-        $option->properties;
+        $option->getAttribute('properties');
 
         return response()->json($option, 201);
     }
