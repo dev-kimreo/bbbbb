@@ -172,11 +172,6 @@ class UserAndManagerSeeder extends Seeder
             ]
         );
 
-        // More dummy users
-        User::factory()->has(
-            UserPrivacyActive::factory(), 'privacy'
-        )->count(250)->create();
-
         // User Solution
         for ($i = 0; $i < 7; $i++) {
             $user = User::skip(rand(1, User::count()) - 1)->first();
