@@ -26,6 +26,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *   @OA\Property(property="createdAt", ref="#/components/schemas/Base/properties/created_at"),
  *   @OA\Property(property="updatedAt", ref="#/components/schemas/Base/properties/updated_at"),
  * )
+ *
+ * @OA\Schema(
+ *   schema="UserSolutionWithRelation",
+ *   @OA\Property(property="id", type="integer", example="12"),
+ *   @OA\Property(property="user_id", type="integer", description="사용자의 고유번호(PK)", example="27"),
+ *   @OA\Property(property="solution_id", type="integer", description="솔루션 고유번호(PK)", example="3"),
+ *   @OA\Property(property="solutionName", type="string", maxLength=16, description="연동된 솔루션명", example="마이소호"),
+ *   @OA\Property(property="solutionUserId", type="string", maxLength=128, description="연동된 솔루션 회원 ID", example="honggildong"),
+ *   @OA\Property(property="apikey", type="string", maxLength=512, description="연동된 솔루션의 API Key", example="apikey31f7sdg6bsd73"),
+ *   @OA\Property(property="createdAt", ref="#/components/schemas/Base/properties/created_at"),
+ *   @OA\Property(property="updatedAt", ref="#/components/schemas/Base/properties/updated_at"),
+ *   @OA\Property(property="solution", ref="#/components/schemas/Solution")
+ * )
  * *
  * Class UserSolution
  * @package App\Models
