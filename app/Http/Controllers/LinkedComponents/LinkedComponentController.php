@@ -573,9 +573,11 @@ class LinkedComponentController extends Controller
      *
      * @throws QpickHttpException
      */
-    public function relationalLinkedComponent(StoreRequest $request, int $themeId, int $editablePageId)
+    public function relationalLinkedComponent(StoreRequest $request, int $themeId, int $editablePageId): JsonResponse
     {
         $linkedComponent = $this->createLinkedComponent(Theme::findOrFail($themeId), $request);
+
+        return response()->json(collect($linkedComponent), 201);
     }
 
     /**
