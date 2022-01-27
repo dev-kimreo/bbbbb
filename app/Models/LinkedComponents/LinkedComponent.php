@@ -59,6 +59,11 @@ class LinkedComponent extends Model
         return $this->hasMany(LinkedComponentOption::class, 'linked_component_id', 'id');
     }
 
+    public function linkedComponentGroup(): BelongsTo
+    {
+        return $this->belongsTo(LinkedComponentGroup::class);
+    }
+
     public function scriptRequest(): MorphOne
     {
         return $this->morphOne(ScriptRequest::class, 'requestable');
