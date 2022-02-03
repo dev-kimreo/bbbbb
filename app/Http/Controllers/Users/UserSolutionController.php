@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Users;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\UserSolutions\IndexRequest;
 use App\Http\Requests\Users\UserSolutions\StoreRequest;
+use App\Libraries\PaginationLibrary;
 use App\Models\Users\UserSolution;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -104,9 +105,22 @@ class UserSolutionController extends Controller
      */
     public function index(IndexRequest $req, int $user_id): Collection
     {
-        return UserSolution::query()
-            ->where('user_id', $user_id)
-            ->get();
+        // Model
+        $model = UserSolution::query()->where('user_id', $user_id);
+
+        // Pagenate
+        $pagination = PaginationLibrary::set($req->input('page'), $model->count(), $req->input('per_page'));
+
+        // Data
+        $data = $model->skip($pagination['skip'])->take($pagination['perPage'])->get();
+
+        // result
+        $result = [
+            'header' => $pagination ?? [],
+            'list' => $data ?? []
+        ];
+
+        return collect($result);
     }
 
     /**
