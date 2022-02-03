@@ -100,7 +100,7 @@ Route::group([
 
         // 회원 연동 솔루션 및 사이트
         Route::resource('/{user_id}/solution', UserSolutionController::class, [
-            'only' => ['store', 'update', 'destroy']
+            'only' => ['index', 'store', 'update', 'destroy']
         ])->middleware('chkAccess:owner,backoffice');
 
         Route::resource('/{user_id}/site', UserSiteController::class)

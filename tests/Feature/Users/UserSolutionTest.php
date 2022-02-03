@@ -1,10 +1,11 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Users;
 
 use App\Models\Solution;
 use App\Models\Users\User;
 use App\Models\Users\UserSolution;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\Feature\Traits\QpickTestBase;
@@ -18,6 +19,32 @@ class UserSolutionTest extends TestCase
     protected array $updateResource = [];
     protected array $searchResource = [];
 
+    protected array $structureList = [
+        'header' => [
+            'page',
+            'perPage',
+            'skip',
+            'block',
+            'perBlock',
+            'totalCount',
+            'totalPage',
+            'totalBlock',
+            'startPage',
+            'endPage'
+        ],
+        'list' => [
+            [
+                'id',
+                'userId',
+                'solutionId',
+                'solutionUserId',
+                'apikey',
+                'createdAt',
+                'updatedAt',
+                'solutionName'
+            ]
+        ]
+    ];
 
     public function setUp(): void
     {
@@ -34,7 +61,7 @@ class UserSolutionTest extends TestCase
 
     }
 
-    protected function getFactory()
+    protected function getFactory(): Factory
     {
         return UserSolution::factory()
             ->for(User::factory()->create(), 'user')
@@ -83,6 +110,48 @@ class UserSolutionTest extends TestCase
 
         $response = $this->requestQpickApi('post', '/v1/user/' . $user->id . '/solution', $this->createResource);
         $response->assertCreated();
+    }
+
+    /**
+     * Index
+     */
+    public function testIndexByGuest()
+    {
+        $user = User::factory()->create();
+        $this->getFactory()->create(['user_id' => $user->id]);
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/solution', []);
+        $response->assertUnauthorized();
+    }
+
+    public function testIndexByAssociate()
+    {
+        $user = $this->actingAsQpickUser('associate');
+        $this->getFactory()->create(['user_id' => $user->id]);
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/solution', []);
+        $response->assertOk();
+        $response->assertJsonStructure($this->structureList);
+    }
+
+    public function testIndexByRegular()
+    {
+        $user = $this->actingAsQpickUser('regular');
+        $this->getFactory()->create(['user_id' => $user->id]);
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/solution', []);
+        $response->assertOk();
+        $response->assertJsonStructure($this->structureList);
+    }
+
+    public function testIndexByBackoffice()
+    {
+        $user = $this->actingAsQpickUser('backoffice');
+        $this->getFactory()->create(['user_id' => $user->id]);
+
+        $response = $this->requestQpickApi('get', '/v1/user/' . $user->id . '/solution', []);
+        $response->assertOk();
+        $response->assertJsonStructure($this->structureList);
     }
 
     /**
