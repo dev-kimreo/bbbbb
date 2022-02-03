@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Users\SolutionRequest;
+use App\Http\Requests\Users\UserSolutions\StoreRequest as SolutionRequest;
 use App\Models\Users\UserAdvAgree;
 use Illuminate\Http\JsonResponse;
 
