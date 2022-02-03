@@ -45,8 +45,9 @@ class ExhibitionsSeeder extends Seeder
                 ->create(['user_id' => User::all()->random(1)->first()]);
 
             if ($banner->exhibition()->first()->target_opt == 'designate') {
-
-                $targets = User::selectRaw('id as user_id')->get()->random(rand(1, 10))->toArray();
+                $users = User::selectRaw('id as user_id')->get();
+                $count = rand(1, min(10, $users->count()));
+                $targets = $users->random($count)->toArray();
 
                 $banner->exhibition->targetUsers()->createMany(
                     $targets
