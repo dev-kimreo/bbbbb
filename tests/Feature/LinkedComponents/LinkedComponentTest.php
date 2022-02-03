@@ -43,7 +43,7 @@ class LinkedComponentTest extends TestCase
             'etc' => '',
             'display_on_pc' => rand(0, 1),
             'display_on_mobile' => rand(0, 1),
-            'sort' => rand(0, 10),
+            'sort' => rand(1, 10),
         ];
     }
 
