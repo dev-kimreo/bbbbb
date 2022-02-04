@@ -20,6 +20,7 @@ use App\Http\Requests\Members\UpdateRequest;
 use App\Http\Requests\Users\ActionLogRequest;
 use App\Http\Requests\Users\LoginLogRequest;
 use App\Http\Requests\Users\LoginLogStatRequest;
+use App\Libraries\CollectionLibrary;
 use App\Libraries\PaginationLibrary;
 use App\Libraries\StringLibrary;
 use App\Mail\QpickMailSender;
@@ -83,6 +84,7 @@ class UserController extends Controller
      *              @OA\Property(property="multiSearch", type="string", example="홍길동", description="전체 검색"),
      *              @OA\Property(property="advAgree", type="boolean", example="true", description="광고수신동의 여부<br/>(1:동의, 0:미동의)"),
      *              @OA\Property(property="activate", type="boolean", example="true", description="회원 상태 여부<br/>(1:정상, 0:휴면)"),
+     *              @OA\Property(property="sortBy", type="string", example="+sort,-id", description="정렬기준<br/>+:오름차순, -:내림차순" ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -118,6 +120,7 @@ class UserController extends Controller
      *
      * @param IndexRequest $request
      * @return Collection
+     * @throws QpickHttpException
      */
     public function index(IndexRequest $request): Collection
     {
@@ -209,6 +212,16 @@ class UserController extends Controller
             } else {
                 $user->orWhereNotNull('inactivated_at');
             }
+        }
+
+        // Sort By
+        if ($s = $request->input('sort_by')) {
+            $sortCollect = CollectionLibrary::getBySort($s, ['id', 'registered_at']);
+            $sortCollect->each(function ($item) use ($user) {
+                $user->orderBy($item['key'], $item['value']);
+            });
+        } else {
+            $user->orderBy('id', 'desc');
         }
 
         // set pagination information
