@@ -216,7 +216,7 @@ class UserController extends Controller
 
         // Sort By
         if ($s = $request->input('sort_by')) {
-            $sortCollect = CollectionLibrary::getBySort($s, ['id', 'registered_at']);
+            $sortCollect = CollectionLibrary::getBySort($s, ['id', 'registered_at', 'created_at', 'deleted_at']);
             $sortCollect->each(function ($item) use ($user) {
                 $user->orderBy($item['key'], $item['value']);
             });
