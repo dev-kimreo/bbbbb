@@ -2,12 +2,14 @@
 
 namespace App\Models\Users;
 
+use App\Models\ActionLog;
 use App\Models\Solution;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use JetBrains\PhpStorm\ArrayShape;
 
@@ -47,5 +49,10 @@ class UserSite extends Model
     public function userSolution(): BelongsTo
     {
         return $this->belongsTo(UserSolution::class);
+    }
+
+    public function actionLogs(): MorphMany
+    {
+        return $this->morphMany(ActionLog::class, 'loggable');
     }
 }
