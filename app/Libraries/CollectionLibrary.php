@@ -45,7 +45,7 @@ class CollectionLibrary
                 continue;
             }
 
-            $key = preg_replace("/\-|\+|\s/", '', $v);
+            $key = Str::snake(preg_replace("/\-|\+|\s/", '', $v));
 
             if (!in_array($key, $possibleKey)) {
                 throw new QpickHttpException(422, 'common.bad_request', 'sortBy.' . $key);
