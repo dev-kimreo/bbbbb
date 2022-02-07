@@ -8,6 +8,7 @@ use App\Http\Requests\Boards\DestroyRequest;
 use App\Http\Requests\Boards\GetPostsCountRequest;
 use App\Http\Requests\Boards\StoreRequest;
 use App\Http\Requests\Boards\UpdateBoardSortRequest;
+use App\Http\Requests\Boards\UpdateSelectBoardSortRequest;
 use App\Http\Requests\Boards\UpdateRequest;
 use App\Libraries\CollectionLibrary;
 use App\Models\Boards\Board;
@@ -425,7 +426,10 @@ class BoardController extends Controller
      *                  )
      *              )
      *          )
-     *      )
+     *      ),
+     *      security={{
+     *          "admin_auth":{}
+     *      }}
      *  )
      * @param GetPostsCountRequest $request
      * @return Collection
@@ -466,10 +470,59 @@ class BoardController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/v1/board/{id}/sort",
-     *      summary="[B] 게시판 전시 순서 변경",
-     *      description="게시판 전시 순서 변경",
+     *      path="/v1/board/sort",
+     *      summary="[B] 전체 게시판 전시 순서 변경",
+     *      description="전체 게시판 전시 순서 변경",
      *      operationId="updateBoardSort",
+     *      tags={"게시판"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              required={"board_id"},
+     *              @OA\Property(property="board_id", type="array", example={1,2,4,3}, description="게시판 고유 번호의 순서",
+     *                  @OA\Items()
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=204,
+     *          description="successfully",
+     *          @OA\JsonContent()
+     *      ),
+     *      security={{
+     *          "admin_auth":{}
+     *      }}
+     *  )
+     * @param UpdateBoardSortRequest $request
+     * @return Response
+     * @throws QpickHttpException
+     * @throws QpickHttpException
+     */
+    public function updateBoardSort(UpdateBoardSortRequest $request): Response
+    {
+        if ($a = $request->input('board_id')) {
+            if ($a && count($a) > 0) {
+                $boardBuilder = Board::query();
+                if (count($a) != $boardBuilder->whereIn('id', $a)->count()) {
+                    throw new QpickHttpException(422, 'common.bad_request');
+                }
+
+                foreach ($a as $k => $id) {
+                    Board::findOrFail($id)->update(['sort' => $k]);
+                }
+            }
+        }
+
+        return response()->noContent();
+    }
+
+    /**
+     * @OA\Patch(
+     *      path="/v1/board/{id}/sort",
+     *      summary="[B] 선택 게시판 전시 순서 변경",
+     *      description="선택 게시판 전시 순서 변경",
+     *      operationId="updateSelectBoardSort",
      *      tags={"게시판"},
      *      @OA\RequestBody(
      *          required=true,
@@ -484,13 +537,16 @@ class BoardController extends Controller
      *          response=204,
      *          description="successfully",
      *          @OA\JsonContent()
-     *      )
+     *      ),
+     *      security={{
+     *          "admin_auth":{}
+     *      }}
      *  )
-     * @param UpdateBoardSortRequest $request
+     * @param UpdateSelectBoardSortRequest $request
      * @param $id
      * @return Response
      */
-    public function updateBoardSort(UpdateBoardSortRequest $request, $id): Response
+    public function updateSelectBoardSort(UpdateSelectBoardSortRequest $request, $id): Response
     {
         // 타겟 게시판 고유 번호
         $target = $request->input('target');
