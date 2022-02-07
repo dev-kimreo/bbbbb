@@ -184,12 +184,12 @@ class User extends Authenticatable implements MustVerifyEmail
                 ->leftJoin('user_privacy_active', 'users.id', '=', 'user_privacy_active.id')
                 ->leftJoin('managers', 'users.id', '=', 'managers.user_id')
                 ->leftJoin('authorities', 'managers.authority_id', '=', 'authorities.id')
-                ->select(['users.id', DB::raw('IFNULL(authorities.display_name, user_privacy_active.name) as name'), 'user_privacy_active.email']);
+                ->select(['users.id', 'users.grade as grade', DB::raw('IFNULL(authorities.display_name, user_privacy_active.name) as name'), 'user_privacy_active.email']);
         } else {
             // 회원정보에 기재된 본래의 이름을 그대로 출력
             $res = $query
                 ->leftJoin('user_privacy_active', 'users.id', '=', 'user_privacy_active.id')
-                ->select(['users.id', 'user_privacy_active.name as name', 'user_privacy_active.email as email']);
+                ->select(['users.id', 'users.grade as grade', 'user_privacy_active.name as name', 'user_privacy_active.email as email']);
         }
 
         return $res;
