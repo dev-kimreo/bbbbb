@@ -180,7 +180,7 @@ Route::group([
         Route::post('', [BoardController::class, 'store']);
         Route::get('', [BoardController::class, 'index'])->withoutmiddleware('chkAccess:backoffice');
         Route::get('/{id}', [BoardController::class, 'show'])->withoutmiddleware('chkAccess:backoffice')->where(['id' => '[0-9]+']);
-        Route::patch('/{id}', [BoardController::class, 'update']);
+        Route::patch('/{id}', [BoardController::class, 'update'])->where(['id' => '[0-9]+']);
         Route::delete('/{id}', [BoardController::class, 'destroy']);
 
         // 게시판 옵션
@@ -198,7 +198,8 @@ Route::group([
         Route::get('/posts-count', [BoardController::class, 'getPostsCount']);
 
         // 게시판의 전시순서 변경
-        Route::patch('/{id}/sort', [BoardController::class, 'updateBoardSort']);
+        Route::patch('/sort', [BoardController::class, 'updateBoardSort']);
+        // Route::patch('/{id}/sort', [BoardController::class, 'updateSelectBoardSort']);
     });
 
     // 게시판 글 목록 (Backoffice)
