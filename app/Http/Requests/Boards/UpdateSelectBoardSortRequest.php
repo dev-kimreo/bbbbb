@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdateBoardSortRequest extends FormRequest
+class UpdateSelectBoardSortRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,7 +27,8 @@ class UpdateBoardSortRequest extends FormRequest
     public function rules()
     {
         return [
-            'board_id' => 'required|array',
+            'target' => 'required|integer',
+            'direction' => 'required|in:top,bottom'
         ];
     }
 
