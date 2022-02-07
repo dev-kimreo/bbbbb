@@ -222,11 +222,11 @@ Route::group([
      */
     // 문의 CRUD
     Route::group(['prefix' => 'inquiry'], function () {
-        Route::post('', [InquiryController::class, 'store'])->middleware('chkAccess:regular');
-        Route::get('', [InquiryController::class, 'index'])->middleware('chkAccess:regular,backoffice');
-        Route::get('{inquiryId}', [InquiryController::class, 'show'])->middleware('chkAccess:regular,backoffice')->where(['inquiryId' => '[0-9]+']);
-        Route::patch('{inquiryId}', [InquiryController::class, 'update'])->middleware('chkAccess:regular');
-        Route::delete('{inquiryId}', [InquiryController::class, 'destroy'])->middleware('chkAccess:regular');
+        Route::post('', [InquiryController::class, 'store'])->middleware('chkAccess:associate,regular');
+        Route::get('', [InquiryController::class, 'index'])->middleware('chkAccess:associate,regular,backoffice');
+        Route::get('{inquiryId}', [InquiryController::class, 'show'])->middleware('chkAccess:associate,regular,backoffice')->where(['inquiryId' => '[0-9]+']);
+        Route::patch('{inquiryId}', [InquiryController::class, 'update'])->middleware('chkAccess:associate,regular');
+        Route::delete('{inquiryId}', [InquiryController::class, 'destroy'])->middleware('chkAccess:associate,regular');
 
         // 담당자 지정
         Route::patch('{inquiryId}/assignee/{assignee_id}', [InquiryController::class, 'assignee'])->middleware('chkAccess:backoffice');
