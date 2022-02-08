@@ -30,6 +30,7 @@ class IndexRequest extends FormRequest
         return [
             'user_solution_id' => ['nullable', Rule::exists(UserSolution::class, 'id')],
             'solution_id' => ['nullable', Rule::exists(Solution::class, 'id')],
+            'is_set_solution' => ['nullable', 'boolean']
         ];
     }
 }

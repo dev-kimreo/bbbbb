@@ -32,6 +32,7 @@ class UserSiteController extends Controller
      *              @OA\Property(property="page", type="integer", example=1, default=1, description="페이지"),
      *              @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
      *              @OA\Property(property="userId", type="integer", example="372", description="회원 고유번호 (백오피스 로그인 시에만 사용가능)"),
+     *              @OA\Property(property="isSetSolution", type="boolean", example="1", description="솔루션 연동정보 연결여부<br />0: 미연결, 1:연결")
      *          ),
      *      ),
      *      @OA\Response(
@@ -76,6 +77,14 @@ class UserSiteController extends Controller
 
         if ($v = $req->input('user_solution_id')) {
             $model->where('user_solution_id', $v);
+        }
+
+        if ($req->exists('is_set_solution')) {
+            if($req->input('is_set_solution')) {
+                $model->whereNotNull('user_solution_id');
+            } else {
+                $model->whereNull('user_solution_id');
+            }
         }
 
         // set pagination information
