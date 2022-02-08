@@ -20,7 +20,7 @@ class UserSiteController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/v1/user/site",
+     *      path="/v1/user/{user_id}/site",
      *      summary="사이트 정보 목록",
      *      description="사이트 정보 목록",
      *      operationId="UserSiteList",
