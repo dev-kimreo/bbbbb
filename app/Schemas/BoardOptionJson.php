@@ -10,7 +10,7 @@ namespace App\Schemas;
  *          @OA\Property(property="theme", type="string", example="boardDefaultTheme", description="게시판 테마", default="boardDefaultTheme"),
  *          @OA\Property(property="thumbnail", type="enum", example="0", description="섬네일 사용<br/>0:사용안함<br/>1:사용함", default="0" ),
  *          @OA\Property(property="reply", type="enum", example="0", description="댓글 사용<br/>0:사용안함<br/>1:사용함", default="0" ),
- *          @OA\Property(property="editor", type="enum", example="all", description="에디터<br/>all:모두 사용<br/>tinyMCE:tinyMCE에디터 사용<br/>markd:마크다운 사용", default="all" ),
+ *          @OA\Property(property="editor", type="enum", example="all", description="에디터<br/>all:모두 사용<br/>tinyMCE:tinyMCE에디터 사용<br/>markdown:마크다운 사용", default="all" ),
  *          @OA\Property(property="attach", type="enum", example="0", description="파일 첨부<br/>0:사용안함<br/>1:사용함", default="0" ),
  *          @OA\Property(property="attachLimit", type="integer", example=10, description="파일 첨부 갯수 제한", default=10 ),
  *          @OA\Property(property="createdAt", type="integer", example=1, description="등록일 노출 여부<br/>0:사용안함, 1:사용함", default=1 ),
