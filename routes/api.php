@@ -42,6 +42,7 @@ use App\Http\Controllers\Users\UserAdvAgreeController;
 use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Users\UserSiteController;
 use App\Http\Controllers\Users\UserSolutionController;
+use App\Http\Controllers\UserThemes\UserThemeController;
 use App\Http\Controllers\Widgets\WidgetController;
 use App\Http\Controllers\Widgets\WidgetUsageController;
 use App\Http\Controllers\WordController;
@@ -372,7 +373,7 @@ Route::group([
         // 전시정보
         Route::group([
             'prefix' => '{theme_product_id}/information'
-        ], function(){
+        ], function () {
             Route::get('', [ThemeProductInformationController::class, 'index']);
             Route::get('/{information_id}', [ThemeProductInformationController::class, 'show']);
             Route::post('', [ThemeProductInformationController::class, 'store']);
@@ -485,7 +486,7 @@ Route::group([
     Route::group([
         'prefix' => 'component-usable-page',
         'middleware' => ['auth:api', 'chkAccess:partner']
-    ], function(){
+    ], function () {
         Route::get('', [ComponentUsablePageController::class, 'index']);
         Route::get('/{component_usable_page_id}', [ComponentUsablePageController::class, 'show']);
         Route::post('', [ComponentUsablePageController::class, 'store']);
@@ -529,6 +530,22 @@ Route::group([
      */
     Route::get('/component/script/{hash}.js', [ScriptRequestController::class, 'show'])
         ->withoutMiddleware([ConvertResponseToCamelCase::class]);
+
+
+    /**
+     * 회원 테마
+     */Route::group([
+        'prefix' => 'user-theme',
+        'middleware' => ['auth:api', 'chkAccess:associate,regular']
+    ], function () {
+        Route::get('', [UserThemeController::class, 'index']);
+        Route::get('/{user_theme_id}', [UserThemeController::class, 'show']);
+        Route::post('', [UserThemeController::class, 'store']);
+        Route::patch('/{user_theme_id}', [UserThemeController::class, 'update']);
+        Route::delete('/{user_theme_id}', [UserThemeController::class, 'destroy']);
+    });
+
+
 
     /**
      * Exception
