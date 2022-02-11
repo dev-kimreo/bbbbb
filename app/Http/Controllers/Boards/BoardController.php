@@ -16,6 +16,7 @@ use App\Services\Boards\PostListService;
 use App\Services\Boards\BoardService;
 use Auth;
 use Gate;
+use Str;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -168,9 +169,11 @@ class BoardController extends Controller
 
         // 요청 파라미터로 입력받은 옵션 처리
         foreach ($request->input('options') ?? [] as $type => $val) {
-            if (!$val) {
+            if (!isset($val) && !$val) {
                 continue;
             }
+
+            $type = Str::camel($type);
 
             // 옵션 데이터에 선택할 수 없는 값이 들어간 경우의 오류처리
             $requestKey = 'options[' . $type . ']';
@@ -179,7 +182,7 @@ class BoardController extends Controller
             // 옵션 값 체크
             switch ($type) {
                 case 'theme':
-                case 'attach_limit':
+                case 'attachLimit':
                     break;
                 default:
                     if (!collect($data)->where('value', $val)->count()) {
