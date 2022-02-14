@@ -70,8 +70,8 @@ class UserThemeController extends Controller
     /**
      * @OA\Get (
      *      path="/v1/user-theme/{user_thme_id}",
-     *      summary="회원 테마 목록",
-     *      description="회원 테마 목록",
+     *      summary="회원 테마 상세정보",
+     *      description="회원 테마 상세정보",
      *      operationId="UserThemeShow",
      *      tags={"회원 테마"},
      *      @OA\Response(
