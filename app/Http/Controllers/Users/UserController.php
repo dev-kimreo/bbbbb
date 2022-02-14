@@ -512,7 +512,7 @@ class UserController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/user/email-verification/user.regist/{id}?expires={expires}&hash={hash}&signature={signature}",
+     *      path="/v1/user/email-verification/{verify_key}/{user_id}?expires={expires}&signature={signature}",
      *      summary="이메일 인증",
      *      description="회원 이메일 인증",
      *      operationId="userVerifyEmail",
