@@ -14,7 +14,7 @@ use URL;
 class MemberEventSubscriber
 {
     public string $subName = 'verification.verify';
-    public string $verifyKey = 'user.regist';
+    public string $verifyKey = 'user.register';
 
     public function handleMemberVerifyEmail($event): bool
     {
@@ -25,7 +25,7 @@ class MemberEventSubscriber
                 $this->subName,
                 Carbon::now()->addMinutes(Config::get('auth.verification.expire')),
                 [
-                    'verifyKey' => $this->verifyKey,
+                    'verify_key' => $this->verifyKey,
                     'user_id' => $event->user->id,
                     'hash' => sha1($event->user->privacy->email)
                 ]
