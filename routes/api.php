@@ -122,7 +122,7 @@ Route::group([
     Route::group(['prefix' => 'user/email-verification'], function () {
         // 이메일 인증링크 재발송 & 인증링크 클릭시 랜딩 페이지
         Route::post('', [UserController::class, 'resendVerificationEmail'])->middleware('auth:api');
-        Route::get('/{verifyKey}/{user_id}', [UserController::class, 'verification'])->name('verification.verify');
+        Route::get('/{verify_key}/{user_id}', [UserController::class, 'verification'])->name('verification.verify');
     });
 
     /**

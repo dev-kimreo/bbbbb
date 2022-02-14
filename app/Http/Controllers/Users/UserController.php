@@ -512,7 +512,7 @@ class UserController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/v1/user/email-verification/user.regist/{id}?expires={expires}&hash={hash}&signature={signature}",
+     *      path="/v1/user/email-verification/{verify_key}/{user_id}?expires={expires}&signature={signature}",
      *      summary="이메일 인증",
      *      description="회원 이메일 인증",
      *      operationId="userVerifyEmail",
@@ -540,7 +540,8 @@ class UserController extends Controller
     public function verification(Request $request): JsonResponse
     {
         $id = $request->route('user_id');
-        $signCode = SignedCode::getBySignCode($id, $request->input('hash'), $request->input('signature'))->select('id')->first();
+        $hash = $request->route('verify_key');
+        $signCode = SignedCode::getBySignCode($id, $hash, $request->input('signature'))->select('id')->first();
 
         // 가상 서명키 유효성 체크
         if (!$request->hasValidSignature()) {
