@@ -43,6 +43,7 @@ use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Users\UserSiteController;
 use App\Http\Controllers\Users\UserSolutionController;
 use App\Http\Controllers\UserThemes\UserThemeController;
+use App\Http\Controllers\UserThemes\UserThemePurchaseHistoryController;
 use App\Http\Controllers\Widgets\WidgetController;
 use App\Http\Controllers\Widgets\WidgetUsageController;
 use App\Http\Controllers\WordController;
@@ -534,7 +535,8 @@ Route::group([
 
     /**
      * 회원 테마
-     */Route::group([
+     */
+    Route::group([
         'prefix' => 'user-theme',
         'middleware' => ['auth:api', 'chkAccess:associate,regular']
     ], function () {
@@ -545,6 +547,18 @@ Route::group([
         Route::delete('/{user_theme_id}', [UserThemeController::class, 'destroy']);
     });
 
+    /**
+     * 회원 테마 구매내역
+     */
+    Route::group([
+        'prefix' => 'user-theme-purchase-history',
+        'middleware' => ['auth:api', 'chkAccess:associate,regular']
+    ], function () {
+        Route::get('', [UserThemePurchaseHistoryController::class, 'index']);
+        Route::get('/{user_theme_purchase_history_id}', [UserThemePurchaseHistoryController::class, 'show']);
+        Route::post('', [UserThemePurchaseHistoryController::class, 'store']);
+        Route::delete('/{user_theme_purchase_history_id}', [UserThemePurchaseHistoryController::class, 'destroy']);
+    });
 
 
     /**
@@ -581,7 +595,6 @@ Route::group([
     });
     Route::post('/relation-word', [WordController::class, 'relationStore']);
     Route::get('/word-to-json', [WordController::class, 'responseInJsonFormat']);
-
 
 
     /**
