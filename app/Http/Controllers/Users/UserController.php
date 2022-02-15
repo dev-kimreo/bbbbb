@@ -747,7 +747,7 @@ class UserController extends Controller
             'url' => $verifyUrl
         );
 
-        Mail::to($member->privacy)->send(new QpickMailSender('Users.VerifyPassword', $member, $data));
+        Mail::to($member->privacy)->send(new QpickMailSender('Users.PasswordReset', $member, $data));
 
         // response
         return response()->noContent();
@@ -801,9 +801,11 @@ class UserController extends Controller
         }
 
         // 회원정보
-        $member = $this->user->whereHas('privacy', function (Builder $q) use ($request) {
-            $q->where('email', $request->input('email'));
-        })->first();
+        $member = $this->user
+            ->with('privacy')
+            ->whereHas('privacy', function (Builder $q) use ($request) {
+                $q->where('email', $request->input('email'));
+            })->first();
 
         if (!$member) {
             $inactiveUser = $this->user::status('inactive')->whereHas('privacy', function (Builder $q) use ($request) {

@@ -37,6 +37,24 @@ class EmailTemplateSeeder extends Seeder
             @endsection
         ';
 
+        $templateResetPassword = '
+            @extends("emails.layout")
+
+            @section("title")
+                <span style="color:#54C7A2">큐픽</span> 비밀번호 변경을 위한<br />
+                인증메일을 보내드립니다.
+                @endsection
+
+            @section("contents")
+            <b style="font-size:18px;">{{ $user[\'privacy\'][\'name\'] }}</b>님, 큐픽 비밀번호 변경을 위한 인증메일을 보내드립니다.<br />
+            아래의 링크를 클릭하면 비밀번호를 변경할 수 있습니다.<br />
+            <br />
+            <a href="{{ $data[\'url\'] }}" style="background-color:#54C7A2;width:300px;height:50px;margin:30px auto 50px auto;display:block;color:#fff;font-size:14px;font-weight:bold;text-align:center;text-decoration:none;line-height:50px;font-size:15px">
+                비밀번호 변경하기
+            </a><br />
+            @endsection
+        ';
+
         $templateInactivatePriorNotice = '
             @extends("emails.layout")
 
@@ -102,12 +120,12 @@ class EmailTemplateSeeder extends Seeder
                 ],
                 [
                     'user_id' => $manager->id,
-                    'code' => 'Users.VerifyPassword',
+                    'code' => 'Users.PasswordReset',
                     'name' => '[회원] 비밀번호 찾기 인증',
                     'enable' => 1,
                     'ignore_agree' => 1,
                     'title' => '비밀번호 찾기 인증 메일입니다.',
-                    'contents' => '',
+                    'contents' => $templateResetPassword,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ],

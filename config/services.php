@@ -33,6 +33,6 @@ return [
     'qpick' => [
         'domain' => 'http://local.qpicki.com',
         'verifyPath' => '/accounts/signup/certify',
-        'verifyPasswordPath' => '/accounts/password-reset/certify',
+        'verifyPasswordPath' => '/accounts/password-reset/form',
     ],
 ];
