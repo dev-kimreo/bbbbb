@@ -42,6 +42,7 @@ use App\Http\Controllers\Users\UserAdvAgreeController;
 use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Users\UserSiteController;
 use App\Http\Controllers\Users\UserSolutionController;
+use App\Http\Controllers\UserThemes\UserEditablePageController;
 use App\Http\Controllers\UserThemes\UserThemeController;
 use App\Http\Controllers\UserThemes\UserThemePurchaseHistoryController;
 use App\Http\Controllers\Widgets\WidgetController;
@@ -545,6 +546,15 @@ Route::group([
         Route::post('', [UserThemeController::class, 'store']);
         Route::patch('/{user_theme_id}', [UserThemeController::class, 'update']);
         Route::delete('/{user_theme_id}', [UserThemeController::class, 'destroy']);
+
+        /**
+         * 회원 에디터 지원 페이지 목록
+         */
+        Route::get('/{user_theme_id}/editable-page', [UserEditablePageController::class, 'index']);
+        Route::get('/{user_theme_id}/editable-page/{editable_page_id}', [UserEditablePageController::class, 'show']);
+        Route::post('/{user_theme_id}/editable-page', [UserEditablePageController::class, 'store']);
+        Route::patch('/{user_theme_id}/editable-page/{editable_page_id}', [UserEditablePageController::class, 'update']);
+        Route::delete('/{user_theme_id}/editable-page/{editable_page_id}', [UserEditablePageController::class, 'destroy']);
     });
 
     /**
