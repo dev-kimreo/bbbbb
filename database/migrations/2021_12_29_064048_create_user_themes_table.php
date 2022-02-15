@@ -27,7 +27,7 @@ class CreateUserThemesTable extends Migration
             $table->id();
             $table->foreignId('user_theme_id')->constrained();
             $table->foreignId('supported_editable_page_id')->constrained();
-            $table->string('name', 64);
+            $table->string('name', 64)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
