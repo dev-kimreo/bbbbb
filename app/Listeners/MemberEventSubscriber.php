@@ -35,7 +35,10 @@ class MemberEventSubscriber
             preg_match('/^.*\/([0-9]+)$/', $urlArr['path'], $idMatch);
             $urlArr['query'] = 'id=' . $idMatch[1] . '&' . $urlArr['query'];
 
-            $verifyUrl = config('services.qpick.domain') . config('services.qpick.verifyPath') . '?' . $urlArr['query'];
+            $verifyUrl = config('services.qpick.domain')
+                . config('services.qpick.verifyPath')
+                . '?' . $urlArr['query']
+                . '&email=' . $event->user->privacy->email;
 
             preg_match('/signature=(.*)/', $verifyBeUrl, $match);
 
