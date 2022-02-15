@@ -230,5 +230,10 @@ class User extends Authenticatable implements MustVerifyEmail
             $q->where('email', $username);
         })->first();
     }
+
+    public function getEmailForPasswordReset(): string
+    {
+        return $this->privacy->email;
+    }
 }
 
