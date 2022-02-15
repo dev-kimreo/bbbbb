@@ -534,10 +534,10 @@ class UserController extends Controller
      * 회원 메일 인증
      *
      * @param Request $request
-     * @return JsonResponse
+     * @return Collection
      * @throws QpickHttpException
      */
-    public function verification(Request $request): JsonResponse
+    public function verification(Request $request): Collection
     {
         $id = $request->route('user_id');
         $signCode = SignedCode::getBySignCode($id, $request->input('hash'), $request->input('signature'))->select('id')->first();
@@ -565,7 +565,7 @@ class UserController extends Controller
         $signCode->delete();
 
         // response
-        return response()->json(collect($member));
+        return collect($this->getOne(($member->id)));
     }
 
 
