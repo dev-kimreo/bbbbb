@@ -294,6 +294,8 @@ Route::group([
             Route::patch('/{terms_of_use_id}', [TermsOfUseController::class, 'update']);
             Route::delete('/{terms_of_use_id}', [TermsOfUseController::class, 'destroy']);
 
+            Route::get('/current', [TermsOfUseController::class, 'getCurrent'])
+                ->withoutmiddleware('chkAccess:backoffice');
             Route::get('/service', [TermsOfUseController::class, 'getServiceList'])
                 ->withoutmiddleware('chkAccess:backoffice');
             Route::get('/type', [TermsOfUseController::class, 'getTypeList'])
