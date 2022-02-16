@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\QpickHttpException;
 use App\Http\Requests\TermsOfUse\CreateRequest;
+use App\Http\Requests\TermsOfUse\CurrentRequest;
 use App\Http\Requests\TermsOfUse\IndexRequest;
 use App\Http\Requests\TermsOfUse\UpdateRequest;
 use App\Libraries\CollectionLibrary;
@@ -489,4 +490,63 @@ class TermsOfUseController extends Controller
         return TermsOfUse::$services;
     }
 
+    /**
+
+     * @OA\Get(
+     *      path="/v1/terms-of-use/current",
+     *      summary="이용약관&개인정보처리방침 현재버전",
+     *      description="현재 시행 중인 이용약관&개인정보처리방침 버전",
+     *      operationId="termsOfUseCurrent",
+     *      tags={"이용약관&개인정보처리방침"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="service", type="string", example="qpick", description="서비스<br/>qpick:큐픽, partner:파트너센터"),
+     *              @OA\Property(property="type", type="string", example="termsOfUse", description="구분<br/>termsOfUse:이용약관, privacyPolicy:개인정보처리방침")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="OK",
+     *          @OA\JsonContent(
+     *              allOf={
+     *                  @OA\Schema(ref="#/components/schemas/TermsOfUse")
+     *              }
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Client authentication failed"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found"
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="failed"
+     *      ),
+     *      security={{
+     *          "admin_auth":{}
+     *      }}
+     *  )
+     *
+     * Display the specified resource.
+     *
+     * @param int $id
+     * @return Collection
+     */
+    public function getCurrent(CurrentRequest $request): Collection
+    {
+        $terms = TermsOfUse::query()
+            ->where('service', $request->input('service'))
+            ->where('type', $request->input('type'))
+            ->where('started_at', '<', Carbon::now())
+            ->orderByDesc('started_at')
+            ->limit(1)
+            ->first();
+
+        return $this->getOne($terms->id);
+    }
 }
