@@ -66,14 +66,7 @@ use Illuminate\Support\Facades\Route;
 Route::patch('/home', function () {
 })->name('home');
 
-Route::group([
-                 'prefix' => 'v1',
-                 'middleware' => [
-                     'language',
-                     'requestToSnake',
-                     'responseToCamel',
-                 ]
-             ], function () {
+Route::group(['prefix' => 'v1', 'middleware' => ['language', 'requestToSnake', 'responseToCamel']], function () {
     // TODO Front end 의 Referer 체크를 위한 임시 controller 체크 후 삭제
     Route::get('test', [TestController::class, 'test']);
 
@@ -255,54 +248,39 @@ Route::group([
     });
 
     // 첨부파일
-    Route::group([
-                     'prefix' => 'attach',
-                     'middleware' => 'chkAccess:associate,backoffice'
-                 ], function () {
+    Route::group(['prefix' => 'attach', 'middleware' => 'chkAccess:associate,backoffice'], function () {
         Route::post('', [AttachController::class, 'store']);            // 임시 파일 첨부
         Route::patch('/{id}', [AttachController::class, 'update']);     // 파일 이동
         Route::delete('/{id}', [AttachController::class, 'delete']);    // 파일 삭제
     });
 
     // 컴포넌트 업로드 이미지
-    Route::group(
-        [
-            'prefix' => 'component-upload-image',
-            'middleware' => 'chkAccess:associate,backoffice'
-        ],
-        function () {
-            Route::get('', [ComponentUploadImageController::class, 'index']);
-            Route::get('/{id}', [ComponentUploadImageController::class, 'show'])->where(['id' => '^[0-9]+$']);
-            Route::post('', [ComponentUploadImageController::class, 'store']);
-            Route::delete('/{id}', [ComponentUploadImageController::class, 'destroy']);
-            Route::get('/usage', [ComponentUploadImageController::class, 'usage']);
-        }
-    );
+    Route::group(['prefix' => 'component-upload-image', 'middleware' => 'chkAccess:associate,backoffice'], function () {
+        Route::get('', [ComponentUploadImageController::class, 'index']);
+        Route::get('/{id}', [ComponentUploadImageController::class, 'show'])->where(['id' => '^[0-9]+$']);
+        Route::post('', [ComponentUploadImageController::class, 'store']);
+        Route::delete('/{id}', [ComponentUploadImageController::class, 'destroy']);
+        Route::get('/usage', [ComponentUploadImageController::class, 'usage']);
+    });
 
     // 이용약관 & 개인정보 처리 방침
-    Route::group(
-        [
-            'prefix' => 'terms-of-use',
-            'middleware' => 'chkAccess:backoffice'
-        ],
-        function () {
-            Route::post('', [TermsOfUseController::class, 'store']);
-            Route::get('', [TermsOfUseController::class, 'index'])
-                ->withoutmiddleware('chkAccess:backoffice');
-            Route::get('/{terms_of_use_id}', [TermsOfUseController::class, 'show'])
-                ->where(['terms_of_use_id' => '[0-9]+'])
-                ->withoutmiddleware('chkAccess:backoffice');
-            Route::patch('/{terms_of_use_id}', [TermsOfUseController::class, 'update']);
-            Route::delete('/{terms_of_use_id}', [TermsOfUseController::class, 'destroy']);
+    Route::group(['prefix' => 'terms-of-use', 'middleware' => 'chkAccess:backoffice'], function () {
+        Route::post('', [TermsOfUseController::class, 'store']);
+        Route::get('', [TermsOfUseController::class, 'index'])
+            ->withoutmiddleware('chkAccess:backoffice');
+        Route::get('/{terms_of_use_id}', [TermsOfUseController::class, 'show'])
+            ->where(['terms_of_use_id' => '[0-9]+'])
+            ->withoutmiddleware('chkAccess:backoffice');
+        Route::patch('/{terms_of_use_id}', [TermsOfUseController::class, 'update']);
+        Route::delete('/{terms_of_use_id}', [TermsOfUseController::class, 'destroy']);
 
-            Route::get('/current', [TermsOfUseController::class, 'getCurrent'])
-                ->withoutmiddleware('chkAccess:backoffice');
-            Route::get('/service', [TermsOfUseController::class, 'getServiceList'])
-                ->withoutmiddleware('chkAccess:backoffice');
-            Route::get('/type', [TermsOfUseController::class, 'getTypeList'])
-                ->withoutmiddleware('chkAccess:backoffice');
-        }
-    );
+        Route::get('/current', [TermsOfUseController::class, 'getCurrent'])
+            ->withoutmiddleware('chkAccess:backoffice');
+        Route::get('/service', [TermsOfUseController::class, 'getServiceList'])
+            ->withoutmiddleware('chkAccess:backoffice');
+        Route::get('/type', [TermsOfUseController::class, 'getTypeList'])
+            ->withoutmiddleware('chkAccess:backoffice');
+    });
 
     /**
      * 툴팁
@@ -344,10 +322,7 @@ Route::group([
      * 라이브러리 관리
      */
     // 이메일 템플릿
-    Route::group([
-                     'prefix' => 'email-template',
-                     'middleware' => 'chkAccess:backoffice'
-                 ], function () {
+    Route::group(['prefix' => 'email-template', 'middleware' => 'chkAccess:backoffice'], function () {
         Route::get('', [EmailTemplateController::class, 'index']);
         Route::get('/{email_template_id}', [EmailTemplateController::class, 'show']);
         Route::post('', [EmailTemplateController::class, 'store']);
@@ -382,10 +357,7 @@ Route::group([
     ]);
 
     // 테마 상품
-    Route::group([
-                     'prefix' => 'theme-product',
-                     'middleware' => ['auth:api', 'chkAccess:partner']
-                 ], function () {
+    Route::group(['prefix' => 'theme-product', 'middleware' => ['auth:api', 'chkAccess:partner']], function () {
         Route::get('', [ThemeProductController::class, 'index']);
         Route::get('/{theme_product_id}', [ThemeProductController::class, 'show']);
         Route::post('', [ThemeProductController::class, 'store']);
@@ -393,9 +365,7 @@ Route::group([
         Route::delete('/{theme_product_id}', [ThemeProductController::class, 'destroy']);
 
         // 전시정보
-        Route::group([
-                         'prefix' => '{theme_product_id}/information'
-                     ], function () {
+        Route::group(['prefix' => '{theme_product_id}/information'], function () {
             Route::get('', [ThemeProductInformationController::class, 'index']);
             Route::get('/{information_id}', [ThemeProductInformationController::class, 'show']);
             Route::post('', [ThemeProductInformationController::class, 'store']);
@@ -416,10 +386,7 @@ Route::group([
     });
 
     // 테마
-    Route::group([
-                     'prefix' => 'theme',
-                     'middleware' => ['auth:api', 'chkAccess:partner']
-                 ], function () {
+    Route::group(['prefix' => 'theme', 'middleware' => ['auth:api', 'chkAccess:partner']], function () {
         Route::get('', [ThemeController::class, 'index']);
         Route::get('/{theme_id}', [ThemeController::class, 'show']);
         Route::patch('/{theme_id}', [ThemeController::class, 'update']);
@@ -509,10 +476,7 @@ Route::group([
      * 연동 컴포넌트 (Shortcut)
      */
     Route::group(
-        [
-            'prefix' => 'linked-component',
-            'middleware' => ['auth:api', 'chkAccess:partner']
-        ],
+        ['prefix' => 'linked-component', 'middleware' => ['auth:api', 'chkAccess:partner']],
         function () {
             Route::get('/{linked_component_id}', [LinkedComponentController::class, 'showDirectly']);
         }
@@ -521,10 +485,7 @@ Route::group([
     /**
      * 컴포넌트
      */
-    Route::group([
-                     'prefix' => 'component',
-                     'middleware' => ['auth:api', 'chkAccess:partner']
-                 ], function () {
+    Route::group(['prefix' => 'component', 'middleware' => ['auth:api', 'chkAccess:partner']], function () {
         Route::get('', [ComponentController::class, 'index']);
         Route::get('/{component_id}', [ComponentController::class, 'show']);
         Route::post('', [ComponentController::class, 'store']);
@@ -561,10 +522,7 @@ Route::group([
     });
 
     // 컴포넌트 사용 페이지
-    Route::group([
-                     'prefix' => 'component-usable-page',
-                     'middleware' => ['auth:api', 'chkAccess:partner']
-                 ], function () {
+    Route::group(['prefix' => 'component-usable-page', 'middleware' => ['auth:api', 'chkAccess:partner']], function () {
         Route::get('', [ComponentUsablePageController::class, 'index']);
         Route::get('/{component_usable_page_id}', [ComponentUsablePageController::class, 'show']);
         Route::post('', [ComponentUsablePageController::class, 'store']);
@@ -572,22 +530,13 @@ Route::group([
     });
 
     // 컴포넌트 옵션 유형
-    Route::group(
-        [
-            'prefix' => 'component-option',
-            'middleware' => ['auth:api', 'chkAccess:partner']
-        ],
-        function () {
-            Route::get('', [ComponentOptionController::class, 'index']);
-            Route::get('/{option_id}', [ComponentOptionController::class, 'show']);
-        }
-    );
+    Route::group(['prefix' => 'component-option', 'middleware' => ['auth:api', 'chkAccess:partner']], function () {
+        Route::get('', [ComponentOptionController::class, 'index']);
+        Route::get('/{option_id}', [ComponentOptionController::class, 'show']);
+    });
 
     // 컴포넌트 옵션 유형
-    Route::group([
-             'prefix' => 'component-type',
-             'middleware' => ['auth:api', 'chkAccess:partner']
-         ], function () {
+    Route::group(['prefix' => 'component-type', 'middleware' => ['auth:api', 'chkAccess:partner']], function () {
         Route::get('', [ComponentTypeController::class, 'index']);
         Route::get('/{type_id}', [ComponentTypeController::class, 'show']);
         Route::post('', [ComponentTypeController::class, 'store']);
@@ -595,7 +544,8 @@ Route::group([
         Route::delete('/{type_id}', [ComponentTypeController::class, 'destroy']);
 
         // 컴포넌트 옵션 유형 속성
-        Route::get('/{type_id}/property', [ComponentTypePropertyController::class, 'index']);Route::get('/{type_id}/property/{property_id}', [ComponentTypePropertyController::class, 'show']);
+        Route::get('/{type_id}/property', [ComponentTypePropertyController::class, 'index']);
+        Route::get('/{type_id}/property/{property_id}', [ComponentTypePropertyController::class, 'show']);
         Route::post('/{type_id}/property', [ComponentTypePropertyController::class, 'store']);
         Route::patch('/{type_id}/property/{property_id}', [ComponentTypePropertyController::class, 'update']);
         Route::delete('/{type_id}/property/{property_id}', [ComponentTypePropertyController::class, 'destroy']);
@@ -612,10 +562,7 @@ Route::group([
     /**
      * 회원 테마
      */
-    Route::group([
-                     'prefix' => 'user-theme',
-                     'middleware' => ['auth:api', 'chkAccess:associate,regular']
-                 ], function () {
+    Route::group(['prefix' => 'user-theme', 'middleware' => ['auth:api', 'chkAccess:associate,regular']], function () {
         Route::get('', [UserThemeController::class, 'index']);
         Route::get('/{user_theme_id}', [UserThemeController::class, 'show']);
         Route::post('', [UserThemeController::class, 'store']);
@@ -648,24 +595,21 @@ Route::group([
     /**
      * 회원 테마 구매내역
      */
-    Route::group([
-                     'prefix' => 'user-theme-purchase-history',
-                     'middleware' => ['auth:api', 'chkAccess:associate,regular']
-                 ], function () {
-        Route::get('', [UserThemePurchaseHistoryController::class, 'index']);
-        Route::get('/{user_theme_purchase_history_id}', [UserThemePurchaseHistoryController::class, 'show']);
-        Route::post('', [UserThemePurchaseHistoryController::class, 'store']);
-        Route::delete('/{user_theme_purchase_history_id}', [UserThemePurchaseHistoryController::class, 'destroy']);
-    });
+    Route::group(
+        ['prefix' => 'user-theme-purchase-history', 'middleware' => ['auth:api', 'chkAccess:associate,regular']],
+        function () {
+            Route::get('', [UserThemePurchaseHistoryController::class, 'index']);
+            Route::get('/{user_theme_purchase_history_id}', [UserThemePurchaseHistoryController::class, 'show']);
+            Route::post('', [UserThemePurchaseHistoryController::class, 'store']);
+            Route::delete('/{user_theme_purchase_history_id}', [UserThemePurchaseHistoryController::class, 'destroy']);
+        }
+    );
 
 
     /**
      * Exception
      */
-    Route::group([
-                     'prefix' => 'exception',
-                     'middleware' => ['auth:api', 'chkAccess:backoffice']
-                 ], function () {
+    Route::group(['prefix' => 'exception', 'middleware' => ['auth:api', 'chkAccess:backoffice']], function () {
         Route::get('', [ExceptionController::class, 'index']);
         Route::get('/{exception_id}', [ExceptionController::class, 'show']);
 //        Route::post('', [ExceptionController::class, 'store']);
@@ -681,10 +625,7 @@ Route::group([
     /**
      * Word
      */
-    Route::group([
-                     'prefix' => 'word',
-                     'middleware' => ['auth:api', 'chkAccess:backoffice']
-                 ], function () {
+    Route::group(['prefix' => 'word', 'middleware' => ['auth:api', 'chkAccess:backoffice']], function () {
         Route::get('', [WordController::class, 'index']);
         Route::get('/{word_id}', [WordController::class, 'show']);
 //        Route::post('', [WordController::class, 'store']);
@@ -698,20 +639,14 @@ Route::group([
     /**
      * Export
      */
-    Route::group([
-                     'prefix' => 'export',
-                     'middleware' => ['auth:api', 'chkAccess:backoffice']
-                 ], function () {
+    Route::group(['prefix' => 'export', 'middleware' => ['auth:api', 'chkAccess:backoffice']], function () {
         Route::get('/excel', [ExportController::class, 'excel']);
     });
 
     /**
      * 통계
      */
-    Route::group([
-                     'prefix' => 'statistics',
-                     'middleware' => ['auth:api', 'chkAccess:backoffice']
-                 ], function () {
+    Route::group(['prefix' => 'statistics', 'middleware' => ['auth:api', 'chkAccess:backoffice']], function () {
         // User
         Route::get('user/count-per-grade', [UserController::class, 'getStatUserByGrade']);
         Route::get('user/login-log/count-per-grade', [UserController::class, 'getCountLoginLogPerGrade']);
