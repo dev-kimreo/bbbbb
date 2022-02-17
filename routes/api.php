@@ -43,6 +43,7 @@ use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Users\UserSiteController;
 use App\Http\Controllers\Users\UserSolutionController;
 use App\Http\Controllers\UserThemes\UserEditablePageController;
+use App\Http\Controllers\UserThemes\UserEditablePageLayoutController;
 use App\Http\Controllers\UserThemes\UserThemeController;
 use App\Http\Controllers\UserThemes\UserThemePurchaseHistoryController;
 use App\Http\Controllers\Widgets\WidgetController;
@@ -584,9 +585,9 @@ Route::group([
 
     // 컴포넌트 옵션 유형
     Route::group([
-                     'prefix' => 'component-type',
-                     'middleware' => ['auth:api', 'chkAccess:partner']
-                 ], function () {
+             'prefix' => 'component-type',
+             'middleware' => ['auth:api', 'chkAccess:partner']
+         ], function () {
         Route::get('', [ComponentTypeController::class, 'index']);
         Route::get('/{type_id}', [ComponentTypeController::class, 'show']);
         Route::post('', [ComponentTypeController::class, 'store']);
@@ -594,8 +595,7 @@ Route::group([
         Route::delete('/{type_id}', [ComponentTypeController::class, 'destroy']);
 
         // 컴포넌트 옵션 유형 속성
-        Route::get('/{type_id}/property', [ComponentTypePropertyController::class, 'index']);
-        Route::get('/{type_id}/property/{property_id}', [ComponentTypePropertyController::class, 'show']);
+        Route::get('/{type_id}/property', [ComponentTypePropertyController::class, 'index']);Route::get('/{type_id}/property/{property_id}', [ComponentTypePropertyController::class, 'show']);
         Route::post('/{type_id}/property', [ComponentTypePropertyController::class, 'store']);
         Route::patch('/{type_id}/property/{property_id}', [ComponentTypePropertyController::class, 'update']);
         Route::delete('/{type_id}/property/{property_id}', [ComponentTypePropertyController::class, 'destroy']);
@@ -634,6 +634,15 @@ Route::group([
             '/{user_theme_id}/editable-page/{editable_page_id}',
             [UserEditablePageController::class, 'destroy']
         );
+
+        /**
+         * 회원 에디터 지원 페이지 레이아웃
+         */
+        Route::get('/{user_theme_id}/editable-page/{editable_page_id}/layout', [UserEditablePageLayoutController::class, 'index']);
+        Route::get('/{user_theme_id}/editable-page/{editable_page_id}/layout/{layout_id}', [UserEditablePageLayoutController::class, 'show']);
+        Route::post('/{user_theme_id}/editable-page/{editable_page_id}/layout', [UserEditablePageLayoutController::class, 'store']);
+        Route::patch('/{user_theme_id}/editable-page/{editable_page_id}/layout/{layout_id}', [UserEditablePageLayoutController::class, 'update']);
+        Route::delete('/{user_theme_id}/editable-page/{editable_page_id}/layout/{layout_id}', [UserEditablePageLayoutController::class, 'destroy']);
     });
 
     /**
