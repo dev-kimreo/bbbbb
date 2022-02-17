@@ -28,7 +28,6 @@ class UserTheme extends Model
     use HasFactory;
     use SoftDeletes;
     use DateFormatISO8601;
-    use CheckUpdatedAt;
 
     public static string $exceptionEntity = "userTheme";
     protected $fillable = ['user_id', 'theme_id', 'name'];

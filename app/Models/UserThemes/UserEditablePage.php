@@ -26,7 +26,6 @@ class UserEditablePage extends Model
     use HasFactory;
     use SoftDeletes;
     use DateFormatISO8601;
-    use CheckUpdatedAt;
 
     public static string $exceptionEntity = "userEditablePage";
     protected $fillable = ['user_theme_id', 'supported_editable_page_id', 'name'];
