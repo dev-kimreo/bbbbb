@@ -66,14 +66,7 @@ use Illuminate\Support\Facades\Route;
 Route::patch('/home', function () {
 })->name('home');
 
-Route::group([
-                 'prefix' => 'v1',
-                 'middleware' => [
-                     'language',
-                     'requestToSnake',
-                     'responseToCamel',
-                 ]
-             ], function () {
+Route::group(['prefix' => 'v1', 'middleware' => ['language', 'requestToSnake', 'responseToCamel']], function () {
     // TODO Front end 의 Referer 체크를 위한 임시 controller 체크 후 삭제
     Route::get('test', [TestController::class, 'test']);
 
