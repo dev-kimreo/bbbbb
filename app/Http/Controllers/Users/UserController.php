@@ -464,6 +464,52 @@ class UserController extends Controller
     }
 
     /**
+     * 준회원의 정회원 전환
+     *
+     * @param StoreRequest $request
+     * @param int $id
+     * @return JsonResponse
+     * @throws QpickHttpException
+     */
+    public function gradeUp(StoreRequest $request, int $id): JsonResponse
+    {
+        // 로그인 체크
+        if (Auth::id() != $id) {
+            throw new QpickHttpException(403, 'common.forbidden');
+        }
+
+        // 비밀번호 체크
+        $this->chkCorrectPasswordPattern($request->input('password'));
+
+        // 준회원 여부 확인
+        $user = User::findOrFail($id);
+
+        if ($user->grade != array_search('associate', User::$userGrade)) {
+            throw new QpickHttpException(401, 'user.not_associative');
+        }
+
+        // update
+        $user->update(
+            array_merge(
+                $request->except(['email', 'name', 'password']),
+                [
+                    'grade' => array_search('regular', User::$userGrade),
+                    'password' => hash::make($request->input('password'))
+                ]
+            )
+        );
+        $user->privacy()->delete();
+        $user->privacy()->create($request->all());
+
+        // 인증메일 발송
+        $data = $this->getOne($user->id);
+        VerifyEmail::dispatch($data);
+
+        //response
+        return response()->json(collect($data), 201);
+    }
+
+    /**
      * @OA\Post(
      *      path="/v1/user/email-verification",
      *      summary="이메일 인증 재발송",
