@@ -85,8 +85,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['language', 'requestToSnake', '
             Route::patch('/{user_id}', [UserController::class, 'update'])->where(['user_id' => '[0-9]+']);
             Route::delete('/{user_id}', [UserController::class, 'destroy'])->where(['user_id' => '[0-9]+']);
             Route::get('/{user_id}/login-log', [UserController::class, 'getLoginLog'])->where(['user_id' => '[0-9]+']);
-            Route::get('/{user_id}/action-log', [UserController::class, 'getActionLog'])->where(['user_id' => '[0-9]+']
-            );
+            Route::get('/{user_id}/action-log', [UserController::class, 'getActionLog'])->where(['user_id' => '[0-9]+']);
+            Route::patch('/{user_id}/grade-up', [UserController::class, 'gradeUp'])->where(['user_id' => '[0-9]+']);
         });
 
         // 회원 세션 CRUD

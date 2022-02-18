@@ -135,8 +135,14 @@ class ExceptionSeeder extends Seeder
             [
                 'exception',
                 'user.inactive',
-                '휴먼회원 입니다. 계정 활성화 후 이용해주세요.',
-                '휴먼회원 입니다. 계정 활성화 후 이용해주세요.'
+                '휴면회원 입니다. 계정 활성화 후 이용해주세요.',
+                '휴면회원 입니다. 계정 활성화 후 이용해주세요.'
+            ],
+            [
+                'exception',
+                'user.not_associative',
+                '준회원만 사용할 수 있습니다.',
+                'Only for associative users.'
             ],
             [
                 'exception',
