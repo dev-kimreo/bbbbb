@@ -594,14 +594,16 @@ class BoardController extends Controller
 
     protected function getOne(int $board_id)
     {
+        $board = $this->board;
         // set relations
         $with = ['user'];
 
         if (Auth::hasAccessRightsToBackoffice()) {
             $with[] = 'backofficeLogs';
+            $board = $board->withCount('posts');
         }
 
         // result
-        return $this->board->with($with)->findOrFail($board_id);
+        return $board->with($with)->findOrFail($board_id);
     }
 }
