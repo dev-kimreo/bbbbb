@@ -166,7 +166,10 @@ class AccessTokenController extends ATC
      */
     public function show(): Collection
     {
-        return collect(Auth::user());
+        $with = ['privacy', 'advAgree', 'sites', 'sites.userSolution'];
+        $user = User::query()->with($with)->findOrFail(Auth::id());
+
+        return collect($user);
     }
 
 
