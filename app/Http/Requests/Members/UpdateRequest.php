@@ -37,7 +37,7 @@ class UpdateRequest extends FormRequest
         } else {
             return [
                 'name' => ['required', 'string', 'between:2,100'],
-                'password' => ['required'],
+                'password' => ['nullable'],
                 'language' => ['nullable', new StringInIso639_1],
                 'memo_for_managers' => ['prohibited'],
             ];

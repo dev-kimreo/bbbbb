@@ -200,7 +200,7 @@ class UserController extends Controller
                 default:
                     $user->whereHas('advAgree', function (Builder $q) use ($s) {
                         $q->where('agree', 1);
-                    }, '!=');
+                    },              '!=');
                     break;
             }
         }
@@ -230,7 +230,7 @@ class UserController extends Controller
         // get data
         $data = $user->skip($pagination['skip'])->take($pagination['perPage'])->get();
 
-        $data->each(function(&$item){
+        $data->each(function (&$item) {
             $item->name = $item->privacy->name ?? null;
             $item->email = $item->privacy->email ?? null;
             unset($item->privacy);
@@ -336,10 +336,12 @@ class UserController extends Controller
         // 비밀번호 체크
         $this->chkCorrectPasswordPattern($request->input('password'), $request->input('email'));
 
-        $this->user = $this->user::create(array_merge(
-            $request->except('email', 'name', 'password'),
-            ['password' => hash::make($request->input('password'))]
-        ));
+        $this->user = $this->user::create(
+            array_merge(
+                $request->except('email', 'name', 'password'),
+                ['password' => hash::make($request->input('password'))]
+            )
+        );
 
         $this->user->privacy()->create($request->all());
 
@@ -363,7 +365,7 @@ class UserController extends Controller
      *          @OA\JsonContent(
      *              required={"name", "password"},
      *              @OA\Property(property="name", type="string", example="홍길동", description="변경하고자 하는 이름"),
-     *              @OA\Property(property="password", type="string", format="password", example="1234qwer", description="확인용 비밀번호<br>프론트에서 본 파라미터는 필수입력항목이며, 파라미터에 입력된 값이 기존에 설정된 비밀번호와 일치하지 않으면 403 오류가 발생한다.<br>백오피스에서는 이 파라미터를 생략할 수 있으며, 어떠한 값을 입력하여도 검사하지 않고 무시한다."),
+     *              @OA\Property(property="password", type="string", format="password", example="1234qwer", description="확인용 비밀번호<br>파라미터에 입력된 값이 기존에 설정된 비밀번호와 일치하지 않으면 403 오류가 발생한다.<br>백오피스에서는 이 파라미터를 생략할 수 있으며, 어떠한 값을 입력하여도 검사하지 않고 무시한다."),
      *              @OA\Property(property="memoForManagers", type="string", example="이 사용자는 어뷰징 기록이 있습니다.", description="관리자 메모 (백오피스에서만 사용 가능)"),
      *          ),
      *      ),
@@ -399,7 +401,10 @@ class UserController extends Controller
      */
     public function update(UpdateRequest $request, int $id): JsonResponse
     {
-        if (!Auth::hasAccessRightsToBackoffice() && !$this::chkPasswordMatched($request->input('password'))) {
+        if (
+            !Auth::hasAccessRightsToBackoffice()
+            && ($request->input('password') && !$this::chkPasswordMatched($request->input('password')))
+        ) {
             throw new QpickHttpException(403, 'user.password.incorrect', 'password');
         }
 
@@ -455,7 +460,7 @@ class UserController extends Controller
         UserService::withdrawal($this->user->findOrFail($id));
 
         // logout
-        if(Auth::id() == $id) {
+        if (Auth::id() == $id) {
             $tokenController->logout();
         }
 
@@ -580,7 +585,6 @@ class UserController extends Controller
         }
 
         return response()->noContent();
-
     }
 
     /**
@@ -613,13 +617,17 @@ class UserController extends Controller
     public function verification(Request $request): Collection
     {
         $id = $request->route('user_id');
-        $signCode = SignedCode::getBySignCode($id, $request->input('hash'), $request->input('signature'))->select('id')->first();
+        $signCode = SignedCode::getBySignCode($id, $request->input('hash'), $request->input('signature'))->select(
+            'id'
+        )->first();
 
         // 가상 서명키 유효성 체크
         if (!$request->hasValidSignature()) {
             throw new QpickHttpException(422, 'email.failed_validation_signature');
-        } else if (!$signCode || !$signCode['id']) {
-            throw new QpickHttpException(422, 'email.not_found_sign_code');
+        } else {
+            if (!$signCode || !$signCode['id']) {
+                throw new QpickHttpException(422, 'email.not_found_sign_code');
+            }
         }
 
         // find user
@@ -813,7 +821,9 @@ class UserController extends Controller
         $member->email = $member->privacy->email;
 
         $verifyToken = Password::createToken($member);
-        $verifyUrl = config('services.qpick.domain') . config('services.qpick.verifyPasswordPath') . '?token=' . $verifyToken . "&email=" . $request->input('email');
+        $verifyUrl = config('services.qpick.domain') . config(
+                'services.qpick.verifyPasswordPath'
+            ) . '?token=' . $verifyToken . "&email=" . $request->input('email');
 
         // 메일 발송
         $data = array(
@@ -1202,10 +1212,14 @@ class UserController extends Controller
         $chkPasswordRes = checkPwdPattern($pwd);
         if (!$chkPasswordRes['combination']) {  // 특수문자, 문자, 숫자 포함 체크
             throw new QpickHttpException(422, 'user.password.validation.characters');
-        } else if (!$chkPasswordRes['continue']) {  // 연속된 문자, 동일한 문자 연속 체크
-            throw new QpickHttpException(422, 'user.password.validation.repetition');
-        } else if (!$chkPasswordRes['empty']) { // 공백 문자 체크
-            throw new QpickHttpException(422, 'user.password.validation.used_space');
+        } else {
+            if (!$chkPasswordRes['continue']) {  // 연속된 문자, 동일한 문자 연속 체크
+                throw new QpickHttpException(422, 'user.password.validation.repetition');
+            } else {
+                if (!$chkPasswordRes['empty']) { // 공백 문자 체크
+                    throw new QpickHttpException(422, 'user.password.validation.used_space');
+                }
+            }
         }
 
         /**
@@ -1275,11 +1289,15 @@ class UserController extends Controller
      */
     public function getStatUserByGrade(User $user): Collection
     {
-        return Cache::tags('backoffice')->remember('user_count_per_grade', config('cache.custom.expire.common'), function () use ($user) {
-            return $user->selectRaw('grade, count(id) as count')
-                ->groupBy('grade')
-                ->get();
-        });
+        return Cache::tags('backoffice')->remember(
+            'user_count_per_grade',
+            config('cache.custom.expire.common'),
+            function () use ($user) {
+                return $user->selectRaw('grade, count(id) as count')
+                    ->groupBy('grade')
+                    ->get();
+            }
+        );
     }
 
     /**
@@ -1334,14 +1352,18 @@ class UserController extends Controller
      */
     public function getCountLoginLogPerGrade(LoginLogStatRequest $request): Collection
     {
-        return Cache::tags('backoffice')->remember('login_log_count_per_grade', config('cache.custom.expire.common'), function () use ($request) {
-            $start = Carbon::parse($request->input('start_date'));
-            $end = Carbon::parse($request->input('end_date'))->setTime(23, 59, 59);
+        return Cache::tags('backoffice')->remember(
+            'login_log_count_per_grade',
+            config('cache.custom.expire.common'),
+            function () use ($request) {
+                $start = Carbon::parse($request->input('start_date'));
+                $end = Carbon::parse($request->input('end_date'))->setTime(23, 59, 59);
 
-            return ActionLog::loginLogStatistics($start, $end)
-                ->get()
-                ->makeHidden(['user']);
-        });
+                return ActionLog::loginLogStatistics($start, $end)
+                    ->get()
+                    ->makeHidden(['user']);
+            }
+        );
     }
 
     /**
