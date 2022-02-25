@@ -458,13 +458,13 @@ class UserController extends Controller
         }
         */
 
-        // delete
-        UserService::withdrawal($this->user->findOrFail($id));
-
         // logout
         if (Auth::id() == $id) {
             $tokenController->logout();
         }
+
+        // delete
+        UserService::withdrawal($this->user->findOrFail($id));
 
         // response
         return response()->noContent();
