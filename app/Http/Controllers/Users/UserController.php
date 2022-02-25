@@ -452,9 +452,11 @@ class UserController extends Controller
     public function destroy(int $id, Request $request, AccessTokenController $tokenController): Response
     {
         // validation
+        /*
         if (!Auth::hasAccessRightsToBackoffice() && !$this::chkPasswordMatched($request->input('password'))) {
             throw new QpickHttpException(422, 'user.password.incorrect');
         }
+        */
 
         // delete
         UserService::withdrawal($this->user->findOrFail($id));
