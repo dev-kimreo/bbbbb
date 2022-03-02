@@ -53,8 +53,8 @@ class ComponentController extends Controller
      *          response=200,
      *          description="successfully",
      *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(ref="#/components/schemas/Component")
+     *              allOf={@OA\Schema(ref="#/components/schemas/Component")},
+     *              @OA\Property(property="attachFile", ref="#/components/schemas/AttachFile")
      *          )
      *      ),
      *      @OA\Response(
@@ -72,7 +72,7 @@ class ComponentController extends Controller
      */
     public function index(IndexRequest $request): Collection
     {
-        $componentBuilder = Component::query();
+        $componentBuilder = Component::query()->with('attachFile');
         //$componentBuilder->where('user_partner_id', Auth::user()->partner->id);
 
         // Search Parameter

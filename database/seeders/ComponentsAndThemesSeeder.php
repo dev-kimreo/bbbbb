@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Attach\AttachFile;
 use App\Models\Components\Component;
 use App\Models\Components\ComponentOption;
 use App\Models\Components\ComponentOptionProperty;
@@ -16,6 +17,7 @@ use App\Models\Solution;
 use App\Models\SupportedEditablePage;
 use App\Models\Themes\Theme;
 use App\Models\Themes\ThemeProduct;
+use App\Models\Users\User;
 use App\Models\Users\UserPartner;
 use Illuminate\Database\Seeder;
 
@@ -1437,7 +1439,7 @@ if(typeof(arr) == "array")
         // 컴포넌트
         $component = [];
         foreach ($rawSourceCodes as $v) {
-            $component[] = $currComponent = Component::query()->create(
+            $row = $currComponent = Component::query()->create(
                 [
                     'user_partner_id' => $userPartner->id,
                     'solution_id' => $solution->id,
@@ -1449,6 +1451,16 @@ if(typeof(arr) == "array")
                     'icon' => 'image',
                     'display' => 1,
                     'status' => 'registered'
+                ]
+            );
+            $component[] = $row;
+
+            // 썸네일
+            $attach = AttachFile::factory()->for($userPartner, 'uploader')->create();
+            $attach->update(
+                [
+                    'attachable_type' => 'component',
+                    'attachable_id' => $row->id,
                 ]
             );
 
@@ -1480,7 +1492,7 @@ if(typeof(arr) == "array")
                 );
 
                 $createData = [];
-                switch($typeId) {
+                switch ($typeId) {
                     case 2:
                         // Text Field
                         $createData[] = [
@@ -1501,7 +1513,7 @@ if(typeof(arr) == "array")
                             'key' => 'text',
                             'name' => $opt['name'],
                             'initial_value' => $opt['default'],
-                            'elements' => $opt['options']? json_encode(['options' => $opt['options']]): null
+                            'elements' => $opt['options'] ? json_encode(['options' => $opt['options']]) : null
                         ];
                         break;
 
@@ -1531,15 +1543,14 @@ if(typeof(arr) == "array")
 
                     case 12:
                         // Text + URL Display
-                        foreach(json_decode($opt['default'], true) as $defaultKey => $defaultValue)
-                        {
+                        foreach (json_decode($opt['default'], true) as $defaultKey => $defaultValue) {
                             $createData[] = [
                                 'component_option_id' => $compOpt->id,
                                 'component_type_property_id' => $typeId,
                                 'key' => $defaultKey,
                                 'name' => $opt['name'],
                                 'initial_value' => $defaultValue,
-                                'elements' => $defaultKey == 'text'? json_encode(["textMaxLength" => 100]): null
+                                'elements' => $defaultKey == 'text' ? json_encode(["textMaxLength" => 100]) : null
                             ];
                         }
                         break;
@@ -1597,7 +1608,7 @@ if(typeof(arr) == "array")
 
         // 연동 컴포넌트
         foreach ($component as $k => $v) {
-            if($k > 4) {
+            if ($k > 4) {
                 break;
             }
 
@@ -1710,7 +1721,7 @@ if(typeof(arr) == "array")
             ]
         ];
 
-        foreach($options as $o) {
+        foreach ($options as $o) {
             $linkedComponent = LinkedComponent::query()->create(
                 [
                     'linked_component_group_id' => $contents->id,
