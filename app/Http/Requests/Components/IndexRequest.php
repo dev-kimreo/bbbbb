@@ -28,6 +28,7 @@ class IndexRequest extends FormRequest
         return [
             'solution_id' => ['sometimes', 'integer', 'exists:App\Models\Solution,id'],
             'first_category' => ['nullable', 'string', Rule::in(array_keys(Component::$firstCategory))],
+            'second_category' => ['nullable', 'string', Rule::in(array_keys(Component::$secondCategory))],
             'sort_by' => ['nullable', 'string'],
         ];
     }
