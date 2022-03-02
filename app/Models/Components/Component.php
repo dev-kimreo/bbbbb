@@ -86,6 +86,7 @@ class Component extends Model
         'product' => '상품',
         'design' => '디자인',
         'solution' => '솔루션',
+        'html' => 'HTML'
     ];
 
     public static array $secondCategory = [
