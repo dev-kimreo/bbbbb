@@ -53,8 +53,8 @@ class ComponentController extends Controller
      *          response=200,
      *          description="successfully",
      *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(ref="#/components/schemas/Component")
+     *              allOf={@OA\Schema(ref="#/components/schemas/Component")},
+     *              @OA\Property(property="attachFile", ref="#/components/schemas/AttachFile")
      *          )
      *      ),
      *      @OA\Response(
