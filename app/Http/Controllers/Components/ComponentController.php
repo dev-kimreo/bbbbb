@@ -72,7 +72,7 @@ class ComponentController extends Controller
      */
     public function index(IndexRequest $request): Collection
     {
-        $componentBuilder = Component::query();
+        $componentBuilder = Component::query()->with('attachFile');
         //$componentBuilder->where('user_partner_id', Auth::user()->partner->id);
 
         // Search Parameter
