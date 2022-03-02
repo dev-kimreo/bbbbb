@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Components;
 
+use App\Models\Components\Component;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class IndexRequest extends FormRequest
 {
@@ -25,6 +27,7 @@ class IndexRequest extends FormRequest
     {
         return [
             'solution_id' => ['sometimes', 'integer', 'exists:App\Models\Solution,id'],
+            'first_category' => ['nullable', 'string', Rule::in(array_keys(Component::$firstCategory))],
             'sort_by' => ['nullable', 'string'],
         ];
     }
