@@ -46,6 +46,7 @@ use App\Http\Controllers\UserThemes\UserEditablePageController;
 use App\Http\Controllers\UserThemes\UserEditablePageLayoutController;
 use App\Http\Controllers\UserThemes\UserThemeController;
 use App\Http\Controllers\UserThemes\UserThemePurchaseHistoryController;
+use App\Http\Controllers\UserThemes\UserThemeSaveHistoryController;
 use App\Http\Controllers\Widgets\WidgetController;
 use App\Http\Controllers\Widgets\WidgetUsageController;
 use App\Http\Controllers\WordController;
@@ -590,6 +591,12 @@ Route::group(['prefix' => 'v1', 'middleware' => ['language', 'requestToSnake', '
         Route::post('/{user_theme_id}/editable-page/{editable_page_id}/layout', [UserEditablePageLayoutController::class, 'store']);
         Route::patch('/{user_theme_id}/editable-page/{editable_page_id}/layout/{layout_id}', [UserEditablePageLayoutController::class, 'update']);
         Route::delete('/{user_theme_id}/editable-page/{editable_page_id}/layout/{layout_id}', [UserEditablePageLayoutController::class, 'destroy']);
+
+        // 저장 히스토리
+        Route::get('/{user_theme_id}/save-history', [UserThemeSaveHistoryController::class, 'index']);
+        Route::get('/{user_theme_id}/save-history/{history_id}', [UserThemeSaveHistoryController::class, 'show']);
+        Route::post('/{user_theme_id}/save-history', [UserThemeSaveHistoryController::class, 'store']);
+        Route::delete('/{user_theme_id}/save-history/{history_id}', [UserThemeSaveHistoryController::class, 'destroy']);
     });
 
     /**

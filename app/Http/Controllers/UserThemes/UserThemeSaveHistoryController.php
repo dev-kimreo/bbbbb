@@ -24,7 +24,23 @@ class UserThemeSaveHistoryController extends Controller
     {
         $this->chkAuth($userThemeId);
 
-        return collect(UserThemeSaveHistory::query()->where('user_theme_id', $userThemeId));
+        return collect(UserThemeSaveHistory::query()->where('user_theme_id', $userThemeId)->get());
+    }
+
+    /**
+     * @param int $userThemeSaveHistoryId
+     * @return Collection
+     * @throws QpickHttpException
+     */
+    public function show(int $userThemeId, int $userThemeSaveHistoryId): Collection
+    {
+        $this->chkAuth($userThemeId);
+        $res = UserThemeSaveHistory::query()
+            ->where('id', $userThemeSaveHistoryId)
+            ->where('user_theme_id', $userThemeId)
+            ->firstOrFail();
+
+        return collect($res);
     }
 
     /**
@@ -42,7 +58,7 @@ class UserThemeSaveHistoryController extends Controller
         $res = UserThemeSaveHistory::query()->create(
             [
                 'user_theme_id' => $userThemeId,
-                'data' => $request->data
+                'data' => json_decode($request->data)
             ]
         );
 
@@ -71,7 +87,7 @@ class UserThemeSaveHistoryController extends Controller
     {
         $userTheme = UserTheme::query()->findOrFail($userThemeId);
 
-        if (!Auth::isLoggedForBackoffice() && $userTheme->user_id != $userThemeId) {
+        if (!Auth::isLoggedForBackoffice() && $userTheme->user_id != Auth::id()) {
             throw new QpickHttpException(403, 'common.unauthorized');
         }
     }
