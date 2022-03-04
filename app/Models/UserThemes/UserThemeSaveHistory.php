@@ -8,6 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @OA\Schema(
+ *   schema="UserThemeSaveHistory",
+ *   @OA\Property(property="id", type="integer", readOnly="true", example="1"),
+ *   @OA\Property(property="user_theme_id", type="integer", description="회원 테마의 고유번호(PK)", example=27),
+ *   @OA\Property(property="data", type="json",  description="회원 테마 저장데이터 (JSON Format)"),
+ *   @OA\Property(property="createdAt", ref="#/components/schemas/Base/properties/created_at"),
+ * )
+ */
 class UserThemeSaveHistory extends Model
 {
     use HasFactory, SoftDeletes, DateFormatISO8601;
