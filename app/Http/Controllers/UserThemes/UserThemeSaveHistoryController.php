@@ -8,6 +8,7 @@ use App\Http\Requests\UserThemes\SaveHistory\StoreRequest;
 use App\Models\UserThemes\UserTheme;
 use App\Models\UserThemes\UserThemeSaveHistory;
 use Auth;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 
@@ -102,7 +103,7 @@ class UserThemeSaveHistoryController extends Controller
      *          description="",
      *          @OA\JsonContent(
      *              required={"data"},
- *                  @OA\Property(property="data", type="JSON", example="{}", description="히스토리 데이터"),
+     *              @OA\Property(property="data", type="JSON", example="{}", description="히스토리 데이터"),
      *          )
      *      ),
      *      @OA\Response(
@@ -116,10 +117,10 @@ class UserThemeSaveHistoryController extends Controller
      *
      * @param StoreRequest $request
      * @param int $userThemeId
-     * @return Collection
+     * @return JsonResponse
      * @throws QpickHttpException
      */
-    public function store(StoreRequest $request, int $userThemeId): Collection
+    public function store(StoreRequest $request, int $userThemeId): JsonResponse
     {
         $this->chkAuth($userThemeId);
 
@@ -130,7 +131,7 @@ class UserThemeSaveHistoryController extends Controller
             ]
         );
 
-        return collect(UserThemeSaveHistory::query()->find($res->id));
+        return response()->json(UserThemeSaveHistory::query()->find($res->id), 201);
     }
 
     /**
