@@ -46,6 +46,7 @@ use App\Http\Controllers\UserThemes\UserEditablePageController;
 use App\Http\Controllers\UserThemes\UserEditablePageLayoutController;
 use App\Http\Controllers\UserThemes\UserThemeController;
 use App\Http\Controllers\UserThemes\UserThemePurchaseHistoryController;
+use App\Http\Controllers\UserThemes\UserThemeSaveHistoryController;
 use App\Http\Controllers\Widgets\WidgetController;
 use App\Http\Controllers\Widgets\WidgetUsageController;
 use App\Http\Controllers\WordController;
@@ -591,6 +592,22 @@ Route::group(['prefix' => 'v1', 'middleware' => ['language', 'requestToSnake', '
         Route::patch('/{user_theme_id}/editable-page/{editable_page_id}/layout/{layout_id}', [UserEditablePageLayoutController::class, 'update']);
         Route::delete('/{user_theme_id}/editable-page/{editable_page_id}/layout/{layout_id}', [UserEditablePageLayoutController::class, 'destroy']);
     });
+
+    /**
+     * 저장 히스토리
+     */
+    Route::group(
+        [
+            'prefix' => 'user-theme/{user_theme_id}/save-history',
+            'middleware' => ['auth:api', 'chkAccess:associate,regular,backoffice']
+        ],
+        function () {
+            Route::get('', [UserThemeSaveHistoryController::class, 'index']);
+            Route::get('/{history_id}', [UserThemeSaveHistoryController::class, 'show']);
+            Route::post('', [UserThemeSaveHistoryController::class, 'store']);
+            Route::delete('/{history_id}', [UserThemeSaveHistoryController::class, 'destroy']);
+        }
+    );
 
     /**
      * 회원 테마 구매내역
