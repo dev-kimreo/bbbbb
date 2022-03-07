@@ -89,16 +89,16 @@ final class ComponentRenderingService
                 };
             }
             
+            shadowRoot.innerHTML = `<style>' . self::procStyle($comp->style) . '</style>`;
+            
             if(device == "mobile") {
                 shadowRoot.innerHTML = `
-                    <style>' . self::procStyle($comp->style) . '</style>
                     <' . self::ShadowDomRootTag . ' class="' . self::ClassNameMobile . '">
                         ' . $comp->template . '
                     </' . self::ShadowDomRootTag . '>
                 `;
             } else {
                 shadowRoot.innerHTML = `
-                    <style>' . self::procStyle($comp->style) . '</style>
                     <' . self::ShadowDomRootTag . ' class="' . self::ClassNameDesktop . '">
                         ' . $comp->template . '
                     </' . self::ShadowDomRootTag . '>
@@ -135,16 +135,16 @@ final class ComponentRenderingService
                 };
             }
             
+            shadowRoot.innerHTML = `<style>' . self::procStyle($comp->style) . '</style>`;
+                
             if(device == "mobile") {
                 shadowRoot.innerHTML = `
-                    <style>' . self::procStyle($comp->style) . '</style>
                     <' . self::ShadowDomRootTag . ' class="' . self::ClassNameMobile . '">
                         ' . $comp->template . '
                     </' . self::ShadowDomRootTag . '>
                 `;
             } else {
                 shadowRoot.innerHTML = `
-                    <style>' . self::procStyle($comp->style) . '</style>
                     <' . self::ShadowDomRootTag . ' class="' . self::ClassNameDesktop . '">
                         ' . $comp->template . '
                     </' . self::ShadowDomRootTag . '>
