@@ -111,7 +111,10 @@ class ComponentController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/Component")
+     *          @OA\JsonContent(
+     *              allOf={@OA\Schema(ref="#/components/schemas/Component")},
+     *              @OA\Property(property="attachFile", ref="#/components/schemas/AttachFile")
+     *          )
      *      ),
      *      @OA\Response(
      *          response=422,
