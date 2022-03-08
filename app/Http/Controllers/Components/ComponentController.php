@@ -128,7 +128,7 @@ class ComponentController extends Controller
      */
     public function show(ShowRequest $request, int $componentId): Collection
     {
-        $componentBuilder = Component::query();
+        $componentBuilder = Component::query()->with('attachFile');
         $res = $componentBuilder->findOrFail($componentId);
 
         // 컴포넌트 권한 확인
