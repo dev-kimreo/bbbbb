@@ -142,7 +142,6 @@ class AccessTokenController extends ATC
         return parent::issueToken($request);
     }
 
-
     /**
      * @OA\Get(
      *      path="/v1/user/auth",
@@ -153,7 +152,13 @@ class AccessTokenController extends ATC
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/User")
+     *          @OA\JsonContent(
+     *              allOf={@OA\Schema(ref="#/components/schemas/UserWithoutPrivacy")},
+     *              @OA\Property(property="privacy", type="object", description="개인정보",
+     *                  @OA\Property(property="name", type="string", example="en", description="이름(별명)"),
+     *                  @OA\Property(property="email", type="string", example="user@qpicki.com", description="이메일")
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response=401,
