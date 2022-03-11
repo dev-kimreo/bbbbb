@@ -28,8 +28,8 @@ class UpdateRequest extends FormRequest
     {
         return [
             'board_id' => 'required_without_all:title,content,sort,hidden|integer|exists:App\Models\Boards\Board,id',
-            'title' => 'required_without_all:board_id,content,sort,hidden|string|between:6,128',
-            'content' => 'required_without_all:board_id,title,sort,hidden|string|min:10',
+            'title' => 'required_without_all:board_id,content,sort,hidden|string|between:1,100',
+            'content' => 'required_without_all:board_id,title,sort,hidden|string',
             'sort' => 'required_without_all:board_id,title,content,hidden|integer|between:1,999',
             'hidden' => 'required_without_all:board_id,title,content,sort|boolean',
         ];
