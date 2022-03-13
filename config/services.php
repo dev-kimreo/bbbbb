@@ -32,7 +32,7 @@ return [
 
     'qpick' => [
         'domain' => 'http://local.qpicki.com',
-        'verifyPath' => '/confirm-email',
-        'verifyPasswordPath' => '/confirm-password',
+        'verifyPath' => '/accounts/signup/certify',
+        'verifyPasswordPath' => '/accounts/password-reset/form',
     ],
 ];

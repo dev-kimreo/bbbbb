@@ -27,8 +27,7 @@ class UpdateBoardSortRequest extends FormRequest
     public function rules()
     {
         return [
-            'target' => 'required|integer',
-            'direction' => 'required|in:top,bottom'
+            'board_id' => 'required|array',
         ];
     }
 

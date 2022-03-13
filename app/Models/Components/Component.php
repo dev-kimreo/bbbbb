@@ -2,6 +2,7 @@
 
 namespace App\Models\Components;
 
+use App\Models\Attach\AttachFile;
 use App\Models\Solution;
 use App\Models\Traits\CheckUpdatedAt;
 use App\Models\Traits\DateFormatISO8601;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -86,6 +88,7 @@ class Component extends Model
         'product' => '상품',
         'design' => '디자인',
         'solution' => '솔루션',
+        'html' => 'HTML'
     ];
 
     public static array $secondCategory = [
@@ -130,5 +133,9 @@ class Component extends Model
         return $this->hasMany(ComponentVersion::class);
     }
 
+    public function attachFile(): MorphOne
+    {
+        return $this->morphOne(AttachFile::class, 'attachable', 'attachable_type', 'attachable_id');
+    }
 }
 

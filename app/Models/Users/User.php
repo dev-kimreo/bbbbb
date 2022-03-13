@@ -59,7 +59,40 @@ use Laravel\Passport\HasApiTokens;
  *   @OA\Property(property="createdAt", ref="#/components/schemas/Base/properties/created_at"),
  *   @OA\Property(property="updatedAt", ref="#/components/schemas/Base/properties/updated_at"),
  *   @OA\Property(property="advAgree", ref="#/components/schemas/UserAdvAgree"),
- *   @OA\Property(property="solutions", type="array", @OA\Items(ref="#/components/schemas/UserSolution"))
+ *   @OA\Property(property="sites", type="array", @OA\Items(ref="#/components/schemas/UserSite"))
+ * )
+ *
+ * @OA\Schema(
+ *   schema="UserWithoutPrivacy",
+ *   required={"password"},
+ *   @OA\Property(property="id", type="integer", readOnly="true", example="1"),
+ *   @OA\Property(
+ *       property="emailVerifiedAt", type="string", readOnly="true", format="date-time",
+ *       description="회원 이메일 인증 일자", default=null, example="2019-02-25 12:59:20"
+ *   ),
+ *   @OA\Property(property="grade", type="integer", default=1, description="0:준회원, 1:정회원", example=1),
+ *   @OA\Property(property="lanugage", type="string", default="ko", description="선택한 언어코드", example="ko"),
+ *   @OA\Property(property="memoForManagers", type="string", description="관리자 메모", example="어뷰징 기록이 있는 사용자입니다"),
+ *   @OA\Property(
+ *       property="registerdAt", type="datetime", readOnly="true", format="date-time",
+ *       description="정회원 등록일", default=null, example="2021-06-05T09:00:00+00:00"
+ *   ),
+ *   @OA\Property(
+ *       property="inactivatedAt", type="datetime", readOnly="true", format="date-time",
+ *       description="(휴면계정인 경우) 휴면일", default=null, example="2021-06-05T09:00:00+00:00"
+ *   ),
+ *   @OA\Property(
+ *       property="deletedAt", type="datetime", readOnly="true", format="date-time",
+ *       description="(탈퇴계정인 경우) 탈퇴처리일", default=null, example="2021-06-05T09:00:00+00:00"
+ *   ),
+ *   @OA\Property(
+ *       property="lastAuthorizedAt", type="datetime", readOnly="true", format="date-time",
+ *       description="최종로그인 일시", default=null, example="2021-06-05T09:00:00+00:00"
+ *   ),
+ *   @OA\Property(property="createdAt", ref="#/components/schemas/Base/properties/created_at"),
+ *   @OA\Property(property="updatedAt", ref="#/components/schemas/Base/properties/updated_at"),
+ *   @OA\Property(property="advAgree", ref="#/components/schemas/UserAdvAgree"),
+ *   @OA\Property(property="sites", type="array", @OA\Items(ref="#/components/schemas/UserSite"))
  * )
  *
  * @OA\Schema (
@@ -96,7 +129,7 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $fillable = [
-        'language', 'password', 'memo_for_managers'
+        'grade', 'language', 'password', 'memo_for_managers'
     ];
     protected $hidden = ['password', 'remember_token', 'memo_for_managers'];
     protected $casts = [
@@ -111,6 +144,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function advAgree(): HasOne
     {
         return $this->hasOne(UserAdvAgree::class);
+    }
+
+    public function sites(): hasMany
+    {
+        return $this->hasMany(UserSite::class);
     }
 
     public function solutions(): hasMany
@@ -179,12 +217,12 @@ class User extends Authenticatable implements MustVerifyEmail
                 ->leftJoin('user_privacy_active', 'users.id', '=', 'user_privacy_active.id')
                 ->leftJoin('managers', 'users.id', '=', 'managers.user_id')
                 ->leftJoin('authorities', 'managers.authority_id', '=', 'authorities.id')
-                ->select(['users.id', DB::raw('IFNULL(authorities.display_name, user_privacy_active.name) as name'), 'user_privacy_active.email']);
+                ->select(['users.id', 'users.grade as grade', DB::raw('IFNULL(authorities.display_name, user_privacy_active.name) as name'), 'user_privacy_active.email']);
         } else {
             // 회원정보에 기재된 본래의 이름을 그대로 출력
             $res = $query
                 ->leftJoin('user_privacy_active', 'users.id', '=', 'user_privacy_active.id')
-                ->select(['users.id', 'user_privacy_active.name as name', 'user_privacy_active.email as email']);
+                ->select(['users.id', 'users.grade as grade', 'user_privacy_active.name as name', 'user_privacy_active.email as email']);
         }
 
         return $res;
@@ -224,6 +262,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->status('active')->whereHas('privacy', function (Builder $q) use ($username) {
             $q->where('email', $username);
         })->first();
+    }
+
+    public function getEmailForPasswordReset(): string
+    {
+        return $this->privacy->email;
     }
 }
 

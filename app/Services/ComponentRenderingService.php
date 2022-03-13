@@ -89,19 +89,19 @@ final class ComponentRenderingService
                 };
             }
             
+            shadowRoot.innerHTML = `<style>' . self::procStyle($comp->style) . '</style>`;
+            
             if(device == "mobile") {
-                shadowRoot.innerHTML = `
+                shadowRoot.innerHTML += `
                     <' . self::ShadowDomRootTag . ' class="' . self::ClassNameMobile . '">
                         ' . $comp->template . '
                     </' . self::ShadowDomRootTag . '>
-                    <style>' . self::procStyle($comp->style) . '</style>
                 `;
             } else {
-                shadowRoot.innerHTML = `
+                shadowRoot.innerHTML += `
                     <' . self::ShadowDomRootTag . ' class="' . self::ClassNameDesktop . '">
                         ' . $comp->template . '
                     </' . self::ShadowDomRootTag . '>
-                    <style>' . self::procStyle($comp->style) . '</style>
                 `;
             }
             
@@ -135,19 +135,19 @@ final class ComponentRenderingService
                 };
             }
             
+            shadowRoot.innerHTML = `<style>' . self::procStyle($comp->style) . '</style>`;
+                
             if(device == "mobile") {
-                shadowRoot.innerHTML = `
+                shadowRoot.innerHTML += `
                     <' . self::ShadowDomRootTag . ' class="' . self::ClassNameMobile . '">
                         ' . $comp->template . '
                     </' . self::ShadowDomRootTag . '>
-                    <style>' . self::procStyle($comp->style) . '</style>
                 `;
             } else {
-                shadowRoot.innerHTML = `
+                shadowRoot.innerHTML += `
                     <' . self::ShadowDomRootTag . ' class="' . self::ClassNameDesktop . '">
                         ' . $comp->template . '
                     </' . self::ShadowDomRootTag . '>
-                    <style>' . self::procStyle($comp->style) . '</style>
                 `;
             }
             

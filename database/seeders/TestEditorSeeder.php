@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Attach\AttachFile;
 use App\Models\Components\Component;
 use App\Models\Components\ComponentOption;
 use App\Models\Components\ComponentOptionProperty;
@@ -101,6 +102,8 @@ class TestEditorSeeder extends Seeder
         )->for(
             Solution::first(),
             'solution'
+        )->has(
+            AttachFile::factory()->for(UserPartner::first(), 'uploader')
         )->has(
             ComponentVersion::factory()->state([
                 'usable' => true,

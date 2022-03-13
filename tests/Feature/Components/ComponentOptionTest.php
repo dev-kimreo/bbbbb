@@ -151,5 +151,31 @@ class ComponentOptionTest extends TestCase
     }
 
 
+    /**
+     * Non-CRUD
+     */
+
+    // 컴포넌트 옵션 추가시 컴포넌트 옵션 속성을 같이 추가하는 Relation Store
+    public function testRelationStoreByGuest()
+    {
+        $resource = $this->createResource();
+        $resource['component_type_id'] = ComponentType::first()->getAttribute('id');
+        $version = $this->createComponentVersion($this->createAsQpickUser('partner'));
+
+        $response = $this->requestQpickApi('post', '/v1/component/' . $version->getAttribute('component_id') . '/version/' . $version->getAttribute('id') . '/relational-option', $resource);
+        $response->assertUnauthorized();
+    }
+
+
+    public function testRelationStoreByPartner()
+    {
+        $resource = $this->createResource();
+        $resource['component_type_id'] = ComponentType::first()->getAttribute('id');
+        $version = $this->createComponentVersion($this->actingAsQpickUser('partner'));
+
+        $response = $this->requestQpickApi('post', '/v1/component/' . $version->getAttribute('component_id') . '/version/' . $version->getAttribute('id') . '/relational-option', $resource);
+        $response->assertCreated();
+    }
+
 
 }

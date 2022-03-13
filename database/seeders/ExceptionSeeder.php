@@ -50,6 +50,12 @@ class ExceptionSeeder extends Seeder
             ],
             [
                 'exception',
+                'common.not_found_model',
+                '데이터베이스 모델을 찾을 수 없습니다.',
+                'Not found database model.'
+            ],
+            [
+                'exception',
                 'common.pagination.out_of_bounds',
                 '표시할 수 있는 총 페이지 수를 넘어섰습니다.',
                 'The page is out of bounds.'
@@ -65,6 +71,12 @@ class ExceptionSeeder extends Seeder
                 'common.within_days_of_other_date',
                 '다른 날짜와의 차이가 :day일 이내이여야 합니다.',
                 '다른 날짜와의 차이가 :day일 이내이여야 합니다.'
+            ],
+            [
+                'exception',
+                'common.not_matched_target_column',
+                ':targetColumnName 값이 일치하지 않습니다.',
+                ':targetColumnName 값이 일치하지 않습니다.'
             ],
             [
                 'exception',
@@ -123,8 +135,14 @@ class ExceptionSeeder extends Seeder
             [
                 'exception',
                 'user.inactive',
-                '휴먼회원 입니다. 계정 활성화 후 이용해주세요.',
-                '휴먼회원 입니다. 계정 활성화 후 이용해주세요.'
+                '휴면회원 입니다. 계정 활성화 후 이용해주세요.',
+                '휴면회원 입니다. 계정 활성화 후 이용해주세요.'
+            ],
+            [
+                'exception',
+                'user.not_associative',
+                '준회원만 사용할 수 있습니다.',
+                'Only for associative users.'
             ],
             [
                 'exception',
@@ -231,8 +249,20 @@ class ExceptionSeeder extends Seeder
             [
                 'exception',
                 'attach.over.limit',
-                '업로드 제한 갯수를 초과 하였습니다.',
-                '업로드 제한 갯수를 초과 하였습니다.'
+                '업로드 제한 갯수를 초과하였습니다.',
+                '업로드 제한 갯수를 초과하였습니다.'
+            ],
+            [
+                'exception',
+                'attach.over.upload_limit',
+                '업로드된 파일이 1회 업로드 제한 용량을 초과하였습니다.',
+                '업로드된 파일이 1회 업로드 제한 용량을 초과하였습니다.'
+            ],
+            [
+                'exception',
+                'attach.over.storage_limit',
+                '업로드 사용량을 초과하였습니다.',
+                '업로드 사용량을 초과하였습니다.'
             ],
             [
                 'exception',

@@ -24,11 +24,6 @@ class ExhibitionsSeeder extends Seeder
     public function run()
     {
         ExhibitionCategory::factory()->count(10)->create();
-//
-        User::factory()->has(
-            UserPrivacyActive::factory(), 'privacy'
-        )->count(10)->create();
-
 
         for ($i = 0; $i < 10; $i++) {
             $banner = Banner::factory()
@@ -50,8 +45,9 @@ class ExhibitionsSeeder extends Seeder
                 ->create(['user_id' => User::all()->random(1)->first()]);
 
             if ($banner->exhibition()->first()->target_opt == 'designate') {
-
-                $targets = User::selectRaw('id as user_id')->get()->random(rand(1, 10))->toArray();
+                $users = User::selectRaw('id as user_id')->get();
+                $count = rand(1, min(10, $users->count()));
+                $targets = $users->random($count)->toArray();
 
                 $banner->exhibition->targetUsers()->createMany(
                     $targets

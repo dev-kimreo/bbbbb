@@ -573,9 +573,14 @@ class LinkedComponentController extends Controller
      *
      * @throws QpickHttpException
      */
-    public function relationalLinkedComponent(StoreRequest $request, int $themeId, int $editablePageId)
+    public function relationalLinkedComponent(StoreRequest $request, int $themeId, int $editablePageId): JsonResponse
     {
         $linkedComponent = $this->createLinkedComponent(Theme::findOrFail($themeId), $request);
+
+        // 컴포넌트에 적용된 옵션 연동 컴포넌트 옵션으로 추가
+        $this->createLinkedComponentOptionForComponent($linkedComponent);
+
+        return response()->json(collect($linkedComponent), 201);
     }
 
     /**

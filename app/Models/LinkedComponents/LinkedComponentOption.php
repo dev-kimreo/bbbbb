@@ -31,6 +31,11 @@ class LinkedComponentOption extends Model
         'value' => 'array'
     ];
 
+    public function linkedComponent(): BelongsTo
+    {
+        return $this->belongsTo(LinkedComponent::class);
+    }
+
     public function componentOption(): BelongsTo
     {
         return $this->belongsTo(ComponentOption::class, 'component_option_id');

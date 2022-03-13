@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             [
                 SolutionSeeder::class,
                 UserAndManagerSeeder::class,
+                TermsOfUseSeeder::class,
                 OauthClientsSeeder::class,
                 BoardsSeeder::class,
                 BoardOptionsSeeder::class,

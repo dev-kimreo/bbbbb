@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Users\SolutionRequest;
+use App\Http\Requests\Users\UserSolutions\StoreRequest as SolutionRequest;
 use App\Models\Users\UserAdvAgree;
 use Illuminate\Http\JsonResponse;
 
@@ -58,10 +58,12 @@ class UserAdvAgreeController extends Controller
     public function update(SolutionRequest $req, int $user_id): JsonResponse
     {
         // delete
-        $userAdvAgree = UserAdvAgree::where('user_id', $user_id)->first();
-        if ($userAdvAgree) {
-            $userAdvAgree->delete();
-        }
+        UserAdvAgree::query()
+            ->where('user_id', $user_id)
+            ->get()
+            ->each(function ($v) {
+                $v->delete();
+            });
 
         // create
         return response()->json(UserAdvAgree::create([

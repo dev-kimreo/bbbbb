@@ -39,9 +39,11 @@ class UsersAutoWithdrawal extends Command
      */
     public function handle()
     {
+        $baseDate = Carbon::now()->setTime(15, 0, 0);
+
         User::query()
             ->whereNotNull('inactivated_at')
-            ->where('inactivated_at', '<=', Carbon::now()->subDays(config('custom.user.toAutoWithdrawalDays')))
+            ->where('inactivated_at', '<', $baseDate->subDays(config('custom.user.toAutoWithdrawalDays')))
             ->get()
             ->each(function ($user) {
                 UserService::withdrawal($user);

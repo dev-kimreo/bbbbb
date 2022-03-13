@@ -129,7 +129,8 @@ class ComponentTypeController extends Controller
                 ComponentType::create(array_merge(
                     $request->all()
                 ))->refresh()
-            )
+            ),
+            201
         );
     }
 

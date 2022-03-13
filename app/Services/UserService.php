@@ -11,6 +11,16 @@ use Carbon\Carbon;
 class UserService
 {
     /**
+     * 유료 멤버십 여부
+     */
+    static public function getPricingType(User $user): int
+    {
+        // TODO: 유료 멤버십 추가
+        // 현재는 항상 무료 멤버십 반환
+        return config('custom.user.pricingType.free');
+    }
+
+    /**
      * 회원 휴면처리
      */
     static public function inactivate(User $user): bool

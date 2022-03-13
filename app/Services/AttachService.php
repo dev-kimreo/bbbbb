@@ -226,7 +226,7 @@ class AttachService
         return true;
     }
 
-    public function checkUnderUploadLimit($collect): bool
+    public function checkUnderUploadCountLimit($collect): bool
     {
         $alias = $collect->getMorphClass();
 
@@ -240,7 +240,13 @@ class AttachService
             'user_id' => Auth::id()
         ])->count();
 
-        if ($collect->getAttachFileLimit() <= $uploadCount) {
+        if (method_exists($collect, 'getAttachFileLimit')) {
+            $uploadLimit = $collect->getAttachFileLimit();
+        } else {
+            $uploadLimit = 1;
+        }
+
+        if ($uploadLimit <= $uploadCount) {
             throw new QpickHttpException(422, 'attach.over.limit');
         }
 

@@ -29,28 +29,32 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Relation::morphMap([
-            'attach' => 'App\Models\Attach\AttachFile',
-            'attach_thumbnail' => 'App\Models\Attach\AttachThumb',
-            'banner' => 'App\Models\Exhibitions\Banner',
-            'banner_content' => 'App\Models\Exhibitions\BannerDeviceContent',
-            'board' => 'App\Models\Boards\Board',
-            'component_upload_image' => 'App\Models\Attach\ComponentUploadImage',
-            'email_template' => 'App\Models\EmailTemplate',
-            'exception' => 'App\Models\Exception',
-            'word' => 'App\Models\Word',
-            'exhibition' => 'App\Models\Exhibitions\Exhibition',
-            'exhibition_category' => 'App\Models\Exhibitions\ExhibitionCategory',
-            'exhibition_target_user' => 'App\Models\Exhibitions\ExhibitionTargetUser',
-            'inquiry' => 'App\Models\Inquiries\Inquiry',
-            'linked_component' => 'App\Models\LinkedComponents\LinkedComponent',
-            'popup' => 'App\Models\Exhibitions\Popup',
-            'popup_content' => 'App\Models\Exhibitions\PopupDeviceContent',
-            'post' => 'App\Models\Boards\Post',
-            'terms_of_use' => 'App\Models\TermsOfUse',
-            'tooltip' => 'App\Models\Tooltip',
-            'user' => 'App\Models\Users\User',
-            'user_solution' => 'App\Models\Users\UserSolution',
-        ]);
+        Relation::morphMap(
+            [
+                'attach' => 'App\Models\Attach\AttachFile',
+                'attach_thumbnail' => 'App\Models\Attach\AttachThumb',
+                'banner' => 'App\Models\Exhibitions\Banner',
+                'banner_content' => 'App\Models\Exhibitions\BannerDeviceContent',
+                'board' => 'App\Models\Boards\Board',
+                'component' => 'App\Models\Components\Component',
+                'component_upload_image' => 'App\Models\Attach\ComponentUploadImage',
+                'email_template' => 'App\Models\EmailTemplate',
+                'exception' => 'App\Models\Exception',
+                'word' => 'App\Models\Word',
+                'exhibition' => 'App\Models\Exhibitions\Exhibition',
+                'exhibition_category' => 'App\Models\Exhibitions\ExhibitionCategory',
+                'exhibition_target_user' => 'App\Models\Exhibitions\ExhibitionTargetUser',
+                'inquiry' => 'App\Models\Inquiries\Inquiry',
+                'linked_component' => 'App\Models\LinkedComponents\LinkedComponent',
+                'popup' => 'App\Models\Exhibitions\Popup',
+                'popup_content' => 'App\Models\Exhibitions\PopupDeviceContent',
+                'post' => 'App\Models\Boards\Post',
+                'terms_of_use' => 'App\Models\TermsOfUse',
+                'tooltip' => 'App\Models\Tooltip',
+                'user' => 'App\Models\Users\User',
+                'user_site' => 'App\Models\Users\UserSite',
+                'user_solution' => 'App\Models\Users\UserSolution',
+            ]
+        );
     }
 }

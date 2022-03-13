@@ -38,14 +38,24 @@ class ComponentController extends Controller
      *          description="",
      *          @OA\JsonContent(
      *              @OA\Property(property="solution_id", ref="#/components/schemas/Component/properties/solution_id"),
+     *              @OA\Property(property="firstCategory", type="string", example="design", description="검색할 카테고리를 입력<br />theme_component: 테마 컴포넌트<br />product: 상품<br />design: 디자인<br />solution: 솔루션<br />html: HTML"),
+     *              @OA\Property(property="secondCategory", type="string", example="design", description="검색할 하위 카테고리를 입력<br />basic: 베이직<br />dynamic: 다이나믹"),
+     *              @OA\Property(property="page", type="integer", example=1, default=1, description="페이지"),
+     *              @OA\Property(property="perPage", type="integer", example=15, default=15, description="한 페이지당 보여질 갯 수"),
+     *              @OA\Property(
+     *                  property="sortBy",
+     *                  type="string",
+     *                  example="+sort,-id",
+     *                  description="정렬기준<br/>+:오름차순, -:내림차순"
+     *              )
      *          )
      *      ),
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
      *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(ref="#/components/schemas/Component")
+     *              allOf={@OA\Schema(ref="#/components/schemas/Component")},
+     *              @OA\Property(property="attachFile", ref="#/components/schemas/AttachFile")
      *          )
      *      ),
      *      @OA\Response(
@@ -63,8 +73,17 @@ class ComponentController extends Controller
      */
     public function index(IndexRequest $request): Collection
     {
-        $componentBuilder = Component::query();
-        $componentBuilder->where('user_partner_id', Auth::user()->partner->id);
+        $componentBuilder = Component::query()->with('attachFile');
+        //$componentBuilder->where('user_partner_id', Auth::user()->partner->id);
+
+        // Search Parameter
+        if ($s = $request->input('first_category')) {
+            $componentBuilder->where('first_category', $s);
+        }
+
+        if ($s = $request->input('second_category')) {
+            $componentBuilder->where('second_category', $s);
+        }
 
         // Sort By
         if ($s = $request->input('sort_by')) {
@@ -92,7 +111,10 @@ class ComponentController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="successfully",
-     *          @OA\JsonContent(ref="#/components/schemas/Component")
+     *          @OA\JsonContent(
+     *              allOf={@OA\Schema(ref="#/components/schemas/Component")},
+     *              @OA\Property(property="attachFile", ref="#/components/schemas/AttachFile")
+     *          )
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -109,7 +131,7 @@ class ComponentController extends Controller
      */
     public function show(ShowRequest $request, int $componentId): Collection
     {
-        $componentBuilder = Component::query();
+        $componentBuilder = Component::query()->with('attachFile');
         $res = $componentBuilder->findOrFail($componentId);
 
         // 컴포넌트 권한 확인

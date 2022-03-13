@@ -11,15 +11,24 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @OA\Schema
+ * @OA\Property(property="id", type="integer", example=1, description="고유 번호"),
+ * @OA\Property(property="user_id", type="integer", example=1, description="회원 고유번호"),
+ * @OA\Property(property="theme_id", type="integer", example=1, description="테마 고유번호"),
+ * @OA\Property(property="createdAt", type="string", format="date-time", description="등록 일자"),
+ * @OA\Property(property="updatedAt", type="string", format="date-time", description="수정 일자")
+ * )
+ */
 class UserThemePurchaseHistory extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use DateFormatISO8601;
-    use CheckUpdatedAt;
 
     protected $fillable = ['user_id', 'theme_id'];
     protected $hidden = ['deleted_at'];
+    public $timestamps = false;
 
     public function user(): BelongsTo
     {

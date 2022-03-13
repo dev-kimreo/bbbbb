@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Users;
+namespace App\Http\Requests\Users\UserSolutions;
 
 use App\Models\Solution;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class SolutionRequest extends FormRequest
+class StoreRequest extends FormRequest
 {
     /**
      * @return bool

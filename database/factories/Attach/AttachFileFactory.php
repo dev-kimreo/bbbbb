@@ -25,7 +25,7 @@ class AttachFileFactory extends Factory
             'server' => 'public',
             'attachable_type' => 'temp',
             'attachable_id' => 0,
-            'url' => $this->faker->url,
+            'url' => 'https://picsum.photos/' . rand(20, 160) * 10 . '/' . rand(20, 160) * 10,
             'path' => 'banner_content/'
                 . substr('000' . rand(0, 99), -3) . '/'
                 . substr('000' . rand(0, 99), -3),
